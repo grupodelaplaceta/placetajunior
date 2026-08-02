@@ -511,56 +511,91 @@ function screenSopa(s, est) {
     <div class="kp-qt">🔤 Sopa de letras</div>
     <div class="kp-wordchips">${chips}</div>`;
   if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente);
-  html += `<div class="kp-grid" style="grid-template-columns:repeat(${s.size},1fr);">`;
+  html += `<div class="kp-grid" data-pantalla="${pantallaIdx}" style="grid-template-columns:repeat(${s.size},1fr);">`;
   s.grid.forEach((row, r) => row.forEach((c, cc) => {
     let cls = 'kp-cell';
     if (foundCells.some(f => f.r === r && f.c === cc)) cls += ' found';
     else if (sel.some(p => p.r === r && p.c === cc)) cls += ' sel';
-    html += `<span class="${cls}" onclick="kpCelda(${pantallaIdx},${r},${cc})">${esc(c)}</span>`;
+    html += `<span class="${cls}" data-r="${r}" data-c="${cc}">${esc(c)}</span>`;
   }));
   html += `</div>`;
   if (est.error) html += `<div class="kp-msg bad">👀 Esa letra no sigue ninguna palabra…</div>`;
   else if (hechas >= total && total > 0) html += `<div class="kp-msg ok">¡Has encontrado todas! 🎉</div>`;
   else if (total > 0) html += `<div class="kp-msg">🔤 ${hechas} / ${total}</div>`;
-  html += `<div class="kp-hint">👆 Toca las letras una a una formando la palabra</div></div>`;
+  html += `<div class="kp-hint">👆 Desliza (arrastra) sobre las letras para formar la palabra</div></div>`;
   return html;
 }
-function kpCelda(idx, r, c) {
+// ── Sopa: arrastrar / deslizar para formar las palabras ──────────────
+let kpDrag = { on: false, idx: -1, dir: null, cells: [] };
+function kpStart(e) {
+  const cell = e.target && e.target.closest ? e.target.closest('.kp-cell') : null;
+  if (!cell) return;
+  const grid = cell.closest('.kp-grid');
+  if (!grid) return;
+  const idx = +grid.dataset.pantalla;
+  const s = pantallas[idx];
+  if (!s || s.tipo !== 'sopa') return;
+  kpDrag = { on: true, idx, dir: null, cells: [{ r: +cell.dataset.r, c: +cell.dataset.c }] };
+  kpEstado[idx].sel = kpDrag.cells;
+  pintarSel(idx);
+}
+function kpMove(e) {
+  if (!kpDrag.on) return;
+  const el = document.elementFromPoint(e.clientX, e.clientY);
+  const cell = el && el.closest ? el.closest('.kp-cell') : null;
+  if (!cell) return;
+  const r = +cell.dataset.r, c = +cell.dataset.c;
+  const cells = kpDrag.cells;
+  const last = cells[cells.length - 1];
+  const dr = r - last.r, dc = c - last.c;
+  if (Math.abs(dr) > 1 || Math.abs(dc) > 1) return;
+  if (cells.length > 1) {
+    const prev = cells[cells.length - 2];
+    if (r === prev.r && c === prev.c) { cells.pop(); pintarSel(kpDrag.idx); return; }
+  }
+  if (kpDrag.dir === null) kpDrag.dir = { dr, dc };
+  if (cells.some(p => p.r === r && p.c === c)) return;
+  if (dr !== kpDrag.dir.dr || dc !== kpDrag.dir.dc) return;
+  cells.push({ r, c });
+  pintarSel(kpDrag.idx);
+}
+function kpEnd() {
+  if (!kpDrag.on) return;
+  const idx = kpDrag.idx;
   const est = kpEstado[idx];
   const s = pantallas[idx];
-  const sel = est.sel || [];
-  if (sel.length === 0) { est.sel = [{ r, c }]; renderPantalla(); return; }
-  const last = sel[sel.length - 1];
-  const dr = r - last.r, dc = c - last.c;
-  if (Math.abs(dr) > 1 || Math.abs(dc) > 1) { est.sel = [{ r, c }]; renderPantalla(); return; }
-  if (sel.length >= 2) {
-    const prev = sel[sel.length - 2];
-    if (dr !== (last.r - prev.r) || dc !== (last.c - prev.c)) { est.sel = [{ r, c }]; renderPantalla(); return; }
-  }
+  const cells = kpDrag.cells;
+  kpDrag.on = false;
+  est.sel = [];
+  if (cells.length < 2) { pintarSel(idx); return; }
+  const word = cells.map(p => s.grid[p.r][p.c]).join('');
+  const rev = word.split('').reverse().join('');
   const b = bloques[s.bi];
   const validas = (b.palabras || []).filter(Boolean).map(p => String(p).toUpperCase().replace(/[^A-ZÑ]/g, '')).filter(p => p.length >= 2);
-  const nuevo = [...sel, { r, c }];
-  const word = nuevo.map(p => s.grid[p.r][p.c]).join('');
-  const rev = word.split('').reverse().join('');
   const wi = validas.findIndex((w, i) => !est.encontradas[i] && (w === word || w === rev));
   if (wi >= 0) {
     est.encontradas[wi] = true;
-    est.foundCells = [...(est.foundCells || []), ...nuevo];
-    est.sel = [];
+    est.foundCells = [...(est.foundCells || []), ...cells];
     kpScore.verdes++;
-    renderPantalla(); return;
-  }
-  const esPrefijo = validas.some((w, i) => !est.encontradas[i] && (w.startsWith(word) || w.startsWith(rev)));
-  if (!esPrefijo) {
+  } else {
     kpScore.rojos++;
-    est.sel = [];
     est.error = true;
-    renderPantalla();
-    setTimeout(() => { if (kpEstado[idx]) { est.error = false; renderPantalla(); } }, 700);
-    return;
+    setTimeout(() => { if (kpEstado[idx]) { kpEstado[idx].error = false; renderPantalla(); } }, 700);
   }
-  est.sel = nuevo;
   renderPantalla();
+}
+function pintarSel(idx) {
+  const grid = document.querySelector(`.kp-grid[data-pantalla="${idx}"]`);
+  if (!grid) return;
+  const est = kpEstado[idx] || {};
+  const sel = est.sel || [];
+  const found = est.foundCells || [];
+  grid.querySelectorAll('.kp-cell').forEach(cell => {
+    const r = +cell.dataset.r, c = +cell.dataset.c;
+    const inSel = sel.some(p => p.r === r && p.c === c);
+    const isFound = found.some(f => f.r === r && f.c === c);
+    cell.classList.toggle('sel', inSel && !isFound);
+  });
 }
 function screenFinal(s) {
   return `
@@ -882,6 +917,12 @@ document.addEventListener('DOMContentLoaded', () => {
       renderGaleria();
     });
   });
+
+  // Sopa: arrastrar / deslizar para formar las palabras
+  document.addEventListener('pointerdown', kpStart);
+  document.addEventListener('pointermove', kpMove);
+  document.addEventListener('pointerup', kpEnd);
+  document.addEventListener('pointercancel', kpEnd);
 
   // Cerrar modales con Escape
   document.addEventListener('keydown', (e) => {

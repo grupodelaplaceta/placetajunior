@@ -745,7 +745,7 @@ footer a { color: var(--pj-yellow); text-decoration: none; }
 .kp-chip.chip-green { background: var(--pj-green-light); color: var(--pj-green); }
 .kp-chip.chip-orange { background: var(--pj-orange-light); color: var(--pj-orange); }
 .kp-chip.chip-red { background: var(--pj-red-light); color: var(--pj-red); }
-.kp-grid { display: grid; gap: 3px; max-width: min(360px, 100%); margin: 0 auto; }
+.kp-grid { display: grid; gap: 3px; max-width: min(360px, 100%); margin: 0 auto; touch-action: none; -webkit-touch-callout: none; }
 .kp-cell {
   aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
   font-weight: 800; font-size: clamp(10px, 2.6vw, 16px); text-transform: uppercase;
