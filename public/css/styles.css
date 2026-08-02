@@ -71,10 +71,10 @@ body {
   overflow-x: hidden;
 }
 
-/* Handly Casual: SIEMPRE en mayúsculas */
+/* Handly Casual: SIEMPRE en mayúsculas y en versión EXTRABOLD */
 h1, h2, h3, .font-casual {
   font-family: 'HandlyCasual', 'Plus Jakarta Sans', cursive, sans-serif;
-  font-weight: 400;
+  font-weight: 800;
   text-transform: uppercase;
 }
 
@@ -109,7 +109,7 @@ h1, h2, h3, .font-casual {
   color: var(--pj-purple);
   font-size: 22px;
   font-family: 'HandlyCasual', cursive;
-  font-weight: 400;
+  font-weight: 800;
   text-transform: uppercase;
 }
 .navbar .brand img.brand-logo {
@@ -417,6 +417,7 @@ footer a { color: var(--pj-yellow); text-decoration: none; }
   font-size: 20px;
   color: var(--pj-purple);
   text-transform: uppercase;
+  font-weight: 800;
 }
 .studio-toolbar .studio-actions { margin-left: auto; display: flex; gap: 10px; flex-wrap: wrap; }
 
@@ -498,7 +499,7 @@ footer a { color: var(--pj-yellow); text-decoration: none; }
   background: var(--pj-gray-50);
 }
 .block-header .b-ico { font-size: 22px; }
-.block-header .b-name { font-family: 'HandlyCasual', cursive; text-transform: uppercase; color: var(--pj-purple); font-size: 16px; flex: 1; }
+.block-header .b-name { font-family: 'HandlyCasual', cursive; text-transform: uppercase; color: var(--pj-purple); font-size: 16px; flex: 1; font-weight: 800; }
 .block-header .b-tools { display: flex; gap: 6px; }
 .b-btn {
   border: none;

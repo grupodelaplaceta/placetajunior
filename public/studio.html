@@ -135,10 +135,16 @@
           <input id="m-tiempo" type="number" min="1" value="10" />
         </div>
         <div>
-          <label>DIP del colaborador * (mayor de 18)</label>
-          <input id="m-dip" type="text" placeholder="Tu DIP" />
+          <label>¿Quién publica? *</label>
+          <select id="m-titular">
+            <option value="interno" selected>🙂 Anónimo (Placeta Junior)</option>
+            <option value="entidad_eip">🏛️ Entidad (EIP)</option>
+            <option value="profesor">👨‍🏫 Profesor (DIP)</option>
+          </select>
         </div>
       </div>
+      <div id="m-identidad"></div>
+      <p class="form-note">💡 Todo el contenido va a <strong>junior (Placeta Junior)</strong>. Si eres una entidad usa tu <strong>EIP</strong>; si no, publica como <strong>anónimo</strong> sin necesidad de DIP personal.</p>
       <div class="m-actions">
         <button id="meta-cancel" class="btn btn-outline" type="button">Cancelar</button>
         <button id="meta-ok" class="btn btn-green" type="button">Enviar a revisión 🚀</button>

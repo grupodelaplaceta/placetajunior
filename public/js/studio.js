@@ -294,8 +294,31 @@ function abrirMeta() {
   $('m-edad').value = meta.edad;
   $('m-dificultad').value = meta.dificultad;
   $('m-tiempo').value = meta.tiempo;
-  $('m-dip').value = meta.dip;
+  $('m-titular').value = meta.titular || 'interno';
+  actualizarIdentidad();
+  if (meta.eip) $('m-eip').value = meta.eip;
+  if (meta.entidad) $('m-entidad').value = meta.entidad;
+  if (meta.dip) $('m-dip').value = meta.dip;
   $('meta-modal').classList.remove('hidden');
+}
+
+// Muestra los campos según quién publica (anónimo / EIP / profesor)
+function actualizarIdentidad() {
+  const t = $('m-titular').value;
+  const cont = $('m-identidad');
+  if (t === 'entidad_eip') {
+    cont.innerHTML = `
+      <label>Código EIP *</label>
+      <input id="m-eip" type="text" placeholder="EIP-…" />
+      <label>Nombre de la entidad (opcional)</label>
+      <input id="m-entidad" type="text" placeholder="Ej: Colegio La Placeta" />`;
+  } else if (t === 'profesor') {
+    cont.innerHTML = `
+      <label>Tu DIP * (mayor de 18, con acuerdo firmado)</label>
+      <input id="m-dip" type="text" placeholder="Tu DIP" />`;
+  } else {
+    cont.innerHTML = '';
+  }
 }
 
 function contarPreguntas() {
@@ -318,18 +341,30 @@ async function publicar() {
   const edad_recomendada = $('m-edad').value.trim();
   const dificultad = $('m-dificultad').value;
   const tiempo_estimado = parseInt($('m-tiempo').value, 10) || 10;
-  const dip = $('m-dip').value.trim();
+  const titular = $('m-titular').value;
+
+  let dip = '';
+  let eip = '';
+  let entidad = '';
+  if (titular === 'profesor') dip = ($('m-dip')?.value || '').trim();
+  else if (titular === 'entidad_eip') {
+    eip = ($('m-eip')?.value || '').trim();
+    entidad = ($('m-entidad')?.value || '').trim();
+  }
 
   if (bloques.length === 0) { aviso('Añade al menos un bloque al lienzo.', true); $('meta-modal').classList.add('hidden'); return; }
-  if (!titulo || !descripcion || !dip) { aviso('Completa título, descripción y DIP.', true); return; }
+  if (!titulo || !descripcion) { aviso('Completa título y descripción.', true); return; }
+  if (titular === 'profesor' && !dip) { aviso('Indica tu DIP (profesor colaborador).', true); return; }
+  if (titular === 'entidad_eip' && !eip) { aviso('Indica el código EIP de la entidad.', true); return; }
   const num_preguntas = contarPreguntas();
   if (num_preguntas === 0) { aviso('Añade contenido real en los bloques (preguntas, palabras, parejas…).', true); return; }
 
-  meta = { titulo, descripcion, categoria, tipo, edad: edad_recomendada, dificultad, tiempo: tiempo_estimado, dip };
+  meta = { titulo, descripcion, categoria, tipo, edad: edad_recomendada, dificultad, tiempo: tiempo_estimado, titular, dip, eip, entidad };
   guardar();
 
   const body = {
-    dip, titulo, descripcion, categoria, tipo,
+    tipo_titular: titular, dip: dip || null, eip: eip || null, nombre_entidad: entidad || null,
+    titulo, descripcion, categoria, tipo,
     edad_recomendada, dificultad, tiempo_estimado,
     num_preguntas,
     num_fases: bloques.length,
@@ -348,7 +383,7 @@ async function publicar() {
     const data = await res.json().catch(() => ({}));
     if (!res.ok || !data.success) {
       if (data.necesita_acuerdo) {
-        aviso(`❌ ${data.error || 'Debes firmar el Acuerdo de Colaborador.'}\n\nPara publicar necesitas ser mayor de 18 años y firmar el acuerdo vía PlacetaID. Escribe a junior@laplaceta.org.`, true);
+        aviso(`❌ ${data.error || 'Debes firmar el Acuerdo de Colaborador.'}\n\nPara publicar como profesor necesitas ser mayor de 18 años y firmar el acuerdo vía PlacetaID. O publica como anónimo / EIP sin DIP. Escribe a junior@laplaceta.org.`, true);
       } else {
         aviso(`❌ ${data.error || `Error (HTTP ${res.status})`}`, true);
       }
@@ -389,6 +424,7 @@ document.addEventListener('DOMContentLoaded', () => {
   $('img-cancel').addEventListener('click', () => $('img-modal').classList.add('hidden'));
   $('meta-ok').addEventListener('click', publicar);
   $('meta-cancel').addEventListener('click', () => $('meta-modal').classList.add('hidden'));
+  $('m-titular').addEventListener('change', actualizarIdentidad);
 
   // Cerrar modales con Escape
   document.addEventListener('keydown', (e) => {
