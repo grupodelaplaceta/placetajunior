@@ -43,45 +43,56 @@ const categoriaIcono = (cat = '') => {
   return '🧩';
 };
 
+// ── Portada de la actividad: imagen o forma geométrica de color ────
+function portadaDe(a) {
+  // Si la actividad tiene imagen de portada, la usamos como fondo
+  if (a.portada_url) return `background-image:url('${a.portada_url}');`;
+  // Si no, un degradado con la forma geométrica oficial
+  const colorMap = {
+    blue: '#3A00E1', green: '#336E45', orange: '#FF6600',
+    red: '#FF3333', purple: '#4E3B70'
+  };
+  const color = colorMap[categoriaColor(a.categoria)] || '#4E3B70';
+  return `background:${color};`;
+}
+
 // ═══════════════════════════════════════════════════════════════════
-//  RETO DE CANDELA
+//  ACTIVIDADES DESTACADAS — carrusel con portada
 // ═══════════════════════════════════════════════════════════════════
-async function cargarReto() {
-  const cont = document.getElementById('reto-container');
+async function cargarDestacadas() {
+  const track = document.getElementById('destacadas-track');
+  if (!track) return;
   try {
-    const data = await apiGet('/retos');
-    const reto = data.reto_activo;
-    if (!reto) {
-      cont.innerHTML = '<div class="empty">No hay reto activo esta semana. ¡Vuelve pronto! 🌟</div>';
+    const data = await apiGet('/actividades?solo_publicas=1');
+    const actividades = (data.actividades || []).filter(a => a.destacada);
+    const lista = actividades.length > 0 ? actividades : (data.actividades || []).slice(0, 6);
+
+    if (lista.length === 0) {
+      track.innerHTML = '';
       return;
     }
-    const juegos = (reto.juegos || []).map(j =>
-      `<span class="chip purple">${j.titulo}</span>`
-    ).join('');
 
-    cont.innerHTML = `
-      <div class="reto-card">
-        <div class="reto-icon">${escapeHtml(reto.icono || '🌟')}</div>
-        <div style="flex:1;min-width:240px;">
-          <h3>${escapeHtml(reto.titulo)}</h3>
-          <p>${escapeHtml(reto.descripcion)}</p>
-          <div class="meta">
-            <span class="chip" style="background:rgba(255,255,255,0.25);color:white;">Semana ${reto.semana}</span>
-            <span class="chip" style="background:rgba(255,255,255,0.25);color:white;">📅 ${reto.fechaInicio} → ${reto.fechaFin}</span>
-            <span class="chip" style="background:rgba(255,255,255,0.25);color:white;">🆓 Gratuito</span>
-            <span class="chip" style="background:rgba(255,255,255,0.25);color:white;">🏆 Con diploma</span>
-          </div>
-          <div style="margin-top:10px;">${juegos}</div>
-          <a class="btn" href="/studio" style="margin-top:14px;display:inline-flex;">🎮 Jugar el reto</a>
+    track.innerHTML = lista.map(a => `
+      <div class="slide" onclick="abrirActividad('${a.id}')">
+        <div class="slide-cover" style="${portadaDe(a)}">
+          <span class="badge">${a.es_examen ? '🎓 Examen' : (a.precio_licencia > 0 || a.precio_intento > 0 ? '🟣 Premium' : '🟢 Gratis')}</span>
         </div>
-      </div>`;
+        <div class="slide-body">
+          <h3>${escapeHtml(a.titulo)}</h3>
+          <p>${escapeHtml(a.descripcion || '')}</p>
+          <div class="meta" style="margin-top:8px;">
+            <span class="chip ${categoriaColor(a.categoria)}">${escapeHtml(a.categoria)}</span>
+            <span class="chip">⭐ ${escapeHtml(a.dificultad || 'media')}</span>
+          </div>
+        </div>
+      </div>`).join('');
   } catch (e) {
-    cont.innerHTML = '<div class="empty">No se pudo cargar el reto de la semana.</div>';
+    track.innerHTML = '';
   }
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  ACTIVIDADES
+//  ACTIVIDADES (grid completo)
 // ═══════════════════════════════════════════════════════════════════
 async function cargarActividades() {
   const grid = document.getElementById('actividades-grid');
@@ -136,59 +147,9 @@ function abrirActividad(id) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  TABLA DE PRECIOS (con IVA incluido)
-// ═══════════════════════════════════════════════════════════════════
-async function cargarPrecios() {
-  const cont = document.getElementById('precios-table');
-  try {
-    const data = await apiGet('/academy/precios');
-    const tabla = data.tabla_precios || [];
-    const filas = tabla.map(t => `
-      <tr>
-        <td><strong>${escapeHtml(t.complejidad)}</strong></td>
-        <td>${escapeHtml(t.preguntas)}</td>
-        <td>${escapeHtml(t.fases)}</td>
-        <td>${t.precio_licencia} Pz</td>
-        <td>${t.precio_intento} Pz</td>
-        <td>🏆 ${t.recompensa} Pz</td>
-      </tr>`).join('');
-
-    cont.innerHTML = `
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Complejidad</th>
-              <th>Preguntas</th>
-              <th>Fases</th>
-              <th>Precio licencia</th>
-              <th>Precio intento</th>
-              <th>Recompensa</th>
-            </tr>
-          </thead>
-          <tbody>${filas}</tbody>
-        </table>
-      </div>
-      <div class="iva-note">
-        💡 <strong>Todos los precios incluyen IVA (${data.iva_porcentaje || 12}%)</strong>.
-        El IVA lo abona Capitalia (Placeta Junior) a Tributos. El precio mostrado es el total.
-      </div>
-      <div style="margin-top:14px;">
-        <strong>🟢 Canje de Puntos Verdes → Placetas:</strong>
-        ${(data.canje_puntos_verdes || []).map(c =>
-          `<span class="chip green" style="margin:2px;">${c.puntos_verdes} PV = ${c.placetas} Pz</span>`
-        ).join('')}
-      </div>`;
-  } catch (e) {
-    cont.innerHTML = '<div class="empty">No se pudo cargar la tabla de precios.</div>';
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
-  cargarReto();
+  cargarDestacadas();
   cargarActividades();
-  cargarPrecios();
 });

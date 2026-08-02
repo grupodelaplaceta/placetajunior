@@ -5,70 +5,58 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Placeta Junior — Academia de La Placeta</title>
   <meta name="description" content="Academia Placeta Junior: aprende jugando, consigue recompensas y obtén tus diplomas oficiales. El espacio educativo interactivo de La Placeta." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Handlee&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>" />
+  <link rel="icon" href="img/logo.png" />
 </head>
 <body>
   <header class="navbar">
     <a class="brand" href="/">
-      <span class="logo-badge">🎓</span>
+      <img class="brand-logo" src="img/logo.png" alt="Placeta Junior" />
       Placeta Junior
     </a>
     <nav>
-      <a href="/" class="active">Inicio</a>
-      <a href="/#actividades">Actividades</a>
-      <a href="/#reto">Reto de la semana</a>
-      <a href="/#precios">Precios</a>
+      <a href="/" class="active">Actividades</a>
       <a href="/studio">Studio</a>
+      <a href="/info">Info</a>
     </nav>
   </header>
 
   <section class="hero">
-    <div class="floating-shape" style="width:34px;height:34px;background:var(--pj-red);top:12%;left:8%;"></div>
-    <div class="floating-shape" style="width:26px;height:26px;background:var(--pj-orange);top:20%;right:10%;animation-delay:1s;"></div>
-    <div class="floating-shape" style="width:40px;height:40px;background:var(--pj-blue);bottom:15%;left:15%;animation-delay:2s;"></div>
-    <div class="floating-shape" style="width:24px;height:24px;background:var(--pj-green);bottom:20%;right:18%;animation-delay:0.5s;"></div>
-    <h1>🎓 Academia Placeta Junior</h1>
+    <div class="floating-shape shape" style="color:var(--pj-red);top:12%;left:8%;"></div>
+    <div class="floating-shape shape" style="color:var(--pj-orange);top:20%;right:10%;animation-delay:1s;"></div>
+    <div class="floating-shape shape" style="color:var(--pj-blue);bottom:15%;left:15%;animation-delay:2s;"></div>
+    <div class="floating-shape shape" style="color:var(--pj-green);bottom:20%;right:18%;animation-delay:0.5s;"></div>
+    <img class="hero-logo" src="img/logo.png" alt="Placeta Junior" />
+    <h1>Academia Placeta Junior</h1>
     <p class="tagline">¡Aprende jugando, consigue recompensas y obtén tus diplomas oficiales! El espacio educativo interactivo de La Placeta para los peques.</p>
     <div class="cta-row">
       <a class="btn btn-purple" href="#actividades">🚀 Explorar actividades</a>
-      <a class="btn btn-outline" href="#reto">🌟 Reto de Candela</a>
+      <a class="btn btn-outline" href="/studio">🎨 Placeta Junior Studio</a>
     </div>
   </section>
 
   <main>
-    <!-- Reto de Candela -->
-    <section class="section" id="reto">
-      <h2>🌟 Reto de Candela</h2>
-      <p class="section-sub">Un reto nuevo cada semana. Gratuito y para todas las edades. ¡Siempre genera diploma!</p>
-      <div id="reto-container"><div class="loader"></div></div>
-    </section>
-
     <!-- Actividades -->
     <section class="section" id="actividades">
       <h2>📚 Actividades</h2>
       <p class="section-sub">Actividades educativas seleccionadas por Placeta Junior. Disponibles sin necesidad de cuenta.</p>
       <div id="error-banner" class="error-banner hidden"></div>
-      <div id="actividades-grid" class="grid"><div class="loader"></div></div>
-    </section>
 
-    <!-- Precios -->
-    <section class="section" id="precios">
-      <h2>💰 Sistema de precios</h2>
-      <p class="section-sub">El precio depende del número de preguntas, fases y complejidad. <strong>Todos los precios incluyen IVA</strong> (lo abona Capitalia).</p>
-      <div id="precios-table"><div class="loader"></div></div>
+      <!-- Destacadas en carrusel -->
+      <div class="carousel" id="destacadas-carousel">
+        <div id="destacadas-track" class="track"><div class="loader"></div></div>
+      </div>
+
+      <!-- Todas -->
+      <div id="actividades-grid" class="grid"><div class="loader"></div></div>
     </section>
   </main>
 
   <footer>
     <div class="links">
-      <a href="/">Inicio</a>
-      <a href="/#actividades">Actividades</a>
-      <a href="/#reto">Reto de Candela</a>
+      <a href="/">Actividades</a>
       <a href="/studio">Placeta Junior Studio</a>
+      <a href="/info">Info</a>
     </div>
     <p>© 2026 Placeta Junior · Grupo de La Placeta · <a href="https://laplaceta.org" target="_blank" rel="noopener">laplaceta.org</a></p>
   </footer>

@@ -5,106 +5,145 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Placeta Junior Studio — Crea actividades educativas</title>
   <meta name="description" content="Placeta Junior Studio: crea actividades educativas sin saber programar. Publica con tu Acuerdo de Colaborador (mayor de 18)." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Handlee&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎨</text></svg>" />
+  <link rel="icon" href="img/logo.png" />
 </head>
 <body>
   <header class="navbar">
     <a class="brand" href="/">
-      <span class="logo-badge">🎓</span>
+      <img class="brand-logo" src="img/logo.png" alt="Placeta Junior" />
       Placeta Junior
     </a>
     <nav>
-      <a href="/">Inicio</a>
-      <a href="/#actividades">Actividades</a>
-      <a href="/#reto">Reto de la semana</a>
-      <a href="/#precios">Precios</a>
+      <a href="/">Actividades</a>
       <a href="/studio" class="active">Studio</a>
+      <a href="/info">Info</a>
     </nav>
   </header>
 
-  <section class="hero" style="padding-bottom:50px;">
-    <div class="floating-shape" style="width:30px;height:30px;background:var(--pj-green);top:15%;left:10%;"></div>
-    <div class="floating-shape" style="width:22px;height:22px;background:var(--pj-yellow);top:18%;right:12%;animation-delay:1s;"></div>
-    <h1>🎨 Placeta Junior Studio</h1>
-    <p class="tagline">La herramienta oficial para crear actividades educativas sin saber programar. Inspirada en la facilidad de uso de Canva.</p>
-    <div class="cta-row">
-      <a class="btn btn-green" href="#requisitos">✍️ Empezar a crear</a>
-      <a class="btn btn-outline" href="#como-funciona">¿Cómo funciona?</a>
-    </div>
+  <section class="hero" style="padding-bottom:40px;">
+    <div class="floating-shape shape" style="color:var(--pj-green);top:15%;left:10%;"></div>
+    <div class="floating-shape shape" style="color:var(--pj-yellow);top:18%;right:12%;animation-delay:1s;"></div>
+    <img class="hero-logo" src="img/logo.png" alt="Placeta Junior" />
+    <h1>Placeta Junior Studio</h1>
+    <p class="tagline">Crea actividades educativas sin saber programar. Tu actividad pasará por el Filtro de Placeta Junior antes de publicarse.</p>
   </section>
 
   <main>
-    <!-- Cómo funciona -->
-    <section class="section" id="como-funciona">
-      <h2>🧩 ¿Cómo funciona?</h2>
-      <p class="section-sub">Del estudio a la publicación, todo pasa por el Filtro de Placeta Junior.</p>
-      <div class="grid">
-        <div class="card">
-          <div class="card-cover">🖌️</div>
-          <h3>1. Diseña</h3>
-          <p>Crea tu actividad con el editor visual: preguntas, respuestas, portada, dificultad y recompensas.</p>
-        </div>
-        <div class="card">
-          <div class="card-cover">📤</div>
-          <h3>2. Envía a revisión</h3>
-          <p>Tu actividad pasa por el Filtro de Placeta Junior: calidad, corrección, edades, diseño y normativa.</p>
-        </div>
-        <div class="card">
-          <div class="card-cover">✅</div>
-          <h3>3. Publica</h3>
-          <p>Placeta Junior decide precio y recompensa definitivos. ¡Tu actividad llega a todos los peques!</p>
-        </div>
-      </div>
-    </section>
+    <section class="section">
+      <div id="form-error" class="error-banner hidden"></div>
+      <div id="form-success" class="form-success hidden"></div>
 
-    <!-- Requisitos -->
-    <section class="section" id="requisitos">
-      <h2>📋 Requisitos para publicar</h2>
-      <p class="section-sub">Cuidamos la calidad y la seguridad de la Academia.</p>
-      <div class="grid">
-        <div class="card">
-          <div class="card-cover">🪪</div>
-          <h3>Ser mayor de 18 años</h3>
-          <p>Para publicar contenido en la Academia es obligatorio ser mayor de edad y tener plena capacidad legal.</p>
+      <form id="studio-form" class="form-card" onsubmit="return enviarActividad(event)">
+        <h3 style="color:var(--pj-purple);">✍️ Nueva actividad</h3>
+        <label>DIP del colaborador *</label>
+        <input id="f-dip" type="text" placeholder="Tu DIP (mayor de 18 años)" required />
+        <label>Título *</label>
+        <input id="f-titulo" type="text" placeholder="Ej: Cómo funciona Internet" required />
+        <label>Descripción *</label>
+        <textarea id="f-descripcion" rows="3" placeholder="Describe la actividad" required></textarea>
+        <div class="form-row">
+          <div>
+            <label>Categoría *</label>
+            <select id="f-categoria" required>
+              <option value="">Selecciona…</option>
+              <option value="Matemáticas">Matemáticas</option>
+              <option value="Lengua">Lengua</option>
+              <option value="Ciencias">Ciencias</option>
+              <option value="Geografía">Geografía</option>
+              <option value="Tecnología">Tecnología</option>
+              <option value="Lógica">Lógica</option>
+              <option value="Cultura">Cultura</option>
+              <option value="General">General</option>
+            </select>
+          </div>
+          <div>
+            <label>Tipo *</label>
+            <select id="f-tipo" required>
+              <option value="">Selecciona…</option>
+              <option value="test">Test</option>
+              <option value="sopa_letras">Sopa de letras</option>
+              <option value="relacionar_conceptos">Relacionar conceptos</option>
+              <option value="relacionar_imagenes">Relacionar imágenes</option>
+              <option value="completar_frases">Completar frases</option>
+              <option value="ordenar_elementos">Ordenar elementos</option>
+              <option value="verdadero_falso">Verdadero o falso</option>
+              <option value="retos_interactivos">Reto interactivo</option>
+              <option value="logica">Lógica</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
         </div>
-        <div class="card">
-          <div class="card-cover">✍️</div>
-          <h3>Acuerdo de Colaborador</h3>
-          <p>Firma el acuerdo legal completo vía <strong>PlacetaID</strong>: normas, condiciones, funcionamiento y porcentajes.</p>
+        <div class="form-row">
+          <div>
+            <label>Edad recomendada</label>
+            <input id="f-edad" type="text" placeholder="Ej: 6-12" value="6-12" />
+          </div>
+          <div>
+            <label>Dificultad</label>
+            <select id="f-dificultad">
+              <option value="facil">Fácil</option>
+              <option value="media" selected>Media</option>
+              <option value="dificil">Difícil</option>
+            </select>
+          </div>
         </div>
-        <div class="card">
-          <div class="card-cover">🏷️</div>
-          <h3>Tipo de titularidad</h3>
-          <p><strong>EIP</strong> (entidad, recibe %), <strong>Profesor</strong> colaborador, o <strong>contenido interno</strong> de Placeta Junior.</p>
+        <div class="form-row">
+          <div>
+            <label>Tiempo estimado (min)</label>
+            <input id="f-tiempo" type="number" min="1" value="10" />
+          </div>
+          <div>
+            <label>Nº de preguntas</label>
+            <input id="f-preguntas" type="number" min="0" value="6" />
+          </div>
         </div>
-      </div>
-    </section>
+        <div class="form-row">
+          <div>
+            <label>Nº de fases</label>
+            <input id="f-fases" type="number" min="1" value="1" />
+          </div>
+          <div>
+            <label>Tipo de titular</label>
+            <select id="f-titular">
+              <option value="profesor">Profesor colaborador</option>
+              <option value="entidad_eip">Entidad (EIP)</option>
+              <option value="interno">Contenido interno PJ</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>EIP (si eres entidad)</label>
+            <input id="f-eip" type="text" placeholder="EIP-…" />
+          </div>
+          <div>
+            <label>URL de portada (opcional)</label>
+            <input id="f-portada" type="text" placeholder="https://…" />
+          </div>
+        </div>
 
-    <!-- Estado / CTA -->
-    <section class="section" style="text-align:center;">
-      <h2>🚀 ¿Listo para crear?</h2>
-      <p class="section-sub">Descarga la app Placeta Junior para acceder al Studio completo, firmar tu Acuerdo de Colaborador y publicar tus actividades.</p>
-      <div class="cta-row" style="justify-content:center;">
-        <a class="btn btn-purple" href="/#actividades">Explorar actividades</a>
-      </div>
-      <p style="margin-top:16px;font-size:13px;color:var(--pj-gray-500);">
-        ⚠️ El editor visual completo está disponible en la aplicación móvil Placeta Junior. Esta web es la extensión pública de la Academia.
-      </p>
+        <div class="form-note">
+          📝 <strong>Preguntas (una por línea)</strong> — formato: <code>pregunta|opcion1|opcion2|opcion3|correcta</code><br/>
+          Ejemplo: <code>¿Cuánto es 2+2?|3|4|5|2</code> (la "correcta" es el número de opción, empezando en 1).
+        </div>
+        <label>Contenido / preguntas</label>
+        <textarea id="f-contenido" rows="8" placeholder="pregunta|op1|op2|op3|correcta&#10;pregunta|op1|op2|op3|correcta"></textarea>
+
+        <button class="btn btn-green" type="submit">📤 Enviar a revisión</button>
+      </form>
     </section>
   </main>
 
   <footer>
     <div class="links">
-      <a href="/">Inicio</a>
-      <a href="/#actividades">Actividades</a>
-      <a href="/#reto">Reto de Candela</a>
+      <a href="/">Actividades</a>
       <a href="/studio">Placeta Junior Studio</a>
+      <a href="/info">Info</a>
     </div>
     <p>© 2026 Placeta Junior · Grupo de La Placeta · <a href="https://laplaceta.org" target="_blank" rel="noopener">laplaceta.org</a></p>
   </footer>
+
+  <script src="js/studio.js"></script>
 </body>
 </html>
