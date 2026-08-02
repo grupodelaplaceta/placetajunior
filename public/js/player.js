@@ -203,7 +203,7 @@ function screenSopa(s, est) {
     <div class="kp-qt">🔤 Sopa de letras</div>
     <div class="kp-wordchips">${chips}</div>`;
   if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente);
-  html += `<div class="kp-grid" data-pantalla="${pantallaIdx}" style="grid-template-columns:repeat(${s.size},1fr);">`;
+  html += `<div class="kp-grid" data-pantalla="${pantallaIdx}" data-size="${s.size}" style="grid-template-columns:repeat(${s.size},1fr);">`;
   s.grid.forEach((row, r) => row.forEach((c, cc) => {
     let cls = 'kp-cell';
     if (foundCells.some(f => f.r === r && f.c === cc)) cls += ' found';
@@ -233,13 +233,18 @@ function kpStart(e) {
 }
 function kpMove(e) {
   if (!kpDrag.on) return;
-  const el = document.elementFromPoint(e.clientX, e.clientY);
-  const cell = el && el.closest ? el.closest('.kp-cell') : null;
-  if (!cell) return;
-  const r = +cell.dataset.r, c = +cell.dataset.c;
+  const grid = document.querySelector(`.kp-grid[data-pantalla="${kpDrag.idx}"]`);
+  if (!grid) return;
+  const rect = grid.getBoundingClientRect();
+  const size = Number(grid.dataset.size) || 10;
+  const gap = parseFloat(getComputedStyle(grid).columnGap) || 3;
+  const cellSize = (rect.width - (size - 1) * gap) / size;
+  const r = Math.min(size - 1, Math.max(0, Math.floor((e.clientY - rect.top) / (cellSize + gap))));
+  const c = Math.min(size - 1, Math.max(0, Math.floor((e.clientX - rect.left) / (cellSize + gap))));
   const cells = kpDrag.cells;
   const last = cells[cells.length - 1];
   const dr = r - last.r, dc = c - last.c;
+  if (dr === 0 && dc === 0) return;
   if (Math.abs(dr) > 1 || Math.abs(dc) > 1) return;
   if (cells.length > 1) {
     const prev = cells[cells.length - 2];

@@ -826,6 +826,7 @@ footer a { color: var(--pj-yellow); text-decoration: none; }
   .block-body .row2 { grid-template-columns: 1fr; }
 }
 @media (max-width: 640px) {
+  .navbar { justify-content: center; }
   .navbar nav { width: 100%; justify-content: center; margin-top: 2px; }
   .navbar .brand .w-placeta, .navbar .brand .w-junior { font-size: 14px; }
   .navbar .brand .w-placeta { letter-spacing: 0; }
