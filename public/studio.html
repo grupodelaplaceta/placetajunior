@@ -12,7 +12,10 @@
   <header class="navbar">
     <a class="brand" href="/">
       <img class="brand-logo" src="img/logo.png" alt="Placeta Junior" />
-      Placeta Junior
+      <span class="wordmark">
+        <span class="w-placeta">Placeta</span>
+        <span class="w-junior"><span class="c0">J</span><span class="c1">U</span><span class="c2">N</span><span class="c3">I</span><span class="c4">O</span><span class="c5">R</span></span>
+      </span>
     </a>
     <nav>
       <a href="/">Actividades</a>
@@ -25,6 +28,7 @@
   <div class="studio-toolbar">
     <span class="studio-title">🎨 Studio — Crea tu actividad</span>
     <div class="studio-actions">
+      <button id="btn-vista" class="btn btn-purple" type="button">👁️ Vista previa</button>
       <button id="btn-guardar" class="btn btn-outline" type="button">💾 Guardar</button>
       <button id="btn-publicar" class="btn btn-green" type="button">🚀 Publicar</button>
     </div>
@@ -63,9 +67,15 @@
   <div id="img-modal" class="modal-overlay hidden">
     <div class="modal">
       <h3>🖼️ Añadir imagen</h3>
-      <p class="m-sub">Elige una imagen de stock o pega una URL. La fuente se mostrará siempre bajo la imagen (web y app).</p>
-      <label>Banco de imágenes (stock)</label>
-      <div id="stock-thumbs" class="img-thumbs"></div>
+      <p class="m-sub">Busca entre cientos de imágenes libres o pega tu propia URL. La fuente se muestra siempre bajo la imagen (web y app).</p>
+      <label>Buscar imágenes</label>
+      <input id="img-search" type="text" placeholder="Ej: planeta, perro, montaña…" />
+      <div class="prov-chips" id="img-prov">
+        <button class="chip-cat active" data-prov="todos">Todas</button>
+        <button class="chip-cat" data-prov="picsum">📷 Picsum</button>
+        <button class="chip-cat" data-prov="unsplash">🖼️ Unsplash</button>
+      </div>
+      <div id="stock-thumbs" class="galeria"></div>
       <label>O pega tu propia URL</label>
       <input id="img-url" type="url" placeholder="https://…" />
       <label>Fuente (cita / autoría)</label>
@@ -73,6 +83,18 @@
       <div class="m-actions">
         <button id="img-cancel" class="btn btn-outline" type="button">Cancelar</button>
         <button id="img-ok" class="btn btn-purple" type="button">Usar imagen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: vista previa -->
+  <div id="preview-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <h3>👁️ Vista previa</h3>
+      <p class="m-sub">Así se verá tu actividad en la web y en la app.</p>
+      <div id="preview-content"></div>
+      <div class="m-actions">
+        <button id="preview-close" class="btn btn-outline" type="button">Cerrar</button>
       </div>
     </div>
   </div>
@@ -139,12 +161,12 @@
           <select id="m-titular">
             <option value="interno" selected>🙂 Anónimo (Placeta Junior)</option>
             <option value="entidad_eip">🏛️ Entidad (EIP)</option>
-            <option value="profesor">👨‍🏫 Profesor (DIP)</option>
+            <option value="profesor">👨‍🏫 Profesor (Google)</option>
           </select>
         </div>
       </div>
       <div id="m-identidad"></div>
-      <p class="form-note">💡 Todo el contenido va a <strong>junior (Placeta Junior)</strong>. Si eres una entidad usa tu <strong>EIP</strong>; si no, publica como <strong>anónimo</strong> sin necesidad de DIP personal.</p>
+      <p class="form-note">💡 Todo el contenido va a <strong>junior (Placeta Junior)</strong>. Las entidades usan su <strong>EIP</strong>; los profesores inician sesión con <strong>Google u otro proveedor</strong> (sin DIP); o publica como <strong>anónimo</strong>.</p>
       <div class="m-actions">
         <button id="meta-cancel" class="btn btn-outline" type="button">Cancelar</button>
         <button id="meta-ok" class="btn btn-green" type="button">Enviar a revisión 🚀</button>

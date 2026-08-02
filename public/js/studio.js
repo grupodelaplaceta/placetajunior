@@ -16,17 +16,71 @@ const TIPOS = {
   completar:   { ico: '✏️', nombre: 'Completar' }
 };
 
-// Banco de imágenes de stock (fotografías libres) con su fuente
-const STOCK = [
-  { url: 'https://picsum.photos/id/237/640/420', fuente: 'Foto: Unsplash (vía picsum.photos)' },
-  { url: 'https://picsum.photos/id/1025/640/420', fuente: 'Foto: Unsplash (vía picsum.photos)' },
-  { url: 'https://picsum.photos/id/1043/640/420', fuente: 'Foto: Unsplash (vía picsum.photos)' },
-  { url: 'https://picsum.photos/id/1060/640/420', fuente: 'Foto: Unsplash (vía picsum.photos)' },
-  { url: 'https://picsum.photos/id/1084/640/420', fuente: 'Foto: Unsplash (vía picsum.photos)' },
-  { url: 'https://picsum.photos/id/110/640/420',  fuente: 'Foto: Unsplash (vía picsum.photos)' },
-  { url: 'https://picsum.photos/id/119/640/420',  fuente: 'Foto: Unsplash (vía picsum.photos)' },
-  { url: 'https://picsum.photos/id/870/640/420',  fuente: 'Foto: Unsplash (vía picsum.photos)' }
+// ── Galería de imágenes libres ──────────────────────────────────────
+// Temas con imágenes por seed en Picsum (fotos reales de Unsplash)
+const TEMAS = ['Astronomía','Animales','Naturaleza','Comida','Deportes','Tecnología','Viajes','Arte','Mascotas','Ciencias','Espacio','Ciudad','Plantas','Transporte'];
+function picsumDe(tema, i) {
+  const seed = 'pj-' + tema.toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g, '-') + '-' + i;
+  return { url: `https://picsum.photos/seed/${seed}/640/420`, fuente: 'Foto: Unsplash (vía picsum.photos)', prov: 'picsum', tema };
+}
+const PICS = [];
+TEMAS.forEach((t) => { for (let i = 1; i <= 6; i++) PICS.push(picsumDe(t, i)); });
+
+// Unsplash: fotos libres conocidas, con tema y autor en la fuente
+const UNSPLASH = [
+  { url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=640&q=80', fuente: 'Foto: Unsplash · planetas', prov: 'unsplash', tema: 'Espacio' },
+  { url: 'https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?w=640&q=80', fuente: 'Foto: Unsplash · astronauta', prov: 'unsplash', tema: 'Espacio' },
+  { url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=640&q=80', fuente: 'Foto: Unsplash · montaña', prov: 'unsplash', tema: 'Naturaleza' },
+  { url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=640&q=80', fuente: 'Foto: Unsplash · playa', prov: 'unsplash', tema: 'Viajes' },
+  { url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=640&q=80', fuente: 'Foto: Unsplash · bosque', prov: 'unsplash', tema: 'Naturaleza' },
+  { url: 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=640&q=80', fuente: 'Foto: Unsplash · perro', prov: 'unsplash', tema: 'Mascotas' },
+  { url: 'https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=640&q=80', fuente: 'Foto: Unsplash · gato', prov: 'unsplash', tema: 'Mascotas' },
+  { url: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=640&q=80', fuente: 'Foto: Unsplash · pizza', prov: 'unsplash', tema: 'Comida' },
+  { url: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=640&q=80', fuente: 'Foto: Unsplash · ciudad', prov: 'unsplash', tema: 'Ciudad' },
+  { url: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=640&q=80', fuente: 'Foto: Unsplash · tecnología', prov: 'unsplash', tema: 'Tecnología' },
+  { url: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=640&q=80', fuente: 'Foto: Unsplash · deporte', prov: 'unsplash', tema: 'Deportes' },
+  { url: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=640&q=80', fuente: 'Foto: Unsplash · equipo', prov: 'unsplash', tema: 'Tecnología' },
+  { url: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=640&q=80', fuente: 'Foto: Unsplash · naturaleza', prov: 'unsplash', tema: 'Naturaleza' },
+  { url: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=640&q=80', fuente: 'Foto: Unsplash · paisaje', prov: 'unsplash', tema: 'Naturaleza' }
 ];
+const GALERIA = [...PICS, ...UNSPLASH];
+
+let galeriaProv = 'todos';
+let galeriaBusqueda = '';
+let galeriaActual = [];
+
+function renderGaleria() {
+  const q = galeriaBusqueda.trim().toLowerCase();
+  let lista = GALERIA;
+  if (galeriaProv !== 'todos') lista = lista.filter(g => g.prov === galeriaProv);
+  if (q) lista = lista.filter(g => (g.tema || '').toLowerCase().includes(q) || (g.fuente || '').toLowerCase().includes(q));
+  // Con búsqueda, añade más imágenes de Picsum generadas a partir del término
+  if (q && (galeriaProv === 'todos' || galeriaProv === 'picsum')) {
+    const seed = q.replace(/[^a-z0-9]+/gi, '-').slice(0, 30) || 'pj';
+    const ya = new Set(lista.map(g => g.url));
+    for (let i = 1; i <= 8; i++) {
+      const u = `https://picsum.photos/seed/${seed}-${i}/640/420`;
+      if (!ya.has(u)) lista.push({ url: u, fuente: `Foto: Unsplash (vía picsum.photos) · ${q}`, prov: 'picsum', tema: q });
+    }
+  }
+  galeriaActual = lista.slice(0, 60);
+  const cont = $('stock-thumbs');
+  if (galeriaActual.length === 0) {
+    cont.innerHTML = '<div class="g-empty">Sin resultados. Prueba otra búsqueda o pega tu propia URL.</div>';
+    return;
+  }
+  cont.innerHTML = galeriaActual.map((g, idx) =>
+    `<div class="g-item" style="background-image:url('${g.url}')" data-i="${idx}" onclick="elegirGaleria(${idx})"><span class="g-tag">${esc(g.tema || g.prov)}</span></div>`
+  ).join('');
+}
+
+function elegirGaleria(i) {
+  const g = galeriaActual[i];
+  if (!g) return;
+  $('img-url').value = g.url;
+  $('img-fuente').value = g.fuente;
+  document.querySelectorAll('#stock-thumbs .g-item').forEach((t, idx) => t.classList.toggle('active', idx === i));
+}
 
 let bloques = [];
 let meta = { titulo: '', descripcion: '', categoria: 'Matemáticas', tipo: 'test', edad: '6-12', dificultad: 'media', tiempo: 10, dip: '' };
@@ -240,17 +294,10 @@ function abrirImagen(donde, i, j) {
   imgTarget = { donde, i, j };
   $('img-url').value = '';
   $('img-fuente').value = '';
-  $('stock-thumbs').innerHTML = STOCK.map((s, k) =>
-    `<div class="img-thumb" style="background-image:url('${s.url}')" onclick="elegirStock(${k})"></div>`
-  ).join('');
+  renderGaleria();
   $('img-modal').classList.remove('hidden');
 }
 function imagenPregunta(i, j) { abrirImagen('pregunta', i, j); }
-function elegirStock(k) {
-  $('img-url').value = STOCK[k].url;
-  $('img-fuente').value = STOCK[k].fuente;
-  document.querySelectorAll('#stock-thumbs .img-thumb').forEach((t, idx) => t.classList.toggle('active', idx === k));
-}
 function aplicarImagen() {
   const url = $('img-url').value.trim();
   const fuente = $('img-fuente').value.trim() || 'Fuente sin indicar';
@@ -266,6 +313,53 @@ function aplicarImagen() {
 }
 function quitarImagenBloque(i) { bloques[i].imagen_url = null; bloques[i].fuente = null; render(); }
 function quitarImagenPregunta(i, j) { bloques[i].preguntas[j].imagen_url = null; bloques[i].preguntas[j].fuente = null; render(); }
+
+// ── Vista previa ─────────────────────────────────────────────────────
+function chipColor(cat = '') {
+  const c = cat.toLowerCase();
+  if (c.includes('mate')) return 'blue';
+  if (c.includes('leng') || c.includes('lect')) return 'green';
+  if (c.includes('cien') || c.includes('medio')) return 'orange';
+  if (c.includes('geo')) return 'red';
+  return 'purple';
+}
+function imgPrev(url, fuente) {
+  return `<div class="preview-img"><img src="${esc(url)}" alt=""><div class="p-fuente">📸 ${esc(fuente || 'Fuente sin indicar')}</div></div>`;
+}
+function verPreview() {
+  if (bloques.length === 0) { aviso('Añade al menos un bloque para ver la vista previa.', true); return; }
+  const tit = ($('m-titulo')?.value || meta.titulo || 'Mi actividad').trim();
+  const desc = ($('m-descripcion')?.value || meta.descripcion || '').trim();
+  const cat = $('m-categoria')?.value || meta.categoria || 'General';
+  let html = `<div class="preview-meta">
+      <h4>${esc(tit)}</h4>
+      <p class="p-sub">${esc(desc)} · <span class="chip ${chipColor(cat)}">${esc(cat)}</span></p>
+    </div><div class="preview-canvas">`;
+  bloques.forEach((b) => {
+    html += `<div class="preview-block" data-tipo="${b.tipo}"><span class="p-tipo">${TIPOS[b.tipo].ico} ${esc(b.titulo || TIPOS[b.tipo].nombre)}</span>`;
+    if (b.imagen_url) html += imgPrev(b.imagen_url, b.fuente);
+    if (b.tipo === 'test') {
+      b.preguntas.forEach((p, j) => {
+        html += `<div class="preview-q"><div class="p-qtext">${j + 1}. ${esc(p.pregunta || '…')}</div>`;
+        if (p.imagen_url) html += imgPrev(p.imagen_url, p.fuente);
+        html += `<div class="preview-opts">${p.opciones.map((op, k) =>
+          `<span class="preview-opt ${k === p.correcta ? 'ok' : ''}">${k === p.correcta ? '✅ ' : ''}${esc(op || '…')}</span>`).join('')}</div></div>`;
+      });
+    } else if (b.tipo === 'sopa_letras') {
+      b.palabras.forEach((p, j) => { if (p) html += `<div class="preview-item">🔤 <span class="preview-palabra">${esc(p)}</span>${b.pistas[j] ? ' — ' + esc(b.pistas[j]) : ''}</div>`; });
+    } else if (b.tipo === 'relacionar') {
+      b.pares.forEach((p) => { if (p.izq || p.der) html += `<div class="preview-item">🔗 ${esc(p.izq)} ➜ ${esc(p.der)}</div>`; });
+    } else if (b.tipo === 'ordenar') {
+      b.items.forEach((it, j) => { if (it) html += `<div class="preview-item">📌 ${j + 1}. ${esc(it)}</div>`; });
+    } else if (b.tipo === 'completar') {
+      b.frases.forEach((f) => { if (f.texto) html += `<div class="preview-item">✏️ ${esc(f.texto.replace('___', '____'))} → <strong>${esc(f.respuesta)}</strong></div>`; });
+    }
+    html += `</div>`;
+  });
+  html += `</div>`;
+  $('preview-content').innerHTML = html;
+  $('preview-modal').classList.remove('hidden');
+}
 
 // ── Drag & drop ──────────────────────────────────────────────────────
 function initDrag() {
@@ -298,7 +392,7 @@ function abrirMeta() {
   actualizarIdentidad();
   if (meta.eip) $('m-eip').value = meta.eip;
   if (meta.entidad) $('m-entidad').value = meta.entidad;
-  if (meta.dip) $('m-dip').value = meta.dip;
+  if (meta.autor) $('m-autor').value = meta.autor;
   $('meta-modal').classList.remove('hidden');
 }
 
@@ -314,8 +408,9 @@ function actualizarIdentidad() {
       <input id="m-entidad" type="text" placeholder="Ej: Colegio La Placeta" />`;
   } else if (t === 'profesor') {
     cont.innerHTML = `
-      <label>Tu DIP * (mayor de 18, con acuerdo firmado)</label>
-      <input id="m-dip" type="text" placeholder="Tu DIP" />`;
+      <label>Tu nombre (opcional, para la autoría)</label>
+      <input id="m-autor" type="text" placeholder="Tu nombre de profesor" />
+      <p class="form-note" style="margin-top:10px;">👨‍🏫 Los profesores se registran con <strong>Google u otro proveedor</strong> (sin DIP).</p>`;
   } else {
     cont.innerHTML = '';
   }
@@ -346,7 +441,8 @@ async function publicar() {
   let dip = '';
   let eip = '';
   let entidad = '';
-  if (titular === 'profesor') dip = ($('m-dip')?.value || '').trim();
+  let autor = '';
+  if (titular === 'profesor') autor = ($('m-autor')?.value || '').trim();
   else if (titular === 'entidad_eip') {
     eip = ($('m-eip')?.value || '').trim();
     entidad = ($('m-entidad')?.value || '').trim();
@@ -354,16 +450,15 @@ async function publicar() {
 
   if (bloques.length === 0) { aviso('Añade al menos un bloque al lienzo.', true); $('meta-modal').classList.add('hidden'); return; }
   if (!titulo || !descripcion) { aviso('Completa título y descripción.', true); return; }
-  if (titular === 'profesor' && !dip) { aviso('Indica tu DIP (profesor colaborador).', true); return; }
   if (titular === 'entidad_eip' && !eip) { aviso('Indica el código EIP de la entidad.', true); return; }
   const num_preguntas = contarPreguntas();
   if (num_preguntas === 0) { aviso('Añade contenido real en los bloques (preguntas, palabras, parejas…).', true); return; }
 
-  meta = { titulo, descripcion, categoria, tipo, edad: edad_recomendada, dificultad, tiempo: tiempo_estimado, titular, dip, eip, entidad };
+  meta = { titulo, descripcion, categoria, tipo, edad: edad_recomendada, dificultad, tiempo: tiempo_estimado, titular, dip, eip, entidad, autor };
   guardar();
 
   const body = {
-    tipo_titular: titular, dip: dip || null, eip: eip || null, nombre_entidad: entidad || null,
+    tipo_titular: titular, dip: dip || null, eip: eip || null, nombre_entidad: entidad || null, nombre_autor: autor || null,
     titulo, descripcion, categoria, tipo,
     edad_recomendada, dificultad, tiempo_estimado,
     num_preguntas,
@@ -419,18 +514,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
   $('btn-guardar').addEventListener('click', () => { guardar(); aviso('💾 Borrador guardado en este navegador.', false); });
   $('btn-publicar').addEventListener('click', abrirMeta);
+  $('btn-vista').addEventListener('click', verPreview);
 
   $('img-ok').addEventListener('click', aplicarImagen);
   $('img-cancel').addEventListener('click', () => $('img-modal').classList.add('hidden'));
   $('meta-ok').addEventListener('click', publicar);
   $('meta-cancel').addEventListener('click', () => $('meta-modal').classList.add('hidden'));
+  $('preview-close').addEventListener('click', () => $('preview-modal').classList.add('hidden'));
   $('m-titular').addEventListener('change', actualizarIdentidad);
+  $('img-search').addEventListener('input', () => { galeriaBusqueda = $('img-search').value; renderGaleria(); });
+  document.querySelectorAll('#img-prov .chip-cat').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('#img-prov .chip-cat').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      galeriaProv = b.dataset.prov;
+      renderGaleria();
+    });
+  });
 
   // Cerrar modales con Escape
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       $('img-modal').classList.add('hidden');
       $('meta-modal').classList.add('hidden');
+      $('preview-modal').classList.add('hidden');
     }
   });
 });
