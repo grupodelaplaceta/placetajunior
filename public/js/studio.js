@@ -911,7 +911,7 @@ document.addEventListener('DOMContentLoaded', () => {
   $('img-cancel').addEventListener('click', () => $('img-modal').classList.add('hidden'));
   $('meta-ok').addEventListener('click', publicar);
   $('meta-cancel').addEventListener('click', () => $('meta-modal').classList.add('hidden'));
-  $('preview-close').addEventListener('click', () => $('preview-modal').classList.add('hidden'));
+  $('preview-close').addEventListener('click', cerrarPreview);
   $('m-titular').addEventListener('change', actualizarIdentidad);
   $('img-search').addEventListener('input', () => { galeriaBusqueda = $('img-search').value; renderGaleria(); });
   document.querySelectorAll('#img-prov .chip-cat').forEach(b => {
@@ -934,7 +934,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Escape') {
       $('img-modal').classList.add('hidden');
       $('meta-modal').classList.add('hidden');
-      $('preview-modal').classList.add('hidden');
+      if (!$('preview-modal').classList.contains('hidden')) cerrarPreview();
     }
   });
 });
+
+// Cerrar la vista previa pidiendo confirmación si hay partida en curso
+function cerrarPreview() {
+  const enCurso = pantallaIdx > 0 && pantallaIdx < pantallas.length - 1;
+  if (enCurso && !confirm('¿Seguro que quieres salir? Perderás el progreso de esta vista previa.')) return;
+  $('preview-modal').classList.add('hidden');
+}

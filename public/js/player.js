@@ -416,14 +416,24 @@ function kpComprobar(idx, fi) {
 function pantallaNext() { if (pantallaIdx < pantallas.length - 1) { pantallaIdx++; renderPantalla(); } }
 function pantallaPrev() { if (pantallaIdx > 0) { pantallaIdx--; renderPantalla(); } }
 
+// Cerrar el reproductor pidiendo confirmación si hay partida en curso
+function cerrarPlayer() {
+  const enCurso = pantallaIdx > 0 && pantallaIdx < pantallas.length - 1;
+  if (enCurso && !confirm('¿Seguro que quieres salir? Perderás el progreso de esta partida.')) return;
+  document.getElementById('player-modal')?.classList.add('hidden');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const close = document.getElementById('player-close');
-  if (close) close.addEventListener('click', () => document.getElementById('player-modal')?.classList.add('hidden'));
+  if (close) close.addEventListener('click', cerrarPlayer);
   document.addEventListener('pointerdown', kpStart);
   document.addEventListener('pointermove', kpMove);
   document.addEventListener('pointerup', kpEnd);
   document.addEventListener('pointercancel', kpEnd);
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') document.getElementById('player-modal')?.classList.add('hidden');
+    if (e.key === 'Escape') {
+      const modal = document.getElementById('player-modal');
+      if (modal && !modal.classList.contains('hidden')) cerrarPlayer();
+    }
   });
 });
