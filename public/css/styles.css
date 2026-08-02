@@ -14,8 +14,14 @@
 }
 @font-face {
   font-family: 'Plus Jakarta Sans';
-  src: url('../fonts/plus_jakarta_sans.ttf') format('truetype');
+  src: url('../fonts/plus_jakarta_regular.woff2') format('woff2');
   font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  src: url('../fonts/plus_jakarta_bold.woff2') format('woff2');
+  font-weight: 700;
   font-display: swap;
 }
 
@@ -151,11 +157,40 @@ h1, h2, h3, .font-casual {
   100% { transform: scale(1); opacity: 1; }
 }
 .hero h1 {
-  font-size: clamp(36px, 6.5vw, 60px);
+  font-size: clamp(34px, 6vw, 58px);
   color: var(--pj-purple);
   letter-spacing: 1px;
   margin-bottom: 10px;
 }
+
+/* ── Logotipo: PLACETA (Plus Jakarta Bold) + JUNIOR (Handly, multicolor) ── */
+.hero h1.wordmark {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: 2px 10px;
+  line-height: 1.02;
+}
+.wordmark .w-placeta {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--pj-black);
+}
+.wordmark .w-junior {
+  font-family: 'HandlyCasual', cursive;
+  text-transform: uppercase;
+}
+.wordmark .w-junior span { display: inline-block; }
+/* Paleta PJ: P-J-U-N-I-O-R (JunioR por letras) */
+.wordmark .w-junior .c0 { color: var(--pj-red); }
+.wordmark .w-junior .c1 { color: var(--pj-orange); }
+.wordmark .w-junior .c2 { color: var(--pj-yellow); }
+.wordmark .w-junior .c3 { color: var(--pj-green); }
+.wordmark .w-junior .c4 { color: var(--pj-blue); }
+.wordmark .w-junior .c5 { color: var(--pj-purple); }
 .hero .tagline {
   font-size: clamp(15px, 2.2vw, 19px);
   color: var(--pj-gray-600);
@@ -208,21 +243,67 @@ h1, h2, h3, .font-casual {
 }
 .section .section-sub { color: var(--pj-gray-500); margin-bottom: 22px; font-size: 15px; }
 
-/* ── Pestañas de actividades ─────────────────────────────────────── */
-.tabs { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
-.tab {
-  border: none; cursor: pointer;
-  padding: 11px 20px; border-radius: 999px;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 14px; font-weight: 700;
-  background: var(--pj-gray-100); color: var(--pj-gray-600);
-  transition: all 0.2s;
+/* ── Filas horizontales (una por categoría) ──────────────────────── */
+.h-row {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 6px 4px 16px;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
 }
-.tab:hover { transform: translateY(-1px); }
-.tab.active { background: var(--pj-purple); color: white; box-shadow: var(--shadow); }
-.tab-panel { display: none; }
-.tab-panel.active { display: block; animation: fadeIn 0.3s ease; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.h-row::-webkit-scrollbar { height: 8px; }
+.h-row::-webkit-scrollbar-thumb { background: var(--pj-gray-300); border-radius: 8px; }
+.h-row .card {
+  flex: 0 0 250px;
+  scroll-snap-align: start;
+  min-height: 320px;
+}
+.cat-section { margin-bottom: 36px; }
+.cat-title {
+  font-size: 22px;
+  color: var(--pj-purple);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cat-title .t-ico { font-size: 20px; }
+
+/* ── Carátulas generadas automáticamente ─────────────────────────── */
+.card .card-cover {
+  height: 140px;
+  border-radius: var(--radius-sm);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 56px;
+  background-size: cover;
+  background-position: center;
+}
+.cover-blue { background: linear-gradient(135deg, #3A00E1, #6a4bff); }
+.cover-green { background: linear-gradient(135deg, #336E45, #5aa06f); }
+.cover-orange { background: linear-gradient(135deg, #FF6600, #ff9a3d); }
+.cover-red { background: linear-gradient(135deg, #FF3333, #ff7a5c); }
+.cover-purple { background: linear-gradient(135deg, #4E3B70, #7a63a8); }
+.cover-yellow { background: linear-gradient(135deg, #D6CE52, #efe78a); }
+.card-cover .cover-shape { position: absolute; opacity: 0.16; color: #fff; }
+.card-cover .cover-shape.s1 { top: -14px; right: -12px; width: 76px; height: 80px; }
+.card-cover .cover-shape.s2 { bottom: -16px; left: -14px; width: 58px; height: 60px; }
+.card-cover .cover-emoji { position: relative; z-index: 1; text-shadow: 0 4px 14px rgba(0,0,0,0.25); }
+.card-cover .cover-lock {
+  position: absolute; inset: 0; z-index: 2;
+  background: rgba(78, 59, 112, 0.55);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 6px;
+  color: #fff; font-weight: 700;
+  backdrop-filter: blur(2px);
+}
+.card-cover .cover-lock .lock-ico { font-size: 40px; }
+.card-cover .cover-lock .lock-txt { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
 
 /* Chips de categorías (seleccionables) */
 .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
@@ -534,6 +615,8 @@ footer a { color: var(--pj-yellow); text-decoration: none; }
 @media (max-width: 640px) {
   .navbar nav { width: 100%; justify-content: center; margin-top: 4px; }
   .section { padding: 40px 16px; }
+  .h-row .card { flex: 0 0 210px; min-height: 300px; }
+  .card .card-cover { height: 120px; font-size: 48px; }
   .studio-toolbar .studio-actions { margin-left: 0; width: 100%; }
   .q-item .opt { flex-wrap: wrap; }
 }

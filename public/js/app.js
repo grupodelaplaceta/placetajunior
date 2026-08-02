@@ -43,23 +43,38 @@ const categoriaIcono = (cat = '') => {
   return '🧩';
 };
 
-// ── Portada de la actividad ─────────────────────────────────────────
-function portadaDe(a) {
-  if (a.portada_url) return `background-image:url('${a.portada_url}');`;
-  return `background:var(--pj-${categoriaColor(a.categoria)}-light);`;
+// ── Portada de la actividad (carátula generada automáticamente) ────
+function coverHTML(a) {
+  const cl = categoriaColor(a.categoria);
+  const grad = `cover-${cl}`;
+  const emoji = categoriaIcono(a.categoria);
+  const bloqueada = esBloqueada(a);
+  const badge = a.es_examen
+    ? '<span class="badge-tag badge-examen">🎓 Examen</span>'
+    : (bloqueada
+        ? '<span class="badge-tag badge-premium">💳 De pago</span>'
+        : (esPago(a)
+            ? '<span class="badge-tag badge-premium">🎁 Subvencionada</span>'
+            : '<span class="badge-tag badge-free">🎁 Gratis</span>'));
+  const lock = bloqueada
+    ? '<div class="cover-lock"><span class="lock-ico">🔒</span><span class="lock-txt">De pago</span></div>'
+    : '';
+  const imgStyle = a.portada_url ? `style="background-image:url('${a.portada_url}')"` : '';
+  return `
+    <div class="card-cover ${grad}" ${imgStyle}>
+      <span class="cover-shape shape s1"></span>
+      <span class="cover-shape shape s2"></span>
+      <span class="cover-emoji">${emoji}</span>
+      ${badge}
+      ${lock}
+    </div>`;
 }
 
 function cardActividad(a) {
-  const esPremium = a.precio_licencia > 0 || a.precio_intento > 0;
-  const badge = a.es_examen
-    ? '<span class="badge-tag badge-examen">🎓 Examen</span>'
-    : (esPremium ? '<span class="badge-tag badge-premium">💳 Premium</span>' : '<span class="badge-tag badge-free">🎁 Gratis</span>');
+  const bloqueada = esBloqueada(a);
   return `
-    <div class="card" onclick="abrirActividad('${a.id}')">
-      <div class="card-cover" style="${portadaDe(a)}">
-        <span style="font-size:44px;">${categoriaIcono(a.categoria)}</span>
-        ${badge}
-      </div>
+    <div class="card" onclick="abrirActividad('${a.id}', ${bloqueada})">
+      ${coverHTML(a)}
       <h3>${escapeHtml(a.titulo)}</h3>
       <p>${escapeHtml(a.descripcion || '')}</p>
       <div class="meta">
@@ -69,9 +84,6 @@ function cardActividad(a) {
         <span class="chip">⏱️ ${a.tiempo_estimado || '?'} min</span>
       </div>
       <div class="meta">
-        ${esPremium
-          ? `<span class="chip orange">🟣 ${a.precio_intento ? a.precio_intento + ' Pz/intento' : ''} ${a.precio_licencia ? a.precio_licencia + ' Pz/licencia' : ''}</span>`
-          : '<span class="chip green">🟢 Gratuita (Fondo Público)</span>'}
         ${a.recompensa ? `<span class="chip blue">🏆 +${a.recompensa} Pz</span>` : ''}
         <span class="chip yellow">📊 ${a.estadisticas?.veces_realizada || 0} jugadas</span>
       </div>
@@ -80,8 +92,11 @@ function cardActividad(a) {
 
 let TODAS = []; // todas las actividades públicas
 
+function esPago(a) { return (a.precio_licencia > 0 || a.precio_intento > 0); }
+function esBloqueada(a) { return esPago(a) && !a.subvencionada; }
+
 // ═══════════════════════════════════════════════════════════════════
-//  CARGA + PESTAÑAS
+//  CARGA + FILAS POR CATEGORÍA
 // ═══════════════════════════════════════════════════════════════════
 async function cargarTodo() {
   const banner = document.getElementById('error-banner');
@@ -94,91 +109,50 @@ async function cargarTodo() {
   }
   renderPopulares();
   renderCategorias();
-  renderSubvencionadas();
-  renderPago();
 }
 
-// ⭐ Populares: las más jugadas
+// ⭐ Populares: las más jugadas (fila horizontal)
 function renderPopulares() {
-  const grid = document.getElementById('populares-grid');
+  const row = document.getElementById('populares-row');
   const ordenadas = [...TODAS].sort((a, b) =>
     (b.estadisticas?.veces_realizada || 0) - (a.estadisticas?.veces_realizada || 0)
-  ).slice(0, 8);
-  grid.innerHTML = ordenadas.length
+  ).slice(0, 10);
+  row.innerHTML = ordenadas.length
     ? ordenadas.map(cardActividad).join('')
-    : '<div class="empty" style="grid-column:1/-1;">Todavía no hay actividades publicadas. ¡Pronto llegarán! 🚀</div>';
+    : '<div class="empty">Todavía no hay actividades publicadas. ¡Pronto llegarán! 🚀</div>';
 }
 
-// 🗂️ Por categorías
+// 🗂️ Una fila horizontal por categoría (gratis y de pago mezcladas)
 function renderCategorias() {
-  const chipsCont = document.getElementById('categorias-chips');
-  const grid = document.getElementById('categorias-grid');
+  const cont = document.getElementById('categorias');
   const cats = [...new Set(TODAS.map(a => a.categoria).filter(Boolean))];
   if (cats.length === 0) {
-    chipsCont.innerHTML = '';
-    grid.innerHTML = '<div class="empty">Sin actividades todavía.</div>';
+    cont.innerHTML = '';
     return;
   }
-  chipsCont.innerHTML = [
-    '<button class="chip-cat active" data-cat="*">🌟 Todas</button>',
-    ...cats.map(c => `<button class="chip-cat" data-cat="${escapeHtml(c)}">${escapeHtml(c)}</button>`)
-  ].join('');
-  const pintar = (cat) => {
-    const lista = cat === '*' ? TODAS : TODAS.filter(a => a.categoria === cat);
-    grid.innerHTML = lista.length
-      ? lista.map(cardActividad).join('')
-      : '<div class="empty" style="grid-column:1/-1;">Nada por aquí aún.</div>';
-  };
-  chipsCont.querySelectorAll('.chip-cat').forEach(btn => {
-    btn.onclick = () => {
-      chipsCont.querySelectorAll('.chip-cat').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      pintar(btn.dataset.cat);
-    };
-  });
-  pintar('*');
+  cont.innerHTML = cats.map(cat => {
+    const lista = TODAS.filter(a => a.categoria === cat);
+    if (lista.length === 0) return '';
+    return `
+      <div class="cat-section">
+        <h3 class="cat-title"><span class="t-ico">${categoriaIcono(cat)}</span> ${escapeHtml(cat)}</h3>
+        <div class="h-row">${lista.map(cardActividad).join('')}</div>
+      </div>`;
+  }).join('');
 }
 
-// 🎁 Subvencionadas (gratis)
-function renderSubvencionadas() {
-  const grid = document.getElementById('subvencionadas-grid');
-  const lista = TODAS.filter(a => !(a.precio_licencia > 0 || a.precio_intento > 0));
-  grid.innerHTML = lista.length
-    ? lista.map(cardActividad).join('')
-    : '<div class="empty" style="grid-column:1/-1;">Pronto habrá actividades gratuitas 🎁</div>';
-}
-
-// 💳 De pago
-function renderPago() {
-  const grid = document.getElementById('pago-grid');
-  const lista = TODAS.filter(a => a.precio_licencia > 0 || a.precio_intento > 0);
-  grid.innerHTML = lista.length
-    ? lista.map(cardActividad).join('')
-    : '<div class="empty" style="grid-column:1/-1;">Todavía no hay actividades de pago.</div>';
-}
-
-// ── Pestañas ─────────────────────────────────────────────────────────
-function initTabs() {
-  const tabs = document.getElementById('tabs');
-  tabs.addEventListener('click', (e) => {
-    const btn = e.target.closest('.tab');
-    if (!btn) return;
-    tabs.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-  });
-}
-
-// Modal de actividad (sin necesidad de cuenta, gratis en la web)
-function abrirActividad(id) {
-  alert(`🎓 Actividad ${id}\n\nEn la web pública las actividades premium seleccionadas son de acceso gratuito gracias al Fondo Público de Acceso de Placeta Junior.\n\n(El reproductor interactivo estará disponible próximamente en la web. Puedes jugarla en la app Placeta Junior.)`);
+// Modal de actividad
+function abrirActividad(id, bloqueada) {
+  if (bloqueada) {
+    alert(`🔒 Actividad ${id}\n\nEsta actividad es de pago (no subvencionada).\nPuedes adquirirla en la app Placeta Junior y pagarla con Placetas (su precio incluye IVA).`);
+    return;
+  }
+  alert(`🎓 Actividad ${id}\n\nEn la web pública las actividades son de acceso gratuito gracias al Fondo Público de Acceso de Placeta Junior.\n\n(El reproductor interactivo estará disponible próximamente en la web. Puedes jugarla en la app Placeta Junior.)`);
 }
 
 // ═══════════════════════════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
-  initTabs();
   cargarTodo();
 });

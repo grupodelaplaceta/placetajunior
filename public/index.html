@@ -27,7 +27,12 @@
     <div class="floating-shape shape" style="color:var(--pj-blue);bottom:15%;left:15%;animation-delay:2s;"></div>
     <div class="floating-shape shape" style="color:var(--pj-green);bottom:20%;right:18%;animation-delay:0.5s;"></div>
     <img class="hero-logo" src="img/logo.png" alt="Placeta Junior" />
-    <h1>Placeta Junior</h1>
+    <h1 class="wordmark">
+      <span class="w-placeta">Placeta</span>
+      <span class="w-junior">
+        <span class="c0">J</span><span class="c1">U</span><span class="c2">N</span><span class="c3">I</span><span class="c4">O</span><span class="c5">R</span>
+      </span>
+    </h1>
     <p class="tagline">¡Aprende jugando! La web oficial del proyecto · Grupo de La Placeta</p>
     <div class="cta-row">
       <a class="btn btn-purple" href="#actividades">🚀 Jugar</a>
@@ -38,36 +43,13 @@
   <main>
     <section class="section" id="actividades">
       <h2>Actividades</h2>
-      <p class="section-sub">Elige tu favorita. ¡Hay para todos los gustos!</p>
+      <p class="section-sub">Desliza para ver más de cada categoría. ¡Hay para todos los gustos!</p>
       <div id="error-banner" class="error-banner hidden"></div>
 
-      <!-- Pestañas -->
-      <div class="tabs" id="tabs">
-        <button class="tab active" data-tab="populares">⭐ Populares</button>
-        <button class="tab" data-tab="categorias">🗂️ Categorías</button>
-        <button class="tab" data-tab="subvencionadas">🎁 Subvencionadas</button>
-        <button class="tab" data-tab="pago">💳 De pago</button>
-      </div>
+      <h3 class="cat-title"><span class="t-ico">⭐</span> Populares</h3>
+      <div id="populares-row" class="h-row"><div class="loader"></div></div>
 
-      <div id="tab-populares" class="tab-panel active">
-        <p class="section-sub">Las más jugadas por los peques 💚</p>
-        <div id="populares-grid" class="grid"><div class="loader"></div></div>
-      </div>
-
-      <div id="tab-categorias" class="tab-panel">
-        <div id="categorias-chips" class="chips"></div>
-        <div id="categorias-grid" class="grid"><div class="loader"></div></div>
-      </div>
-
-      <div id="tab-subvencionadas" class="tab-panel">
-        <p class="section-sub">🎁 Gratuitas, gracias al Fondo Público de Acceso de Placeta Junior.</p>
-        <div id="subvencionadas-grid" class="grid"><div class="loader"></div></div>
-      </div>
-
-      <div id="tab-pago" class="tab-panel">
-        <p class="section-sub">💳 Premium. Su precio incluye IVA (lo abona Capitalia). En la app se pagan con Placetas.</p>
-        <div id="pago-grid" class="grid"><div class="loader"></div></div>
-      </div>
+      <div id="categorias"></div>
     </section>
   </main>
 
