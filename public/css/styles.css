@@ -745,12 +745,16 @@ footer a { color: var(--pj-yellow); text-decoration: none; }
 .kp-chip.chip-green { background: var(--pj-green-light); color: var(--pj-green); }
 .kp-chip.chip-orange { background: var(--pj-orange-light); color: var(--pj-orange); }
 .kp-chip.chip-red { background: var(--pj-red-light); color: var(--pj-red); }
-.kp-grid { display: grid; gap: 3px; max-width: 340px; margin: 0 auto; }
+.kp-grid { display: grid; gap: 3px; max-width: min(360px, 100%); margin: 0 auto; }
 .kp-cell {
   aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
-  font-weight: 800; font-size: 15px; text-transform: uppercase;
+  font-weight: 800; font-size: clamp(10px, 2.6vw, 16px); text-transform: uppercase;
   background: var(--pj-gray-50); border: 1px solid var(--pj-gray-200); border-radius: 6px;
+  cursor: pointer; user-select: none; transition: all .12s;
 }
+.kp-cell:hover { background: var(--pj-purple-light); transform: scale(1.08); }
+.kp-cell.start { border-color: var(--pj-purple); background: var(--pj-purple); color: #fff; box-shadow: 0 0 0 3px var(--pj-purple-light); }
+.kp-cell.found { border-color: var(--pj-green); background: var(--pj-green); color: #fff; }
 .kp-match { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; max-width: 460px; margin: 0 auto; }
 .kp-pair { border: 3px solid var(--pj-blue-light); border-radius: 14px; padding: 12px; font-weight: 700; background: var(--pj-blue-light); cursor: pointer; transition: all .15s; }
 .kp-pair.alt { border-color: var(--pj-green-light); background: var(--pj-green-light); color: var(--pj-green); }
@@ -790,6 +794,16 @@ footer a { color: var(--pj-yellow); text-decoration: none; }
 }
 .kp-check:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
 
+@media (max-width: 480px) {
+  .kp-stage { padding: 16px 8px; }
+  .kp-grid { max-width: 300px; gap: 2px; }
+  .kp-cell { font-size: 12px; }
+  .kp-q { font-size: 18px; }
+  .kp-title { font-size: 22px; }
+  .kp-opt { font-size: 15px; padding: 12px; }
+  .kp-wordchips .kp-chip { font-size: 11px; padding: 5px 9px; }
+  .modal { padding: 16px; }
+}
 @media (max-width: 900px) {
   .studio { grid-template-columns: 1fr; }
   .studio-palette { position: static; }

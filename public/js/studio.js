@@ -400,7 +400,7 @@ function verPreview() {
     } else if (b.tipo === 'sopa_letras') {
       const { grid, size } = generarSopa(b.palabras, b.tamano);
       pantallas.push({ tipo: 'sopa', bi, grid, size });
-      kpEstado.push({ encontradas: {} });
+      kpEstado.push({ encontradas: {}, inicio: null, foundCells: [], error: false });
     } else if (b.tipo === 'relacionar') {
       pantallas.push({ tipo: 'relacionar', bi });
       kpEstado.push({ izq: null, hechas: {} });
@@ -490,24 +490,70 @@ function kpResponder(idx, k) {
 function screenSopa(s, est) {
   const b = bloques[s.bi];
   const enc = est.encontradas || {};
+  const foundCells = est.foundCells || [];
   const validas = (b.palabras || []).filter(Boolean);
   const chips = validas.map((p, j) => {
-    const encontrada = !!enc[j];
-    return `<span class="kp-chip ${encontrada ? 'ok' : ''}" onclick="kpPalabra(${pantallaIdx},${j})">${encontrada ? '✅ ' : ''}${esc(String(p).toUpperCase())}</span>`;
+    const en = !!enc[j];
+    return `<span class="kp-chip ${en ? 'ok' : ''}" onclick="kpPalabra(${pantallaIdx},${j})">${en ? '✅ ' : ''}${esc(String(p).toUpperCase())}</span>`;
   }).join('');
+  const total = validas.length;
+  const hechas = Object.keys(enc).length;
   let html = `<div class="kp-screen">
     <div class="kp-qt">🔤 Sopa de letras</div>
     <div class="kp-wordchips">${chips}</div>`;
   if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente);
-  html += `<div class="kp-grid" style="grid-template-columns:repeat(${s.size},1fr);">${s.grid.flat().map(c => `<span class="kp-cell">${esc(c)}</span>`).join('')}</div>`;
-  if (validas.length > 0 && Object.keys(enc).length >= validas.length) html += `<div class="kp-msg ok">¡Has encontrado todas! 🎉</div>`;
-  html += `<div class="kp-hint">👆 Toca cada palabra cuando la encuentres</div></div>`;
+  html += `<div class="kp-grid" style="grid-template-columns:repeat(${s.size},1fr);">`;
+  s.grid.forEach((row, r) => row.forEach((c, cc) => {
+    let cls = 'kp-cell';
+    if (foundCells.some(f => f.r === r && f.c === cc)) cls += ' found';
+    if (est.inicio && est.inicio.r === r && est.inicio.c === cc) cls += ' start';
+    html += `<span class="${cls}" onclick="kpCelda(${pantallaIdx},${r},${cc})">${esc(c)}</span>`;
+  }));
+  html += `</div>`;
+  if (est.error) html += `<div class="kp-msg bad">👀 Esas letras no forman una palabra…</div>`;
+  else if (hechas >= total && total > 0) html += `<div class="kp-msg ok">¡Has encontrado todas! 🎉</div>`;
+  else if (total > 0) html += `<div class="kp-msg">🔤 ${hechas} / ${total}</div>`;
+  html += `<div class="kp-hint">👆 Toca la primera y la última letra de cada palabra (en línea recta)</div></div>`;
   return html;
 }
 function kpPalabra(idx, j) {
   const est = kpEstado[idx];
   if (est.encontradas[j]) delete est.encontradas[j];
   else est.encontradas[j] = true;
+  renderPantalla();
+}
+function kpCelda(idx, r, c) {
+  const est = kpEstado[idx];
+  const s = pantallas[idx];
+  if (!est.inicio) { est.inicio = { r, c }; renderPantalla(); return; }
+  const a = est.inicio;
+  est.inicio = null;
+  const dr = Math.sign(r - a.r);
+  const dc = Math.sign(c - a.c);
+  const straight = (dr === 0 || dc === 0 || Math.abs(dr) === Math.abs(dc));
+  if (!straight) { est.error = true; renderPantalla(); setTimeout(() => { if (kpEstado[idx]) { est.error = false; renderPantalla(); } }, 700); return; }
+  const len = Math.max(Math.abs(r - a.r), Math.abs(c - a.c)) + 1;
+  let word = '';
+  const cells = [];
+  for (let k = 0; k < len; k++) {
+    const rr = a.r + dr * k, cc = a.c + dc * k;
+    if (rr < 0 || rr >= s.size || cc < 0 || cc >= s.size) return;
+    word += s.grid[rr][cc];
+    cells.push({ r: rr, c: cc });
+  }
+  const b = bloques[s.bi];
+  const validas = (b.palabras || []).filter(Boolean).map(p => String(p).toUpperCase().replace(/[^A-ZÑ]/g, ''));
+  const rev = word.split('').reverse().join('');
+  const wi = validas.findIndex((w, i) => !est.encontradas[i] && (w === word || w === rev));
+  if (wi >= 0) {
+    est.encontradas[wi] = true;
+    est.foundCells = [...(est.foundCells || []), ...cells];
+  } else {
+    est.error = true;
+    renderPantalla();
+    setTimeout(() => { if (kpEstado[idx]) { est.error = false; renderPantalla(); } }, 700);
+    return;
+  }
   renderPantalla();
 }
 
