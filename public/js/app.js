@@ -43,106 +43,135 @@ const categoriaIcono = (cat = '') => {
   return '🧩';
 };
 
-// ── Portada de la actividad: imagen o forma geométrica de color ────
+// ── Portada de la actividad ─────────────────────────────────────────
 function portadaDe(a) {
-  // Si la actividad tiene imagen de portada, la usamos como fondo
   if (a.portada_url) return `background-image:url('${a.portada_url}');`;
-  // Si no, un degradado con la forma geométrica oficial
-  const colorMap = {
-    blue: '#3A00E1', green: '#336E45', orange: '#FF6600',
-    red: '#FF3333', purple: '#4E3B70'
-  };
-  const color = colorMap[categoriaColor(a.categoria)] || '#4E3B70';
-  return `background:${color};`;
+  return `background:var(--pj-${categoriaColor(a.categoria)}-light);`;
 }
 
-// ═══════════════════════════════════════════════════════════════════
-//  ACTIVIDADES DESTACADAS — carrusel con portada
-// ═══════════════════════════════════════════════════════════════════
-async function cargarDestacadas() {
-  const track = document.getElementById('destacadas-track');
-  if (!track) return;
-  try {
-    const data = await apiGet('/actividades?solo_publicas=1');
-    const actividades = (data.actividades || []).filter(a => a.destacada);
-    const lista = actividades.length > 0 ? actividades : (data.actividades || []).slice(0, 6);
-
-    if (lista.length === 0) {
-      track.innerHTML = '';
-      return;
-    }
-
-    track.innerHTML = lista.map(a => `
-      <div class="slide" onclick="abrirActividad('${a.id}')">
-        <div class="slide-cover" style="${portadaDe(a)}">
-          <span class="badge">${a.es_examen ? '🎓 Examen' : (a.precio_licencia > 0 || a.precio_intento > 0 ? '🟣 Premium' : '🟢 Gratis')}</span>
-        </div>
-        <div class="slide-body">
-          <h3>${escapeHtml(a.titulo)}</h3>
-          <p>${escapeHtml(a.descripcion || '')}</p>
-          <div class="meta" style="margin-top:8px;">
-            <span class="chip ${categoriaColor(a.categoria)}">${escapeHtml(a.categoria)}</span>
-            <span class="chip">⭐ ${escapeHtml(a.dificultad || 'media')}</span>
-          </div>
-        </div>
-      </div>`).join('');
-  } catch (e) {
-    track.innerHTML = '';
-  }
+function cardActividad(a) {
+  const esPremium = a.precio_licencia > 0 || a.precio_intento > 0;
+  const badge = a.es_examen
+    ? '<span class="badge-tag badge-examen">🎓 Examen</span>'
+    : (esPremium ? '<span class="badge-tag badge-premium">💳 Premium</span>' : '<span class="badge-tag badge-free">🎁 Gratis</span>');
+  return `
+    <div class="card" onclick="abrirActividad('${a.id}')">
+      <div class="card-cover" style="${portadaDe(a)}">
+        <span style="font-size:44px;">${categoriaIcono(a.categoria)}</span>
+        ${badge}
+      </div>
+      <h3>${escapeHtml(a.titulo)}</h3>
+      <p>${escapeHtml(a.descripcion || '')}</p>
+      <div class="meta">
+        <span class="chip ${categoriaColor(a.categoria)}">${escapeHtml(a.categoria)}</span>
+        <span class="chip">👧 ${escapeHtml(a.edad_recomendada || '6-12')}</span>
+        <span class="chip">⭐ ${escapeHtml(a.dificultad || 'media')}</span>
+        <span class="chip">⏱️ ${a.tiempo_estimado || '?'} min</span>
+      </div>
+      <div class="meta">
+        ${esPremium
+          ? `<span class="chip orange">🟣 ${a.precio_intento ? a.precio_intento + ' Pz/intento' : ''} ${a.precio_licencia ? a.precio_licencia + ' Pz/licencia' : ''}</span>`
+          : '<span class="chip green">🟢 Gratuita (Fondo Público)</span>'}
+        ${a.recompensa ? `<span class="chip blue">🏆 +${a.recompensa} Pz</span>` : ''}
+        <span class="chip yellow">📊 ${a.estadisticas?.veces_realizada || 0} jugadas</span>
+      </div>
+    </div>`;
 }
 
+let TODAS = []; // todas las actividades públicas
+
 // ═══════════════════════════════════════════════════════════════════
-//  ACTIVIDADES (grid completo)
+//  CARGA + PESTAÑAS
 // ═══════════════════════════════════════════════════════════════════
-async function cargarActividades() {
-  const grid = document.getElementById('actividades-grid');
+async function cargarTodo() {
   const banner = document.getElementById('error-banner');
   try {
     const data = await apiGet('/actividades?solo_publicas=1');
-    const actividades = data.actividades || [];
-
-    if (actividades.length === 0) {
-      grid.innerHTML = '<div class="empty" style="grid-column:1/-1;">Todavía no hay actividades publicadas. ¡Pronto llegarán más! 🚀</div>';
-      return;
-    }
-
-    grid.innerHTML = actividades.map(a => {
-      const esExamen = a.es_examen;
-      const esPremium = a.precio_licencia > 0 || a.precio_intento > 0;
-      return `
-        <div class="card" onclick="abrirActividad('${a.id}')">
-          <div class="card-cover">${categoriaIcono(a.categoria)}</div>
-          <h3>${escapeHtml(a.titulo)}</h3>
-          <p>${escapeHtml(a.descripcion)}</p>
-          <div class="meta">
-            <span class="chip ${categoriaColor(a.categoria)}">${escapeHtml(a.categoria)}</span>
-            <span class="chip">👧 ${escapeHtml(a.edad_recomendada || '6-12')}</span>
-            <span class="chip">⭐ ${escapeHtml(a.dificultad || 'media')}</span>
-            <span class="chip">⏱️ ${a.tiempo_estimado || '?'} min</span>
-          </div>
-          <div class="meta">
-            ${esExamen ? '<span class="chip red">🎓 Examen (diploma)</span>' : ''}
-            ${esPremium
-              ? `<span class="chip orange">🟣 ${a.precio_intento ? a.precio_intento + ' Pz/intento' : ''} ${a.precio_licencia ? a.precio_licencia + ' Pz/licencia' : ''}</span>`
-              : '<span class="chip green">🟢 Gratuita</span>'}
-            ${a.recompensa ? `<span class="chip blue">🏆 +${a.recompensa} Pz</span>` : ''}
-          </div>
-          <div class="meta" style="justify-content:space-between;align-items:center;">
-            <span style="font-size:12px;color:var(--pj-gray-400);">👤 ${escapeHtml(a.autor_nombre || 'Placeta Junior')}</span>
-            <span style="font-size:12px;color:var(--pj-gray-400);">📊 ${a.estadisticas?.veces_realizada || 0} jugadas</span>
-          </div>
-        </div>`;
-    }).join('');
+    TODAS = data.actividades || [];
   } catch (e) {
     banner.textContent = 'No se pudieron cargar las actividades. Inténtalo de nuevo en unos instantes.';
     banner.classList.remove('hidden');
-    grid.innerHTML = '<div class="empty">—</div>';
   }
+  renderPopulares();
+  renderCategorias();
+  renderSubvencionadas();
+  renderPago();
+}
+
+// ⭐ Populares: las más jugadas
+function renderPopulares() {
+  const grid = document.getElementById('populares-grid');
+  const ordenadas = [...TODAS].sort((a, b) =>
+    (b.estadisticas?.veces_realizada || 0) - (a.estadisticas?.veces_realizada || 0)
+  ).slice(0, 8);
+  grid.innerHTML = ordenadas.length
+    ? ordenadas.map(cardActividad).join('')
+    : '<div class="empty" style="grid-column:1/-1;">Todavía no hay actividades publicadas. ¡Pronto llegarán! 🚀</div>';
+}
+
+// 🗂️ Por categorías
+function renderCategorias() {
+  const chipsCont = document.getElementById('categorias-chips');
+  const grid = document.getElementById('categorias-grid');
+  const cats = [...new Set(TODAS.map(a => a.categoria).filter(Boolean))];
+  if (cats.length === 0) {
+    chipsCont.innerHTML = '';
+    grid.innerHTML = '<div class="empty">Sin actividades todavía.</div>';
+    return;
+  }
+  chipsCont.innerHTML = [
+    '<button class="chip-cat active" data-cat="*">🌟 Todas</button>',
+    ...cats.map(c => `<button class="chip-cat" data-cat="${escapeHtml(c)}">${escapeHtml(c)}</button>`)
+  ].join('');
+  const pintar = (cat) => {
+    const lista = cat === '*' ? TODAS : TODAS.filter(a => a.categoria === cat);
+    grid.innerHTML = lista.length
+      ? lista.map(cardActividad).join('')
+      : '<div class="empty" style="grid-column:1/-1;">Nada por aquí aún.</div>';
+  };
+  chipsCont.querySelectorAll('.chip-cat').forEach(btn => {
+    btn.onclick = () => {
+      chipsCont.querySelectorAll('.chip-cat').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      pintar(btn.dataset.cat);
+    };
+  });
+  pintar('*');
+}
+
+// 🎁 Subvencionadas (gratis)
+function renderSubvencionadas() {
+  const grid = document.getElementById('subvencionadas-grid');
+  const lista = TODAS.filter(a => !(a.precio_licencia > 0 || a.precio_intento > 0));
+  grid.innerHTML = lista.length
+    ? lista.map(cardActividad).join('')
+    : '<div class="empty" style="grid-column:1/-1;">Pronto habrá actividades gratuitas 🎁</div>';
+}
+
+// 💳 De pago
+function renderPago() {
+  const grid = document.getElementById('pago-grid');
+  const lista = TODAS.filter(a => a.precio_licencia > 0 || a.precio_intento > 0);
+  grid.innerHTML = lista.length
+    ? lista.map(cardActividad).join('')
+    : '<div class="empty" style="grid-column:1/-1;">Todavía no hay actividades de pago.</div>';
+}
+
+// ── Pestañas ─────────────────────────────────────────────────────────
+function initTabs() {
+  const tabs = document.getElementById('tabs');
+  tabs.addEventListener('click', (e) => {
+    const btn = e.target.closest('.tab');
+    if (!btn) return;
+    tabs.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
 }
 
 // Modal de actividad (sin necesidad de cuenta, gratis en la web)
 function abrirActividad(id) {
-  // En la web pública las actividades son de acceso gratuito (Fondo Público de Acceso)
   alert(`🎓 Actividad ${id}\n\nEn la web pública las actividades premium seleccionadas son de acceso gratuito gracias al Fondo Público de Acceso de Placeta Junior.\n\n(El reproductor interactivo estará disponible próximamente en la web. Puedes jugarla en la app Placeta Junior.)`);
 }
 
@@ -150,6 +179,6 @@ function abrirActividad(id) {
 //  INIT
 // ═══════════════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
-  cargarDestacadas();
-  cargarActividades();
+  initTabs();
+  cargarTodo();
 });
