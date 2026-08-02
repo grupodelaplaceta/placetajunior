@@ -314,7 +314,11 @@ function aplicarImagen() {
 function quitarImagenBloque(i) { bloques[i].imagen_url = null; bloques[i].fuente = null; render(); }
 function quitarImagenPregunta(i, j) { bloques[i].preguntas[j].imagen_url = null; bloques[i].preguntas[j].fuente = null; render(); }
 
-// ── Vista previa ─────────────────────────────────────────────────────
+// ── Vista previa JUGABLE: cómo lo verán los niños ────────────────────
+let pantallas = [];
+let pantallaIdx = 0;
+let kpEstado = [];
+
 function chipColor(cat = '') {
   const c = cat.toLowerCase();
   if (c.includes('mate')) return 'blue';
@@ -323,43 +327,259 @@ function chipColor(cat = '') {
   if (c.includes('geo')) return 'red';
   return 'purple';
 }
-function imgPrev(url, fuente) {
-  return `<div class="preview-img"><img src="${esc(url)}" alt=""><div class="p-fuente">📸 ${esc(fuente || 'Fuente sin indicar')}</div></div>`;
+function emojiCat(cat = '') {
+  const c = cat.toLowerCase();
+  if (c.includes('mate')) return '🔢';
+  if (c.includes('leng') || c.includes('lect')) return '📖';
+  if (c.includes('cien')) return '🔬';
+  if (c.includes('geo')) return '🌍';
+  if (c.includes('tecn') || c.includes('inform')) return '💻';
+  if (c.includes('logic')) return '🧠';
+  return '🧩';
 }
+function kpImg(url, fuente) {
+  return `<div class="kp-img"><img src="${esc(url)}" alt=""><div class="kp-fuente">📸 ${esc(fuente || 'Fuente sin indicar')}</div></div>`;
+}
+function shuffleArr(a) {
+  const x = [...a];
+  for (let i = x.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [x[i], x[j]] = [x[j], x[i]]; }
+  return x;
+}
+
+// Genera una sopa de letras simple (las palabras se colocan en horizontal)
+function generarSopa(palabras, tamano) {
+  const size = Math.max(Number(tamano) || 10, 8);
+  const grid = Array.from({ length: size }, () => Array(size).fill(''));
+  const validas = (palabras || []).filter(Boolean).map(p => p.toUpperCase());
+  validas.forEach((p, i) => {
+    const row = i % size;
+    const col = Math.max(0, Math.floor(Math.random() * (size - Math.min(p.length, size))));
+    for (let k = 0; k < p.length && col + k < size; k++) grid[row][col + k] = p[k];
+  });
+  const abc = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  for (let r = 0; r < size; r++) for (let c = 0; c < size; c++) if (!grid[r][c]) grid[r][c] = abc[Math.floor(Math.random() * 26)];
+  return { grid, size };
+}
+
 function verPreview() {
   if (bloques.length === 0) { aviso('Añade al menos un bloque para ver la vista previa.', true); return; }
+  pantallas = [];
+  kpEstado = [];
   const tit = ($('m-titulo')?.value || meta.titulo || 'Mi actividad').trim();
   const desc = ($('m-descripcion')?.value || meta.descripcion || '').trim();
   const cat = $('m-categoria')?.value || meta.categoria || 'General';
-  let html = `<div class="preview-meta">
-      <h4>${esc(tit)}</h4>
-      <p class="p-sub">${esc(desc)} · <span class="chip ${chipColor(cat)}">${esc(cat)}</span></p>
-    </div><div class="preview-canvas">`;
-  bloques.forEach((b) => {
-    html += `<div class="preview-block" data-tipo="${b.tipo}"><span class="p-tipo">${TIPOS[b.tipo].ico} ${esc(b.titulo || TIPOS[b.tipo].nombre)}</span>`;
-    if (b.imagen_url) html += imgPrev(b.imagen_url, b.fuente);
+  const edad = $('m-edad')?.value || meta.edad || '6-12';
+  const dif = $('m-dificultad')?.value || meta.dificultad || 'media';
+  const tiempo = $('m-tiempo')?.value || meta.tiempo || 10;
+
+  // Pantalla 0: portada
+  pantallas.push({ tipo: 'portada', tit, desc, cat, edad, dif, tiempo });
+  kpEstado.push({});
+
+  bloques.forEach((b, bi) => {
     if (b.tipo === 'test') {
-      b.preguntas.forEach((p, j) => {
-        html += `<div class="preview-q"><div class="p-qtext">${j + 1}. ${esc(p.pregunta || '…')}</div>`;
-        if (p.imagen_url) html += imgPrev(p.imagen_url, p.fuente);
-        html += `<div class="preview-opts">${p.opciones.map((op, k) =>
-          `<span class="preview-opt ${k === p.correcta ? 'ok' : ''}">${k === p.correcta ? '✅ ' : ''}${esc(op || '…')}</span>`).join('')}</div></div>`;
+      b.preguntas.forEach((p, pi) => {
+        pantallas.push({ tipo: 'test', bi, pi, nPreg: b.preguntas.length });
+        kpEstado.push({ respondida: false, sel: null, acierto: null });
       });
     } else if (b.tipo === 'sopa_letras') {
-      b.palabras.forEach((p, j) => { if (p) html += `<div class="preview-item">🔤 <span class="preview-palabra">${esc(p)}</span>${b.pistas[j] ? ' — ' + esc(b.pistas[j]) : ''}</div>`; });
+      const { grid, size } = generarSopa(b.palabras, b.tamano);
+      pantallas.push({ tipo: 'sopa', bi, grid, size });
+      kpEstado.push({ encontradas: {} });
     } else if (b.tipo === 'relacionar') {
-      b.pares.forEach((p) => { if (p.izq || p.der) html += `<div class="preview-item">🔗 ${esc(p.izq)} ➜ ${esc(p.der)}</div>`; });
+      pantallas.push({ tipo: 'relacionar', bi });
+      kpEstado.push({ izq: null, hechas: {} });
     } else if (b.tipo === 'ordenar') {
-      b.items.forEach((it, j) => { if (it) html += `<div class="preview-item">📌 ${j + 1}. ${esc(it)}</div>`; });
+      pantallas.push({ tipo: 'ordenar', bi });
+      kpEstado.push({ orden: shuffleArr((b.items || []).map((_, k) => k)), hechas: 0 });
     } else if (b.tipo === 'completar') {
-      b.frases.forEach((f) => { if (f.texto) html += `<div class="preview-item">✏️ ${esc(f.texto.replace('___', '____'))} → <strong>${esc(f.respuesta)}</strong></div>`; });
+      pantallas.push({ tipo: 'completar', bi });
+      kpEstado.push({ estado: {} });
     }
-    html += `</div>`;
   });
-  html += `</div>`;
-  $('preview-content').innerHTML = html;
+
+  pantallaIdx = 0;
+  renderPantalla();
   $('preview-modal').classList.remove('hidden');
 }
+
+function renderPantalla() {
+  const s = pantallas[pantallaIdx];
+  const est = kpEstado[pantallaIdx] || {};
+  let cuerpo = '';
+  if (s.tipo === 'portada') cuerpo = screenPortada(s);
+  else if (s.tipo === 'test') cuerpo = screenTest(s, est);
+  else if (s.tipo === 'sopa') cuerpo = screenSopa(s, est);
+  else if (s.tipo === 'relacionar') cuerpo = screenRelacionar(s, est);
+  else if (s.tipo === 'ordenar') cuerpo = screenOrdenar(s, est);
+  else if (s.tipo === 'completar') cuerpo = screenCompletar(s, est);
+  $('preview-content').innerHTML = `
+    <div class="kp-nav">
+      <button class="kp-nav-btn" onclick="pantallaPrev()" ${pantallaIdx === 0 ? 'disabled' : ''}>←</button>
+      <span class="kp-dots">${pantallas.map((_, i) => `<span class="kp-dot ${i === pantallaIdx ? 'on' : ''}"></span>`).join('')}</span>
+      <button class="kp-nav-btn" onclick="pantallaNext()" ${pantallaIdx === pantallas.length - 1 ? 'disabled' : ''}>→</button>
+    </div>
+    <div class="kp-stage">${cuerpo}</div>`;
+}
+
+function screenPortada(s) {
+  return `
+    <div class="kp-screen">
+      <div class="kp-cover cover-${chipColor(s.cat)}">${emojiCat(s.cat)}</div>
+      <h3 class="kp-title">${esc(s.tit)}</h3>
+      <p class="kp-desc">${esc(s.desc)}</p>
+      <div class="kp-chips">
+        <span class="kp-chip chip-${chipColor(s.cat)}">${esc(s.cat)}</span>
+        <span class="kp-chip">👧 ${esc(s.edad)}</span>
+        <span class="kp-chip">⭐ ${esc(s.dif)}</span>
+        <span class="kp-chip">⏱️ ${esc(s.tiempo)} min</span>
+      </div>
+      <div class="kp-hint">👆 ¡Pulsa los botones para responder!</div>
+    </div>`;
+}
+
+function screenTest(s, est) {
+  const b = bloques[s.bi];
+  const p = b.preguntas[s.pi];
+  let html = `<div class="kp-screen">
+    <div class="kp-qt">📝 Pregunta ${s.pi + 1} de ${s.nPreg}</div>
+    <div class="kp-q">${esc(p.pregunta || '…')}</div>`;
+  if (p.imagen_url) html += kpImg(p.imagen_url, p.fuente);
+  html += `<div class="kp-opts">`;
+  p.opciones.forEach((op, k) => {
+    let cls = 'kp-opt';
+    if (est.respondida) {
+      if (k === p.correcta) cls += ' ok';
+      else if (k === est.sel) cls += ' bad';
+      else cls += ' muted';
+    }
+    html += `<div class="${cls}" onclick="kpResponder(${pantallaIdx},${k})">${est.respondida && k === p.correcta ? '✅ ' : ''}${esc(op || '…')}</div>`;
+  });
+  html += `</div>`;
+  if (est.respondida) {
+    html += `<div class="kp-msg ${est.acierto ? 'ok' : 'bad'}">${est.acierto ? '¡Muy bien! 🎉' : '¡Casi! La correcta es: ' + esc(p.opciones[p.correcta]) + ' 💪'}</div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+function kpResponder(idx, k) {
+  const s = pantallas[idx];
+  const est = kpEstado[idx];
+  if (est.respondida) return;
+  est.respondida = true;
+  est.sel = k;
+  est.acierto = (k === bloques[s.bi].preguntas[s.pi].correcta);
+  renderPantalla();
+}
+
+function screenSopa(s, est) {
+  const b = bloques[s.bi];
+  const enc = est.encontradas || {};
+  const validas = (b.palabras || []).filter(Boolean);
+  const chips = validas.map((p, j) => {
+    const encontrada = !!enc[j];
+    return `<span class="kp-chip ${encontrada ? 'ok' : ''}" onclick="kpPalabra(${pantallaIdx},${j})">${encontrada ? '✅ ' : ''}${esc(String(p).toUpperCase())}</span>`;
+  }).join('');
+  let html = `<div class="kp-screen">
+    <div class="kp-qt">🔤 Sopa de letras</div>
+    <div class="kp-wordchips">${chips}</div>`;
+  if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente);
+  html += `<div class="kp-grid" style="grid-template-columns:repeat(${s.size},1fr);">${s.grid.flat().map(c => `<span class="kp-cell">${esc(c)}</span>`).join('')}</div>`;
+  if (validas.length > 0 && Object.keys(enc).length >= validas.length) html += `<div class="kp-msg ok">¡Has encontrado todas! 🎉</div>`;
+  html += `<div class="kp-hint">👆 Toca cada palabra cuando la encuentres</div></div>`;
+  return html;
+}
+function kpPalabra(idx, j) {
+  const est = kpEstado[idx];
+  if (est.encontradas[j]) delete est.encontradas[j];
+  else est.encontradas[j] = true;
+  renderPantalla();
+}
+
+function screenRelacionar(s, est) {
+  const b = bloques[s.bi];
+  const hechas = est.hechas || {};
+  const izqCls = (j) => (hechas[j] ? ' ok' : (est.izq === j ? ' sel' : ''));
+  const derCls = (j) => (hechas[j] ? ' ok' : '');
+  let html = `<div class="kp-screen">
+    <div class="kp-qt">🔗 Relacionar</div>`;
+  if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente);
+  html += `<div class="kp-match">
+      <div class="kp-col">${(b.pares || []).map((p, j) => `<div class="kp-pair${izqCls(j)}" onclick="kpIzq(${pantallaIdx},${j})">${hechas[j] ? '✅ ' : ''}${esc(p.izq || '…')}</div>`).join('')}</div>
+      <div class="kp-col">${(b.pares || []).map((p, j) => `<div class="kp-pair alt${derCls(j)}" onclick="kpDer(${pantallaIdx},${j})">${hechas[j] ? '✅ ' : ''}${esc(p.der || '…')}</div>`).join('')}</div>
+    </div>`;
+  if ((b.pares || []).length > 0 && Object.keys(hechas).length >= b.pares.length) html += `<div class="kp-msg ok">¡Todo emparejado! 🎉</div>`;
+  html += `<div class="kp-hint">👆 Toca una tarjeta de cada lado para emparejar</div></div>`;
+  return html;
+}
+function kpIzq(idx, j) {
+  const est = kpEstado[idx];
+  est.izq = (est.izq === j) ? null : j;
+  renderPantalla();
+}
+function kpDer(idx, j) {
+  const est = kpEstado[idx];
+  if (est.izq === null) return;
+  if (est.izq === j) est.hechas[j] = true;
+  est.izq = null;
+  renderPantalla();
+}
+
+function screenOrdenar(s, est) {
+  const b = bloques[s.bi];
+  const n = (b.items || []).length;
+  const done = est.orden.slice(0, est.hechas);
+  const pend = est.orden.slice(est.hechas);
+  let html = `<div class="kp-screen">
+    <div class="kp-qt">📌 Ordena los pasos</div>`;
+  if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente);
+  html += `<div class="kp-steps">`;
+  done.forEach((ix, k) => { html += `<div class="kp-step done"><span class="kp-num">${k + 1}</span>${esc(b.items[ix] || '…')}</div>`; });
+  pend.forEach((ix) => { html += `<div class="kp-step" onclick="kpOrden(${pantallaIdx},${ix})"><span class="kp-num">?</span>${esc(b.items[ix] || '…')}</div>`; });
+  html += `</div>`;
+  if (est.hechas >= n) html += `<div class="kp-msg ok">¡Orden perfecto! 🎉</div>`;
+  else if (est.err) html += `<div class="kp-msg bad">👀 Ese no es el siguiente paso</div>`;
+  html += `<div class="kp-hint">👆 Pulsa los pasos en el orden correcto</div></div>`;
+  return html;
+}
+function kpOrden(idx, ix) {
+  const est = kpEstado[idx];
+  if (est.orden[est.hechas] === ix) { est.hechas++; est.err = false; renderPantalla(); return; }
+  est.err = true;
+  renderPantalla();
+  setTimeout(() => { if (kpEstado[idx]) { est.err = false; renderPantalla(); } }, 900);
+}
+
+function screenCompletar(s, est) {
+  const b = bloques[s.bi];
+  const estado = est.estado || {};
+  let html = `<div class="kp-screen">
+    <div class="kp-qt">✏️ Completa la frase</div>`;
+  if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente);
+  (b.frases || []).forEach((f, fi) => {
+    const st = estado[fi];
+    html += `<div class="kp-frase">${esc(f.texto || '').replace('___', '<span class="kp-blank"></span>')}</div>`;
+    html += `<div class="kp-input-row">
+      <input id="kp-fill-${pantallaIdx}-${fi}" class="kp-input" type="text" placeholder="Escribe la palabra…" ${st ? 'disabled' : ''} value="${st ? esc(f.respuesta) : ''}" />
+      ${st === 'ok' ? '<span class="kp-msg ok">¡Correcto! ✅</span>'
+        : st === 'err' ? '<span class="kp-msg bad">Casi… inténtalo otra vez</span>'
+        : `<button class="kp-check" onclick="kpComprobar(${pantallaIdx},${fi})">Comprobar</button>`}
+    </div>`;
+  });
+  html += `<div class="kp-hint">👆 Escribe la palabra que falta</div></div>`;
+  return html;
+}
+function kpComprobar(idx, fi) {
+  const est = kpEstado[idx];
+  const b = bloques[pantallas[idx].bi];
+  const f = b.frases[fi];
+  const val = (document.getElementById('kp-fill-' + idx + '-' + fi)?.value || '').trim().toLowerCase();
+  est.estado[fi] = (val === (f.respuesta || '').trim().toLowerCase()) ? 'ok' : 'err';
+  renderPantalla();
+}
+
+function pantallaNext() { if (pantallaIdx < pantallas.length - 1) { pantallaIdx++; renderPantalla(); } }
+function pantallaPrev() { if (pantallaIdx > 0) { pantallaIdx--; renderPantalla(); } }
 
 // ── Drag & drop ──────────────────────────────────────────────────────
 function initDrag() {

@@ -45,9 +45,6 @@ const categoriaIcono = (cat = '') => {
 
 // ── Portada de la actividad (carátula generada automáticamente) ────
 function coverHTML(a) {
-  const cl = categoriaColor(a.categoria);
-  const grad = `cover-${cl}`;
-  const emoji = categoriaIcono(a.categoria);
   const bloqueada = esBloqueada(a);
   const badge = a.es_examen
     ? '<span class="badge-tag badge-examen">🎓 Examen</span>'
@@ -59,15 +56,67 @@ function coverHTML(a) {
   const lock = bloqueada
     ? '<div class="cover-lock"><span class="lock-ico">🔒</span><span class="lock-txt">De pago</span></div>'
     : '';
-  const imgStyle = a.portada_url ? `style="background-image:url('${a.portada_url}')"` : '';
+  // Si hay portada real la usamos; si no, se genera una imagen (miniaturas reales con canvas)
+  const estilo = a.portada_url
+    ? `style="background-image:url('${a.portada_url}');background-size:cover;background-position:center;"`
+    : `data-gen="1" data-cat="${escapeHtml(a.categoria || '')}"`;
   return `
-    <div class="card-cover ${grad}" ${imgStyle}>
-      <span class="cover-shape shape s1"></span>
-      <span class="cover-shape shape s2"></span>
-      <span class="cover-emoji">${emoji}</span>
+    <div class="card-cover" ${estilo}>
       ${badge}
       ${lock}
     </div>`;
+}
+
+// ── Miniaturas reales: genera una imagen PNG con canvas ─────────────
+function coloresCaratula(color) {
+  const map = {
+    blue: ['#3A00E1', '#6a4bff'], green: ['#336E45', '#5aa06f'],
+    orange: ['#FF6600', '#ff9a3d'], red: ['#FF3333', '#ff7a5c'],
+    purple: ['#4E3B70', '#7a63a8'], yellow: ['#D6CE52', '#efe78a']
+  };
+  return map[color] || map.purple;
+}
+function dibujarForma(ctx, x, y, s) {
+  ctx.save(); ctx.globalAlpha = 0.18; ctx.translate(x, y); ctx.rotate(-0.22);
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.moveTo(0.5 * s, 0); ctx.lineTo(0.96 * s, 0.28 * s); ctx.lineTo(0.92 * s, 0.78 * s);
+  ctx.lineTo(0.4 * s, s); ctx.lineTo(0.04 * s, 0.72 * s); ctx.lineTo(0.08 * s, 0.22 * s);
+  ctx.closePath(); ctx.fill(); ctx.restore();
+}
+function generarCaratula(a) {
+  return new Promise((resolve) => {
+    try {
+      const W = 520, H = 380;
+      const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+      const ctx = cv.getContext('2d');
+      const [c1, c2] = coloresCaratula(categoriaColor(a.cat));
+      const g = ctx.createLinearGradient(0, 0, W, H);
+      g.addColorStop(0, c1); g.addColorStop(1, c2);
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      dibujarForma(ctx, W * 0.86, H * 0.10, 92);
+      dibujarForma(ctx, W * 0.07, H * 0.88, 60);
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.font = '130px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';
+      ctx.fillText(categoriaIcono(a.cat), W / 2, H / 2 - 38);
+      ctx.font = '800 34px "Plus Jakarta Sans","Arial",sans-serif';
+      ctx.fillStyle = 'rgba(255,255,255,0.95)';
+      const t = (a.tit || '').toUpperCase();
+      ctx.fillText(t.length > 24 ? t.slice(0, 23) + '…' : t, W / 2, H - 46);
+      resolve(cv.toDataURL('image/png'));
+    } catch (e) { resolve(''); }
+  });
+}
+function generarCaratulasEn(cont) {
+  if (!cont) return;
+  cont.querySelectorAll('.card-cover[data-gen="1"]').forEach((el) => {
+    const card = el.closest('.card');
+    const tit = (card?.querySelector('h3')?.textContent || '').trim();
+    const cat = el.dataset.cat || '';
+    generarCaratula({ cat, tit }).then((url) => {
+      if (url) { el.style.backgroundImage = `url('${url}')`; el.style.backgroundSize = 'cover'; el.style.backgroundPosition = 'center'; }
+    });
+  });
 }
 
 function cardActividad(a) {
@@ -120,6 +169,7 @@ function renderPopulares() {
   row.innerHTML = ordenadas.length
     ? ordenadas.map(cardActividad).join('')
     : '<div class="empty">Todavía no hay actividades publicadas. ¡Pronto llegarán! 🚀</div>';
+  generarCaratulasEn(row);
 }
 
 // 🗂️ Una fila horizontal por categoría (gratis y de pago mezcladas)
@@ -139,6 +189,7 @@ function renderCategorias() {
         <div class="h-row">${lista.map(cardActividad).join('')}</div>
       </div>`;
   }).join('');
+  cont.querySelectorAll('.cat-section .h-row').forEach(sec => generarCaratulasEn(sec));
 }
 
 // Modal de actividad
