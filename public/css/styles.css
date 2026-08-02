@@ -1,6 +1,8 @@
 /* ═══════════════════════════════════════════════════════════════════
-   PLACETA JUNIOR — Web pública oficial
-   Tipografías REALES de la app (Handly Casual + Outfit)
+   PLACETA JUNIOR — Web oficial del proyecto
+   Tipografías REALES de la app:
+   · Plus Jakarta Sans → texto normal
+   · Handly Casual    → SIEMPRE en mayúsculas (títulos)
    Forma geométrica oficial GDLP
    ═══════════════════════════════════════════════════════════════════ */
 
@@ -11,21 +13,9 @@
   font-display: swap;
 }
 @font-face {
-  font-family: 'Outfit';
-  src: url('../fonts/outfit_regular.ttf') format('truetype');
+  font-family: 'Plus Jakarta Sans';
+  src: url('../fonts/plus_jakarta_sans.ttf') format('truetype');
   font-weight: 400;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Outfit';
-  src: url('../fonts/outfit_medium.ttf') format('truetype');
-  font-weight: 500;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Outfit';
-  src: url('../fonts/outfit_bold.ttf') format('truetype');
-  font-weight: 700;
   font-display: swap;
 }
 
@@ -68,16 +58,18 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  font-family: 'Outfit', system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   background: var(--pj-white);
   color: var(--pj-gray-800);
   line-height: 1.55;
   overflow-x: hidden;
 }
 
+/* Handly Casual: SIEMPRE en mayúsculas */
 h1, h2, h3, .font-casual {
-  font-family: 'HandlyCasual', 'Outfit', cursive, sans-serif;
+  font-family: 'HandlyCasual', 'Plus Jakarta Sans', cursive, sans-serif;
   font-weight: 400;
+  text-transform: uppercase;
 }
 
 /* ── Forma geométrica oficial GDLP (hexágono irregular) ───────────── */
@@ -112,6 +104,7 @@ h1, h2, h3, .font-casual {
   font-size: 22px;
   font-family: 'HandlyCasual', cursive;
   font-weight: 400;
+  text-transform: uppercase;
 }
 .navbar .brand img.brand-logo {
   width: 42px; height: 42px;
@@ -178,7 +171,7 @@ h1, h2, h3, .font-casual {
   padding: 12px 24px;
   border-radius: 999px;
   border: none;
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
@@ -344,7 +337,7 @@ footer a { color: var(--pj-yellow); text-decoration: none; }
   padding: 10px 12px;
   border: 1px solid var(--pj-gray-300);
   border-radius: var(--radius-sm);
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 14px;
   color: var(--pj-gray-800);
   background: var(--pj-gray-50);
