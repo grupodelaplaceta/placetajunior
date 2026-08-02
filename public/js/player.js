@@ -9,6 +9,10 @@ let kpEstado = [];
 let bloquesJuego = [];
 let kpScore = { verdes: 0, rojos: 0 };
 let kpCelebrado = false;
+let actividadActual = null;   // actividad que se está jugando (para guardar progreso)
+let dipGuardado = '';
+let msgGuardar = '';
+let guardandoDIP = false;
 
 function esc(s) {
   return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -70,6 +74,7 @@ function generarSopa(palabras, tamano) {
 
 // ── Abrir el juego de una actividad publicada ────────────────────────
 function abrirJuego(act) {
+  actividadActual = act || null;
   bloquesJuego = (act && act.contenido && act.contenido.bloques) ? act.contenido.bloques : [];
   if (!bloquesJuego.length) { alert('Esta actividad aún no tiene contenido jugable.'); return; }
   pantallas = [];
@@ -95,8 +100,10 @@ function abrirJuego(act) {
       pantallas.push({ tipo: 'sopa', bi, grid, size });
       kpEstado.push({ encontradas: {}, sel: [], foundCells: [], error: false });
     } else if (b.tipo === 'relacionar') {
+      const n = (b.pares || []).length;
+      const indices = Array.from({ length: n }, (_, k) => k);
       pantallas.push({ tipo: 'relacionar', bi });
-      kpEstado.push({ izq: null, hechas: {} });
+      kpEstado.push({ izq: null, hechas: {}, ordenIzq: shuffleArr(indices), ordenDer: shuffleArr(indices) });
     } else if (b.tipo === 'ordenar') {
       pantallas.push({ tipo: 'ordenar', bi });
       kpEstado.push({ orden: shuffleArr((b.items || []).map((_, k) => k)), hechas: 0 });
@@ -304,8 +311,51 @@ function screenFinal(s) {
         <div class="kp-score-item verdes"><span class="kp-score-num">🟢</span>${kpScore.verdes} <small>puntos verdes</small></div>
         <div class="kp-score-item rojos"><span class="kp-score-num">🔴</span>${kpScore.rojos} <small>puntos rojos</small></div>
       </div>
+      <div class="kp-save">
+        <h4>💾 Guardar mi progreso</h4>
+        <p class="kp-save-sub">Pon tu DIP de Placeta Junior para sumar tus puntos verdes y rojos.</p>
+        <div class="kp-save-row">
+          <input id="kp-dip" type="text" inputmode="text" autocomplete="off"
+            placeholder="Tu DIP (ej: 11111111D)" value="${esc(dipGuardado)}" maxlength="20">
+          <button class="kp-btn" onclick="guardarProgreso()" ${guardandoDIP ? 'disabled' : ''}>${guardandoDIP ? 'Guardando…' : '💾 Guardar'}</button>
+        </div>
+        <div id="kp-msg" class="kp-msg ${msgGuardar.startsWith('✅') ? 'ok' : (msgGuardar ? 'bad' : '')}">${msgGuardar}</div>
+      </div>
       <div class="kp-hint">💪 ¡Sigue así, campeón!</div>
     </div>`;
+}
+
+// Guardar el progreso (puntos verdes/rojos) con el DIP del junior
+async function guardarProgreso() {
+  const inp = document.getElementById('kp-dip');
+  if (!inp) return;
+  const dip = inp.value.trim();
+  if (!dip) { msgGuardar = '❌ Escribe tu DIP para guardar.'; renderPantalla(); return; }
+  if (!actividadActual || !actividadActual.id) { msgGuardar = '❌ No se puede guardar: actividad sin id.'; renderPantalla(); return; }
+  guardandoDIP = true;
+  renderPantalla();
+  const respuestas = [];
+  for (let i = 0; i < kpScore.verdes; i++) respuestas.push({ idx: i, correcta: true });
+  for (let i = 0; i < kpScore.rojos; i++) respuestas.push({ idx: kpScore.verdes + i, correcta: false });
+  try {
+    const res = await fetch(`${API_BASE}/actividades/${actividadActual.id}/realizar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dip, respuestas })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok && data.success) {
+      dipGuardado = dip;
+      const extra = data.recompensa ? ` · +${data.recompensa} Pz` : '';
+      msgGuardar = `✅ ¡Guardado! ${kpScore.verdes} verdes y ${kpScore.rojos} rojos sumados${extra}.`;
+    } else {
+      msgGuardar = `❌ ${data.error || 'No se pudo guardar. Comprueba tu DIP.'}`;
+    }
+  } catch (e) {
+    msgGuardar = '❌ Error de conexión. Inténtalo otra vez.';
+  }
+  guardandoDIP = false;
+  renderPantalla();
 }
 function lluviaConfetti() {
   const cont = document.getElementById('confetti');
@@ -330,16 +380,20 @@ function lluviaConfetti() {
 function screenRelacionar(s, est) {
   const b = bloquesJuego[s.bi];
   const hechas = est.hechas || {};
+  const pares = b.pares || [];
+  // Columnas barajadas: el orden no coincide para que no estén uno al lado del otro
+  const izqOrder = est.ordenIzq && est.ordenIzq.length === pares.length ? est.ordenIzq : pares.map((_, j) => j);
+  const derOrder = est.ordenDer && est.ordenDer.length === pares.length ? est.ordenDer : pares.map((_, j) => j);
   const izqCls = (j) => (hechas[j] ? ' ok' : (est.izq === j ? ' sel' : ''));
   const derCls = (j) => (hechas[j] ? ' ok' : '');
   let html = `<div class="kp-screen">
     <div class="kp-qt">🔗 Relacionar</div>`;
   if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente);
   html += `<div class="kp-match">
-      <div class="kp-col">${(b.pares || []).map((p, j) => `<div class="kp-pair${izqCls(j)}" onclick="kpIzq(${pantallaIdx},${j})">${hechas[j] ? '✅ ' : ''}${esc(p.izq || '…')}</div>`).join('')}</div>
-      <div class="kp-col">${(b.pares || []).map((p, j) => `<div class="kp-pair alt${derCls(j)}" onclick="kpDer(${pantallaIdx},${j})">${hechas[j] ? '✅ ' : ''}${esc(p.der || '…')}</div>`).join('')}</div>
+      <div class="kp-col">${izqOrder.map((j) => `<div class="kp-pair${izqCls(j)}" onclick="kpIzq(${pantallaIdx},${j})">${hechas[j] ? '✅ ' : ''}${esc(pares[j].izq || '…')}</div>`).join('')}</div>
+      <div class="kp-col">${derOrder.map((j) => `<div class="kp-pair alt${derCls(j)}" onclick="kpDer(${pantallaIdx},${j})">${hechas[j] ? '✅ ' : ''}${esc(pares[j].der || '…')}</div>`).join('')}</div>
     </div>`;
-  if ((b.pares || []).length > 0 && Object.keys(hechas).length >= b.pares.length) html += `<div class="kp-msg ok">¡Todo emparejado! 🎉</div>`;
+  if (pares.length > 0 && Object.keys(hechas).length >= pares.length) html += `<div class="kp-msg ok">¡Todo emparejado! 🎉</div>`;
   html += `<div class="kp-hint">👆 Toca una tarjeta de cada lado para emparejar</div></div>`;
   return html;
 }

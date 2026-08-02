@@ -404,8 +404,10 @@ function verPreview() {
       pantallas.push({ tipo: 'sopa', bi, grid, size });
       kpEstado.push({ encontradas: {}, sel: [], foundCells: [], error: false });
     } else if (b.tipo === 'relacionar') {
+      const n = (b.pares || []).length;
+      const indices = Array.from({ length: n }, (_, k) => k);
       pantallas.push({ tipo: 'relacionar', bi });
-      kpEstado.push({ izq: null, hechas: {} });
+      kpEstado.push({ izq: null, hechas: {}, ordenIzq: shuffleArr(indices), ordenDer: shuffleArr(indices) });
     } else if (b.tipo === 'ordenar') {
       pantallas.push({ tipo: 'ordenar', bi });
       kpEstado.push({ orden: shuffleArr((b.items || []).map((_, k) => k)), hechas: 0 });
@@ -638,16 +640,20 @@ function lluviaConfetti() {
 function screenRelacionar(s, est) {
   const b = bloques[s.bi];
   const hechas = est.hechas || {};
+  const pares = b.pares || [];
+  // Columnas barajadas: el orden no coincide para que no estén uno al lado del otro
+  const izqOrder = est.ordenIzq && est.ordenIzq.length === pares.length ? est.ordenIzq : pares.map((_, j) => j);
+  const derOrder = est.ordenDer && est.ordenDer.length === pares.length ? est.ordenDer : pares.map((_, j) => j);
   const izqCls = (j) => (hechas[j] ? ' ok' : (est.izq === j ? ' sel' : ''));
   const derCls = (j) => (hechas[j] ? ' ok' : '');
   let html = `<div class="kp-screen">
     <div class="kp-qt">🔗 Relacionar</div>`;
   if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente);
   html += `<div class="kp-match">
-      <div class="kp-col">${(b.pares || []).map((p, j) => `<div class="kp-pair${izqCls(j)}" onclick="kpIzq(${pantallaIdx},${j})">${hechas[j] ? '✅ ' : ''}${esc(p.izq || '…')}</div>`).join('')}</div>
-      <div class="kp-col">${(b.pares || []).map((p, j) => `<div class="kp-pair alt${derCls(j)}" onclick="kpDer(${pantallaIdx},${j})">${hechas[j] ? '✅ ' : ''}${esc(p.der || '…')}</div>`).join('')}</div>
+      <div class="kp-col">${izqOrder.map((j) => `<div class="kp-pair${izqCls(j)}" onclick="kpIzq(${pantallaIdx},${j})">${hechas[j] ? '✅ ' : ''}${esc(pares[j].izq || '…')}</div>`).join('')}</div>
+      <div class="kp-col">${derOrder.map((j) => `<div class="kp-pair alt${derCls(j)}" onclick="kpDer(${pantallaIdx},${j})">${hechas[j] ? '✅ ' : ''}${esc(pares[j].der || '…')}</div>`).join('')}</div>
     </div>`;
-  if ((b.pares || []).length > 0 && Object.keys(hechas).length >= b.pares.length) html += `<div class="kp-msg ok">¡Todo emparejado! 🎉</div>`;
+  if (pares.length > 0 && Object.keys(hechas).length >= pares.length) html += `<div class="kp-msg ok">¡Todo emparejado! 🎉</div>`;
   html += `<div class="kp-hint">👆 Toca una tarjeta de cada lado para emparejar</div></div>`;
   return html;
 }
