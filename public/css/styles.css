@@ -492,6 +492,7 @@ footer a { color: var(--pj-yellow); text-decoration: none; }
 .block-btn[data-tipo="relacionar"]  { border-color: var(--pj-green-light); background: linear-gradient(90deg, var(--pj-green-light), var(--pj-white)); }
 .block-btn[data-tipo="ordenar"]     { border-color: var(--pj-red-light); background: linear-gradient(90deg, var(--pj-red-light), var(--pj-white)); }
 .block-btn[data-tipo="completar"]   { border-color: var(--pj-purple-light); background: linear-gradient(90deg, var(--pj-purple-light), var(--pj-white)); }
+.block-btn[data-tipo="calculo_mental"] { border-color: var(--pj-yellow-light); background: linear-gradient(90deg, var(--pj-yellow-light), var(--pj-white)); }
 
 /* Lienzo */
 .studio-canvas {
@@ -532,6 +533,7 @@ footer a { color: var(--pj-yellow); text-decoration: none; }
 .block[data-tipo="relacionar"]  { border-left-color: var(--pj-green); }
 .block[data-tipo="ordenar"]     { border-left-color: var(--pj-red); }
 .block[data-tipo="completar"]   { border-left-color: var(--pj-purple); }
+.block[data-tipo="calculo_mental"] { border-left-color: var(--pj-yellow); }
 .block.dragging { opacity: 0.4; }
 .block-header {
   display: flex; align-items: center; gap: 10px;
@@ -750,6 +752,20 @@ footer a { color: var(--pj-yellow); text-decoration: none; }
 .kp-desc { color: var(--pj-gray-600); font-size: 15px; max-width: 420px; margin: 0 auto 12px; }
 .kp-chips { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
 .kp-hint { color: var(--pj-gray-400); font-size: 13px; margin-top: 18px; }
+/* Cálculo mental: temporizador y operación */
+.kp-timer {
+  display: inline-block; font-size: 20px; font-weight: 800; color: var(--pj-orange);
+  background: var(--pj-orange-light); border-radius: 999px; padding: 6px 18px; margin-bottom: 8px;
+  font-variant-numeric: tabular-nums;
+}
+.kp-timer.warn { color: var(--pj-red); background: var(--pj-red-light); animation: kpShake .4s ease infinite; }
+.kp-calc { font-size: 44px; font-weight: 800; color: var(--pj-purple); margin: 8px 0 16px; }
+.kp-calc-q { color: var(--pj-orange); }
+.kp-letra {
+  display: inline-flex; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--pj-purple); color: #fff; align-items: center; justify-content: center;
+  font-size: 13px; margin-right: 8px; flex: 0 0 auto;
+}
 .kp-qt {
   font-family: 'HandlyCasual', cursive; text-transform: uppercase;
   color: var(--pj-orange); font-size: 16px; letter-spacing: 1px; margin-bottom: 12px;

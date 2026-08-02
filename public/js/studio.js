@@ -9,11 +9,12 @@
 const API_BASE = 'https://admin-placeta.vercel.app/api/junior';
 
 const TIPOS = {
-  test:        { ico: '📝', nombre: 'Test' },
-  sopa_letras: { ico: '🔤', nombre: 'Sopa de letras' },
-  relacionar:  { ico: '🔗', nombre: 'Relacionar' },
-  ordenar:     { ico: '📌', nombre: 'Ordenar' },
-  completar:   { ico: '✏️', nombre: 'Completar' }
+  test:          { ico: '📝', nombre: 'Test' },
+  sopa_letras:   { ico: '🔤', nombre: 'Sopa de letras' },
+  relacionar:    { ico: '🔗', nombre: 'Relacionar' },
+  ordenar:       { ico: '📌', nombre: 'Ordenar' },
+  completar:     { ico: '✏️', nombre: 'Completar' },
+  calculo_mental: { ico: '🧮', nombre: 'Cálculo mental' }
 };
 
 // ── Galería de imágenes libres ──────────────────────────────────────
@@ -97,6 +98,7 @@ function nuevoBloque(tipo) {
   if (tipo === 'relacionar') b.pares = [{ izq: '', der: '' }];
   if (tipo === 'ordenar') b.items = ['', '', ''];
   if (tipo === 'completar') b.frases = [{ texto: '', respuesta: '' }];
+  if (tipo === 'calculo_mental') { b.sumas = [{ a: '', b: '' }]; b.segundos = 10; b.modo = 'opciones'; }
   return b;
 }
 
@@ -128,6 +130,7 @@ function renderBloque(b, i) {
   else if (b.tipo === 'relacionar') cuerpo = renderRelacionar(b, i);
   else if (b.tipo === 'ordenar') cuerpo = renderOrdenar(b, i);
   else if (b.tipo === 'completar') cuerpo = renderCompletar(b, i);
+  else if (b.tipo === 'calculo_mental') cuerpo = renderCalculo(b, i);
 
   return `
   <div class="block" id="bloque-${i}">
@@ -250,6 +253,36 @@ function renderCompletar(b, i) {
   return filas +
     `<button class="btn btn-outline" type="button" style="margin-top:12px;" onclick="anadirItem(${i},'frases')">➕ Añadir frase</button>`;
 }
+
+// ── Cálculo mental ─────────────────────────────────────────────────
+function renderCalculo(b, i) {
+  const filas = (b.sumas || []).map((s, j) => `
+    <div class="q-item">
+      <div class="q-head"><span class="q-num">Suma ${j + 1}</span>
+        <div class="q-tools"><button class="b-btn del" onclick="borrarItem(${i},'sumas',${j})">🗑️</button></div>
+      </div>
+      <div class="row2">
+        <input type="number" inputmode="numeric" placeholder="Número A" value="${esc(s.a)}" oninput="setSuma(${i},${j},'a',this.value)" />
+        <input type="number" inputmode="numeric" placeholder="Número B" value="${esc(s.b)}" oninput="setSuma(${i},${j},'b',this.value)" />
+      </div>
+      <p class="form-note" style="margin-top:6px;">🧮 ${(Number(s.a) || 0)} + ${(Number(s.b) || 0)} = ${(Number(s.a) || 0) + (Number(s.b) || 0)}</p>
+    </div>`).join('');
+  return `
+    <div class="row2">
+      <div><label>⏱️ Segundos por suma</label><input type="number" min="3" max="60" value="${b.segundos || 10}" oninput="setCampo(${i},'segundos',this.value)" /></div>
+      <div><label>Cómo responden</label>
+        <select onchange="setCampo(${i},'modo',this.value)">
+          <option value="opciones" ${b.modo !== 'escribir' ? 'selected' : ''}>3 opciones</option>
+          <option value="escribir" ${b.modo === 'escribir' ? 'selected' : ''}>Escriben la respuesta</option>
+        </select>
+      </div>
+    </div>
+    ${filas}
+    <button class="btn btn-outline" type="button" style="margin-top:12px;" onclick="anadirSuma(${i})">➕ Añadir suma</button>`;
+}
+
+function setSuma(i, j, lado, valor) { bloques[i].sumas[j][lado] = valor; }
+function anadirSuma(i) { bloques[i].sumas.push({ a: '', b: '' }); render(); }
 
 // ── Mutaciones (globales para los onclick) ───────────────────────────
 function setCampo(i, ruta, valor) { bloques[i][ruta] = valor; }
@@ -414,6 +447,14 @@ function verPreview() {
     } else if (b.tipo === 'completar') {
       pantallas.push({ tipo: 'completar', bi });
       kpEstado.push({ estado: {} });
+    } else if (b.tipo === 'calculo_mental') {
+      (b.sumas || []).forEach((s, si) => {
+        const a = Number(s.a) || 0, bb = Number(s.b) || 0;
+        const correcta = a + bb;
+        const opciones = b.modo === 'opciones' ? generarOpcionesCalculo(correcta) : [];
+        pantallas.push({ tipo: 'calculo', bi, si, n: (b.sumas || []).length });
+        kpEstado.push({ respondida: false, sel: null, acierto: null, opciones, correcta });
+      });
     }
   });
 
@@ -426,6 +467,20 @@ function verPreview() {
   $('preview-modal').classList.remove('hidden');
 }
 
+function generarOpcionesCalculo(correcta) {
+  const opts = new Set([correcta]);
+  let tries = 0;
+  while (opts.size < 3 && tries < 120) {
+    const d = Math.max(2, Math.round(Math.abs(correcta) * 0.2) + 1);
+    const cand = Math.max(0, correcta + (Math.random() < 0.5 ? -1 : 1) * (Math.floor(Math.random() * d) + 1));
+    opts.add(cand);
+    tries++;
+  }
+  const arr = [...opts];
+  while (arr.length < 3) arr.push(Math.max(0, correcta + arr.length));
+  return shuffleArr(arr);
+}
+
 function renderPantalla() {
   const s = pantallas[pantallaIdx];
   const est = kpEstado[pantallaIdx] || {};
@@ -436,6 +491,7 @@ function renderPantalla() {
   else if (s.tipo === 'relacionar') cuerpo = screenRelacionar(s, est);
   else if (s.tipo === 'ordenar') cuerpo = screenOrdenar(s, est);
   else if (s.tipo === 'completar') cuerpo = screenCompletar(s, est);
+  else if (s.tipo === 'calculo') cuerpo = screenCalculo(s, est);
   else if (s.tipo === 'final') { cuerpo = screenFinal(s); if (!kpCelebrado) { kpCelebrado = true; lluviaConfetti(); } }
   $('preview-content').innerHTML = `
     <div class="kp-nav">
@@ -444,6 +500,70 @@ function renderPantalla() {
       <button class="kp-nav-btn" onclick="pantallaNext()" ${pantallaIdx === pantallas.length - 1 ? 'disabled' : ''}>→</button>
     </div>
     <div class="kp-stage">${cuerpo}</div>`;
+  clearInterval(calcTimer);
+  if (s.tipo === 'calculo') iniciarTimerCalculo();
+}
+
+// ── Cálculo mental (vista previa) ─────────────────────────────────────
+let calcTimer = null;
+function screenCalculo(s, est) {
+  const b = bloques[s.bi];
+  const suma = (b.sumas || [])[s.si] || { a: 0, b: 0 };
+  const a = Number(suma.a) || 0, bb = Number(suma.b) || 0;
+  let html = `<div class="kp-screen">
+    <div class="kp-qt">🧮 Cálculo mental · ${s.si + 1} / ${s.n || 1}</div>
+    <div class="kp-timer" data-timer="${b.segundos || 10}">⏱️ ${b.segundos || 10}s</div>
+    <div class="kp-calc">${a} + ${bb} = <span class="kp-calc-q">?</span></div>`;
+  if (est.respondida) {
+    html += `<div class="kp-msg ${est.acierto ? 'ok' : 'bad'}">${est.acierto ? '¡Muy bien! 🎉' : '⏱️ La respuesta era: ' + est.correcta + ' 💪'}</div>`;
+  } else if (b.modo === 'escribir') {
+    html += `<div class="kp-input-row">
+      <input id="kp-calc-input" type="number" inputmode="numeric" placeholder="Tu respuesta"
+        onkeydown="if(event.key==='Enter')kpResponderCalculo(${pantallaIdx})" />
+      <button class="kp-btn" onclick="kpResponderCalculo(${pantallaIdx})">Comprobar</button>
+    </div>`;
+  } else {
+    html += `<div class="kp-opts">${(est.opciones || []).map((o, k) => `
+      <div class="kp-opt" onclick="kpResponderCalculo(${pantallaIdx},${k})"><span class="kp-letra">${'ABC'[k]}</span>${o}</div>`).join('')}</div>`;
+  }
+  html += `<div class="kp-hint">⏱️ Tienes ${b.segundos || 10} segundos. ¡Calcula rápido!</div></div>`;
+  return html;
+}
+function iniciarTimerCalculo() {
+  const s = pantallas[pantallaIdx];
+  if (!s || s.tipo !== 'calculo') return;
+  const b = bloques[s.bi];
+  let seg = Math.max(1, Number(b.segundos) || 10);
+  const el = document.querySelector('[data-timer]');
+  if (el) el.textContent = '⏱️ ' + seg + 's';
+  calcTimer = setInterval(() => {
+    seg--;
+    const el2 = document.querySelector('[data-timer]');
+    if (el2) {
+      el2.textContent = '⏱️ ' + seg + 's';
+      if (seg <= 3) el2.classList.add('warn');
+    }
+    if (seg <= 0) { clearInterval(calcTimer); calcTimer = null; kpTimeoutCalculo(pantallaIdx); }
+  }, 1000);
+}
+function kpResponderCalculo(idx, k) {
+  const s = pantallas[idx], est = kpEstado[idx];
+  if (!est || est.respondida) return;
+  let ok;
+  if ((bloques[s.bi] || {}).modo === 'escribir') {
+    const v = parseInt(document.getElementById('kp-calc-input')?.value, 10);
+    if (isNaN(v)) return;
+    ok = v === est.correcta;
+  } else {
+    ok = (est.opciones || [])[k] === est.correcta;
+  }
+  est.respondida = true; est.acierto = ok;
+  if (ok) kpScore.verdes++; else kpScore.rojos++;
+  renderPantalla();
+}
+function kpTimeoutCalculo(idx) {
+  const est = kpEstado[idx];
+  if (est && !est.respondida) { est.respondida = true; est.acierto = false; kpScore.rojos++; renderPantalla(); }
 }
 
 function screenPortada(s) {
@@ -796,6 +916,7 @@ function contarPreguntas() {
     else if (b.tipo === 'relacionar') n += b.pares.filter(p => p.izq && p.der).length;
     else if (b.tipo === 'ordenar') n += b.items.filter(Boolean).length;
     else if (b.tipo === 'completar') n += b.frases.filter(f => f.texto && f.respuesta).length;
+    else if (b.tipo === 'calculo_mental') n += b.sumas.filter(s => s.a !== '' && s.b !== '').length;
   }
   return n;
 }
