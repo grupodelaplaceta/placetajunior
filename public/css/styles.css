@@ -755,6 +755,7 @@ footer a { color: var(--pj-yellow); text-decoration: none; }
 .kp-cell:hover { background: var(--pj-purple-light); transform: scale(1.08); }
 .kp-cell.start { border-color: var(--pj-purple); background: var(--pj-purple); color: #fff; box-shadow: 0 0 0 3px var(--pj-purple-light); }
 .kp-cell.found { border-color: var(--pj-green); background: var(--pj-green); color: #fff; }
+.kp-cell.sel { border-color: var(--pj-purple); background: var(--pj-purple-light); color: var(--pj-purple); box-shadow: 0 0 0 3px var(--pj-purple-light); }
 .kp-match { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; max-width: 460px; margin: 0 auto; }
 .kp-pair { border: 3px solid var(--pj-blue-light); border-radius: 14px; padding: 12px; font-weight: 700; background: var(--pj-blue-light); cursor: pointer; transition: all .15s; }
 .kp-pair.alt { border-color: var(--pj-green-light); background: var(--pj-green-light); color: var(--pj-green); }
@@ -764,6 +765,21 @@ footer a { color: var(--pj-yellow); text-decoration: none; }
 .kp-num { width: 32px; height: 32px; border-radius: 50%; background: var(--pj-orange); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; flex: 0 0 auto; }
 .kp-frase { font-size: 20px; font-weight: 700; margin-bottom: 12px; }
 .kp-blank { display: inline-block; min-width: 90px; border-bottom: 4px dashed var(--pj-purple); margin: 0 4px; height: 26px; }
+
+/* Puntuación final (puntos verdes y rojos) */
+.kp-score { display: flex; gap: 14px; justify-content: center; margin: 16px 0; flex-wrap: wrap; }
+.kp-score-item { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 22px; padding: 12px 18px; border-radius: 16px; }
+.kp-score-item.verdes { background: var(--pj-green-light); color: var(--pj-green); }
+.kp-score-item.rojos { background: var(--pj-red-light); color: var(--pj-red); }
+.kp-score-item small { font-size: 12px; font-weight: 600; opacity: .8; }
+
+/* Lluvia de confeti con las formas oficiales GDLP */
+#confetti { position: fixed; inset: 0; pointer-events: none; z-index: 600; overflow: hidden; }
+.confetti-piece { position: absolute; top: -50px; opacity: .9; animation-name: confettiFall; animation-timing-function: linear; animation-fill-mode: forwards; }
+@keyframes confettiFall {
+  0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg) scale(0.7); opacity: .5; }
+}
 
 /* Estados jugables */
 .kp-opt.ok { border-color: var(--pj-green); background: var(--pj-green-light); color: var(--pj-green); }

@@ -7,6 +7,8 @@ let pantallas = [];
 let pantallaIdx = 0;
 let kpEstado = [];
 let bloquesJuego = [];
+let kpScore = { verdes: 0, rojos: 0 };
+let kpCelebrado = false;
 
 function esc(s) {
   return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -91,7 +93,7 @@ function abrirJuego(act) {
     } else if (b.tipo === 'sopa_letras') {
       const { grid, size } = generarSopa(b.palabras, b.tamano);
       pantallas.push({ tipo: 'sopa', bi, grid, size });
-      kpEstado.push({ encontradas: {}, inicio: null, foundCells: [], error: false });
+      kpEstado.push({ encontradas: {}, sel: [], foundCells: [], error: false });
     } else if (b.tipo === 'relacionar') {
       pantallas.push({ tipo: 'relacionar', bi });
       kpEstado.push({ izq: null, hechas: {} });
@@ -104,6 +106,10 @@ function abrirJuego(act) {
     }
   });
 
+  pantallas.push({ tipo: 'final', tit, cat });
+  kpEstado.push({});
+  kpScore = { verdes: 0, rojos: 0 };
+  kpCelebrado = false;
   pantallaIdx = 0;
   renderPantalla();
   const m = document.getElementById('player-modal');
@@ -120,6 +126,7 @@ function renderPantalla() {
   else if (s.tipo === 'relacionar') cuerpo = screenRelacionar(s, est);
   else if (s.tipo === 'ordenar') cuerpo = screenOrdenar(s, est);
   else if (s.tipo === 'completar') cuerpo = screenCompletar(s, est);
+  else if (s.tipo === 'final') { cuerpo = screenFinal(s); if (!kpCelebrado) { kpCelebrado = true; lluviaConfetti(); } }
   document.getElementById('player-content').innerHTML = `
     <div class="kp-nav">
       <button class="kp-nav-btn" onclick="pantallaPrev()" ${pantallaIdx === 0 ? 'disabled' : ''}>←</button>
@@ -176,6 +183,7 @@ function kpResponder(idx, k) {
   est.respondida = true;
   est.sel = k;
   est.acierto = (k === bloquesJuego[s.bi].preguntas[s.pi].correcta);
+  if (est.acierto) kpScore.verdes++; else kpScore.rojos++;
   renderPantalla();
 }
 
@@ -183,10 +191,11 @@ function screenSopa(s, est) {
   const b = bloquesJuego[s.bi];
   const enc = est.encontradas || {};
   const foundCells = est.foundCells || [];
+  const sel = est.sel || [];
   const validas = (b.palabras || []).filter(Boolean);
   const chips = validas.map((p, j) => {
     const en = !!enc[j];
-    return `<span class="kp-chip ${en ? 'ok' : ''}" onclick="kpPalabra(${pantallaIdx},${j})">${en ? '✅ ' : ''}${esc(String(p).toUpperCase())}</span>`;
+    return `<span class="kp-chip ${en ? 'ok' : ''}">${en ? '✅ ' : ''}${esc(String(p).toUpperCase())}</span>`;
   }).join('');
   const total = validas.length;
   const hechas = Object.keys(enc).length;
@@ -198,55 +207,84 @@ function screenSopa(s, est) {
   s.grid.forEach((row, r) => row.forEach((c, cc) => {
     let cls = 'kp-cell';
     if (foundCells.some(f => f.r === r && f.c === cc)) cls += ' found';
-    if (est.inicio && est.inicio.r === r && est.inicio.c === cc) cls += ' start';
+    else if (sel.some(p => p.r === r && p.c === cc)) cls += ' sel';
     html += `<span class="${cls}" onclick="kpCelda(${pantallaIdx},${r},${cc})">${esc(c)}</span>`;
   }));
   html += `</div>`;
-  if (est.error) html += `<div class="kp-msg bad">👀 Esas letras no forman una palabra…</div>`;
+  if (est.error) html += `<div class="kp-msg bad">👀 Esa letra no sigue ninguna palabra…</div>`;
   else if (hechas >= total && total > 0) html += `<div class="kp-msg ok">¡Has encontrado todas! 🎉</div>`;
   else if (total > 0) html += `<div class="kp-msg">🔤 ${hechas} / ${total}</div>`;
-  html += `<div class="kp-hint">👆 Toca la primera y la última letra de cada palabra (en línea recta)</div></div>`;
+  html += `<div class="kp-hint">👆 Toca las letras una a una formando la palabra</div></div>`;
   return html;
-}
-function kpPalabra(idx, j) {
-  const est = kpEstado[idx];
-  if (est.encontradas[j]) delete est.encontradas[j];
-  else est.encontradas[j] = true;
-  renderPantalla();
 }
 function kpCelda(idx, r, c) {
   const est = kpEstado[idx];
   const s = pantallas[idx];
-  if (!est.inicio) { est.inicio = { r, c }; renderPantalla(); return; }
-  const a = est.inicio;
-  est.inicio = null;
-  const dr = Math.sign(r - a.r);
-  const dc = Math.sign(c - a.c);
-  const straight = (dr === 0 || dc === 0 || Math.abs(dr) === Math.abs(dc));
-  if (!straight) { est.error = true; renderPantalla(); setTimeout(() => { if (kpEstado[idx]) { est.error = false; renderPantalla(); } }, 700); return; }
-  const len = Math.max(Math.abs(r - a.r), Math.abs(c - a.c)) + 1;
-  let word = '';
-  const cells = [];
-  for (let k = 0; k < len; k++) {
-    const rr = a.r + dr * k, cc = a.c + dc * k;
-    if (rr < 0 || rr >= s.size || cc < 0 || cc >= s.size) return;
-    word += s.grid[rr][cc];
-    cells.push({ r: rr, c: cc });
+  const sel = est.sel || [];
+  if (sel.length === 0) { est.sel = [{ r, c }]; renderPantalla(); return; }
+  const last = sel[sel.length - 1];
+  const dr = r - last.r, dc = c - last.c;
+  if (Math.abs(dr) > 1 || Math.abs(dc) > 1) { est.sel = [{ r, c }]; renderPantalla(); return; }
+  if (sel.length >= 2) {
+    const prev = sel[sel.length - 2];
+    if (dr !== (last.r - prev.r) || dc !== (last.c - prev.c)) { est.sel = [{ r, c }]; renderPantalla(); return; }
   }
   const b = bloquesJuego[s.bi];
-  const validas = (b.palabras || []).filter(Boolean).map(p => String(p).toUpperCase().replace(/[^A-ZÑ]/g, ''));
+  const validas = (b.palabras || []).filter(Boolean).map(p => String(p).toUpperCase().replace(/[^A-ZÑ]/g, '')).filter(p => p.length >= 2);
+  const nuevo = [...sel, { r, c }];
+  const word = nuevo.map(p => s.grid[p.r][p.c]).join('');
   const rev = word.split('').reverse().join('');
   const wi = validas.findIndex((w, i) => !est.encontradas[i] && (w === word || w === rev));
   if (wi >= 0) {
     est.encontradas[wi] = true;
-    est.foundCells = [...(est.foundCells || []), ...cells];
-  } else {
+    est.foundCells = [...(est.foundCells || []), ...nuevo];
+    est.sel = [];
+    kpScore.verdes++;
+    renderPantalla(); return;
+  }
+  const esPrefijo = validas.some((w, i) => !est.encontradas[i] && (w.startsWith(word) || w.startsWith(rev)));
+  if (!esPrefijo) {
+    kpScore.rojos++;
+    est.sel = [];
     est.error = true;
     renderPantalla();
     setTimeout(() => { if (kpEstado[idx]) { est.error = false; renderPantalla(); } }, 700);
     return;
   }
+  est.sel = nuevo;
   renderPantalla();
+}
+function screenFinal(s) {
+  return `
+    <div class="kp-screen">
+      <div class="kp-cover cover-${chipColor(s.cat)}">🎉</div>
+      <h3 class="kp-title">¡Lo has conseguido!</h3>
+      <p class="kp-desc">${esc(s.tit)}</p>
+      <div class="kp-score">
+        <div class="kp-score-item verdes"><span class="kp-score-num">🟢</span>${kpScore.verdes} <small>puntos verdes</small></div>
+        <div class="kp-score-item rojos"><span class="kp-score-num">🔴</span>${kpScore.rojos} <small>puntos rojos</small></div>
+      </div>
+      <div class="kp-hint">💪 ¡Sigue así, campeón!</div>
+    </div>`;
+}
+function lluviaConfetti() {
+  const cont = document.getElementById('confetti');
+  if (!cont) return;
+  cont.innerHTML = '';
+  const colores = ['#FF3333', '#FF6600', '#D6CE52', '#336E45', '#3A00E1', '#4E3B70'];
+  for (let i = 0; i < 42; i++) {
+    const s = document.createElement('span');
+    s.className = 'shape confetti-piece';
+    s.style.left = (Math.random() * 100) + 'vw';
+    s.style.width = (10 + Math.random() * 16) + 'px';
+    s.style.height = (12 + Math.random() * 16) + 'px';
+    s.style.color = colores[i % colores.length];
+    s.style.animationDuration = (2.5 + Math.random() * 2.5) + 's';
+    s.style.animationDelay = (Math.random() * 0.9) + 's';
+    cont.appendChild(s);
+  }
+  cont.classList.remove('hidden');
+  setTimeout(() => { cont.classList.add('hidden'); cont.innerHTML = ''; }, 6500);
 }
 
 function screenRelacionar(s, est) {
@@ -273,7 +311,8 @@ function kpIzq(idx, j) {
 function kpDer(idx, j) {
   const est = kpEstado[idx];
   if (est.izq === null) return;
-  if (est.izq === j) est.hechas[j] = true;
+  if (est.izq === j) { est.hechas[j] = true; kpScore.verdes++; }
+  else kpScore.rojos++;
   est.izq = null;
   renderPantalla();
 }
@@ -297,7 +336,8 @@ function screenOrdenar(s, est) {
 }
 function kpOrden(idx, ix) {
   const est = kpEstado[idx];
-  if (est.orden[est.hechas] === ix) { est.hechas++; est.err = false; renderPantalla(); return; }
+  if (est.orden[est.hechas] === ix) { est.hechas++; est.err = false; kpScore.verdes++; renderPantalla(); return; }
+  kpScore.rojos++;
   est.err = true;
   renderPantalla();
   setTimeout(() => { if (kpEstado[idx]) { est.err = false; renderPantalla(); } }, 900);
@@ -327,7 +367,9 @@ function kpComprobar(idx, fi) {
   const b = bloquesJuego[pantallas[idx].bi];
   const f = b.frases[fi];
   const val = (document.getElementById('kp-fill-' + idx + '-' + fi)?.value || '').trim().toLowerCase();
-  est.estado[fi] = (val === (f.respuesta || '').trim().toLowerCase()) ? 'ok' : 'err';
+  const okk = (val === (f.respuesta || '').trim().toLowerCase());
+  est.estado[fi] = okk ? 'ok' : 'err';
+  if (okk) kpScore.verdes++; else kpScore.rojos++;
   renderPantalla();
 }
 
