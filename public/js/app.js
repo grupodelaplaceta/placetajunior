@@ -59,11 +59,12 @@ function coverHTML(a) {
   // Si hay portada real la usamos; si no, se genera una imagen (miniaturas reales con canvas)
   const estilo = a.portada_url
     ? `style="background-image:url('${a.portada_url}');background-size:cover;background-position:center;"`
-    : `data-gen="1" data-cat="${escapeHtml(a.categoria || '')}"`;
+    : `data-gen="1" data-cat="${escapeHtml(a.categoria || '')}" data-tipo="${escapeHtml(a.tipo || '')}"`;
   return `
     <div class="card-cover" ${estilo}>
       ${badge}
       ${lock}
+      <button class="info-btn" onclick="event.stopPropagation();verInfo('${a.id}')" title="Ver información">ℹ️</button>
     </div>`;
 }
 
@@ -84,25 +85,95 @@ function dibujarForma(ctx, x, y, s) {
   ctx.lineTo(0.4 * s, s); ctx.lineTo(0.04 * s, 0.72 * s); ctx.lineTo(0.08 * s, 0.22 * s);
   ctx.closePath(); ctx.fill(); ctx.restore();
 }
+function tipoIcono(tipo = '') {
+  if (tipo === 'sopa_letras') return '🔤';
+  if (tipo === 'relacionar_conceptos' || tipo === 'relacionar_imagenes') return '🔗';
+  if (tipo === 'ordenar_elementos') return '📌';
+  if (tipo === 'completar_frases') return '✏️';
+  if (tipo === 'verdadero_falso') return '⚖️';
+  if (tipo === 'logica' || tipo === 'retos_interactivos') return '🧠';
+  return '';
+}
+function roundRectPath(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
 function generarCaratula(a) {
   return new Promise((resolve) => {
     try {
-      const W = 520, H = 380;
+      const W = 640, H = 360; // 16:9
       const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
       const ctx = cv.getContext('2d');
       const [c1, c2] = coloresCaratula(categoriaColor(a.cat));
+
+      // Fondo: degradado diagonal
       const g = ctx.createLinearGradient(0, 0, W, H);
       g.addColorStop(0, c1); g.addColorStop(1, c2);
       ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-      dibujarForma(ctx, W * 0.86, H * 0.10, 92);
-      dibujarForma(ctx, W * 0.07, H * 0.88, 60);
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.font = '130px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';
-      ctx.fillText(categoriaIcono(a.cat), W / 2, H / 2 - 38);
-      ctx.font = '800 34px "Plus Jakarta Sans","Arial",sans-serif';
+
+      // Patrón de formas oficiales dispersas
+      ctx.globalAlpha = 0.13;
+      for (let i = 0; i < 9; i++) {
+        const x = 24 + ((i * 73) % (W - 70));
+        const y = 18 + ((i * 97) % (H - 40));
+        dibujarForma(ctx, x, y, 24 + (i % 4) * 12);
+      }
+      ctx.globalAlpha = 0.10;
+      dibujarForma(ctx, W - 130, H - 130, 210);
+      ctx.globalAlpha = 1;
+
+      // Puntos decorativos
+      ctx.fillStyle = 'rgba(255,255,255,0.5)';
+      for (let i = 0; i < 26; i++) {
+        ctx.beginPath();
+        ctx.arc(14 + ((i * 53) % (W - 28)), 12 + ((i * 71) % (H - 24)), 1.8, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Medallón redondeado con icono
+      const mx = W / 2, my = 128, r = 74;
+      ctx.save();
+      ctx.shadowColor = 'rgba(0,0,0,0.28)'; ctx.shadowBlur = 26; ctx.shadowOffsetY = 8;
       ctx.fillStyle = 'rgba(255,255,255,0.95)';
+      roundRectPath(ctx, mx - r, my - r, r * 2, r * 2, 30);
+      ctx.fill();
+      ctx.restore();
+      ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.lineWidth = 3;
+      roundRectPath(ctx, mx - r + 7, my - r + 7, r * 2 - 14, r * 2 - 14, 24);
+      ctx.stroke();
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.font = '88px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';
+      ctx.fillText(tipoIcono(a.tipo) || categoriaIcono(a.cat), mx, my + 4);
+
+      // Degradado inferior para contraste
+      const fade = ctx.createLinearGradient(0, H - 130, 0, H);
+      fade.addColorStop(0, 'rgba(0,0,0,0)'); fade.addColorStop(1, 'rgba(0,0,0,0.38)');
+      ctx.fillStyle = fade; ctx.fillRect(0, H - 130, W, 130);
+
+      // Título con sombra
+      ctx.save();
+      ctx.shadowColor = 'rgba(0,0,0,0.4)'; ctx.shadowBlur = 12; ctx.shadowOffsetY = 3;
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '800 34px "Plus Jakarta Sans","Arial",sans-serif';
       const t = (a.tit || '').toUpperCase();
-      ctx.fillText(t.length > 24 ? t.slice(0, 23) + '…' : t, W / 2, H - 46);
+      ctx.fillText(t.length > 26 ? t.slice(0, 25) + '…' : t, W / 2, 246);
+      ctx.restore();
+
+      // Pill de categoría
+      const catLabel = (a.cat || 'GENERAL').toUpperCase();
+      ctx.font = '800 17px "Plus Jakarta Sans","Arial",sans-serif';
+      const catW = ctx.measureText(catLabel).width + 34;
+      ctx.fillStyle = 'rgba(20,20,40,0.6)';
+      roundRectPath(ctx, (W - catW) / 2, 288, catW, 32, 16);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(catLabel, W / 2, 304);
+
       resolve(cv.toDataURL('image/png'));
     } catch (e) { resolve(''); }
   });
@@ -113,7 +184,8 @@ function generarCaratulasEn(cont) {
     const card = el.closest('.card');
     const tit = (card?.querySelector('h3')?.textContent || '').trim();
     const cat = el.dataset.cat || '';
-    generarCaratula({ cat, tit }).then((url) => {
+    const tipo = el.dataset.tipo || '';
+    generarCaratula({ cat, tit, tipo }).then((url) => {
       if (url) { el.style.backgroundImage = `url('${url}')`; el.style.backgroundSize = 'cover'; el.style.backgroundPosition = 'center'; }
     });
   });
@@ -125,18 +197,44 @@ function cardActividad(a) {
     <div class="card" onclick="abrirActividad('${a.id}', ${bloqueada})">
       ${coverHTML(a)}
       <h3>${escapeHtml(a.titulo)}</h3>
-      <p>${escapeHtml(a.descripcion || '')}</p>
       <div class="meta">
         <span class="chip ${categoriaColor(a.categoria)}">${escapeHtml(a.categoria)}</span>
-        <span class="chip">👧 ${escapeHtml(a.edad_recomendada || '6-12')}</span>
-        <span class="chip">⭐ ${escapeHtml(a.dificultad || 'media')}</span>
-        <span class="chip">⏱️ ${a.tiempo_estimado || '?'} min</span>
-      </div>
-      <div class="meta">
-        ${a.recompensa ? `<span class="chip blue">🏆 +${a.recompensa} Pz</span>` : ''}
-        <span class="chip yellow">📊 ${a.estadisticas?.veces_realizada || 0} jugadas</span>
       </div>
     </div>`;
+}
+
+// Muestra la información de la actividad en un modal (icono ℹ️)
+function verInfo(id) {
+  const a = TODAS.find(x => x.id === id);
+  if (!a) return;
+  const bloqueada = esBloqueada(a);
+  document.getElementById('info-content').innerHTML = `
+    <div class="info-cover" id="info-cover"></div>
+    <h3 class="info-title">${escapeHtml(a.titulo)}</h3>
+    <p class="info-desc">${escapeHtml(a.descripcion || '')}</p>
+    <div class="meta" style="margin-bottom:14px;">
+      <span class="chip ${categoriaColor(a.categoria)}">${escapeHtml(a.categoria)}</span>
+      <span class="chip">👧 ${escapeHtml(a.edad_recomendada || '6-12')}</span>
+      <span class="chip">⭐ ${escapeHtml(a.dificultad || 'media')}</span>
+      <span class="chip">⏱️ ${a.tiempo_estimado || '?'} min</span>
+      ${a.recompensa ? `<span class="chip blue">🏆 +${a.recompensa} Pz</span>` : ''}
+      <span class="chip yellow">📊 ${a.estadisticas?.veces_realizada || 0} jugadas</span>
+    </div>
+    <div class="m-actions">
+      ${bloqueada
+        ? '<span class="chip red" style="font-size:13px;">🔒 De pago (no subvencionada)</span>'
+        : `<button class="btn btn-green" onclick="document.getElementById('info-modal').classList.add('hidden');abrirActividad('${a.id}', false)">🎮 Jugar</button>`}
+      <button class="btn btn-outline" onclick="document.getElementById('info-modal').classList.add('hidden')">Cerrar</button>
+    </div>`;
+  const coverEl = document.getElementById('info-cover');
+  if (a.portada_url) {
+    coverEl.style.backgroundImage = `url('${a.portada_url}')`;
+  } else {
+    generarCaratula({ cat: a.categoria, tit: a.titulo, tipo: a.tipo }).then(url => {
+      if (url) coverEl.style.backgroundImage = `url('${url}')`;
+    });
+  }
+  document.getElementById('info-modal').classList.remove('hidden');
 }
 
 let TODAS = []; // todas las actividades públicas
@@ -192,13 +290,23 @@ function renderCategorias() {
   cont.querySelectorAll('.cat-section .h-row').forEach(sec => generarCaratulasEn(sec));
 }
 
-// Modal de actividad
-function abrirActividad(id, bloqueada) {
+// Abrir y JUGAR la actividad publicada (reproductor de la web)
+async function abrirActividad(id, bloqueada) {
   if (bloqueada) {
-    alert(`🔒 Actividad ${id}\n\nEsta actividad es de pago (no subvencionada).\nPuedes adquirirla en la app Placeta Junior y pagarla con Placetas (su precio incluye IVA).`);
+    alert('🔒 Esta actividad es de pago (no subvencionada).\nPuedes adquirirla en la app Placeta Junior y pagarla con Placetas (su precio incluye IVA).');
     return;
   }
-  alert(`🎓 Actividad ${id}\n\nEn la web pública las actividades son de acceso gratuito gracias al Fondo Público de Acceso de Placeta Junior.\n\n(El reproductor interactivo estará disponible próximamente en la web. Puedes jugarla en la app Placeta Junior.)`);
+  try {
+    const data = await apiGet(`/actividades/${id}`);
+    if (data.actividad) {
+      if (typeof abrirJuego === 'function') abrirJuego(data.actividad);
+      else alert('No se pudo iniciar el juego.');
+    } else {
+      alert('No se encontró la actividad.');
+    }
+  } catch (e) {
+    alert('No se pudo cargar la actividad. Inténtalo de nuevo.');
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -206,4 +314,7 @@ function abrirActividad(id, bloqueada) {
 // ═══════════════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
   cargarTodo();
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') document.getElementById('info-modal')?.classList.add('hidden');
+  });
 });

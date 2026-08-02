@@ -65,6 +65,26 @@
     <p>© 2026 Placeta Junior · Grupo de La Placeta · <a href="https://laplaceta.org" target="_blank" rel="noopener">laplaceta.org</a></p>
   </footer>
 
+  <!-- Modal: información de la actividad -->
+  <div id="info-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <div id="info-content"></div>
+    </div>
+  </div>
+
+  <!-- Modal: reproductor jugable -->
+  <div id="player-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <h3>🎮 ¡A jugar!</h3>
+      <p class="m-sub">Prueba la actividad tal y como la verá el peque.</p>
+      <div id="player-content"></div>
+      <div class="m-actions">
+        <button id="player-close" class="btn btn-outline" type="button">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
   <script src="js/app.js"></script>
+  <script src="js/player.js"></script>
 </body>
 </html>

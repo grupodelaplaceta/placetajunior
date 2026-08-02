@@ -346,16 +346,31 @@ function shuffleArr(a) {
   return x;
 }
 
-// Genera una sopa de letras simple (las palabras se colocan en horizontal)
+// Genera una sopa de letras (las palabras se colocan enteras, en horizontal o vertical)
 function generarSopa(palabras, tamano) {
-  const size = Math.max(Number(tamano) || 10, 8);
+  const validas = (palabras || []).filter(Boolean).map(p => String(p).toUpperCase().replace(/[^A-ZÑ]/g, '')).filter(p => p.length >= 2);
+  const maxLen = validas.length ? Math.max(...validas.map(p => p.length)) : 3;
+  const size = Math.max(Number(tamano) || 10, maxLen + 1, 8);
   const grid = Array.from({ length: size }, () => Array(size).fill(''));
-  const validas = (palabras || []).filter(Boolean).map(p => p.toUpperCase());
-  validas.forEach((p, i) => {
-    const row = i % size;
-    const col = Math.max(0, Math.floor(Math.random() * (size - Math.min(p.length, size))));
-    for (let k = 0; k < p.length && col + k < size; k++) grid[row][col + k] = p[k];
-  });
+  const colocar = (palabra) => {
+    const L = palabra.length;
+    if (Math.random() < 0.6) { // horizontal
+      const row = Math.floor(Math.random() * size);
+      const col = Math.floor(Math.random() * (size - L + 1));
+      let ok = true;
+      for (let k = 0; k < L; k++) { const c = grid[row][col + k]; if (c && c !== palabra[k]) ok = false; }
+      if (ok) for (let k = 0; k < L; k++) grid[row][col + k] = palabra[k];
+      return ok;
+    } else { // vertical
+      const col = Math.floor(Math.random() * size);
+      const row = Math.floor(Math.random() * (size - L + 1));
+      let ok = true;
+      for (let k = 0; k < L; k++) { const c = grid[row + k][col]; if (c && c !== palabra[k]) ok = false; }
+      if (ok) for (let k = 0; k < L; k++) grid[row + k][col] = palabra[k];
+      return ok;
+    }
+  };
+  validas.forEach((p) => { for (let t = 0; t < 30 && !colocar(p); t++) { /* reintentar */ } });
   const abc = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   for (let r = 0; r < size; r++) for (let c = 0; c < size; c++) if (!grid[r][c]) grid[r][c] = abc[Math.floor(Math.random() * 26)];
   return { grid, size };
@@ -605,7 +620,10 @@ function abrirMeta() {
   $('m-descripcion').value = meta.descripcion;
   $('m-categoria').value = meta.categoria;
   $('m-tipo').value = meta.tipo;
-  $('m-edad').value = meta.edad;
+  const estimada = estimarEdad();
+  $('m-edad').value = estimada;
+  const notaEdad = $('m-edad-note');
+  if (notaEdad) notaEdad.textContent = `🪄 Edad estimada automáticamente según la longitud y el tamaño de las sopas y actividades: ${estimada}. Puedes cambiarla si quieres.`;
   $('m-dificultad').value = meta.dificultad;
   $('m-tiempo').value = meta.tiempo;
   $('m-titular').value = meta.titular || 'interno';
@@ -646,6 +664,31 @@ function contarPreguntas() {
     else if (b.tipo === 'completar') n += b.frases.filter(f => f.texto && f.respuesta).length;
   }
   return n;
+}
+
+// Estima la edad recomendada según la longitud y el tamaño de las sopas y actividades
+function estimarEdad() {
+  let total = 0, n = 0;
+  for (const b of bloques) {
+    if (b.tipo === 'sopa_letras') {
+      const words = (b.palabras || []).filter(Boolean);
+      const maxLen = words.length ? Math.max(...words.map(w => String(w).length)) : 0;
+      const size = Number(b.tamano) || 10;
+      let e = 6;
+      if (words.length >= 6) e = 9;
+      else if (words.length >= 4) e = 8;
+      else if (words.length >= 3) e = 7;
+      if (maxLen >= 8 || size >= 12) e += 1;
+      if (maxLen >= 5 && size >= 10) e += 1;
+      total += e; n++;
+    } else if (b.tipo === 'test') {
+      const np = (b.preguntas || []).length;
+      total += (np >= 10 ? 9 : (np >= 6 ? 8 : 6)); n++;
+    }
+  }
+  if (!n) return '6-12';
+  const e = Math.round(total / n);
+  return `${Math.max(5, e)}-${Math.min(14, e + 2)}`;
 }
 
 async function publicar() {
