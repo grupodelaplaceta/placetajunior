@@ -9,13 +9,13 @@
 const API_BASE = 'https://admin-placeta.vercel.app/api/junior';
 
 const TIPOS = {
-  test:          { ico: '📝', nombre: 'Test' },
-  texto:         { ico: '📖', nombre: 'Texto explicativo' },
-  sopa_letras:   { ico: '🔤', nombre: 'Sopa de letras' },
-  relacionar:    { ico: '🔗', nombre: 'Relacionar' },
-  ordenar:       { ico: '📌', nombre: 'Ordenar' },
-  completar:     { ico: '✏️', nombre: 'Completar' },
-  calculo_mental: { ico: '🧮', nombre: 'Cálculo mental' }
+  test:          { ico: 'quiz', nombre: 'Test' },
+  texto:         { ico: 'menu_book', nombre: 'Texto explicativo' },
+  sopa_letras:   { ico: 'text_fields', nombre: 'Sopa de letras' },
+  relacionar:    { ico: 'link', nombre: 'Relacionar' },
+  ordenar:       { ico: 'format_list_numbered', nombre: 'Ordenar' },
+  completar:     { ico: 'edit_note', nombre: 'Completar' },
+  calculo_mental: { ico: 'calculate', nombre: 'Cálculo mental' }
 };
 
 // ── Galería de imágenes libres ──────────────────────────────────────
@@ -168,12 +168,12 @@ function renderBloque(b, i) {
   return `
   <div class="block" id="bloque-${i}">
     <div class="block-header">
-      <span class="b-ico">${TIPOS[b.tipo].ico}</span>
+      <span class="b-ico material-symbols-rounded">${TIPOS[b.tipo].ico}</span>
       <span class="b-name">${esc(b.titulo || TIPOS[b.tipo].nombre)}</span>
       <div class="b-tools">
-        <button class="b-btn up"   onclick="moverBloque(${i},-1)" title="Subir">↑</button>
-        <button class="b-btn down" onclick="moverBloque(${i}, 1)" title="Bajar">↓</button>
-        <button class="b-btn del"  onclick="borrarBloque(${i})" title="Eliminar">🗑️</button>
+        <button class="b-btn up"   onclick="moverBloque(${i},-1)" title="Subir"><span class="material-symbols-rounded">arrow_upward</span></button>
+        <button class="b-btn down" onclick="moverBloque(${i}, 1)" title="Bajar"><span class="material-symbols-rounded">arrow_downward</span></button>
+        <button class="b-btn del"  onclick="borrarBloque(${i})" title="Eliminar"><span class="material-symbols-rounded">delete</span></button>
       </div>
     </div>
     <div class="block-body">
@@ -187,13 +187,13 @@ function renderBloque(b, i) {
 
 function renderImagenBloque(b, i) {
   const prev = b.imagen_url
-    ? `<div class="img-preview"><img src="${esc(b.imagen_url)}"><div class="img-fuente">📸 ${esc(b.fuente || 'Fuente sin indicar')}</div>
+    ? `<div class="img-preview"><img src="${esc(b.imagen_url)}"><div class="img-fuente"><span class="material-symbols-rounded q-ico">photo_camera</span> ${esc(b.fuente || 'Fuente sin indicar')}</div>
        <button class="img-remove" onclick="quitarImagenBloque(${i})">✕</button></div>`
     : '';
   return `
     <label>Imagen del bloque (opcional)</label>
     <div class="img-pick">
-      <button class="b-btn" type="button" onclick="abrirImagen('bloque',${i})">🖼️ Imagen de stock</button>
+      <button class="b-btn" type="button" onclick="abrirImagen('bloque',${i})"><span class="material-symbols-rounded">image</span> Imagen de stock</button>
     </div>
     ${prev}`;
 }
@@ -202,17 +202,17 @@ function renderImagenBloque(b, i) {
 function renderTexto(b, i) {
   return `
     <div class="q-item">
-      <div class="q-head"><span class="q-num">📖 Explicación</span>
-        <div class="q-tools"><button class="b-btn" type="button" title="Poner imagen" onclick="abrirImagen('bloque',${i})">🖼️</button></div>
+      <div class="q-head"><span class="q-num"><span class="material-symbols-rounded q-ico">menu_book</span> Explicación</span>
+        <div class="q-tools"><button class="b-btn" type="button" title="Poner imagen" onclick="abrirImagen('bloque',${i})"><span class="material-symbols-rounded">image</span></button></div>
       </div>
       ${b.imagen_url ? `
       <div class="img-preview">
         <img src="${esc(b.imagen_url)}">
-        <div class="img-fuente">📸 ${esc(b.fuente || 'Fuente sin indicar')}</div>
+        <div class="img-fuente"><span class="material-symbols-rounded q-ico">photo_camera</span> ${esc(b.fuente || 'Fuente sin indicar')}</div>
         <button class="img-remove" onclick="quitarImagenBloque(${i})">✕</button>
       </div>` : ''}
       <textarea rows="5" placeholder="Explica el contenido antes de preguntar. Puedes usar saltos de línea y listas." style="width:100%;margin-top:8px;" oninput="setCampo(${i},'contenido',this.value)">${esc(b.contenido || '')}</textarea>
-      <p class="form-note" style="margin-top:6px;">💡 Este bloque enseña: se muestra al niño y pulsa "Continuar" para pasar a las preguntas.</p>
+      <p class="form-note" style="margin-top:6px;"><span class="material-symbols-rounded q-ico">lightbulb</span> Este bloque enseña: se muestra al niño y pulsa "Continuar" para pasar a las preguntas.</p>
     </div>`;
 }
 
@@ -223,15 +223,15 @@ function renderTest(b, i) {
       <div class="q-head">
         <span class="q-num">Pregunta ${j + 1}</span>
         <div class="q-tools">
-          <button class="b-btn" type="button" onclick="imagenPregunta(${i},${j})">🖼️ Imagen</button>
-          <button class="b-btn del" type="button" onclick="borrarPregunta(${i},${j})">🗑️</button>
+          <button class="b-btn" type="button" onclick="imagenPregunta(${i},${j})"><span class="material-symbols-rounded">image</span> Imagen</button>
+          <button class="b-btn del" type="button" onclick="borrarPregunta(${i},${j})"><span class="material-symbols-rounded">delete</span></button>
         </div>
       </div>
       <input placeholder="Escribe la pregunta" value="${esc(p.pregunta)}" oninput="setPregunta(${i},${j},'pregunta',this.value)" />
       ${p.imagen_url ? `
         <div class="img-preview">
           <img src="${esc(p.imagen_url)}">
-          <div class="img-fuente">📸 ${esc(p.fuente || 'Fuente sin indicar')}</div>
+          <div class="img-fuente"><span class="material-symbols-rounded q-ico">photo_camera</span> ${esc(p.fuente || 'Fuente sin indicar')}</div>
           <button class="img-remove" onclick="quitarImagenPregunta(${i},${j})">✕</button>
         </div>` : ''}
       ${p.opciones.map((op, k) => `
@@ -241,9 +241,9 @@ function renderTest(b, i) {
           <input placeholder="Opción ${k + 1}" value="${esc(op)}" oninput="setPregunta(${i},${j},'opciones',this.value,${k})" />
           ${p.opciones.length > 2 ? `<button class="b-btn del" type="button" onclick="borrarOpcion(${i},${j},${k})">✕</button>` : ''}
         </div>`).join('')}
-      <button class="b-btn" type="button" style="margin-top:8px;" onclick="anadirOpcion(${i},${j})">➕ Opción</button>
+      <button class="b-btn" type="button" style="margin-top:8px;" onclick="anadirOpcion(${i},${j})"><span class="material-symbols-rounded seg-ico">add</span> Opción</button>
     </div>`).join('') +
-    `<button class="btn btn-outline" type="button" style="margin-top:12px;" onclick="anadirPregunta(${i})">➕ Añadir pregunta</button>`;
+    `<button class="btn btn-outline" type="button" style="margin-top:12px;" onclick="anadirPregunta(${i})"><span class="material-symbols-rounded seg-ico">add</span> Añadir pregunta</button>`;
 }
 
 // ── Sopa de letras ───────────────────────────────────────────────────
@@ -251,7 +251,7 @@ function renderSopa(b, i) {
   const filas = b.palabras.map((p, j) => `
     <div class="q-item">
       <div class="q-head"><span class="q-num">Palabra ${j + 1}</span>
-        <div class="q-tools"><button class="b-btn del" onclick="borrarItem(${i},'palabras',${j})">🗑️</button></div>
+        <div class="q-tools"><button class="b-btn del" onclick="borrarItem(${i},'palabras',${j})"><span class="material-symbols-rounded">delete</span></button></div>
       </div>
       <input placeholder="Palabra" value="${esc(p)}" oninput="setItem(${i},'palabras',${j},this.value)" />
       <input placeholder="Pista (opcional)" value="${esc(b.pistas[j] || '')}" style="margin-top:6px;" oninput="setItem(${i},'pistas',${j},this.value)" />
@@ -259,7 +259,7 @@ function renderSopa(b, i) {
   return `<div class="row2">
       <div><label>Tamaño del cuadro</label><input type="number" min="8" max="16" value="${b.tamano}" oninput="setCampo(${i},'tamano',this.value)" /></div>
     </div>${filas}
-    <button class="btn btn-outline" type="button" style="margin-top:12px;" onclick="anadirItem(${i},'palabras','pistas')">➕ Añadir palabra</button>`;
+    <button class="btn btn-outline" type="button" style="margin-top:12px;" onclick="anadirItem(${i},'palabras','pistas')"><span class="material-symbols-rounded seg-ico">add</span> Añadir palabra</button>`;
 }
 
 // ── Relacionar ───────────────────────────────────────────────────────
@@ -270,8 +270,8 @@ function renderRelacionar(b, i) {
       <div>
         <label>Modo de juego</label>
         <div class="seg">
-          <button type="button" class="chip-cat ${modo === 'emparejar' ? 'active' : ''}" onclick="setModoRelacionar(${i},'emparejar')">🎯 Emparejar</button>
-          <button type="button" class="chip-cat ${modo === 'escribir' ? 'active' : ''}" onclick="setModoRelacionar(${i},'escribir')">✏️ Escribir la palabra</button>
+          <button type="button" class="chip-cat ${modo === 'emparejar' ? 'active' : ''}" onclick="setModoRelacionar(${i},'emparejar')"><span class="material-symbols-rounded seg-ico">track_changes</span> Emparejar</button>
+          <button type="button" class="chip-cat ${modo === 'escribir' ? 'active' : ''}" onclick="setModoRelacionar(${i},'escribir')"><span class="material-symbols-rounded seg-ico">edit_note</span> Escribir la palabra</button>
         </div>
       </div>
       <p class="form-note" style="align-self:center;margin:0;">${modo === 'escribir'
@@ -285,14 +285,14 @@ function renderRelacionar(b, i) {
       <div class="q-head">
         <span class="q-num">${esEscribir ? 'Palabra' : 'Pareja'} ${j + 1}</span>
         <div class="q-tools">
-          <button class="b-btn" type="button" title="Poner pictograma ARASAAC" onclick="imagenPareja(${i},${j})">🖼️</button>
-          <button class="b-btn del" type="button" onclick="borrarItem(${i},'pares',${j})">🗑️</button>
+          <button class="b-btn" type="button" title="Poner pictograma ARASAAC" onclick="imagenPareja(${i},${j})"><span class="material-symbols-rounded">image</span></button>
+          <button class="b-btn del" type="button" onclick="borrarItem(${i},'pares',${j})"><span class="material-symbols-rounded">delete</span></button>
         </div>
       </div>
       ${p.izq_img ? `
       <div class="img-preview">
         <img src="${esc(p.izq_img)}">
-        <div class="img-fuente">📸 ${esc(p.izq_fuente || 'Fuente sin indicar')}</div>
+        <div class="img-fuente"><span class="material-symbols-rounded q-ico">photo_camera</span> ${esc(p.izq_fuente || 'Fuente sin indicar')}</div>
         <button class="img-remove" onclick="quitarImagenPareja(${i},${j})">✕</button>
       </div>` : ''}
       <div class="row2">
@@ -300,12 +300,12 @@ function renderRelacionar(b, i) {
         <input placeholder="${esEscribir ? 'Palabra correcta' : 'Derecha (ej: Estrella)'}" value="${esc(p.der)}" oninput="setPareja(${i},${j},'der',this.value)" />
       </div>
       ${esEscribir && !p.izq_img
-        ? '<p class="form-note" style="margin-top:6px;">💡 Pulsa 🖼️ para poner el pictograma que debe escribir el niño. Sin pictograma se mostrará la pista en grande.</p>'
+        ? '<p class="form-note" style="margin-top:6px;"><span class="material-symbols-rounded q-ico">lightbulb</span> Pulsa <span class="material-symbols-rounded q-ico">image</span> para poner el pictograma que debe escribir el niño. Sin pictograma se mostrará la pista en grande.</p>'
         : ''}
     </div>`;
   }).join('');
   return togg + filas +
-    `<button class="btn btn-outline" type="button" style="margin-top:12px;" onclick="anadirItem(${i},'pares')">➕ Añadir ${modo === 'escribir' ? 'palabra' : 'pareja'}</button>`;
+    `<button class="btn btn-outline" type="button" style="margin-top:12px;" onclick="anadirItem(${i},'pares')"><span class="material-symbols-rounded seg-ico">add</span> Añadir ${modo === 'escribir' ? 'palabra' : 'pareja'}</button>`;
 }
 
 // ── Ordenar ──────────────────────────────────────────────────────────
@@ -313,12 +313,12 @@ function renderOrdenar(b, i) {
   const filas = b.items.map((it, j) => `
     <div class="q-item">
       <div class="q-head"><span class="q-num">Paso ${j + 1}</span>
-        <div class="q-tools"><button class="b-btn del" onclick="borrarItem(${i},'items',${j})">🗑️</button></div>
+        <div class="q-tools"><button class="b-btn del" onclick="borrarItem(${i},'items',${j})"><span class="material-symbols-rounded">delete</span></button></div>
       </div>
       <input placeholder="Elemento en orden correcto" value="${esc(it)}" oninput="setItem(${i},'items',${j},this.value)" />
     </div>`).join('');
   return filas +
-    `<button class="btn btn-outline" type="button" style="margin-top:12px;" onclick="anadirItem(${i},'items')">➕ Añadir paso</button>`;
+    `<button class="btn btn-outline" type="button" style="margin-top:12px;" onclick="anadirItem(${i},'items')"><span class="material-symbols-rounded seg-ico">add</span> Añadir paso</button>`;
 }
 
 // ── Completar ────────────────────────────────────────────────────────
@@ -329,8 +329,8 @@ function renderCompletar(b, i) {
       <div>
         <label>Modo de juego</label>
         <div class="seg">
-          <button type="button" class="chip-cat ${modo === 'escribir' ? 'active' : ''}" onclick="setModoCompletar(${i},'escribir')">✏️ Escribir la palabra</button>
-          <button type="button" class="chip-cat ${modo === 'opciones' ? 'active' : ''}" onclick="setModoCompletar(${i},'opciones')">🔘 Elegir opción</button>
+          <button type="button" class="chip-cat ${modo === 'escribir' ? 'active' : ''}" onclick="setModoCompletar(${i},'escribir')"><span class="material-symbols-rounded seg-ico">edit_note</span> Escribir la palabra</button>
+          <button type="button" class="chip-cat ${modo === 'opciones' ? 'active' : ''}" onclick="setModoCompletar(${i},'opciones')"><span class="material-symbols-rounded seg-ico">radio_button_checked</span> Elegir opción</button>
         </div>
       </div>
       <p class="form-note" style="align-self:center;margin:0;">${modo === 'opciones'
@@ -342,12 +342,12 @@ function renderCompletar(b, i) {
     return `
     <div class="q-item">
       <div class="q-head"><span class="q-num">Frase ${j + 1}</span>
-        <div class="q-tools"><button class="b-btn del" onclick="borrarItem(${i},'frases',${j})">🗑️</button></div>
+        <div class="q-tools"><button class="b-btn del" onclick="borrarItem(${i},'frases',${j})"><span class="material-symbols-rounded">delete</span></button></div>
       </div>
       <input placeholder="Frase con hueco (usa ___)" value="${esc(f.texto)}" oninput="setFrase(${i},${j},'texto',this.value)" />
       <input placeholder="Respuesta que rellena el hueco" value="${esc(f.respuesta)}" style="margin-top:6px;" oninput="setFrase(${i},${j},'respuesta',this.value)" />
       ${modo === 'opciones' ? `
-      <p class="form-note" style="margin-top:6px;">🔘 Opciones falsas (distractores)</p>
+      <p class="form-note" style="margin-top:6px;"><span class="material-symbols-rounded q-ico">radio_button_checked</span> Opciones falsas (distractores)</p>
       <div class="row2">
         <input placeholder="Opción falsa 1 (ej: gato)" value="${esc(opciones[0])}" oninput="setFraseOpcion(${i},${j},0,this.value)" />
         <input placeholder="Opción falsa 2 (ej: pájaro)" value="${esc(opciones[1])}" oninput="setFraseOpcion(${i},${j},1,this.value)" />
@@ -355,7 +355,7 @@ function renderCompletar(b, i) {
     </div>`;
   }).join('');
   return togg + filas +
-    `<button class="btn btn-outline" type="button" style="margin-top:12px;" onclick="anadirItem(${i},'frases')">➕ Añadir frase</button>`;
+    `<button class="btn btn-outline" type="button" style="margin-top:12px;" onclick="anadirItem(${i},'frases')"><span class="material-symbols-rounded seg-ico">add</span> Añadir frase</button>`;
 }
 
 // ── Cálculo mental ─────────────────────────────────────────────────
@@ -363,17 +363,17 @@ function renderCalculo(b, i) {
   const filas = (b.sumas || []).map((s, j) => `
     <div class="q-item">
       <div class="q-head"><span class="q-num">Suma ${j + 1}</span>
-        <div class="q-tools"><button class="b-btn del" onclick="borrarItem(${i},'sumas',${j})">🗑️</button></div>
+        <div class="q-tools"><button class="b-btn del" onclick="borrarItem(${i},'sumas',${j})"><span class="material-symbols-rounded">delete</span></button></div>
       </div>
       <div class="row2">
         <input type="number" inputmode="numeric" placeholder="Número A" value="${esc(s.a)}" oninput="setSuma(${i},${j},'a',this.value)" />
         <input type="number" inputmode="numeric" placeholder="Número B" value="${esc(s.b)}" oninput="setSuma(${i},${j},'b',this.value)" />
       </div>
-      <p class="form-note" style="margin-top:6px;">🧮 ${(Number(s.a) || 0)} + ${(Number(s.b) || 0)} = ${(Number(s.a) || 0) + (Number(s.b) || 0)}</p>
+      <p class="form-note" style="margin-top:6px;"><span class="material-symbols-rounded q-ico">calculate</span> ${(Number(s.a) || 0)} + ${(Number(s.b) || 0)} = ${(Number(s.a) || 0) + (Number(s.b) || 0)}</p>
     </div>`).join('');
   return `
     <div class="row2">
-      <div><label>⏱️ Segundos por suma</label><input type="number" min="3" max="60" value="${b.segundos || 10}" oninput="setCampo(${i},'segundos',this.value)" /></div>
+      <div><label><span class="material-symbols-rounded q-ico">timer</span> Segundos por suma</label><input type="number" min="3" max="60" value="${b.segundos || 10}" oninput="setCampo(${i},'segundos',this.value)" /></div>
       <div><label>Cómo responden</label>
         <select onchange="setCampo(${i},'modo',this.value)">
           <option value="opciones" ${b.modo !== 'escribir' ? 'selected' : ''}>3 opciones</option>
@@ -382,7 +382,7 @@ function renderCalculo(b, i) {
       </div>
     </div>
     ${filas}
-    <button class="btn btn-outline" type="button" style="margin-top:12px;" onclick="anadirSuma(${i})">➕ Añadir suma</button>`;
+    <button class="btn btn-outline" type="button" style="margin-top:12px;" onclick="anadirSuma(${i})"><span class="material-symbols-rounded seg-ico">add</span> Añadir suma</button>`;
 }
 
 function setSuma(i, j, lado, valor) { bloques[i].sumas[j][lado] = valor; }
@@ -480,16 +480,16 @@ function chipColor(cat = '') {
 }
 function emojiCat(cat = '') {
   const c = cat.toLowerCase();
-  if (c.includes('mate')) return '🔢';
-  if (c.includes('leng') || c.includes('lect')) return '📖';
-  if (c.includes('cien')) return '🔬';
-  if (c.includes('geo')) return '🌍';
-  if (c.includes('tecn') || c.includes('inform')) return '💻';
-  if (c.includes('logic')) return '🧠';
-  return '🧩';
+  if (c.includes('mate')) return 'calculate';
+  if (c.includes('leng') || c.includes('lect')) return 'menu_book';
+  if (c.includes('cien')) return 'science';
+  if (c.includes('geo')) return 'public';
+  if (c.includes('tecn') || c.includes('inform')) return 'computer';
+  if (c.includes('logic')) return 'psychology';
+  return 'extension';
 }
 function kpImg(url, fuente) {
-  return `<div class="kp-img"><img src="${esc(url)}" alt=""><div class="kp-fuente">📸 ${esc(fuente || 'Fuente sin indicar')}</div></div>`;
+  return `<div class="kp-img"><img src="${esc(url)}" alt=""><div class="kp-fuente"><span class="material-symbols-rounded q-ico">photo_camera</span> ${esc(fuente || 'Fuente sin indicar')}</div></div>`;
 }
 function shuffleArr(a) {
   const x = [...a];
@@ -706,7 +706,7 @@ function screenTexto(s, est) {
 function screenPortada(s) {
   return `
     <div class="kp-screen">
-      <div class="kp-cover cover-${chipColor(s.cat)}">${emojiCat(s.cat)}</div>
+      <div class="kp-cover cover-${chipColor(s.cat)}"><span class="material-symbols-rounded kp-cover-ico">${emojiCat(s.cat)}</span></div>
       <h3 class="kp-title">${esc(s.tit)}</h3>
       <p class="kp-desc">${esc(s.desc)}</p>
       <div class="kp-chips">

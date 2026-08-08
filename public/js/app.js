@@ -32,39 +32,51 @@ const categoriaColor = (cat = '') => {
   return 'purple';
 };
 
+// Iconos Material Symbols por categoría (identidad PJ)
 const categoriaIcono = (cat = '') => {
   const c = cat.toLowerCase();
-  if (c.includes('mate')) return '🔢';
-  if (c.includes('leng') || c.includes('lect')) return '📖';
-  if (c.includes('cien')) return '🔬';
-  if (c.includes('geo')) return '🌍';
-  if (c.includes('tecn') || c.includes('inform')) return '💻';
-  if (c.includes('logic')) return '🧠';
-  return '🧩';
+  if (c.includes('mate')) return 'calculate';
+  if (c.includes('leng') || c.includes('lect')) return 'menu_book';
+  if (c.includes('cien') || c.includes('medio')) return 'science';
+  if (c.includes('geo')) return 'public';
+  if (c.includes('tecn') || c.includes('inform')) return 'computer';
+  if (c.includes('logic')) return 'psychology';
+  return 'extension';
+};
+
+// Color sólido de marca para el icono (según la categoría)
+const colorMaterial = (cat = '') => {
+  const map = {
+    blue: '#3A00E1', green: '#336E45', orange: '#FF6600',
+    red: '#FF3333', purple: '#4E3B70', yellow: '#D6CE52'
+  };
+  return map[categoriaColor(cat)] || map.purple;
 };
 
 // ── Portada de la actividad (carátula generada automáticamente) ────
 function coverHTML(a) {
   const bloqueada = esBloqueada(a);
   const badge = a.es_examen
-    ? '<span class="badge-tag badge-examen">🎓 Examen</span>'
+    ? '<span class="badge-tag badge-examen"><span class="material-symbols-rounded b-ico">school</span>Examen</span>'
     : (bloqueada
-        ? '<span class="badge-tag badge-premium">💳 De pago</span>'
+        ? '<span class="badge-tag badge-premium"><span class="material-symbols-rounded b-ico">credit_card</span>De pago</span>'
         : (esPago(a)
-            ? '<span class="badge-tag badge-premium">🎁 Subvencionada</span>'
-            : '<span class="badge-tag badge-free">🎁 Gratis</span>'));
+            ? '<span class="badge-tag badge-premium"><span class="material-symbols-rounded b-ico">redeem</span>Subvencionada</span>'
+            : '<span class="badge-tag badge-free"><span class="material-symbols-rounded b-ico">check_circle</span>Gratis</span>'));
   const lock = bloqueada
-    ? '<div class="cover-lock"><span class="lock-ico">🔒</span><span class="lock-txt">De pago</span></div>'
+    ? '<div class="cover-lock"><span class="material-symbols-rounded lock-ico">lock</span><span class="lock-txt">De pago</span></div>'
     : '';
   // Si hay portada real la usamos; si no, se genera una imagen (miniaturas reales con canvas)
   const estilo = a.portada_url
     ? `style="background-image:url('${a.portada_url}');background-size:cover;background-position:center;"`
     : `data-gen="1" data-cat="${escapeHtml(a.categoria || '')}" data-tipo="${escapeHtml(a.tipo || '')}"`;
+  const icono = iconoMaterial(a);
   return `
     <div class="card-cover" ${estilo}>
+      ${!a.portada_url && icono ? `<span class="cover-emoji material-symbols-rounded" style="color:${colorMaterial(a.categoria)}">${icono}</span>` : ''}
       ${badge}
       ${lock}
-      <button class="info-btn" onclick="event.stopPropagation();verInfo('${a.id}')" title="Ver información">ℹ️</button>
+      <button class="info-btn" onclick="event.stopPropagation();verInfo('${a.id}')" title="Ver información"><span class="material-symbols-rounded">info</span></button>
     </div>`;
 }
 
@@ -86,13 +98,16 @@ function dibujarForma(ctx, x, y, s) {
   ctx.closePath(); ctx.fill(); ctx.restore();
 }
 function tipoIcono(tipo = '') {
-  if (tipo === 'sopa_letras') return '🔤';
-  if (tipo === 'relacionar_conceptos' || tipo === 'relacionar_imagenes') return '🔗';
-  if (tipo === 'ordenar_elementos') return '📌';
-  if (tipo === 'completar_frases') return '✏️';
-  if (tipo === 'verdadero_falso') return '⚖️';
-  if (tipo === 'logica' || tipo === 'retos_interactivos') return '🧠';
+  if (tipo === 'sopa_letras') return 'text_fields';
+  if (tipo === 'relacionar_conceptos' || tipo === 'relacionar_imagenes') return 'link';
+  if (tipo === 'ordenar_elementos') return 'format_list_numbered';
+  if (tipo === 'completar_frases') return 'edit_note';
+  if (tipo === 'verdadero_falso') return 'balance';
+  if (tipo === 'logica' || tipo === 'retos_interactivos') return 'psychology';
   return '';
+}
+function iconoMaterial(a) {
+  return tipoIcono(a.tipo || '') || categoriaIcono(a.cat || '');
 }
 function roundRectPath(ctx, x, y, w, h, r) {
   ctx.beginPath();
@@ -135,7 +150,7 @@ function generarCaratula(a) {
         ctx.fill();
       }
 
-      // Medallón redondeado con icono
+      // Medallón redondeado (el icono Material se superpone por HTML encima)
       const mx = W / 2, my = 128, r = 74;
       ctx.save();
       ctx.shadowColor = 'rgba(0,0,0,0.28)'; ctx.shadowBlur = 26; ctx.shadowOffsetY = 8;
@@ -146,22 +161,19 @@ function generarCaratula(a) {
       ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.lineWidth = 3;
       roundRectPath(ctx, mx - r + 7, my - r + 7, r * 2 - 14, r * 2 - 14, 24);
       ctx.stroke();
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.font = '88px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif';
-      ctx.fillText(tipoIcono(a.tipo) || categoriaIcono(a.cat), mx, my + 4);
 
       // Degradado inferior para contraste
       const fade = ctx.createLinearGradient(0, H - 130, 0, H);
       fade.addColorStop(0, 'rgba(0,0,0,0)'); fade.addColorStop(1, 'rgba(0,0,0,0.38)');
       ctx.fillStyle = fade; ctx.fillRect(0, H - 130, W, 130);
 
-      // Título con sombra
+      // Título compacto con sombra
       ctx.save();
       ctx.shadowColor = 'rgba(0,0,0,0.4)'; ctx.shadowBlur = 12; ctx.shadowOffsetY = 3;
       ctx.fillStyle = '#ffffff';
-      ctx.font = '800 34px "Plus Jakarta Sans","Arial",sans-serif';
+      ctx.font = '800 28px "Plus Jakarta Sans","Arial",sans-serif';
       const t = (a.tit || '').toUpperCase();
-      ctx.fillText(t.length > 26 ? t.slice(0, 25) + '…' : t, W / 2, 246);
+      ctx.fillText(t.length > 22 ? t.slice(0, 21) + '…' : t, W / 2, 244);
       ctx.restore();
 
       // Pill de categoría
@@ -283,7 +295,7 @@ function renderCategorias() {
     if (lista.length === 0) return '';
     return `
       <div class="cat-section">
-        <h3 class="cat-title"><span class="t-ico">${categoriaIcono(cat)}</span> ${escapeHtml(cat)}</h3>
+        <h3 class="cat-title"><span class="t-ico material-symbols-rounded">${categoriaIcono(cat)}</span> ${escapeHtml(cat)}</h3>
         <div class="h-row">${lista.map(cardActividad).join('')}</div>
       </div>`;
   }).join('');
