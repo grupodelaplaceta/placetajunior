@@ -872,6 +872,7 @@ function initDrag() {
 function abrirMeta() {
   $('m-titulo').value = meta.titulo;
   $('m-descripcion').value = meta.descripcion;
+  if ($('m-pictograma')) $('m-pictograma').value = meta.pictograma || '';
   $('m-categoria').value = meta.categoria;
   $('m-tipo').value = meta.tipo;
   const estimada = estimarEdad();
@@ -949,6 +950,7 @@ function estimarEdad() {
 async function publicar() {
   const titulo = $('m-titulo').value.trim();
   const descripcion = $('m-descripcion').value.trim();
+  const pictograma = ($('m-pictograma')?.value || '').trim();
   const categoria = $('m-categoria').value;
   const tipo = $('m-tipo').value;
   const edad_recomendada = $('m-edad').value.trim();
@@ -972,7 +974,7 @@ async function publicar() {
   const num_preguntas = contarPreguntas();
   if (num_preguntas === 0) { aviso('Añade contenido real en los bloques (preguntas, palabras, parejas…).', true); return; }
 
-  meta = { titulo, descripcion, categoria, tipo, edad: edad_recomendada, dificultad, tiempo: tiempo_estimado, titular, dip, eip, entidad, autor };
+  meta = { titulo, descripcion, categoria, tipo, edad: edad_recomendada, dificultad, tiempo: tiempo_estimado, titular, dip, eip, entidad, autor, pictograma };
   guardar();
 
   const body = {
@@ -981,7 +983,7 @@ async function publicar() {
     edad_recomendada, dificultad, tiempo_estimado,
     num_preguntas,
     num_fases: bloques.length,
-    contenido: { version: 2, bloques }
+    contenido: { version: 2, bloques, ...(pictograma ? { pictograma } : {}) }
   };
 
   const btn = $('meta-ok');

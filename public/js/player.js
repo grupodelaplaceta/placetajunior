@@ -166,6 +166,21 @@ function renderPantalla() {
     <div class="kp-stage">${cuerpo}</div>`;
   clearInterval(calcTimer);
   if (s.tipo === 'calculo') iniciarTimerCalculo();
+
+  // Accesibilidad: exponer el texto de la pantalla para la lectura con audio
+  document.dispatchEvent(new CustomEvent('junior:texto', { detail: textoPantallaWeb(s) }));
+}
+
+function textoPantallaWeb(s) {
+  if (s.tipo === 'portada') return 'Actividad ' + (s.tit || '') + '. ' + (s.desc || '');
+  if (s.tipo === 'test') { const p = bloquesJuego[s.bi].preguntas[s.pi]; return p ? (p.pregunta || '') : ''; }
+  if (s.tipo === 'sopa') return 'Encuentra las palabras';
+  if (s.tipo === 'relacionar') return 'Relaciona las parejas';
+  if (s.tipo === 'ordenar') return 'Ordena los elementos';
+  if (s.tipo === 'completar') return 'Completa las frases';
+  if (s.tipo === 'calculo') return 'Calcula';
+  if (s.tipo === 'final') return '¡Enhorabuena! Actividad completada.';
+  return '';
 }
 
 // ── Cálculo mental (reproductor) ──────────────────────────────────────
