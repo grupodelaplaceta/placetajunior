@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>DevAI · Placeta Junior Studio</title>
+  <style>
+    :root {
+      --pj-purple: #7c3aed; --pj-purple-light: #ede9fe; --pj-green: #22a06b; --pj-green-light: #e5f6ee;
+      --pj-orange: #ff8a00; --pj-blue: #2563eb; --pj-gray-50: #fafafa; --pj-gray-100: #f4f4f5;
+      --pj-gray-200: #e4e4e7; --pj-gray-500: #71717a; --pj-gray-800: #27272a; --pj-white: #fff;
+      --radius: 14px; --shadow: 0 6px 24px rgba(0,0,0,.08);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; background: var(--pj-gray-50); color: var(--pj-gray-800); }
+    .topbar { background: var(--pj-purple); color: #fff; padding: 14px 22px; display: flex; align-items: center; gap: 10px; }
+    .topbar .logo { font-weight: 800; font-size: 17px; }
+    .topbar .tag { background: rgba(255,255,255,.18); padding: 3px 9px; border-radius: 999px; font-size: 11px; }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 22px; }
+    .card { background: var(--pj-white); border: 1px solid var(--pj-gray-200); border-radius: var(--radius); padding: 18px; margin-bottom: 18px; box-shadow: var(--shadow); }
+    .card h2 { margin: 0 0 6px; font-size: 16px; color: var(--pj-purple); }
+    .card .sub { margin: 0 0 12px; font-size: 12.5px; color: var(--pj-gray-500); }
+    textarea { width: 100%; font-family: 'Consolas', 'Menlo', monospace; font-size: 12.5px; border: 1px solid var(--pj-gray-200); border-radius: 10px; padding: 10px; resize: vertical; color: var(--pj-gray-800); background: var(--pj-white); }
+    textarea#prompt { min-height: 300px; }
+    textarea#codigo { min-height: 300px; }
+    textarea#texto { min-height: 120px; font-family: inherit; font-size: 14px; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .field { display: flex; flex-direction: column; gap: 4px; }
+    .field label { font-size: 11px; font-weight: 700; color: var(--pj-gray-500); }
+    input, select { border: 1px solid var(--pj-gray-200); border-radius: 10px; padding: 8px 10px; font-size: 13px; }
+    .btn { border: none; border-radius: 12px; padding: 10px 16px; font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; }
+    .btn-purple { background: var(--pj-purple); color: #fff; }
+    .btn-green { background: var(--pj-green); color: #fff; }
+    .btn-outline { background: #fff; border: 1px solid var(--pj-gray-200); color: var(--pj-gray-800); }
+    .btn:hover { filter: brightness(1.05); }
+    .meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 12px 0; }
+    #preview { border: 2px dashed var(--pj-gray-200); border-radius: var(--radius); padding: 16px; min-height: 80px; background: var(--pj-gray-50); }
+    #preview h3 { margin: 0 0 8px; color: var(--pj-purple); }
+    .bloque-prev { background: #fff; border: 1px solid var(--pj-gray-200); border-radius: 10px; padding: 10px; margin: 8px 0; font-size: 13px; }
+    .badge { display: inline-block; background: var(--pj-purple-light); color: var(--pj-purple); padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; margin-bottom: 6px; }
+    .ok { color: var(--pj-green); font-weight: 700; }
+    .err { color: #dc2626; font-weight: 700; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    @media (max-width: 760px) { .grid2 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <span class="logo">🤖 DevAI · Placeta Junior</span>
+    <span class="tag">oculto /devai</span>
+    <span style="flex:1"></span>
+    <a href="/studio" style="color:#fff;font-size:13px;">→ Studio</a>
+  </div>
+
+  <div class="wrap">
+    <div class="card">
+      <h2>1️⃣ Genera la actividad con IA</h2>
+      <p class="sub">Copia este prompt en cualquier IA (ChatGPT, Claude, Gemini…), pega tu idea y pídele que responda <b>solo el JSON</b>. Luego pégalo en el paso 3.</p>
+      <textarea id="prompt" spellcheck="false">Actúa como creador de actividades educativas de Placeta Junior (proyecto para niños de 6 a 14 años). Dada la descripción de una actividad, genera ÚNICAMENTE JSON válido (sin texto extra, sin markdown) con este esquema exacto:
+
+{
+  "titulo": "Título de la actividad",
+  "descripcion": "Descripción breve",
+  "categoria": "Matemáticas|Lengua|Ciencias|Geografía|Tecnología|Lógica|Cultura|General",
+  "edad_recomendada": "6-12",
+  "dificultad": "facil|media|dificil",
+  "tiempo_estimado": 10,
+  "contenido": {
+    "version": 2,
+    "bloques": [
+      { "tipo": "test", "preguntas": [ { "pregunta": "¿...?", "opciones": ["A","B","C","D"], "correcta": 0 } ] },
+      { "tipo": "sopa_letras", "palabras": ["SOL","LUNA"], "pistas": ["Estrella central","Satélite"], "tamano": 10 },
+      { "tipo": "relacionar", "modo": "escribir", "pares": [ { "izq": "pista que ve el niño", "der": "palabra correcta", "izq_img": "" } ] },
+      { "tipo": "relacionar", "modo": "emparejar", "pares": [ { "izq": "izquierda", "der": "derecha" } ] },
+      { "tipo": "ordenar", "items": ["Paso 1","Paso 2","Paso 3"] },
+      { "tipo": "completar", "frases": [ { "texto": "La frase con ___", "respuesta": "palabra" } ] },
+      { "tipo": "calculo_mental", "sumas": [ { "a": 3, "b": 5 } ], "segundos": 10, "modo": "opciones" }
+    ]
+  }
+}
+
+Reglas:
+- "correcta" es el índice (base 0) de la opción correcta de cada pregunta.
+- En relacionar modo "escribir": "der" es la palabra que el niño debe teclear (NO la pongas en "izq").
+- Escribe en español, adáptalo a la edad indicada y numera bien los bloques.
+- IMPORTANTE: devuelve solo el JSON, sin texto ni comillas de código.</textarea>
+      <div class="row" style="margin-top:10px;">
+        <button class="btn btn-purple" onclick="copiar('prompt')">📋 Copiar prompt</button>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h2>2️⃣ Generador de formato (texto → código)</h2>
+        <p class="sub">Escribe tu actividad en texto libre y genera el código en texto directo (sin IA).</p>
+        <textarea id="texto" placeholder="Ej:&#10;Actividad: El sistema solar (8 años)&#10;Preguntas:&#10;¿Cuál es el planeta rojo? -> Marte&#10;¿Qué estrella da luz a la Tierra? -> El Sol&#10;Relaciona:&#10;Sol -> Estrella&#10;Luna -> Satélite"></textarea>
+        <div class="row" style="margin-top:10px;">
+          <button class="btn btn-purple" onclick="generar()">⚙️ Generar código</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>3️⃣ Código de la actividad (texto directo)</h2>
+        <p class="sub">Edita o pega aquí el JSON (el de la IA o el generado). Con "Previsualizar" lo ves renderizado y con "Publicar" lo envías a revisión.</p>
+        <textarea id="codigo" spellcheck="false" placeholder='Pega aquí el JSON de la actividad... o pulsa "Generar código" en el paso 2.'></textarea>
+        <div class="meta">
+          <div class="field"><label>Título</label><input id="titulo" placeholder="Título (si no está en el JSON)" /></div>
+          <div class="field"><label>Descripción</label><input id="descripcion" placeholder="Descripción" /></div>
+          <div class="field"><label>Categoría</label>
+            <select id="categoria">
+              <option>Matemáticas</option><option>Lengua</option><option>Ciencias</option><option>Geografía</option>
+              <option>Tecnología</option><option>Lógica</option><option>Cultura</option><option selected>General</option>
+            </select>
+          </div>
+          <div class="field"><label>Edad</label><input id="edad" value="6-12" /></div>
+          <div class="field"><label>Dificultad</label>
+            <select id="dificultad"><option>facil</option><option selected>media</option><option>dificil</option></select>
+          </div>
+          <div class="field"><label>Tiempo (min)</label><input id="tiempo" type="number" value="10" /></div>
+        </div>
+        <div class="row">
+          <button class="btn btn-purple" onclick="copiar('codigo')">📋 Copiar código</button>
+          <button class="btn btn-outline" onclick="previsualizar()">👁️ Previsualizar</button>
+          <button class="btn btn-green" onclick="publicar()">🚀 Publicar a revisión</button>
+        </div>
+        <div id="mensaje" style="margin-top:10px;font-size:13px;"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>👁️ Vista previa</h2>
+      <div id="preview"><p style="color:var(--pj-gray-500);font-size:13px;">Aún no hay nada que previsualizar. Pega el código y pulsa Previsualizar.</p></div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'https://admin-placeta.vercel.app/api/junior';
+
+    function $(id) { return document.getElementById(id); }
+    function copiar(id) {
+      const el = $(id); el.select();
+      navigator.clipboard.writeText(el.value).then(() => {
+        const m = $('mensaje'); if (m) { m.className = 'ok'; m.textContent = '✅ Copiado al portapapeles.'; }
+      });
+    }
+
+    // ── Generador de formato: texto libre → JSON de bloques ──────────
+    function generar() {
+      const texto = $('texto').value.trim();
+      if (!texto) { aviso('Escribe primero una descripción en el paso 2.', true); return; }
+      const bloques = [];
+      let titulo = 'Actividad generada';
+      let descripcion = '';
+      const lineas = texto.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+
+      const preguntas = [];
+      const paresEmp = [];
+      const paresEsc = [];
+      const frases = [];
+      let relTipo = null;
+
+      for (const l of lineas) {
+        const lower = l.toLowerCase();
+        // Saltar encabezados de sección ("Preguntas:", "Relaciona:", "Ordena:"...)
+        const encabezados = ['preguntas', 'pregunta', 'relaciona', 'relacionar', 'relaciones', 'completa', 'completar', 'ordena', 'ordenar', 'parejas', 'pareja', 'escribe', 'escribir', 'calcula', 'calculo', 'cálculo', 'reto', 'retos', 'palabras', 'pistas'];
+        if (encabezados.includes(lower.replace(/[:.]+$/, '').trim()) || (l.endsWith(':') && l.length < 30)) continue;
+        if (lower.startsWith('actividad') || lower.startsWith('título') || lower.startsWith('titulo')) {
+          const t = l.split(/[:–-]/).slice(1).join(':').trim();
+          if (t) titulo = t;
+          continue;
+        }
+        if (lower.startsWith('descripción') || lower.startsWith('descripcion')) {
+          descripcion = l.split(/[:–-]/).slice(1).join(':').trim();
+          continue;
+        }
+        // Completar: contiene ___
+        if (l.includes('___')) {
+          const partes = l.split(/[:–-]/).map(s => s.trim());
+          const textoF = partes[0] || l;
+          const resp = partes[1] || '';
+          if (resp) frases.push({ texto: textoF, respuesta: resp });
+          continue;
+        }
+        // Relacionar: con -> o → o =
+        const sep = l.includes('->') ? '->' : l.includes('→') ? '→' : (l.includes(' = ') ? ' = ' : null);
+        if (sep) {
+          const [a, b] = l.split(sep).map(s => s.trim());
+          if (a && b) { paresEmp.push({ izq: a, der: b }); relTipo = relTipo || 'emparejar'; }
+          continue;
+        }
+        // Pregunta de test
+        if (l.startsWith('¿') || l.endsWith('?') || lower.startsWith('pregunta')) {
+          const p = l.replace(/^pregunta\s*\d*\s*[:–-]\s*/i, '').trim();
+          if (p) preguntas.push({ pregunta: p, opciones: ['Sí', 'No'], correcta: 0 });
+          continue;
+        }
+        // Pista para escribir la palabra: "pista = palabra" (con palabra entre corchetes o tras '=')
+        const eq = l.indexOf('=');
+        if (eq > 0) {
+          const a = l.slice(0, eq).trim();
+          const b = l.slice(eq + 1).trim();
+          if (a && b && !a.endsWith('?') && !b.endsWith('?')) {
+            paresEsc.push({ izq: a, der: b, izq_img: '' });
+            relTipo = 'escribir';
+            continue;
+          }
+        }
+        if (preguntas.length < 20) preguntas.push({ pregunta: l, opciones: ['Sí', 'No'], correcta: 0 });
+      }
+
+      if (preguntas.length) bloques.push({ tipo: 'test', titulo: 'Preguntas', imagen_url: null, fuente: null, preguntas });
+      if (paresEmp.length) bloques.push({ tipo: 'relacionar', titulo: 'Relaciona', modo: 'emparejar', pares: paresEmp });
+      if (paresEsc.length) bloques.push({ tipo: 'relacionar', titulo: 'Escribe la palabra', modo: 'escribir', pares: paresEsc });
+      if (frases.length) bloques.push({ tipo: 'completar', titulo: 'Completa', frases });
+
+      if (!bloques.length) { aviso('No pude detectar bloques. Usa preguntas con "?" o parejas con "->".', true); return; }
+
+      const contenido = { version: 2, bloques };
+      $('codigo').value = JSON.stringify({ titulo, descripcion, categoria: $('categoria').value, edad_recomendada: $('edad').value, dificultad: $('dificultad').value, tiempo_estimado: parseInt($('tiempo').value, 10) || 10, contenido }, null, 2);
+      $('titulo').value = titulo;
+      $('descripcion').value = descripcion;
+      aviso('⚙️ Código generado en el paso 3. Puedes editarlo o previsualizarlo.', false);
+    }
+
+    // ── Previsualizar ────────────────────────────────────────────────
+    function previsualizar() {
+      const m = $('mensaje'); m.textContent = ''; m.className = '';
+      let obj;
+      try { obj = JSON.parse($('codigo').value); }
+      catch (e) { aviso('❌ El código no es JSON válido: ' + e.message, true); return; }
+      const bloques = (obj.contenido && obj.contenido.bloques) || [];
+      if (!Array.isArray(bloques)) { aviso('❌ Falta contenido.bloques en el JSON.', true); return; }
+      const tit = obj.titulo || $('titulo').value || 'Actividad';
+      let html = '<h3>' + esc(tit) + '</h3>';
+      if (obj.descripcion) html += '<p style="font-size:13px;color:var(--pj-gray-500);margin:0 0 10px;">' + esc(obj.descripcion) + '</p>';
+      bloques.forEach((b, i) => {
+        html += '<div class="bloque-prev"><span class="badge">Bloque ' + (i + 1) + ' · ' + esc(b.tipo || '?') + '</span>';
+        if (b.tipo === 'test' && Array.isArray(b.preguntas)) {
+          b.preguntas.forEach(p => {
+            html += '<div><b>' + esc(p.pregunta || '¿?') + '</b></div>';
+            (p.opciones || []).forEach((op, k) => { html += '<div style="margin-left:14px;">' + (k === p.correcta ? '✅ ' : '○ ') + esc(op) + '</div>'; });
+          });
+        } else if (b.tipo === 'relacionar' && Array.isArray(b.pares)) {
+          b.pares.forEach(p => { html += '<div style="margin-left:8px;">🔗 ' + esc(p.izq) + ' ↔ <b>' + esc(p.der) + '</b></div>'; });
+        } else if (b.tipo === 'sopa_letras' && Array.isArray(b.palabras)) {
+          html += '<div style="margin-left:8px;">🔤 ' + b.palabras.map(esc).join(', ') + '</div>';
+        } else if (b.tipo === 'ordenar' && Array.isArray(b.items)) {
+          html += '<div style="margin-left:8px;">📌 ' + b.items.map(esc).join(' → ') + '</div>';
+        } else if (b.tipo === 'completar' && Array.isArray(b.frases)) {
+          b.frases.forEach(f => { html += '<div style="margin-left:8px;">✏️ ' + esc(f.texto) + ' <b>[' + esc(f.respuesta) + ']</b></div>'; });
+        } else if (b.tipo === 'calculo_mental' && Array.isArray(b.sumas)) {
+          b.sumas.forEach(s => { html += '<div style="margin-left:8px;">🧮 ' + esc(s.a) + ' + ' + esc(s.b) + ' = ?</div>'; });
+        } else {
+          html += '<div style="margin-left:8px;color:var(--pj-gray-500);">(bloque sin contenido detectado)</div>';
+        }
+        html += '</div>';
+      });
+      $('preview').innerHTML = html;
+      aviso('👁️ Previsualización lista.', false);
+    }
+
+    // ── Publicar ─────────────────────────────────────────────────────
+    function contarPreguntas(bloques) {
+      let n = 0;
+      for (const b of bloques) {
+        if (b.tipo === 'test') n += (b.preguntas || []).length;
+        else if (b.tipo === 'sopa_letras') n += (b.palabras || []).filter(Boolean).length;
+        else if (b.tipo === 'relacionar') n += (b.pares || []).filter(p => p.izq && p.der).length;
+        else if (b.tipo === 'ordenar') n += (b.items || []).filter(Boolean).length;
+        else if (b.tipo === 'completar') n += (b.frases || []).filter(f => f.texto && f.respuesta).length;
+        else if (b.tipo === 'calculo_mental') n += (b.sumas || []).filter(s => s.a !== '' && s.b !== '').length;
+      }
+      return n;
+    }
+
+    async function publicar() {
+      const m = $('mensaje'); m.textContent = ''; m.className = '';
+      let obj;
+      try { obj = JSON.parse($('codigo').value); }
+      catch (e) { aviso('❌ El código no es JSON válido: ' + e.message, true); return; }
+      const contenido = (obj.contenido && obj.contenido.bloques) ? obj.contenido : { version: 2, bloques: obj.bloques || [] };
+      const bloques = contenido.bloques || [];
+      if (!bloques.length) { aviso('❌ No hay bloques para publicar.', true); return; }
+      const titulo = (obj.titulo || $('titulo').value || '').trim();
+      const descripcion = (obj.descripcion || $('descripcion').value || '').trim();
+      if (!titulo || !descripcion) { aviso('❌ Faltan título y descripción.', true); return; }
+      const body = {
+        tipo_titular: 'interno', dip: null, eip: null, nombre_entidad: null, nombre_autor: null,
+        titulo, descripcion,
+        categoria: obj.categoria || $('categoria').value,
+        tipo: 'otro',
+        edad_recomendada: obj.edad_recomendada || $('edad').value,
+        dificultad: obj.dificultad || $('dificultad').value,
+        tiempo_estimado: parseInt(obj.tiempo_estimado || $('tiempo').value, 10) || 10,
+        num_preguntas: contarPreguntas(bloques),
+        num_fases: bloques.length,
+        contenido
+      };
+      m.textContent = '⏳ Enviando…'; m.className = '';
+      try {
+        const res = await fetch(API_BASE + '/actividades', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.success) {
+          m.className = 'ok';
+          m.textContent = '✅ ¡Publicada! ' + (data.mensaje || 'Enviada a revisión del Filtro de Placeta Junior.');
+        } else {
+          m.className = 'err';
+          m.textContent = '❌ ' + (data.error || data.mensaje || 'No se pudo publicar.');
+        }
+      } catch (e) {
+        m.className = 'err';
+        m.textContent = '❌ Error de conexión: ' + e.message;
+      }
+    }
+
+    function aviso(msg, esError) {
+      const m = $('mensaje');
+      m.className = esError ? 'err' : 'ok';
+      m.textContent = msg;
+    }
+    function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+  </script>
+</body>
+</html>

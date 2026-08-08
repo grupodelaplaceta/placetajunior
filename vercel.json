@@ -6,6 +6,7 @@
   "routes": [
     { "src": "/", "dest": "/public/index.html" },
     { "src": "/studio", "dest": "/public/studio.html" },
+    { "src": "/devai", "dest": "/public/devai.html" },
     { "src": "/(.*)", "dest": "/public/$1" }
   ]
 }
