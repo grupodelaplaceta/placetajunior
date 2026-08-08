@@ -865,6 +865,22 @@ footer a { color: var(--pj-yellow); text-decoration: none; }
 }
 .kp-check:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
 
+/* Relacionar: tarjeta con pictograma y modo "escribir la palabra" */
+.kp-pair-img {
+  width: 100%; aspect-ratio: 1 / 1; max-width: 150px; margin: 0 auto;
+  background-size: contain; background-repeat: no-repeat; background-position: center;
+}
+.kp-pair .kp-pair-img { max-width: 120px; }
+.kp-esc-list { display: grid; gap: 14px; max-width: 460px; margin: 0 auto; }
+.kp-esc-item {
+  border: 2px solid var(--pj-gray-200); border-radius: 16px; padding: 14px;
+  background: var(--pj-white); text-align: center;
+}
+.kp-esc-fig { min-height: 90px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+.kp-esc-fig img { max-width: 130px; max-height: 110px; object-fit: contain; }
+.kp-esc-texto { font-size: 26px; font-weight: 800; color: var(--pj-purple); }
+.kp-esc-item .kp-input-row { margin-top: 4px; }
+
 @media (max-width: 480px) {
   .kp-stage { padding: 16px 8px; }
   .kp-grid { max-width: 300px; gap: 2px; }

@@ -103,7 +103,7 @@ function abrirJuego(act) {
       const n = (b.pares || []).length;
       const indices = Array.from({ length: n }, (_, k) => k);
       pantallas.push({ tipo: 'relacionar', bi });
-      kpEstado.push({ izq: null, hechas: {}, ordenIzq: shuffleArr(indices), ordenDer: shuffleArr(indices) });
+      kpEstado.push({ izq: null, hechas: {}, escrito: {}, ordenIzq: shuffleArr(indices), ordenDer: shuffleArr(indices) });
     } else if (b.tipo === 'ordenar') {
       pantallas.push({ tipo: 'ordenar', bi });
       kpEstado.push({ orden: shuffleArr((b.items || []).map((_, k) => k)), hechas: 0 });
@@ -481,23 +481,70 @@ function lluviaConfetti() {
 
 function screenRelacionar(s, est) {
   const b = bloquesJuego[s.bi];
-  const hechas = est.hechas || {};
   const pares = b.pares || [];
+  const modo = b.modo || 'emparejar';
+  if (modo === 'escribir') return screenRelacionarEscribir(s, est, pares);
+  const hechas = est.hechas || {};
   // Columnas barajadas: el orden no coincide para que no estén uno al lado del otro
   const izqOrder = est.ordenIzq && est.ordenIzq.length === pares.length ? est.ordenIzq : pares.map((_, j) => j);
   const derOrder = est.ordenDer && est.ordenDer.length === pares.length ? est.ordenDer : pares.map((_, j) => j);
   const izqCls = (j) => (hechas[j] ? ' ok' : (est.izq === j ? ' sel' : ''));
   const derCls = (j) => (hechas[j] ? ' ok' : '');
+  const itemIzq = (j) => pares[j].izq_img
+    ? `<div class="kp-pair-img" style="background-image:url('${esc(pares[j].izq_img)}')" title="${esc(pares[j].izq || '')}"></div>`
+    : esc(pares[j].izq || '…');
   let html = `<div class="kp-screen">
     <div class="kp-qt">🔗 Relacionar</div>`;
   if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente);
   html += `<div class="kp-match">
-      <div class="kp-col">${izqOrder.map((j) => `<div class="kp-pair${izqCls(j)}" onclick="kpIzq(${pantallaIdx},${j})">${hechas[j] ? '✅ ' : ''}${esc(pares[j].izq || '…')}</div>`).join('')}</div>
+      <div class="kp-col">${izqOrder.map((j) => `<div class="kp-pair${izqCls(j)}" onclick="kpIzq(${pantallaIdx},${j})">${hechas[j] ? '✅ ' : ''}${itemIzq(j)}</div>`).join('')}</div>
       <div class="kp-col">${derOrder.map((j) => `<div class="kp-pair alt${derCls(j)}" onclick="kpDer(${pantallaIdx},${j})">${hechas[j] ? '✅ ' : ''}${esc(pares[j].der || '…')}</div>`).join('')}</div>
     </div>`;
   if (pares.length > 0 && Object.keys(hechas).length >= pares.length) html += `<div class="kp-msg ok">¡Todo emparejado! 🎉</div>`;
   html += `<div class="kp-hint">👆 Toca una tarjeta de cada lado para emparejar</div></div>`;
   return html;
+}
+
+// Modo "escribir la palabra": ve el pictograma y escribe la palabra que corresponde
+function screenRelacionarEscribir(s, est, pares) {
+  const b = bloquesJuego[s.bi];
+  const escrito = est.escrito || {};
+  const done = pares.every((_, j) => escrito[j] === 'ok');
+  let html = `<div class="kp-screen">
+    <div class="kp-qt">✏️ Escribe la palabra</div>`;
+  if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente);
+  html += `<div class="kp-esc-list">`;
+  pares.forEach((p, j) => {
+    const st = escrito[j];
+    const pista = (p.izq || '').trim();
+    html += `<div class="kp-esc-item">
+      <div class="kp-esc-fig">${p.izq_img
+        ? `<img src="${esc(p.izq_img)}" alt="${esc(pista || p.der || '')}">`
+        : `<span class="kp-esc-texto">${esc(pista || '…')}</span>`}</div>
+      <div class="kp-input-row">
+        <input id="kp-esc-${pantallaIdx}-${j}" class="kp-input" type="text" placeholder="Escribe la palabra…" ${st === 'ok' ? 'disabled' : ''} value="${st === 'ok' ? esc(p.der) : ''}" />
+        ${st === 'ok' ? '<span class="kp-msg ok">¡Correcto! ✅</span>'
+          : `<span style="display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;">${st === 'err' ? '<span class="kp-msg bad">Casi… inténtalo otra vez</span>' : ''}<button class="kp-check" onclick="kpEscribir(${pantallaIdx},${j})">Comprobar</button></span>`}
+      </div>
+      ${p.izq_fuente ? `<div class="kp-fuente">📸 ${esc(p.izq_fuente)}</div>` : ''}
+    </div>`;
+  });
+  html += `</div>`;
+  if (done && pares.length > 0) html += `<div class="kp-msg ok">¡Todo correcto! 🎉</div>`;
+  html += `<div class="kp-hint">✏️ Escribe la palabra que corresponde a cada pictograma</div></div>`;
+  return html;
+}
+function normaliza(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim(); }
+function kpEscribir(idx, j) {
+  const est = kpEstado[idx];
+  const b = bloquesJuego[pantallas[idx].bi];
+  const p = b.pares[j];
+  const val = (document.getElementById('kp-esc-' + idx + '-' + j)?.value || '');
+  const okk = normaliza(val) === normaliza(p.der);
+  est.escrito = est.escrito || {};
+  est.escrito[j] = okk ? 'ok' : 'err';
+  if (okk) kpScore.verdes++; else kpScore.rojos++;
+  renderPantalla();
 }
 function kpIzq(idx, j) {
   const est = kpEstado[idx];

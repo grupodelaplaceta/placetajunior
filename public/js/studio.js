@@ -243,18 +243,48 @@ function renderSopa(b, i) {
 
 // ── Relacionar ───────────────────────────────────────────────────────
 function renderRelacionar(b, i) {
-  const filas = b.pares.map((p, j) => `
+  const modo = b.modo || 'emparejar';
+  const togg = `
+    <div class="row2" style="margin-bottom:14px;">
+      <div>
+        <label>Modo de juego</label>
+        <div class="seg">
+          <button type="button" class="chip-cat ${modo === 'emparejar' ? 'active' : ''}" onclick="setModoRelacionar(${i},'emparejar')">🎯 Emparejar</button>
+          <button type="button" class="chip-cat ${modo === 'escribir' ? 'active' : ''}" onclick="setModoRelacionar(${i},'escribir')">✏️ Escribir la palabra</button>
+        </div>
+      </div>
+      <p class="form-note" style="align-self:center;margin:0;">${modo === 'escribir'
+        ? 'El niño ve el pictograma y escribe la palabra que corresponde.'
+        : 'El niño toca un elemento de cada lado para emparejarlo.'}</p>
+    </div>`;
+  const filas = b.pares.map((p, j) => {
+    const esEscribir = modo === 'escribir';
+    return `
     <div class="q-item">
-      <div class="q-head"><span class="q-num">Pareja ${j + 1}</span>
-        <div class="q-tools"><button class="b-btn del" onclick="borrarItem(${i},'pares',${j})">🗑️</button></div>
+      <div class="q-head">
+        <span class="q-num">${esEscribir ? 'Palabra' : 'Pareja'} ${j + 1}</span>
+        <div class="q-tools">
+          <button class="b-btn" type="button" title="Poner pictograma ARASAAC" onclick="imagenPareja(${i},${j})">🖼️</button>
+          <button class="b-btn del" type="button" onclick="borrarItem(${i},'pares',${j})">🗑️</button>
+        </div>
       </div>
+      ${p.izq_img ? `
+      <div class="img-preview">
+        <img src="${esc(p.izq_img)}">
+        <div class="img-fuente">📸 ${esc(p.izq_fuente || 'Fuente sin indicar')}</div>
+        <button class="img-remove" onclick="quitarImagenPareja(${i},${j})">✕</button>
+      </div>` : ''}
       <div class="row2">
-        <input placeholder="Izquierda (ej: Sol)" value="${esc(p.izq)}" oninput="setPareja(${i},${j},'izq',this.value)" />
-        <input placeholder="Derecha (ej: Estrella)" value="${esc(p.der)}" oninput="setPareja(${i},${j},'der',this.value)" />
+        <input placeholder="${esEscribir ? 'Pista / etiqueta (opcional)' : 'Izquierda (ej: Sol)'}" value="${esc(p.izq)}" oninput="setPareja(${i},${j},'izq',this.value)" />
+        <input placeholder="${esEscribir ? 'Palabra correcta' : 'Derecha (ej: Estrella)'}" value="${esc(p.der)}" oninput="setPareja(${i},${j},'der',this.value)" />
       </div>
-    </div>`).join('');
-  return filas +
-    `<button class="btn btn-outline" type="button" style="margin-top:12px;" onclick="anadirItem(${i},'pares')">➕ Añadir pareja</button>`;
+      ${esEscribir && !p.izq_img
+        ? '<p class="form-note" style="margin-top:6px;">💡 Pulsa 🖼️ para poner el pictograma que debe escribir el niño. Sin pictograma se mostrará la pista en grande.</p>'
+        : ''}
+    </div>`;
+  }).join('');
+  return togg + filas +
+    `<button class="btn btn-outline" type="button" style="margin-top:12px;" onclick="anadirItem(${i},'pares')">➕ Añadir ${modo === 'escribir' ? 'palabra' : 'pareja'}</button>`;
 }
 
 // ── Ordenar ──────────────────────────────────────────────────────────
@@ -318,6 +348,7 @@ function anadirSuma(i) { bloques[i].sumas.push({ a: '', b: '' }); render(); }
 function setCampo(i, ruta, valor) { bloques[i][ruta] = valor; }
 function setItem(i, campo, idx, valor) { bloques[i][campo][idx] = valor; }
 function setPareja(i, idx, lado, valor) { bloques[i].pares[idx][lado] = valor; }
+function setModoRelacionar(i, modo) { bloques[i].modo = modo; render(); }
 function setFrase(i, idx, campo, valor) { bloques[i].frases[idx][campo] = valor; }
 function setPregunta(i, j, campo, valor, k) {
   if (campo === 'opciones') bloques[i].preguntas[j].opciones[k] = valor;
@@ -337,7 +368,7 @@ function borrarOpcion(i, j, k) {
 }
 function marcarCorrecta(i, j, k) { bloques[i].preguntas[j].correcta = k; render(); }
 function anadirItem(i, campo, campo2) {
-  if (campo === 'pares') bloques[i].pares.push({ izq: '', der: '' });
+  if (campo === 'pares') bloques[i].pares.push({ izq: '', der: '', izq_img: null, izq_fuente: null });
   else if (campo === 'frases') bloques[i].frases.push({ texto: '', respuesta: '' });
   else bloques[i][campo].push('');
   if (campo2) bloques[i][campo2].push('');
@@ -361,6 +392,7 @@ function abrirImagen(donde, i, j) {
   $('img-modal').classList.remove('hidden');
 }
 function imagenPregunta(i, j) { abrirImagen('pregunta', i, j); }
+function imagenPareja(i, j) { abrirImagen('pareja', i, j); }
 function aplicarImagen() {
   const url = $('img-url').value.trim();
   const fuente = $('img-fuente').value.trim() || 'Fuente sin indicar';
@@ -370,12 +402,16 @@ function aplicarImagen() {
   else if (t.donde === 'pregunta') {
     bloques[t.i].preguntas[t.j].imagen_url = url;
     bloques[t.i].preguntas[t.j].fuente = fuente;
+  } else if (t.donde === 'pareja') {
+    bloques[t.i].pares[t.j].izq_img = url;
+    bloques[t.i].pares[t.j].izq_fuente = fuente;
   }
   $('img-modal').classList.add('hidden');
   render();
 }
 function quitarImagenBloque(i) { bloques[i].imagen_url = null; bloques[i].fuente = null; render(); }
 function quitarImagenPregunta(i, j) { bloques[i].preguntas[j].imagen_url = null; bloques[i].preguntas[j].fuente = null; render(); }
+function quitarImagenPareja(i, j) { bloques[i].pares[j].izq_img = null; bloques[i].pares[j].izq_fuente = null; render(); }
 
 // ── Vista previa JUGABLE: cómo lo verán los niños ────────────────────
 let pantallas = [];
@@ -470,7 +506,7 @@ function verPreview() {
       const n = (b.pares || []).length;
       const indices = Array.from({ length: n }, (_, k) => k);
       pantallas.push({ tipo: 'relacionar', bi });
-      kpEstado.push({ izq: null, hechas: {}, ordenIzq: shuffleArr(indices), ordenDer: shuffleArr(indices) });
+      kpEstado.push({ izq: null, hechas: {}, escrito: {}, ordenIzq: shuffleArr(indices), ordenDer: shuffleArr(indices) });
     } else if (b.tipo === 'ordenar') {
       pantallas.push({ tipo: 'ordenar', bi });
       kpEstado.push({ orden: shuffleArr((b.items || []).map((_, k) => k)), hechas: 0 });
@@ -789,23 +825,70 @@ function lluviaConfetti() {
 
 function screenRelacionar(s, est) {
   const b = bloques[s.bi];
-  const hechas = est.hechas || {};
   const pares = b.pares || [];
+  const modo = b.modo || 'emparejar';
+  if (modo === 'escribir') return screenRelacionarEscribir(s, est, pares);
+  const hechas = est.hechas || {};
   // Columnas barajadas: el orden no coincide para que no estén uno al lado del otro
   const izqOrder = est.ordenIzq && est.ordenIzq.length === pares.length ? est.ordenIzq : pares.map((_, j) => j);
   const derOrder = est.ordenDer && est.ordenDer.length === pares.length ? est.ordenDer : pares.map((_, j) => j);
   const izqCls = (j) => (hechas[j] ? ' ok' : (est.izq === j ? ' sel' : ''));
   const derCls = (j) => (hechas[j] ? ' ok' : '');
+  const itemIzq = (j) => pares[j].izq_img
+    ? `<div class="kp-pair-img" style="background-image:url('${esc(pares[j].izq_img)}')" title="${esc(pares[j].izq || '')}"></div>`
+    : esc(pares[j].izq || '…');
   let html = `<div class="kp-screen">
     <div class="kp-qt">🔗 Relacionar</div>`;
   if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente);
   html += `<div class="kp-match">
-      <div class="kp-col">${izqOrder.map((j) => `<div class="kp-pair${izqCls(j)}" onclick="kpIzq(${pantallaIdx},${j})">${hechas[j] ? '✅ ' : ''}${esc(pares[j].izq || '…')}</div>`).join('')}</div>
+      <div class="kp-col">${izqOrder.map((j) => `<div class="kp-pair${izqCls(j)}" onclick="kpIzq(${pantallaIdx},${j})">${hechas[j] ? '✅ ' : ''}${itemIzq(j)}</div>`).join('')}</div>
       <div class="kp-col">${derOrder.map((j) => `<div class="kp-pair alt${derCls(j)}" onclick="kpDer(${pantallaIdx},${j})">${hechas[j] ? '✅ ' : ''}${esc(pares[j].der || '…')}</div>`).join('')}</div>
     </div>`;
   if (pares.length > 0 && Object.keys(hechas).length >= pares.length) html += `<div class="kp-msg ok">¡Todo emparejado! 🎉</div>`;
   html += `<div class="kp-hint">👆 Toca una tarjeta de cada lado para emparejar</div></div>`;
   return html;
+}
+
+// Modo "escribir la palabra": ve el pictograma y escribe la palabra que corresponde
+function screenRelacionarEscribir(s, est, pares) {
+  const b = bloques[s.bi];
+  const escrito = est.escrito || {};
+  const done = pares.every((_, j) => escrito[j] === 'ok');
+  let html = `<div class="kp-screen">
+    <div class="kp-qt">✏️ Escribe la palabra</div>`;
+  if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente);
+  html += `<div class="kp-esc-list">`;
+  pares.forEach((p, j) => {
+    const st = escrito[j];
+    const pista = (p.izq || '').trim();
+    html += `<div class="kp-esc-item">
+      <div class="kp-esc-fig">${p.izq_img
+        ? `<img src="${esc(p.izq_img)}" alt="${esc(pista || p.der || '')}">`
+        : `<span class="kp-esc-texto">${esc(pista || '…')}</span>`}</div>
+      <div class="kp-input-row">
+        <input id="kp-esc-${pantallaIdx}-${j}" class="kp-input" type="text" placeholder="Escribe la palabra…" ${st === 'ok' ? 'disabled' : ''} value="${st === 'ok' ? esc(p.der) : ''}" />
+        ${st === 'ok' ? '<span class="kp-msg ok">¡Correcto! ✅</span>'
+          : `<span style="display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;">${st === 'err' ? '<span class="kp-msg bad">Casi… inténtalo otra vez</span>' : ''}<button class="kp-check" onclick="kpEscribir(${pantallaIdx},${j})">Comprobar</button></span>`}
+      </div>
+      ${p.izq_fuente ? `<div class="kp-fuente">📸 ${esc(p.izq_fuente)}</div>` : ''}
+    </div>`;
+  });
+  html += `</div>`;
+  if (done && pares.length > 0) html += `<div class="kp-msg ok">¡Todo correcto! 🎉</div>`;
+  html += `<div class="kp-hint">✏️ Escribe la palabra que corresponde a cada pictograma</div></div>`;
+  return html;
+}
+function normaliza(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim(); }
+function kpEscribir(idx, j) {
+  const est = kpEstado[idx];
+  const b = bloques[pantallas[idx].bi];
+  const p = b.pares[j];
+  const val = (document.getElementById('kp-esc-' + idx + '-' + j)?.value || '');
+  const okk = normaliza(val) === normaliza(p.der);
+  est.escrito = est.escrito || {};
+  est.escrito[j] = okk ? 'ok' : 'err';
+  if (okk) kpScore.verdes++; else kpScore.rojos++;
+  renderPantalla();
 }
 function kpIzq(idx, j) {
   const est = kpEstado[idx];
