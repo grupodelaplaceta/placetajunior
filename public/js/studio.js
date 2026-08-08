@@ -870,7 +870,6 @@ function screenRelacionarEscribir(s, est, pares) {
         ${st === 'ok' ? '<span class="kp-msg ok">¡Correcto! ✅</span>'
           : `<span style="display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center;">${st === 'err' ? '<span class="kp-msg bad">Casi… inténtalo otra vez</span>' : ''}<button class="kp-check" onclick="kpEscribir(${pantallaIdx},${j})">Comprobar</button></span>`}
       </div>
-      ${p.izq_fuente ? `<div class="kp-fuente">📸 ${esc(p.izq_fuente)}</div>` : ''}
     </div>`;
   });
   html += `</div>`;
