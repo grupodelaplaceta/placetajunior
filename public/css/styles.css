@@ -881,6 +881,11 @@ footer a { color: var(--pj-yellow); text-decoration: none; }
 .kp-esc-texto { font-size: 26px; font-weight: 800; color: var(--pj-purple); }
 .kp-esc-item .kp-input-row { margin-top: 4px; }
 
+/* Texto explicativo (enseñar antes de preguntar) */
+.kp-explicacion { max-width: 460px; margin: 0 auto; text-align: left; }
+.kp-explicacion p { font-size: 18px; line-height: 1.55; color: var(--pj-gray-800); margin: 0 0 10px; }
+.kp-explicacion .kp-expl-item { font-size: 16px; line-height: 1.5; color: var(--pj-gray-700); margin: 0 0 8px; padding-left: 4px; }
+
 @media (max-width: 480px) {
   .kp-stage { padding: 16px 8px; }
   .kp-grid { max-width: 300px; gap: 2px; }
@@ -909,6 +914,14 @@ footer a { color: var(--pj-yellow); text-decoration: none; }
   .q-item .opt { flex-wrap: wrap; }
   .galeria { grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); }
 }
+/* Tablet: evitar que todo se vea enorme (768–1180px) */
+@media (min-width: 768px) and (max-width: 1180px) {
+  .hero h1 { font-size: 44px; }
+  .hero .tagline { font-size: 17px; }
+  .section { padding: 40px 20px; }
+  .section h2 { font-size: 30px; }
+  .card h3 { font-size: 18px; }
+}
 
 /* ── Accesibilidad ──────────────────────────────────────────────────── */
 #juniorAccBtn {
@@ -929,5 +942,6 @@ footer a { color: var(--pj-yellow); text-decoration: none; }
   padding: 8px 10px; font-size: 12px; font-weight: 700; cursor: pointer; text-align: left; color: #374151;
 }
 #juniorAccPanel .acc-toggle.on { background: #22c55e; color: #fff; border-color: #22c55e; }
-body.acces-mayusculas { text-transform: uppercase; }
+body.acces-mayusculas .hero, body.acces-mayusculas .section, body.acces-mayusculas .studio,
+body.acces-mayusculas .kp-stage, body.acces-mayusculas .modal, body.acces-mayusculas .card { text-transform: uppercase; }
 body.acces-mayusculas input, body.acces-mayusculas textarea, body.acces-mayusculas select { text-transform: none; }

@@ -10,6 +10,7 @@ const API_BASE = 'https://admin-placeta.vercel.app/api/junior';
 
 const TIPOS = {
   test:          { ico: '📝', nombre: 'Test' },
+  texto:         { ico: '📖', nombre: 'Texto explicativo' },
   sopa_letras:   { ico: '🔤', nombre: 'Sopa de letras' },
   relacionar:    { ico: '🔗', nombre: 'Relacionar' },
   ordenar:       { ico: '📌', nombre: 'Ordenar' },
@@ -124,10 +125,11 @@ function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;
 function nuevoBloque(tipo) {
   const b = { tipo, titulo: TIPOS[tipo].nombre, imagen_url: null, fuente: null };
   if (tipo === 'test') b.preguntas = [{ pregunta: '', opciones: ['', '', '', ''], correcta: 0, imagen_url: null, fuente: null }];
+  if (tipo === 'texto') b.contenido = '';
   if (tipo === 'sopa_letras') { b.palabras = ['', '']; b.pistas = ['', '']; b.tamano = 10; }
   if (tipo === 'relacionar') b.pares = [{ izq: '', der: '' }];
   if (tipo === 'ordenar') b.items = ['', '', ''];
-  if (tipo === 'completar') b.frases = [{ texto: '', respuesta: '' }];
+  if (tipo === 'completar') b.frases = [{ texto: '', respuesta: '', opciones: ['', ''] }];
   if (tipo === 'calculo_mental') { b.sumas = [{ a: '', b: '' }]; b.segundos = 10; b.modo = 'opciones'; }
   return b;
 }
@@ -156,6 +158,7 @@ function render() {
 function renderBloque(b, i) {
   let cuerpo = '';
   if (b.tipo === 'test') cuerpo = renderTest(b, i);
+  else if (b.tipo === 'texto') cuerpo = renderTexto(b, i);
   else if (b.tipo === 'sopa_letras') cuerpo = renderSopa(b, i);
   else if (b.tipo === 'relacionar') cuerpo = renderRelacionar(b, i);
   else if (b.tipo === 'ordenar') cuerpo = renderOrdenar(b, i);
@@ -193,6 +196,24 @@ function renderImagenBloque(b, i) {
       <button class="b-btn" type="button" onclick="abrirImagen('bloque',${i})">🖼️ Imagen de stock</button>
     </div>
     ${prev}`;
+}
+
+// ── Texto explicativo ────────────────────────────────────────────────
+function renderTexto(b, i) {
+  return `
+    <div class="q-item">
+      <div class="q-head"><span class="q-num">📖 Explicación</span>
+        <div class="q-tools"><button class="b-btn" type="button" title="Poner imagen" onclick="abrirImagen('bloque',${i})">🖼️</button></div>
+      </div>
+      ${b.imagen_url ? `
+      <div class="img-preview">
+        <img src="${esc(b.imagen_url)}">
+        <div class="img-fuente">📸 ${esc(b.fuente || 'Fuente sin indicar')}</div>
+        <button class="img-remove" onclick="quitarImagenBloque(${i})">✕</button>
+      </div>` : ''}
+      <textarea rows="5" placeholder="Explica el contenido antes de preguntar. Puedes usar saltos de línea y listas." style="width:100%;margin-top:8px;" oninput="setCampo(${i},'contenido',this.value)">${esc(b.contenido || '')}</textarea>
+      <p class="form-note" style="margin-top:6px;">💡 Este bloque enseña: se muestra al niño y pulsa "Continuar" para pasar a las preguntas.</p>
+    </div>`;
 }
 
 // ── Test ─────────────────────────────────────────────────────────────
@@ -302,15 +323,38 @@ function renderOrdenar(b, i) {
 
 // ── Completar ────────────────────────────────────────────────────────
 function renderCompletar(b, i) {
-  const filas = b.frases.map((f, j) => `
+  const modo = b.modo || 'escribir';
+  const togg = `
+    <div class="row2" style="margin-bottom:14px;">
+      <div>
+        <label>Modo de juego</label>
+        <div class="seg">
+          <button type="button" class="chip-cat ${modo === 'escribir' ? 'active' : ''}" onclick="setModoCompletar(${i},'escribir')">✏️ Escribir la palabra</button>
+          <button type="button" class="chip-cat ${modo === 'opciones' ? 'active' : ''}" onclick="setModoCompletar(${i},'opciones')">🔘 Elegir opción</button>
+        </div>
+      </div>
+      <p class="form-note" style="align-self:center;margin:0;">${modo === 'opciones'
+        ? 'El niño elige la palabra que rellena el hueco entre varias opciones.'
+        : 'El niño escribe la palabra que falta en el hueco.'}</p>
+    </div>`;
+  const filas = b.frases.map((f, j) => {
+    const opciones = f.opciones || ['', ''];
+    return `
     <div class="q-item">
       <div class="q-head"><span class="q-num">Frase ${j + 1}</span>
         <div class="q-tools"><button class="b-btn del" onclick="borrarItem(${i},'frases',${j})">🗑️</button></div>
       </div>
       <input placeholder="Frase con hueco (usa ___)" value="${esc(f.texto)}" oninput="setFrase(${i},${j},'texto',this.value)" />
       <input placeholder="Respuesta que rellena el hueco" value="${esc(f.respuesta)}" style="margin-top:6px;" oninput="setFrase(${i},${j},'respuesta',this.value)" />
-    </div>`).join('');
-  return filas +
+      ${modo === 'opciones' ? `
+      <p class="form-note" style="margin-top:6px;">🔘 Opciones falsas (distractores)</p>
+      <div class="row2">
+        <input placeholder="Opción falsa 1 (ej: gato)" value="${esc(opciones[0])}" oninput="setFraseOpcion(${i},${j},0,this.value)" />
+        <input placeholder="Opción falsa 2 (ej: pájaro)" value="${esc(opciones[1])}" oninput="setFraseOpcion(${i},${j},1,this.value)" />
+      </div>` : ''}
+    </div>`;
+  }).join('');
+  return togg + filas +
     `<button class="btn btn-outline" type="button" style="margin-top:12px;" onclick="anadirItem(${i},'frases')">➕ Añadir frase</button>`;
 }
 
@@ -349,7 +393,13 @@ function setCampo(i, ruta, valor) { bloques[i][ruta] = valor; }
 function setItem(i, campo, idx, valor) { bloques[i][campo][idx] = valor; }
 function setPareja(i, idx, lado, valor) { bloques[i].pares[idx][lado] = valor; }
 function setModoRelacionar(i, modo) { bloques[i].modo = modo; render(); }
+function setModoCompletar(i, modo) { bloques[i].modo = modo; render(); }
 function setFrase(i, idx, campo, valor) { bloques[i].frases[idx][campo] = valor; }
+function setFraseOpcion(i, idx, k, valor) {
+  const f = bloques[i].frases[idx];
+  if (!f.opciones) f.opciones = ['', ''];
+  f.opciones[k] = valor;
+}
 function setPregunta(i, j, campo, valor, k) {
   if (campo === 'opciones') bloques[i].preguntas[j].opciones[k] = valor;
   else bloques[i].preguntas[j][campo] = valor;
@@ -369,7 +419,7 @@ function borrarOpcion(i, j, k) {
 function marcarCorrecta(i, j, k) { bloques[i].preguntas[j].correcta = k; render(); }
 function anadirItem(i, campo, campo2) {
   if (campo === 'pares') bloques[i].pares.push({ izq: '', der: '', izq_img: null, izq_fuente: null });
-  else if (campo === 'frases') bloques[i].frases.push({ texto: '', respuesta: '' });
+  else if (campo === 'frases') bloques[i].frases.push({ texto: '', respuesta: '', opciones: ['', ''] });
   else bloques[i][campo].push('');
   if (campo2) bloques[i][campo2].push('');
   render();
@@ -498,6 +548,9 @@ function verPreview() {
         pantallas.push({ tipo: 'test', bi, pi, nPreg: b.preguntas.length });
         kpEstado.push({ respondida: false, sel: null, acierto: null });
       });
+    } else if (b.tipo === 'texto') {
+      pantallas.push({ tipo: 'texto', bi });
+      kpEstado.push({});
     } else if (b.tipo === 'sopa_letras') {
       const { grid, size } = generarSopa(b.palabras, b.tamano);
       pantallas.push({ tipo: 'sopa', bi, grid, size });
@@ -552,6 +605,7 @@ function renderPantalla() {
   const est = kpEstado[pantallaIdx] || {};
   let cuerpo = '';
   if (s.tipo === 'portada') cuerpo = screenPortada(s);
+  else if (s.tipo === 'texto') cuerpo = screenTexto(s, est);
   else if (s.tipo === 'test') cuerpo = screenTest(s, est);
   else if (s.tipo === 'sopa') cuerpo = screenSopa(s, est);
   else if (s.tipo === 'relacionar') cuerpo = screenRelacionar(s, est);
@@ -630,6 +684,23 @@ function kpResponderCalculo(idx, k) {
 function kpTimeoutCalculo(idx) {
   const est = kpEstado[idx];
   if (est && !est.respondida) { est.respondida = true; est.acierto = false; kpScore.rojos++; renderPantalla(); }
+}
+
+function screenTexto(s, est) {
+  const b = bloques[s.bi];
+  const parrafos = (b.contenido || '').split(/\n+/).map(t => t.trim()).filter(Boolean);
+  let html = `<div class="kp-screen">
+    <div class="kp-qt">📖 ${esc(b.titulo || 'Aprende')}</div>`;
+  if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente);
+  html += `<div class="kp-explicacion">`;
+  parrafos.forEach(p => {
+    if (p.startsWith('- ') || p.startsWith('• ')) html += `<div class="kp-expl-item">• ${esc(p.slice(2))}</div>`;
+    else html += `<p>${esc(p)}</p>`;
+  });
+  html += `</div>`;
+  html += `<div style="text-align:center;margin-top:14px;"><button class="kp-check" onclick="pantallaNext()">Continuar →</button></div>`;
+  html += `<div class="kp-hint">📖 Lee y luego pulsa Continuar para responder</div></div>`;
+  return html;
 }
 
 function screenPortada(s) {
@@ -878,6 +949,16 @@ function screenRelacionarEscribir(s, est, pares) {
   return html;
 }
 function normaliza(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim(); }
+// Intenta pasar una palabra a singular (perros→perro, flores→flor) para
+// tolerar singular/plural en las respuestas.
+function singulariza(p) {
+  p = normaliza(p);
+  if (!p || p.length <= 2) return p;
+  if (p.endsWith('es')) { const b = p.slice(0, -2); if (b.length >= 2) return b; }
+  else if (p.endsWith('s')) { const b = p.slice(0, -1); if (b.length >= 2) return b; }
+  return p;
+}
+function igualPalabra(a, b) { return normaliza(a) === normaliza(b) || singulariza(a) === singulariza(b); }
 function kpEscribir(idx, j) {
   const est = kpEstado[idx];
   const b = bloques[pantallas[idx].bi];
@@ -932,28 +1013,60 @@ function kpOrden(idx, ix) {
 function screenCompletar(s, est) {
   const b = bloques[s.bi];
   const estado = est.estado || {};
+  const modo = b.modo || 'escribir';
   let html = `<div class="kp-screen">
     <div class="kp-qt">✏️ Completa la frase</div>`;
   if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente);
   (b.frases || []).forEach((f, fi) => {
     const st = estado[fi];
     html += `<div class="kp-frase">${esc(f.texto || '').replace('___', '<span class="kp-blank"></span>')}</div>`;
-    html += `<div class="kp-input-row">
-      <input id="kp-fill-${pantallaIdx}-${fi}" class="kp-input" type="text" placeholder="Escribe la palabra…" ${st ? 'disabled' : ''} value="${st ? esc(f.respuesta) : ''}" />
-      ${st === 'ok' ? '<span class="kp-msg ok">¡Correcto! ✅</span>'
-        : st === 'err' ? '<span class="kp-msg bad">Casi… inténtalo otra vez</span>'
-        : `<button class="kp-check" onclick="kpComprobar(${pantallaIdx},${fi})">Comprobar</button>`}
-    </div>`;
+    if (modo === 'opciones') {
+      if (!est.opciones) est.opciones = {};
+      if (!est.opciones[fi]) {
+        est.opciones[fi] = [f.respuesta, ...(f.opciones || [])].filter(Boolean).sort(() => Math.random() - 0.5);
+      }
+      const barajadas = est.opciones[fi];
+      html += `<div class="kp-chips">`;
+      barajadas.forEach((op, k) => {
+        const esCorrecta = st === 'ok' && op === f.respuesta;
+        const esFallada = st === 'err' && est.selOpc === fi + ':' + k;
+        const cls = (esCorrecta ? ' ok' : '') + (esFallada ? ' bad' : '') + (st === 'ok' && !esCorrecta ? ' muted' : '');
+        html += `<button class="kp-chip${cls}" onclick="kpCompletarOpcion(${pantallaIdx},${fi},${k})">${esc(op)}</button>`;
+      });
+      html += `</div>`;
+      if (st === 'ok') html += `<div class="kp-msg ok">¡Correcto! ✅</div>`;
+      else if (st === 'err') html += `<div class="kp-msg bad">Casi… elige otra opción</div>`;
+    } else {
+      html += `<div class="kp-input-row">
+        <input id="kp-fill-${pantallaIdx}-${fi}" class="kp-input" type="text" placeholder="Escribe la palabra…" ${st ? 'disabled' : ''} value="${st ? esc(f.respuesta) : ''}" />
+        ${st === 'ok' ? '<span class="kp-msg ok">¡Correcto! ✅</span>'
+          : st === 'err' ? '<span class="kp-msg bad">Casi… inténtalo otra vez</span>'
+          : `<button class="kp-check" onclick="kpComprobar(${pantallaIdx},${fi})">Comprobar</button>`}
+      </div>`;
+    }
   });
-  html += `<div class="kp-hint">👆 Escribe la palabra que falta</div></div>`;
+  html += `<div class="kp-hint">${modo === 'opciones' ? '👆 Elige la palabra que falta' : '👆 Escribe la palabra que falta'}</div></div>`;
   return html;
 }
 function kpComprobar(idx, fi) {
   const est = kpEstado[idx];
   const b = bloques[pantallas[idx].bi];
   const f = b.frases[fi];
-  const val = (document.getElementById('kp-fill-' + idx + '-' + fi)?.value || '').trim().toLowerCase();
-  const okk = (val === (f.respuesta || '').trim().toLowerCase());
+  const val = (document.getElementById('kp-fill-' + idx + '-' + fi)?.value || '');
+  const okk = igualPalabra(val, f.respuesta);
+  est.estado[fi] = okk ? 'ok' : 'err';
+  if (okk) kpScore.verdes++; else kpScore.rojos++;
+  renderPantalla();
+}
+function kpCompletarOpcion(idx, fi, k) {
+  const est = kpEstado[idx];
+  if (est.estado && est.estado[fi] === 'ok') return;
+  const b = bloques[pantallas[idx].bi];
+  const f = b.frases[fi];
+  const op = (est.opciones && est.opciones[fi] && est.opciones[fi][k]) || '';
+  est.selOpc = fi + ':' + k;
+  const okk = igualPalabra(op, f.respuesta);
+  if (!est.estado) est.estado = {};
   est.estado[fi] = okk ? 'ok' : 'err';
   if (okk) kpScore.verdes++; else kpScore.rojos++;
   renderPantalla();

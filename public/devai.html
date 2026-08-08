@@ -69,12 +69,14 @@
   "contenido": {
     "version": 2,
     "bloques": [
+      { "tipo": "texto", "titulo": "Aprende", "contenido": "Explicación en una o varias líneas\nSegundo párrafo.", "imagen_url": "" },
       { "tipo": "test", "preguntas": [ { "pregunta": "¿...?", "opciones": ["A","B","C","D"], "correcta": 0 } ] },
       { "tipo": "sopa_letras", "palabras": ["SOL","LUNA"], "pistas": ["Estrella central","Satélite"], "tamano": 10 },
       { "tipo": "relacionar", "modo": "escribir", "pares": [ { "izq": "pista que ve el niño", "der": "palabra correcta", "izq_img": "" } ] },
       { "tipo": "relacionar", "modo": "emparejar", "pares": [ { "izq": "izquierda", "der": "derecha" } ] },
       { "tipo": "ordenar", "items": ["Paso 1","Paso 2","Paso 3"] },
-      { "tipo": "completar", "frases": [ { "texto": "La frase con ___", "respuesta": "palabra" } ] },
+      { "tipo": "completar", "modo": "opciones", "frases": [ { "texto": "La frase con ___", "respuesta": "perro", "opciones": ["gato","pájaro"] } ] },
+      { "tipo": "completar", "modo": "escribir", "frases": [ { "texto": "La frase con ___", "respuesta": "palabra" } ] },
       { "tipo": "calculo_mental", "sumas": [ { "a": 3, "b": 5 } ], "segundos": 10, "modo": "opciones" }
     ]
   }
@@ -83,6 +85,8 @@
 Reglas:
 - "correcta" es el índice (base 0) de la opción correcta de cada pregunta.
 - En relacionar modo "escribir": "der" es la palabra que el niño debe teclear (NO la pongas en "izq").
+- Empieza SIEMPRE con un bloque "texto" que enseñe el contenido antes de las preguntas.
+- En completar, usa palabras en SINGULAR y, en modo opciones, escribe "opciones" (distractores).
 - Escribe en español, adáptalo a la edad indicada y numera bien los bloques.
 - IMPORTANTE: devuelve solo el JSON, sin texto ni comillas de código.</textarea>
       <div class="row" style="margin-top:10px;">
@@ -158,6 +162,8 @@ Reglas:
       const paresEmp = [];
       const paresEsc = [];
       const frases = [];
+      let explicaciones = [];
+      let enExplicacion = false;
       let relTipo = null;
 
       for (const l of lineas) {
@@ -170,6 +176,15 @@ Reglas:
           if (t) titulo = t;
           continue;
         }
+        // Texto explicativo: "Explicación:" / "Aprende:" / "Texto:" activa el modo, "Preguntas:" lo cierra
+        if (/^(explicaci[oó]n|aprende|texto|informaci[oó]n)\s*:/i.test(l) || l === 'Explicación' || l === 'Aprende') {
+          enExplicacion = true;
+          continue;
+        }
+        if (enExplicacion && (encabezados.includes(lower.replace(/[:.]+$/, '').trim()) || /^(pregunta|relaciona|completa|ordena|calcula)/i.test(l))) {
+          enExplicacion = false;
+        }
+        if (enExplicacion) { explicaciones.push(l); continue; }
         if (lower.startsWith('descripción') || lower.startsWith('descripcion')) {
           descripcion = l.split(/[:–-]/).slice(1).join(':').trim();
           continue;
@@ -209,6 +224,7 @@ Reglas:
         if (preguntas.length < 20) preguntas.push({ pregunta: l, opciones: ['Sí', 'No'], correcta: 0 });
       }
 
+      if (explicaciones.length) bloques.push({ tipo: 'texto', titulo: 'Aprende', contenido: explicaciones.join('\n'), imagen_url: null, fuente: null });
       if (preguntas.length) bloques.push({ tipo: 'test', titulo: 'Preguntas', imagen_url: null, fuente: null, preguntas });
       if (paresEmp.length) bloques.push({ tipo: 'relacionar', titulo: 'Relaciona', modo: 'emparejar', pares: paresEmp });
       if (paresEsc.length) bloques.push({ tipo: 'relacionar', titulo: 'Escribe la palabra', modo: 'escribir', pares: paresEsc });
