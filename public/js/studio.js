@@ -49,6 +49,9 @@ const GALERIA = [...PICS, ...UNSPLASH];
 let galeriaProv = 'todos';
 let galeriaBusqueda = '';
 let galeriaActual = [];
+let galeriaArasaac = [];          // resultados ARASAAC del último término
+let galeriaArasaacQ = '';
+let galeriaArasaacCargando = false;
 
 function renderGaleria() {
   const q = galeriaBusqueda.trim().toLowerCase();
@@ -64,20 +67,47 @@ function renderGaleria() {
       if (!ya.has(u)) lista.push({ url: u, fuente: `Foto: Unsplash (vía picsum.photos) · ${q}`, prov: 'picsum', tema: q });
     }
   }
-  galeriaActual = lista.slice(0, 60);
+  // Pictogramas ARASAAC por internet (solo cuando hay búsqueda)
+  if (q && (galeriaProv === 'todos' || galeriaProv === 'arasaac')) {
+    const qo = galeriaBusqueda.trim();
+    if (galeriaArasaacQ === qo && galeriaArasaac.length) {
+      lista = lista.concat(galeriaArasaac);
+    } else if (!galeriaArasaacCargando) {
+      galeriaArasaacCargando = true;
+      if (window.Pictogramas) {
+        window.Pictogramas.buscar(qo, 40).then(items => {
+          galeriaArasaac = items.map(p => ({
+            url: window.Pictogramas.urlImagen(p.id, 500),
+            thumb: p.url,
+            fuente: `Pictograma: ARASAAC (arasaac.org) · ${p.palabra}`,
+            prov: 'arasaac', tema: p.palabra
+          }));
+          galeriaArasaacQ = qo;
+          galeriaArasaacCargando = false;
+          if (galeriaBusqueda.trim() === qo) renderGaleria();
+        }).catch(() => { galeriaArasaacCargando = false; });
+      } else {
+        galeriaArasaacCargando = false;
+      }
+      lista.push({ url: '', thumb: '', fuente: '', prov: 'arasaac', tema: '⏳ Buscando pictos…', cargando: true });
+    } else {
+      lista.push({ url: '', thumb: '', fuente: '', prov: 'arasaac', tema: '⏳ Buscando pictos…', cargando: true });
+    }
+  }
+  galeriaActual = lista.slice(0, 120);
   const cont = $('stock-thumbs');
   if (galeriaActual.length === 0) {
     cont.innerHTML = '<div class="g-empty">Sin resultados. Prueba otra búsqueda o pega tu propia URL.</div>';
     return;
   }
   cont.innerHTML = galeriaActual.map((g, idx) =>
-    `<div class="g-item" style="background-image:url('${g.url}')" data-i="${idx}" onclick="elegirGaleria(${idx})"><span class="g-tag">${esc(g.tema || g.prov)}</span></div>`
+    `<div class="g-item" style="background-image:url('${g.thumb || g.url}')" data-i="${idx}" onclick="elegirGaleria(${idx})"><span class="g-tag">${esc(g.tema || g.prov)}</span></div>`
   ).join('');
 }
 
 function elegirGaleria(i) {
   const g = galeriaActual[i];
-  if (!g) return;
+  if (!g || g.cargando) return;
   $('img-url').value = g.url;
   $('img-fuente').value = g.fuente;
   document.querySelectorAll('#stock-thumbs .g-item').forEach((t, idx) => t.classList.toggle('active', idx === i));
@@ -1058,7 +1088,12 @@ document.addEventListener('DOMContentLoaded', () => {
   $('meta-cancel').addEventListener('click', () => $('meta-modal').classList.add('hidden'));
   $('preview-close').addEventListener('click', cerrarPreview);
   $('m-titular').addEventListener('change', actualizarIdentidad);
-  $('img-search').addEventListener('input', () => { galeriaBusqueda = $('img-search').value; renderGaleria(); });
+  let galeriaTimer = null;
+  $('img-search').addEventListener('input', () => {
+    galeriaBusqueda = $('img-search').value;
+    clearTimeout(galeriaTimer);
+    galeriaTimer = setTimeout(renderGaleria, 300);
+  });
 
   // Buscador de pictogramas ARASAAC
   $('m-pictograma-buscar').addEventListener('click', () => {
