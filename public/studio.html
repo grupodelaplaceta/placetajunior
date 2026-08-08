@@ -117,8 +117,15 @@
       <input id="m-titulo" type="text" placeholder="Ej: El sistema solar" />
       <label>Descripción *</label>
       <textarea id="m-descripcion" rows="2" placeholder="¿De qué va?"></textarea>
-      <label>🖼️ Pictograma ARASAAC (URL, opcional)</label>
-      <input id="m-pictograma" type="url" placeholder="https://static.arasaac.org/pictograms/…png" />
+      <label>🖼️ Pictograma ARASAAC (opcional)</label>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input id="m-pictograma" type="url" placeholder="https://static.arasaac.org/pictograms/…png" style="flex:1;" />
+        <button id="m-pictograma-buscar" class="btn btn-purple" type="button" style="white-space:nowrap;">🔎 Buscar</button>
+      </div>
+      <div id="m-pictograma-preview" style="margin-top:8px;display:none;text-align:center;">
+        <img alt="Pictograma elegido" style="width:96px;height:96px;object-fit:contain;border:2px solid var(--pj-gray-200);border-radius:14px;background:#fff;" />
+        <button id="m-pictograma-quitar" class="btn btn-outline" type="button" style="display:block;margin:8px auto 0;font-size:12px;">✖ Quitar pictograma</button>
+      </div>
       <div class="row2" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
         <div>
           <label>Categoría *</label>
@@ -198,6 +205,7 @@
     <p>© 2026 Placeta Junior · Grupo de La Placeta · <a href="https://laplaceta.org" target="_blank" rel="noopener">laplaceta.org</a></p>
   </footer>
 
+  <script src="js/pictogramas.js"></script>
   <script src="js/studio.js"></script>
 </body>
 </html>

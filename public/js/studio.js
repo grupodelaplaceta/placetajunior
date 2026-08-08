@@ -873,6 +873,7 @@ function abrirMeta() {
   $('m-titulo').value = meta.titulo;
   $('m-descripcion').value = meta.descripcion;
   if ($('m-pictograma')) $('m-pictograma').value = meta.pictograma || '';
+  actualizarVistaPictograma();
   $('m-categoria').value = meta.categoria;
   $('m-tipo').value = meta.tipo;
   const estimada = estimarEdad();
@@ -887,6 +888,21 @@ function abrirMeta() {
   if (meta.entidad) $('m-entidad').value = meta.entidad;
   if (meta.autor) $('m-autor').value = meta.autor;
   $('meta-modal').classList.remove('hidden');
+}
+
+// Muestra / oculta la vista previa del pictograma elegido
+function actualizarVistaPictograma() {
+  const campo = $('m-pictograma');
+  const prev = $('m-pictograma-preview');
+  if (!campo || !prev) return;
+  const url = (campo.value || '').trim();
+  if (url) {
+    prev.style.display = 'block';
+    prev.querySelector('img').src = url;
+  } else {
+    prev.style.display = 'none';
+    prev.querySelector('img').removeAttribute('src');
+  }
 }
 
 // Muestra los campos según quién publica (anónimo / EIP / profesor)
@@ -1043,6 +1059,24 @@ document.addEventListener('DOMContentLoaded', () => {
   $('preview-close').addEventListener('click', cerrarPreview);
   $('m-titular').addEventListener('change', actualizarIdentidad);
   $('img-search').addEventListener('input', () => { galeriaBusqueda = $('img-search').value; renderGaleria(); });
+
+  // Buscador de pictogramas ARASAAC
+  $('m-pictograma-buscar').addEventListener('click', () => {
+    if (!window.Pictogramas) { aviso('El buscador de pictogramas no está disponible.', true); return; }
+    window.Pictogramas.abrirBuscador({
+      actual: ($('m-pictograma').value || '').trim().split('/').pop().split('_')[0],
+      onSeleccionar: (p) => {
+        $('m-pictograma').value = p.url;
+        actualizarVistaPictograma();
+        aviso('🖼️ Pictograma elegido: ' + p.palabra, false);
+      }
+    });
+  });
+  $('m-pictograma-quitar').addEventListener('click', () => {
+    $('m-pictograma').value = '';
+    actualizarVistaPictograma();
+  });
+  $('m-pictograma').addEventListener('input', actualizarVistaPictograma);
   document.querySelectorAll('#img-prov .chip-cat').forEach(b => {
     b.addEventListener('click', () => {
       document.querySelectorAll('#img-prov .chip-cat').forEach(x => x.classList.remove('active'));
