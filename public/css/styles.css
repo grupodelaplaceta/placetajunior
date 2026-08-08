@@ -362,10 +362,11 @@ h1, h2, h3, .font-casual {
 .chip.purple { background: var(--pj-purple-light); color: var(--pj-purple); }
 .chip.yellow { background: var(--pj-yellow-light); color: #6b6420; }
 .badge-tag {
-  position: absolute; top: 8px; left: 8px;
-  font-size: 11px; font-weight: 700;
-  padding: 5px 10px; border-radius: 999px;
+  position: absolute; top: 6px; left: 6px;
+  font-size: 9px; font-weight: 800;
+  padding: 2px 7px; border-radius: 999px;
   color: white; box-shadow: var(--shadow);
+  letter-spacing: 0.3px;
 }
 .badge-free { background: var(--pj-green); }
 .badge-premium { background: var(--pj-purple); }

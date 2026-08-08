@@ -722,12 +722,16 @@ function screenPortada(s) {
 function screenTest(s, est) {
   const b = bloques[s.bi];
   const p = b.preguntas[s.pi];
+  // Barajar SIEMPRE las opciones (permutación estable por pantalla).
+  if (!est.opciones) est.opciones = shuffleArr(p.opciones.map((_, i) => i));
+  const orden = est.opciones;
   let html = `<div class="kp-screen">
     <div class="kp-qt">📝 Pregunta ${s.pi + 1} de ${s.nPreg}</div>
     <div class="kp-q">${esc(p.pregunta || '…')}</div>`;
   if (p.imagen_url) html += kpImg(p.imagen_url, p.fuente);
   html += `<div class="kp-opts">`;
-  p.opciones.forEach((op, k) => {
+  orden.forEach((k) => {
+    const op = p.opciones[k];
     let cls = 'kp-opt';
     if (est.respondida) {
       if (k === p.correcta) cls += ' ok';
