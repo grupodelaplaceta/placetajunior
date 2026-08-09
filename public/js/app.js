@@ -288,11 +288,27 @@ function descargarPdf(id) {
       });
       cuerpo += '</div>';
     } else if (b.tipo === 'sopa_letras' && b.palabras && b.palabras.length) {
-      cuerpo += '<div class="ws-sec"><h4>Sopa de letras</h4><p>' + b.palabras.map(esc).join(' · ') + '</p></div>';
+      let gridHtml = '';
+      if (typeof generarSopa === 'function') {
+        const sopa = generarSopa(b.palabras, b.tamano);
+        const size = sopa.size;
+        const cellMm = Math.max(5, Math.min(10, Math.floor(168 / size)));
+        const fs = Math.max(3.5, cellMm - 4);
+        gridHtml = '<table class="ws-grid" style="border-collapse:collapse;margin:6px auto 2px;">';
+        for (let r = 0; r < size; r++) {
+          gridHtml += '<tr>';
+          for (let c = 0; c < size; c++) {
+            gridHtml += '<td style="width:' + cellMm + 'mm;height:' + cellMm + 'mm;text-align:center;vertical-align:middle;border:1px solid #8a91a0;font-size:' + fs + 'mm;font-weight:700;font-family:\'Plus Jakarta Sans\',sans-serif;">' + (sopa.grid[r][c] || '') + '</td>';
+          }
+          gridHtml += '</tr>';
+        }
+        gridHtml += '</table>';
+      }
+      cuerpo += '<div class="ws-sec ws-sopa"><h4>Sopa de letras</h4><p class="ws-words">' + b.palabras.map(esc).join(' · ') + '</p>' + gridHtml + '<p class="ws-hint">Busca y rodea las palabras.</p></div>';
     } else if (b.tipo === 'relacionar' && b.pares && b.pares.length) {
-      cuerpo += '<div class="ws-sec"><h4>Relaciona cada pareja</h4>';
-      b.pares.forEach((p, k) => { cuerpo += '<div class="ws-line"><span class="ws-n">' + (k + 1) + '.</span> ' + esc(p.izq || '') + ' — ' + esc(p.der || '') + '</div>'; });
-      cuerpo += '</div>';
+      const izq = b.pares.map((p) => p.izq || '');
+      const der = (typeof shuffleArr === 'function' ? shuffleArr(b.pares.map((p) => p.der || '')) : b.pares.map((p) => p.der || ''));
+      cuerpo += '<div class="ws-sec ws-rel"><h4>Relaciona cada pareja (dibuja una línea)</h4><div class="ws-cols"><div class="ws-col">' + izq.map((t) => '<div class="ws-item">' + esc(t) + '</div>').join('') + '</div><div class="ws-col">' + der.map((t) => '<div class="ws-item">' + esc(t) + '</div>').join('') + '</div></div></div>';
     } else if (b.tipo === 'ordenar' && b.items && b.items.length) {
       cuerpo += '<div class="ws-sec"><h4>Ordena los pasos (numéralos del 1 al N)</h4>';
       b.items.forEach((it, k) => { cuerpo += '<div class="ws-line"><span class="ws-n">' + (k + 1) + '.</span> ____ ' + esc(it) + '</div>'; });
