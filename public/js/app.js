@@ -333,7 +333,7 @@ async function descargarPdf(id) {
       cuerpo += '</div>';
     } else if (b.tipo === 'mapa_mundi' && b.paises && b.paises.length) {
       const recon = (b.paises || []).map(p => String(p).trim()).filter(Boolean).filter(p => window.MAPA_MUNDI && MAPA_MUNDI.paises[p]);
-      cuerpo += '<div class="ws-sec ws-mapa"><h4>Localiza en el mapamundi</h4>' + wsImg(b.imagen_url, b.fuente) + '<div class="ws-map-wrap" data-mapa="1" data-paises="' + esc(JSON.stringify(recon)) + '"></div><p class="ws-words">' + recon.map((p, i) => (i + 1) + '. ' + esc(p)).join(' · ') + '</p><p class="ws-hint">Busca cada país en el mapamundi y señálalo.</p></div>';
+      cuerpo += '<div class="ws-sec ws-mapa"><h4>Localiza en el mapamundi</h4>' + wsImg(b.imagen_url, b.fuente) + '<div class="ws-map-wrap" data-mapa="1" data-paises="' + esc(JSON.stringify(recon)) + '"></div><p class="ws-words">' + recon.map(esc).join(' · ') + '</p><p class="ws-hint">Colorea o señala cada país en el mapamundi.</p></div>';
     }
   });
   // Portada de la actividad (16:9) en el worksheet
@@ -366,6 +366,7 @@ async function descargarPdf(id) {
 }
 
 // Dibuja el mapamundi (world-atlas) en un canvas para la ficha PDF
+// Dibuja un mapamundi en BLANCO (solo contornos, sin colores) para colorear/señalar en el PDF
 async function generarMapaPdf(paises, W) {
   try {
     if (!window.MAPA_MUNDI) return '';
@@ -379,10 +380,9 @@ async function generarMapaPdf(paises, W) {
     const ctx = cv.getContext('2d');
     const px = (lon) => ((lon + 180) / 360) * W;
     const py = (lat) => ((90 - lat) / 180) * H;
-    const targets = (paises || []).filter(p => MAPA_MUNDI.paises[p]);
-    const nombres = targets.map(p => MAPA_MUNDI.paises[p]);
-    ctx.fillStyle = '#dbeafe'; ctx.fillRect(0, 0, W, H);
-    const dibujar = (coords, fill, stroke, lw) => {
+    // Fondo blanco
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, H);
+    const dibujar = (coords) => {
       ctx.beginPath();
       coords.forEach((ring) => {
         ring.forEach(([lon, lat], k) => {
@@ -391,35 +391,12 @@ async function generarMapaPdf(paises, W) {
         });
         ctx.closePath();
       });
-      ctx.fillStyle = fill; ctx.fill();
-      ctx.strokeStyle = stroke; ctx.lineWidth = lw || 1; ctx.stroke();
+      ctx.fillStyle = '#ffffff'; ctx.fill();
+      ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1; ctx.stroke();
     };
-    const marcar = {};
     geo.features.forEach((f) => {
-      const nm = f.properties && f.properties.name;
-      const esObj = nombres.includes(nm);
-      const fill = esObj ? '#3A00E1' : '#dfe6f2';
-      const st = esObj ? '#1f2f8f' : '#b6c2d9';
-      if (f.geometry.type === 'Polygon') dibujar([f.geometry.coordinates], fill, st, esObj ? 2 : 1);
-      else if (f.geometry.type === 'MultiPolygon') f.geometry.coordinates.forEach(p => dibujar(p, fill, st, esObj ? 2 : 1));
-      if (esObj) marcar[nm] = f;
-    });
-    // Números sobre cada país a localizar (centroide aproximado)
-    targets.forEach((es, i) => {
-      const f = marcar[MAPA_MUNDI.paises[es]];
-      if (!f) return;
-      let slon = 0, slat = 0, n = 0;
-      const rings = f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates;
-      rings.forEach(r => r[0].forEach(([lon, lat]) => { slon += lon; slat += lat; n++; }));
-      if (!n) return;
-      const x = px(slon / n), y = py(slat / n);
-      ctx.beginPath(); ctx.arc(x, y, 15, 0, Math.PI * 2);
-      ctx.fillStyle = '#fff'; ctx.fill();
-      ctx.strokeStyle = '#3A00E1'; ctx.lineWidth = 2.5; ctx.stroke();
-      ctx.fillStyle = '#3A00E1';
-      ctx.font = '800 17px "Plus Jakarta Sans", sans-serif';
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(String(i + 1), x, y + 1);
+      if (f.geometry.type === 'Polygon') dibujar([f.geometry.coordinates]);
+      else if (f.geometry.type === 'MultiPolygon') f.geometry.coordinates.forEach(p => dibujar(p));
     });
     return cv.toDataURL('image/png');
   } catch (e) { return ''; }
