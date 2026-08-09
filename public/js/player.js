@@ -76,7 +76,7 @@ function generarSopa(palabras, tamano) {
 function abrirJuego(act) {
   actividadActual = act || null;
   bloquesJuego = (act && act.contenido && act.contenido.bloques) ? act.contenido.bloques : [];
-  if (!bloquesJuego.length) { alert('Esta actividad aún no tiene contenido jugable.'); return; }
+  if (!bloquesJuego.length) { juniorAviso('Esta actividad aún no tiene contenido jugable.', 'error'); return; }
   pantallas = [];
   kpEstado = [];
   const tit = act.titulo || 'Mi actividad';
@@ -768,8 +768,12 @@ function pantallaPrev() { if (pantallaIdx > 0) { pantallaIdx--; renderPantalla()
 // Cerrar el reproductor pidiendo confirmación si hay partida en curso
 function cerrarPlayer() {
   const enCurso = pantallaIdx > 0 && pantallaIdx < pantallas.length - 1;
-  if (enCurso && !confirm('¿Seguro que quieres salir? Perderás el progreso de esta partida.')) return;
-  document.getElementById('player-modal')?.classList.add('hidden');
+  const cerrar = () => document.getElementById('player-modal')?.classList.add('hidden');
+  if (enCurso) {
+    juniorConfirmar('¿Seguro que quieres salir? Perderás el progreso de esta partida.', cerrar);
+  } else {
+    cerrar();
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {

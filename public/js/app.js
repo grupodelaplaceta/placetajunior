@@ -307,19 +307,19 @@ function renderCategorias() {
 // Abrir y JUGAR la actividad publicada (reproductor de la web)
 async function abrirActividad(id, bloqueada) {
   if (bloqueada) {
-    alert('🔒 Esta actividad es de pago (no subvencionada).\nPuedes adquirirla en la app Placeta Junior y pagarla con Placetas (su precio incluye IVA).');
+    juniorAviso('🔒 Esta actividad es de pago (no subvencionada). Puedes adquirirla en la app Placeta Junior y pagarla con Placetas.', 'error');
     return;
   }
   try {
     const data = await apiGet(`/actividades/${id}`);
     if (data.actividad) {
       if (typeof abrirJuego === 'function') abrirJuego(data.actividad);
-      else alert('No se pudo iniciar el juego.');
+      else juniorAviso('No se pudo iniciar el juego.', 'error');
     } else {
-      alert('No se encontró la actividad.');
+      juniorAviso('No se encontró la actividad.', 'error');
     }
   } catch (e) {
-    alert('No se pudo cargar la actividad. Inténtalo de nuevo.');
+    juniorAviso('No se pudo cargar la actividad. Inténtalo de nuevo.', 'error');
   }
 }
 

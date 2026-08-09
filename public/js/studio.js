@@ -446,7 +446,7 @@ function imagenPareja(i, j) { abrirImagen('pareja', i, j); }
 function aplicarImagen() {
   const url = $('img-url').value.trim();
   const fuente = $('img-fuente').value.trim() || 'Fuente sin indicar';
-  if (!url) { alert('Elige o pega una URL de imagen.'); return; }
+  if (!url) { juniorAviso('Elige o pega una URL de imagen.', 'error'); return; }
   const t = imgTarget;
   if (t.donde === 'bloque') { bloques[t.i].imagen_url = url; bloques[t.i].fuente = fuente; }
   else if (t.donde === 'pregunta') {
@@ -1339,6 +1339,10 @@ document.addEventListener('DOMContentLoaded', () => {
 // Cerrar la vista previa pidiendo confirmación si hay partida en curso
 function cerrarPreview() {
   const enCurso = pantallaIdx > 0 && pantallaIdx < pantallas.length - 1;
-  if (enCurso && !confirm('¿Seguro que quieres salir? Perderás el progreso de esta vista previa.')) return;
-  $('preview-modal').classList.add('hidden');
+  const cerrar = () => $('preview-modal').classList.add('hidden');
+  if (enCurso) {
+    juniorConfirmar('¿Seguro que quieres salir? Perderás el progreso de esta vista previa.', cerrar);
+  } else {
+    cerrar();
+  }
 }
