@@ -12,12 +12,16 @@
 
   let mayus = false;
   let audio = false;
+  let grande = false;
+  let contraste = false;
   const KEY = 'junior_acc_web';
-  try { const s = JSON.parse(localStorage.getItem(KEY) || '{}'); mayus = !!s.mayus; audio = !!s.audio; } catch (e) { /* ok */ }
+  try { const s = JSON.parse(localStorage.getItem(KEY) || '{}'); mayus = !!s.mayus; audio = !!s.audio; grande = !!s.grande; contraste = !!s.contraste; } catch (e) { /* ok */ }
   window.__juniorAudio = audio;
 
   function aplicar() {
     document.body.classList.toggle('acces-mayusculas', mayus);
+    document.body.classList.toggle('acces-letra-grande', grande);
+    document.body.classList.toggle('acces-contraste', contraste);
   }
   aplicar();
 
@@ -55,6 +59,8 @@
     '<div class="acc-head">♿ Accesibilidad</div>' +
     '<button type="button" class="acc-toggle" id="accMayus">🔠 MAYÚSCULAS</button>' +
     '<button type="button" class="acc-toggle" id="accAudio">🔊 AUDIO</button>' +
+    '<button type="button" class="acc-toggle" id="accGrande">Aa Letra grande</button>' +
+    '<button type="button" class="acc-toggle" id="accContraste">◐ Alto contraste</button>' +
     '<button type="button" class="acc-toggle" id="accLeer">📖 Leer</button>';
 
   document.body.appendChild(btn);
@@ -62,10 +68,12 @@
 
   btn.addEventListener('click', () => { panel.hidden = !panel.hidden; });
 
-  function guardar() { try { localStorage.setItem(KEY, JSON.stringify({ mayus, audio })); } catch (e) { /* ok */ } }
+  function guardar() { try { localStorage.setItem(KEY, JSON.stringify({ mayus, audio, grande, contraste })); } catch (e) { /* ok */ } }
   function refrescar() {
     document.getElementById('accMayus').classList.toggle('on', mayus);
     document.getElementById('accAudio').classList.toggle('on', audio);
+    document.getElementById('accGrande').classList.toggle('on', grande);
+    document.getElementById('accContraste').classList.toggle('on', contraste);
     aplicar();
   }
 
@@ -76,6 +84,8 @@
     guardar(); refrescar();
     if (audio) hablar('Audio activado. Todo se leerá en voz alta.');
   });
+  document.getElementById('accGrande').addEventListener('click', () => { grande = !grande; guardar(); refrescar(); if (grande) hablar('Letra grande activada.'); });
+  document.getElementById('accContraste').addEventListener('click', () => { contraste = !contraste; guardar(); refrescar(); if (contraste) hablar('Alto contraste activado.'); });
   document.getElementById('accLeer').addEventListener('click', leerPagina);
   refrescar();
 

@@ -129,6 +129,7 @@ function abrirJuego(act) {
   kpScore = { verdes: 0, rojos: 0 };
   kpCelebrado = false;
   pantallaIdx = 0;
+  asegurarFeedback();
   renderPantalla();
   const m = document.getElementById('player-modal');
   if (m) m.classList.remove('hidden');
@@ -161,18 +162,83 @@ function renderPantalla() {
   else if (s.tipo === 'completar') cuerpo = screenCompletar(s, est);
   else if (s.tipo === 'calculo') cuerpo = screenCalculo(s, est);
   else if (s.tipo === 'final') { cuerpo = screenFinal(s); if (!kpCelebrado) { kpCelebrado = true; lluviaConfetti(); } }
+  ocultarFeedback();
+  const total = pantallas.length;
+  const pct = total > 1 ? Math.round((pantallaIdx / (total - 1)) * 100) : 0;
+  let etiqueta;
+  if (s.tipo === 'test') etiqueta = 'Pregunta ' + (s.pi + 1) + ' de ' + s.nPreg;
+  else if (s.tipo === 'calculo') etiqueta = 'Cálculo ' + (s.si + 1) + ' de ' + s.n;
+  else if (s.tipo === 'final') etiqueta = '¡Resultado!';
+  else if (s.tipo === 'portada') etiqueta = 'Empieza';
+  else etiqueta = 'Pantalla ' + (pantallaIdx + 1) + ' de ' + total;
   document.getElementById('player-content').innerHTML = `
-    <div class="kp-nav">
-      <button class="kp-nav-btn" onclick="pantallaPrev()" ${pantallaIdx === 0 ? 'disabled' : ''}>←</button>
-      <span class="kp-dots">${pantallas.map((_, i) => `<span class="kp-dot ${i === pantallaIdx ? 'on' : ''}"></span>`).join('')}</span>
-      <button class="kp-nav-btn" onclick="pantallaNext()" ${pantallaIdx === pantallas.length - 1 ? 'disabled' : ''}>→</button>
+    <div class="kp-top">
+      <button type="button" class="kp-nav-btn kp-salir" onclick="cerrarPlayer()" title="Salir de la actividad"><span class="material-symbols-rounded">close</span><span class="kp-salir-txt">Salir</span></button>
+      <div class="kp-progress" aria-hidden="true">
+        <span class="kp-progress-label">${esc(etiqueta)}</span>
+        <div class="kp-progress-track"><div class="kp-progress-bar" style="width:${pct}%"></div></div>
+      </div>
+      <div class="kp-score-chips" aria-label="Resultado">
+        <span class="kp-chip-score ok"><span class="material-symbols-rounded">check_circle</span>${kpScore.verdes}</span>
+        <span class="kp-chip-score bad"><span class="material-symbols-rounded">cancel</span>${kpScore.rojos}</span>
+      </div>
     </div>
-    <div class="kp-stage">${cuerpo}</div>`;
+    <div class="kp-nav-row">
+      <button type="button" class="kp-nav-btn" onclick="pantallaPrev()" ${pantallaIdx === 0 ? 'disabled' : ''} title="Anterior"><span class="material-symbols-rounded">chevron_left</span></button>
+      <span class="kp-dots">${pantallas.map((_, i) => `<span class="kp-dot ${i === pantallaIdx ? 'on' : ''}"></span>`).join('')}</span>
+      <button type="button" class="kp-nav-btn" onclick="pantallaNext()" ${pantallaIdx === pantallas.length - 1 ? 'disabled' : ''} title="Siguiente"><span class="material-symbols-rounded">chevron_right</span></button>
+    </div>
+    <div class="kp-stage" aria-live="polite">${cuerpo}</div>`;
   clearInterval(calcTimer);
   if (s.tipo === 'calculo') iniciarTimerCalculo();
 
   // Accesibilidad: exponer el texto de la pantalla para la lectura con audio
   document.dispatchEvent(new CustomEvent('junior:texto', { detail: textoPantallaWeb(s) }));
+}
+
+// Cierra el reproductor y limpia el feedback
+function cerrarPlayer() {
+  ocultarFeedback();
+  const m = document.getElementById('player-modal');
+  if (m) m.classList.add('hidden');
+}
+
+// Overlay de feedback (éxito/error) con ARIA y foco accesible
+function asegurarFeedback() {
+  if (document.getElementById('kp-feedback')) return;
+  const fb = document.createElement('div');
+  fb.id = 'kp-feedback';
+  fb.className = 'kp-feedback hidden';
+  fb.setAttribute('role', 'dialog');
+  fb.setAttribute('aria-modal', 'true');
+  fb.setAttribute('aria-label', 'Resultado de la respuesta');
+  const m = document.getElementById('player-modal');
+  (m || document.body).appendChild(fb);
+}
+function mostrarFeedback(acierto, correctaTexto, onNext) {
+  const fb = document.getElementById('kp-feedback');
+  if (!fb) { if (onNext) onNext(); return; }
+  window.__kpNext = function () { ocultarFeedback(); if (onNext) onNext(); };
+  fb.innerHTML = acierto
+    ? `<div class="kp-fb-card kp-fb-ok" role="alert">
+        <div class="kp-fb-ico"><span class="material-symbols-rounded">check_circle</span></div>
+        <h3 class="kp-fb-title">¡Correcto!</h3>
+        <p class="kp-fb-sub">Has sumado +1 punto verde. ¡Sigue así!</p>
+        <button type="button" class="kp-btn kp-fb-next" onclick="window.__kpNext()">Siguiente</button>
+      </div>`
+    : `<div class="kp-fb-card kp-fb-bad" role="alert">
+        <div class="kp-fb-ico"><span class="material-symbols-rounded">cancel</span></div>
+        <h3 class="kp-fb-title">Casi lo logras</h3>
+        <p class="kp-fb-sub">La respuesta correcta era «${esc(correctaTexto)}».</p>
+        <button type="button" class="kp-btn kp-fb-next" onclick="window.__kpNext()">Continuar</button>
+      </div>`;
+  fb.classList.remove('hidden');
+  const nb = fb.querySelector('.kp-fb-next');
+  if (nb) nb.focus();
+}
+function ocultarFeedback() {
+  const fb = document.getElementById('kp-feedback');
+  if (fb) fb.classList.add('hidden');
 }
 
 function textoPantallaWeb(s) {
@@ -289,25 +355,31 @@ function screenTest(s, est) {
   // Barajar SIEMPRE las opciones (permutación estable por pantalla).
   if (!est.opciones) est.opciones = shuffleArr(p.opciones.map((_, i) => i));
   const orden = est.opciones;
-  let html = `<div class="kp-screen">
-    <div class="kp-qt">📝 Pregunta ${s.pi + 1} de ${s.nPreg}</div>
-    <div class="kp-q">${esc(p.pregunta || '…')}</div>`;
+  const correcta = p.correcta;
+  let html = `<div class="kp-screen kp-test">
+    <div class="kp-qcard">
+      <span class="kp-orb" aria-hidden="true"></span>
+      <div class="kp-qt">📝 Pregunta ${s.pi + 1} de ${s.nPreg}</div>
+      <div class="kp-q">${esc(p.pregunta || '…')}</div>`;
   if (p.imagen_url) html += kpImg(p.imagen_url, p.fuente);
-  html += `<div class="kp-opts">`;
-  orden.forEach((k) => {
+  if (p.pictograma) html += kpImg(p.pictograma, p.fuente);
+  html += `</div>`;
+  html += `<div class="kp-answers">`;
+  orden.forEach((k, idx) => {
     const op = p.opciones[k];
-    let cls = 'kp-opt';
+    let cls = 'kp-answer';
     if (est.respondida) {
-      if (k === p.correcta) cls += ' ok';
+      if (k === correcta) cls += ' ok';
       else if (k === est.sel) cls += ' bad';
       else cls += ' muted';
     }
-    html += `<div class="${cls}" onclick="kpResponder(${pantallaIdx},${k})">${est.respondida && k === p.correcta ? '✅ ' : ''}${esc(op || '…')}</div>`;
+    const icono = k === correcta ? 'check_circle' : 'radio_button_unchecked';
+    html += `<button type="button" class="${cls}" onclick="kpResponder(${pantallaIdx},${k})" ${est.respondida ? 'disabled' : ''}>
+      <span class="kp-letra">${'ABCDEFGH'[idx] || '•'}</span>
+      <span class="kp-answer-txt">${esc(op || '…')}</span>
+      <span class="kp-answer-ico"><span class="material-symbols-rounded">${icono}</span></span>
+    </button>`;
   });
-  html += `</div>`;
-  if (est.respondida) {
-    html += `<div class="kp-msg ${est.acierto ? 'ok' : 'bad'}">${est.acierto ? '¡Muy bien! 🎉' : '¡Casi! La correcta es: ' + esc(p.opciones[p.correcta]) + ' 💪'}</div>`;
-  }
   html += `</div>`;
   return html;
 }
@@ -317,9 +389,15 @@ function kpResponder(idx, k) {
   if (est.respondida) return;
   est.respondida = true;
   est.sel = k;
-  est.acierto = (k === bloquesJuego[s.bi].preguntas[s.pi].correcta);
+  const b = bloquesJuego[s.bi];
+  const p = b.preguntas[s.pi];
+  est.acierto = (k === p.correcta);
   if (est.acierto) kpScore.verdes++; else kpScore.rojos++;
   renderPantalla();
+  mostrarFeedback(est.acierto, p.opciones[p.correcta], function () {
+    if (pantallaIdx < pantallas.length - 1) pantallaIdx++;
+    renderPantalla();
+  });
 }
 
 function screenSopa(s, est) {
