@@ -333,7 +333,7 @@ async function descargarPdf(id) {
       cuerpo += '</div>';
     } else if (b.tipo === 'mapa_mundi' && b.paises && b.paises.length) {
       const recon = (b.paises || []).map(p => String(p).trim()).filter(Boolean).filter(p => window.MAPA_MUNDI && MAPA_MUNDI.paises[p]);
-      cuerpo += '<div class="ws-sec ws-mapa"><h4>Localiza en el mapamundi</h4>' + wsImg(b.imagen_url, b.fuente) + '<div class="ws-map-wrap" data-mapa="1" data-paises="' + esc(JSON.stringify(recon)) + '"></div><p class="ws-words">' + recon.map(esc).join(' · ') + '</p><p class="ws-hint">Colorea o señala cada país en el mapamundi.</p></div>';
+      cuerpo += '<div class="ws-sec ws-mapa"><h4>Localiza en el mapamundi</h4>' + wsImg(b.imagen_url, b.fuente) + '<div class="ws-map-wrap" data-mapa="1" data-paises="' + esc(JSON.stringify(recon)) + '"></div><p class="ws-words">' + recon.map(esc).join(' · ') + '</p><p class="ws-hint">Busca cada país en el mapamundi y señálalo.</p></div>';
     }
   });
   // Portada de la actividad (16:9) en el worksheet
@@ -380,8 +380,8 @@ async function generarMapaPdf(paises, W) {
     const ctx = cv.getContext('2d');
     const px = (lon) => ((lon + 180) / 360) * W;
     const py = (lat) => ((90 - lat) / 180) * H;
-    // Fondo blanco
-    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, W, H);
+    // Fondo océano (igual que el mapa interactivo)
+    ctx.fillStyle = '#a9d0f5'; ctx.fillRect(0, 0, W, H);
     const dibujar = (coords) => {
       ctx.beginPath();
       coords.forEach((ring) => {
@@ -391,8 +391,8 @@ async function generarMapaPdf(paises, W) {
         });
         ctx.closePath();
       });
-      ctx.fillStyle = '#ffffff'; ctx.fill();
-      ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 1; ctx.stroke();
+      ctx.fillStyle = '#dbeafe'; ctx.fill();
+      ctx.strokeStyle = '#b6c2d9'; ctx.lineWidth = 1; ctx.stroke();
     };
     geo.features.forEach((f) => {
       if (f.geometry.type === 'Polygon') dibujar([f.geometry.coordinates]);
