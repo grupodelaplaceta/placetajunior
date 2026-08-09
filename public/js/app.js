@@ -311,25 +311,29 @@ async function descargarPdf(id) {
         }
         gridHtml += '</table>';
       }
-      cuerpo += '<div class="ws-sec ws-sopa"><h4>Sopa de letras</h4><p class="ws-words">' + b.palabras.map(esc).join(' · ') + '</p>' + gridHtml + '<p class="ws-hint">Busca y rodea las palabras.</p></div>';
+      cuerpo += '<div class="ws-sec ws-sopa"><h4>Sopa de letras</h4>' + wsImg(b.imagen_url, b.fuente) + '<p class="ws-words">' + b.palabras.map(esc).join(' · ') + '</p>' + gridHtml + '<p class="ws-hint">Busca y rodea las palabras.</p></div>';
     } else if (b.tipo === 'relacionar' && b.pares && b.pares.length) {
-      const izq = b.pares.map((p) => p.izq || '');
+      const modo = b.modo || 'emparejar';
       const der = (typeof shuffleArr === 'function' ? shuffleArr(b.pares.map((p) => p.der || '')) : b.pares.map((p) => p.der || ''));
-      cuerpo += '<div class="ws-sec ws-rel"><h4>Relaciona cada pareja (dibuja una línea)</h4><div class="ws-cols"><div class="ws-col">' + izq.map((t) => '<div class="ws-item">' + esc(t) + '</div>').join('') + '</div><div class="ws-col">' + der.map((t) => '<div class="ws-item">' + esc(t) + '</div>').join('') + '</div></div></div>';
+      const izqHtml = b.pares.map((p) => {
+        const img = (modo === 'escribir' && p.izq_img) ? `<div class="ws-item-img"><img src="${esc(p.izq_img)}" alt=""></div>` : '';
+        return '<div class="ws-item">' + img + esc(p.izq || '') + '</div>';
+      }).join('');
+      cuerpo += '<div class="ws-sec ws-rel"><h4>Relaciona cada pareja (dibuja una línea)</h4>' + wsImg(b.imagen_url, b.fuente) + '<div class="ws-cols"><div class="ws-col">' + izqHtml + '</div><div class="ws-col">' + der.map((t) => '<div class="ws-item">' + esc(t) + '</div>').join('') + '</div></div></div>';
     } else if (b.tipo === 'ordenar' && b.items && b.items.length) {
-      cuerpo += '<div class="ws-sec"><h4>Ordena los pasos (numéralos del 1 al N)</h4>';
+      cuerpo += '<div class="ws-sec"><h4>Ordena los pasos (numéralos del 1 al N)</h4>' + wsImg(b.imagen_url, b.fuente);
       b.items.forEach((it, k) => { cuerpo += '<div class="ws-line"><span class="ws-n">' + (k + 1) + '.</span> ____ ' + esc(it) + '</div>'; });
       cuerpo += '</div>';
     } else if (b.tipo === 'completar' && b.frases && b.frases.length) {
-      cuerpo += '<div class="ws-sec"><h4>Completa las frases</h4>';
+      cuerpo += '<div class="ws-sec"><h4>Completa las frases</h4>' + wsImg(b.imagen_url, b.fuente);
       b.frases.forEach((f, k) => { cuerpo += '<div class="ws-line"><span class="ws-n">' + (k + 1) + '.</span> ' + esc((f.texto || '').replace(/___/g, '______')) + '</div>'; });
       cuerpo += '</div>';
     } else if (b.tipo === 'calculo_mental' && b.sumas && b.sumas.length) {
-      cuerpo += '<div class="ws-sec"><h4>Cálculo mental</h4>';
+      cuerpo += '<div class="ws-sec"><h4>Cálculo mental</h4>' + wsImg(b.imagen_url, b.fuente);
       b.sumas.forEach((s2, k) => { cuerpo += '<div class="ws-line"><span class="ws-n">' + (k + 1) + '.</span> ' + (Number(s2.a) || 0) + ' + ' + (Number(s2.b) || 0) + ' = ______</div>'; });
       cuerpo += '</div>';
     } else if (b.tipo === 'mapa_mundi' && b.paises && b.paises.length) {
-      cuerpo += '<div class="ws-sec"><h4>Localiza en el mapamundi</h4><p class="ws-words">' + b.paises.map(esc).join(' · ') + '</p><p class="ws-hint">Busca cada país en un mapamundi y señálalo.</p></div>';
+      cuerpo += '<div class="ws-sec"><h4>Localiza en el mapamundi</h4>' + wsImg(b.imagen_url, b.fuente) + '<p class="ws-words">' + b.paises.map(esc).join(' · ') + '</p><p class="ws-hint">Busca cada país en un mapamundi y señálalo.</p></div>';
     }
   });
   // Portada de la actividad (16:9) en el worksheet
@@ -482,7 +486,11 @@ document.addEventListener('DOMContentLoaded', () => {
       cerrarDetalle();
       document.body.classList.remove('mostrando-juego');
     } else if (p.get('id')) {
+      document.body.classList.remove('mostrando-juego');
       verInfo(p.get('id'));
+    } else if (p.get('jugar')) {
+      document.body.classList.remove('mostrando-detalle');
+      abrirActividad(p.get('jugar'), false);
     }
   });
 });

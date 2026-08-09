@@ -1319,6 +1319,16 @@ footer p { color: rgba(255, 255, 255, .75); }
 }
 .kp-btn.kp-start:hover { filter: brightness(1.05); }
 
+/* ═══ Responsive del reproductor ═══ */
+@media (max-width: 480px) {
+  .kp-numtile { min-width: 62px; height: 66px; font-size: 32px; padding: 0 12px; border-radius: 18px; }
+  .kp-calc-q { min-width: 58px; height: 66px; font-size: 32px; border-radius: 18px; }
+  .kp-calc-op { font-size: 28px; }
+  .kp-calc-screen .kp-opts { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .kp-calc-screen .kp-opt { font-size: 20px; padding: 14px 6px; }
+  .kp-map-q { font-size: 17px; }
+}
+
 /* ═══ Barra superior mejorada (subpáginas) ═══ */
 .navbar {
   background: linear-gradient(90deg, #33215c, var(--pj-purple) 45%, #29194a);

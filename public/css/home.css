@@ -598,6 +598,8 @@ body.pj-home.mostrando-detalle .detail-page { display: block; }
 .print-worksheet .ws-img { margin: 6px 0; max-width: 80mm; page-break-inside: avoid; break-inside: avoid; }
 .print-worksheet .ws-img img { width: 100%; border-radius: 8px; border: 1px solid #e5e7eb; display: block; }
 .print-worksheet .ws-fuente { display: block; font-size: 9px; font-style: italic; color: #9CA3AF; margin-top: 2px; }
+.print-worksheet .ws-item-img { margin: 0 auto 6px; text-align: center; }
+.print-worksheet .ws-item-img img { width: 100%; max-width: 40mm; height: auto; border-radius: 6px; border: 1px solid #e5e7eb; display: block; margin: 0 auto; }
 @media print {
   body * { visibility: hidden; }
   .print-worksheet, .print-worksheet * { visibility: visible; }
@@ -758,3 +760,15 @@ body.pj-home.mostrando-juego .kp-nav-row { padding-bottom: 6px; }
 .pj-home .nav-cta .btn-outline { transition: transform .15s ease, background .15s ease; }
 .pj-home .nav-cta .btn-outline:hover { transform: translateY(-1px); }
 .pj-home .nav-toggle:checked ~ .nav-inner .nav-toggle-btn { transform: rotate(90deg); }
+
+/* ═══ Ajustes responsive de pulido ═══ */
+@media (max-width: 880px) {
+  .pj-home .nav-cta .btn { padding: 7px 12px; font-size: 13px; }
+}
+@media (max-width: 480px) {
+  .pj-home .edad-filter .ef-btn { padding: 7px 12px; font-size: 12px; }
+}
+@media (max-width: 400px) {
+  .pj-home .cta-row .btn { width: 100%; }
+  .pj-home .detail-actions .btn-lg { width: 100%; }
+}

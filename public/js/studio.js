@@ -579,7 +579,7 @@ function verPreview() {
     } else if (b.tipo === 'sopa_letras') {
       const { grid, size } = generarSopa(b.palabras, b.tamano);
       pantallas.push({ tipo: 'sopa', bi, grid, size });
-      kpEstado.push({ encontradas: {}, sel: [], foundCells: [], error: false });
+      kpEstado.push({ encontradas: {}, sel: [], foundCells: [], error: false, toqueInicio: null });
     } else if (b.tipo === 'relacionar') {
       const n = (b.pares || []).length;
       const indices = Array.from({ length: n }, (_, k) => k);
@@ -833,11 +833,40 @@ function screenSopa(s, est) {
   if (est.error) html += `<div class="kp-msg bad">👀 Esa letra no sigue ninguna palabra…</div>`;
   else if (hechas >= total && total > 0) html += `<div class="kp-msg ok">¡Has encontrado todas! 🎉</div>`;
   else if (total > 0) html += `<div class="kp-msg">🔤 ${hechas} / ${total}</div>`;
-  html += `<div class="kp-hint">👆 Desliza (arrastra) sobre las letras para formar la palabra</div></div>`;
+  html += `<div class="kp-hint">👆 Toca la primera y la última letra, o desliza para formar la palabra</div></div>`;
   return html;
 }
 // ── Sopa: arrastrar / deslizar para formar las palabras ──────────────
 let kpDrag = { on: false, idx: -1, dir: null, cells: [] };
+// Celdas en línea recta entre dos puntos (para completar con dos toques)
+function lineaEntre(a, b) {
+  const dr = Math.sign(b.r - a.r), dc = Math.sign(b.c - a.c);
+  const n = Math.max(Math.abs(b.r - a.r), Math.abs(b.c - a.c)) + 1;
+  const out = [];
+  for (let i = 0; i < n; i++) out.push({ r: a.r + dr * i, c: a.c + dc * i });
+  return out;
+}
+// Comprueba una palabra marcada (arrastrada o completada con dos toques)
+function comprobarSopa(idx, word) {
+  const est = kpEstado[idx];
+  const s = pantallas[idx];
+  const rev = word.split('').reverse().join('');
+  const b = bloques[s.bi];
+  const validas = (b.palabras || []).filter(Boolean).map(p => String(p).toUpperCase().replace(/[^A-ZÑ]/g, '')).filter(p => p.length >= 2);
+  const wi = validas.findIndex((w, i) => !est.encontradas[i] && (w === word || w === rev));
+  if (wi >= 0) {
+    est.encontradas[wi] = true;
+    est.foundCells = [...(est.foundCells || []), ...(est.sel || [])];
+    kpScore.verdes++;
+    if (window.pjSonido) pjSonido.exito();
+  } else {
+    kpScore.rojos++;
+    est.error = true;
+    if (window.pjSonido) pjSonido.error();
+    setTimeout(() => { if (kpEstado[idx]) { kpEstado[idx].error = false; renderPantalla(); } }, 700);
+  }
+  renderPantalla();
+}
 function kpStart(e) {
   const cell = e.target && e.target.closest ? e.target.closest('.kp-cell') : null;
   if (!cell) return;
@@ -846,8 +875,19 @@ function kpStart(e) {
   const idx = +grid.dataset.pantalla;
   const s = pantallas[idx];
   if (!s || s.tipo !== 'sopa') return;
-  kpDrag = { on: true, idx, dir: null, cells: [{ r: +cell.dataset.r, c: +cell.dataset.c }] };
-  kpEstado[idx].sel = kpDrag.cells;
+  const est = kpEstado[idx];
+  const p = { r: +cell.dataset.r, c: +cell.dataset.c };
+  const prev = est.toqueInicio;
+  // Segundo toque: completar la palabra en línea recta (más fácil en móvil)
+  if (prev && (prev.r !== p.r || prev.c !== p.c) && (prev.r === p.r || prev.c === p.c || Math.abs(prev.r - p.r) === Math.abs(prev.c - p.c))) {
+    est.toqueInicio = null;
+    est.sel = lineaEntre(prev, p);
+    comprobarSopa(idx, est.sel.map(q => s.grid[q.r][q.c]).join(''));
+    return;
+  }
+  est.toqueInicio = null;
+  kpDrag = { on: true, idx, dir: null, cells: [p] };
+  est.sel = kpDrag.cells;
   pintarSel(idx);
   if (window.pjSonido) pjSonido.letra();
 }
@@ -884,25 +924,17 @@ function kpEnd() {
   const s = pantallas[idx];
   const cells = kpDrag.cells;
   kpDrag.on = false;
-  est.sel = [];
-  if (cells.length < 2) { pintarSel(idx); return; }
-  const word = cells.map(p => s.grid[p.r][p.c]).join('');
-  const rev = word.split('').reverse().join('');
-  const b = bloques[s.bi];
-  const validas = (b.palabras || []).filter(Boolean).map(p => String(p).toUpperCase().replace(/[^A-ZÑ]/g, '')).filter(p => p.length >= 2);
-  const wi = validas.findIndex((w, i) => !est.encontradas[i] && (w === word || w === rev));
-  if (wi >= 0) {
-    est.encontradas[wi] = true;
-    est.foundCells = [...(est.foundCells || []), ...cells];
-    kpScore.verdes++;
-    if (window.pjSonido) pjSonido.exito();
-  } else {
-    kpScore.rojos++;
-    est.error = true;
-    if (window.pjSonido) pjSonido.error();
-    setTimeout(() => { if (kpEstado[idx]) { kpEstado[idx].error = false; renderPantalla(); } }, 700);
+  if (cells.length < 2) {
+    // Toque simple: guardamos como inicio para completar con otro toque
+    est.sel = cells;
+    est.toqueInicio = cells[0];
+    pintarSel(idx);
+    if (window.pjSonido) pjSonido.letra();
+    return;
   }
-  renderPantalla();
+  est.sel = cells;
+  est.toqueInicio = null;
+  comprobarSopa(idx, cells.map(p => s.grid[p.r][p.c]).join(''));
 }
 function pintarSel(idx) {
   const grid = document.querySelector(`.kp-grid[data-pantalla="${idx}"]`);

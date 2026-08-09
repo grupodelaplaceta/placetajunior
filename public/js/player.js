@@ -44,29 +44,45 @@ function emojiCat(cat = '') {
   return '🧩';
 }
 function generarSopa(palabras, tamano) {
+  const MAX = 16;
   const validas = (palabras || []).filter(Boolean).map(p => String(p).toUpperCase().replace(/[^A-ZÑ]/g, '')).filter(p => p.length >= 2);
   const maxLen = validas.length ? Math.max(...validas.map(p => p.length)) : 3;
-  const size = Math.max(Number(tamano) || 10, maxLen + 1, 8);
-  const grid = Array.from({ length: size }, () => Array(size).fill(''));
-  const colocar = (palabra) => {
+  let size = Math.min(MAX, Math.max(Number(tamano) || 10, maxLen + 1, 8));
+
+  const colocar = (grid, palabra) => {
     const L = palabra.length;
-    if (Math.random() < 0.6) {
-      const row = Math.floor(Math.random() * size);
-      const col = Math.floor(Math.random() * (size - L + 1));
-      let ok = true;
-      for (let k = 0; k < L; k++) { const c = grid[row][col + k]; if (c && c !== palabra[k]) ok = false; }
-      if (ok) for (let k = 0; k < L; k++) grid[row][col + k] = palabra[k];
-      return ok;
-    } else {
-      const col = Math.floor(Math.random() * size);
-      const row = Math.floor(Math.random() * (size - L + 1));
-      let ok = true;
-      for (let k = 0; k < L; k++) { const c = grid[row + k][col]; if (c && c !== palabra[k]) ok = false; }
-      if (ok) for (let k = 0; k < L; k++) grid[row + k][col] = palabra[k];
-      return ok;
+    if (L > size) return false;
+    // Prueba ambas orientaciones y varios intentos para evitar colisiones
+    const dirs = Math.random() < 0.5 ? [0, 1] : [1, 0];
+    for (const d of dirs) {
+      const rowMax = d === 0 ? size - 1 : size - L;   // fila válida máxima
+      const colMax = d === 0 ? size - L : size - 1;   // columna válida máxima
+      for (let att = 0; att < 80; att++) {
+        const row = Math.floor(Math.random() * (rowMax + 1));
+        const col = Math.floor(Math.random() * (colMax + 1));
+        let ok = true;
+        for (let k = 0; k < L; k++) {
+          const c = d === 0 ? grid[row][col + k] : grid[row + k][col];
+          if (c && c !== palabra[k]) { ok = false; break; }
+        }
+        if (ok) {
+          for (let k = 0; k < L; k++) { if (d === 0) grid[row][col + k] = palabra[k]; else grid[row + k][col] = palabra[k]; }
+          return true;
+        }
+      }
     }
+    return false;
   };
-  validas.forEach((p) => { for (let t = 0; t < 30 && !colocar(p); t++) { /* reintentar */ } });
+
+  // Intenta colocar todas; si alguna no cabe, amplía la rejilla (hasta 16) y reintenta
+  let grid;
+  while (true) {
+    grid = Array.from({ length: size }, () => Array(size).fill(''));
+    const falladas = [];
+    validas.forEach((p) => { if (!colocar(grid, p)) falladas.push(p); });
+    if (!falladas.length || size >= MAX) break;
+    size = Math.min(size + 1, MAX);
+  }
   const abc = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   for (let r = 0; r < size; r++) for (let c = 0; c < size; c++) if (!grid[r][c]) grid[r][c] = abc[Math.floor(Math.random() * 26)];
   return { grid, size };
@@ -102,7 +118,7 @@ function abrirJuego(act) {
     } else if (b.tipo === 'sopa_letras') {
       const { grid, size } = generarSopa(b.palabras, b.tamano);
       pantallas.push({ tipo: 'sopa', bi, grid, size });
-      kpEstado.push({ encontradas: {}, sel: [], foundCells: [], error: false });
+      kpEstado.push({ encontradas: {}, sel: [], foundCells: [], error: false, toqueInicio: null });
     } else if (b.tipo === 'relacionar') {
       const n = (b.pares || []).length;
       const indices = Array.from({ length: n }, (_, k) => k);
@@ -143,6 +159,9 @@ function abrirJuego(act) {
   const gamePage = document.getElementById('game-page');
   if (gamePage) {
     gamePage.innerHTML = '<div id="player-content"></div>';
+    // Si veníamos del detalle, lo cerramos para que el juego abra en su propia página
+    window.__pjDesdeDetalle = document.body.classList.contains('mostrando-detalle');
+    document.body.classList.remove('mostrando-detalle');
     document.body.classList.add('mostrando-juego');
   }
   asegurarFeedback();
@@ -475,11 +494,40 @@ function screenSopa(s, est) {
   if (est.error) html += `<div class="kp-msg bad">👀 Esa letra no sigue ninguna palabra…</div>`;
   else if (hechas >= total && total > 0) html += `<div class="kp-msg ok">¡Has encontrado todas! 🎉</div>`;
   else if (total > 0) html += `<div class="kp-msg">🔤 ${hechas} / ${total}</div>`;
-  html += `<div class="kp-hint">👆 Desliza (arrastra) sobre las letras para formar la palabra</div></div>`;
+  html += `<div class="kp-hint">👆 Toca la primera y la última letra, o desliza para formar la palabra</div></div>`;
   return html;
 }
 // ── Sopa: arrastrar / deslizar para formar las palabras ──────────────
 let kpDrag = { on: false, idx: -1, dir: null, cells: [] };
+// Celdas en línea recta entre dos puntos (para completar con dos toques)
+function lineaEntre(a, b) {
+  const dr = Math.sign(b.r - a.r), dc = Math.sign(b.c - a.c);
+  const n = Math.max(Math.abs(b.r - a.r), Math.abs(b.c - a.c)) + 1;
+  const out = [];
+  for (let i = 0; i < n; i++) out.push({ r: a.r + dr * i, c: a.c + dc * i });
+  return out;
+}
+// Comprueba una palabra marcada (arrastrada o completada con dos toques)
+function comprobarSopa(idx, word) {
+  const est = kpEstado[idx];
+  const s = pantallas[idx];
+  const rev = word.split('').reverse().join('');
+  const b = bloquesJuego[s.bi];
+  const validas = (b.palabras || []).filter(Boolean).map(p => String(p).toUpperCase().replace(/[^A-ZÑ]/g, '')).filter(p => p.length >= 2);
+  const wi = validas.findIndex((w, i) => !est.encontradas[i] && (w === word || w === rev));
+  if (wi >= 0) {
+    est.encontradas[wi] = true;
+    est.foundCells = [...(est.foundCells || []), ...(est.sel || [])];
+    kpScore.verdes++;
+    if (window.pjSonido) pjSonido.exito();
+  } else {
+    kpScore.rojos++;
+    est.error = true;
+    if (window.pjSonido) pjSonido.error();
+    setTimeout(() => { if (kpEstado[idx]) { kpEstado[idx].error = false; renderPantalla(); } }, 700);
+  }
+  renderPantalla();
+}
 function kpStart(e) {
   const cell = e.target && e.target.closest ? e.target.closest('.kp-cell') : null;
   if (!cell) return;
@@ -488,8 +536,19 @@ function kpStart(e) {
   const idx = +grid.dataset.pantalla;
   const s = pantallas[idx];
   if (!s || s.tipo !== 'sopa') return;
-  kpDrag = { on: true, idx, dir: null, cells: [{ r: +cell.dataset.r, c: +cell.dataset.c }] };
-  kpEstado[idx].sel = kpDrag.cells;
+  const est = kpEstado[idx];
+  const p = { r: +cell.dataset.r, c: +cell.dataset.c };
+  const prev = est.toqueInicio;
+  // Segundo toque: completar la palabra en línea recta (mucho más fácil en móvil)
+  if (prev && (prev.r !== p.r || prev.c !== p.c) && (prev.r === p.r || prev.c === p.c || Math.abs(prev.r - p.r) === Math.abs(prev.c - p.c))) {
+    est.toqueInicio = null;
+    est.sel = lineaEntre(prev, p);
+    comprobarSopa(idx, est.sel.map(q => s.grid[q.r][q.c]).join(''));
+    return;
+  }
+  est.toqueInicio = null;
+  kpDrag = { on: true, idx, dir: null, cells: [p] };
+  est.sel = kpDrag.cells;
   pintarSel(idx);
   if (window.pjSonido) pjSonido.letra();
 }
@@ -526,25 +585,18 @@ function kpEnd() {
   const s = pantallas[idx];
   const cells = kpDrag.cells;
   kpDrag.on = false;
-  est.sel = [];
-  if (cells.length < 2) { pintarSel(idx); return; }
-  const word = cells.map(p => s.grid[p.r][p.c]).join('');
-  const rev = word.split('').reverse().join('');
-  const b = bloquesJuego[s.bi];
-  const validas = (b.palabras || []).filter(Boolean).map(p => String(p).toUpperCase().replace(/[^A-ZÑ]/g, '')).filter(p => p.length >= 2);
-  const wi = validas.findIndex((w, i) => !est.encontradas[i] && (w === word || w === rev));
-  if (wi >= 0) {
-    est.encontradas[wi] = true;
-    est.foundCells = [...(est.foundCells || []), ...cells];
-    kpScore.verdes++;
-    if (window.pjSonido) pjSonido.exito();
-  } else {
-    kpScore.rojos++;
-    est.error = true;
-    if (window.pjSonido) pjSonido.error();
-    setTimeout(() => { if (kpEstado[idx]) { kpEstado[idx].error = false; renderPantalla(); } }, 700);
+  if (cells.length < 2) {
+    // Toque simple: guardamos como inicio para completar con otro toque
+    est.sel = cells;
+    est.toqueInicio = cells[0];
+    pintarSel(idx);
+    if (window.pjSonido) pjSonido.letra();
+    return;
   }
-  renderPantalla();
+  est.sel = cells;
+  est.toqueInicio = null;
+  const word = cells.map(p => s.grid[p.r][p.c]).join('');
+  comprobarSopa(idx, word);
 }
 function pintarSel(idx) {
   const grid = document.querySelector(`.kp-grid[data-pantalla="${idx}"]`);
@@ -887,7 +939,14 @@ function cerrarPlayer() {
   const cerrar = () => {
     ocultarFeedback();
     document.body.classList.remove('mostrando-juego');
-    try { if (location.search.includes('jugar=')) history.replaceState(null, '', '/'); } catch (e) { /* sin historial */ }
+    if (window.__pjDesdeDetalle && actividadActual && actividadActual.id) {
+      // Volvemos a la página de detalle de la que salimos
+      document.body.classList.add('mostrando-detalle');
+      try { history.replaceState(null, '', '/?id=' + encodeURIComponent(actividadActual.id)); } catch (e) { /* sin historial */ }
+    } else {
+      try { if (location.search.includes('jugar=')) history.replaceState(null, '', '/'); } catch (e) { /* sin historial */ }
+    }
+    window.__pjDesdeDetalle = false;
   };
   if (enCurso) {
     juniorConfirmar('¿Seguro que quieres salir? Perderás el progreso de esta partida.', cerrar);
