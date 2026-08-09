@@ -228,6 +228,7 @@ function renderPantalla() {
   clearInterval(calcTimer);
   if (s.tipo === 'calculo') iniciarTimerCalculo();
   if (s.tipo === 'mapa') iniciarMapa(pantallaIdx);
+  if (s.tipo === 'portada') cargarPortadaImg(pantallaIdx);
 
   // Accesibilidad: exponer el texto de la pantalla para la lectura con audio
   document.dispatchEvent(new CustomEvent('junior:texto', { detail: textoPantallaWeb(s) }));
@@ -398,7 +399,7 @@ function screenTexto(s, est) {
 function screenPortada(s) {
   return `
     <div class="kp-screen">
-      <div class="kp-cover cover-${chipColor(s.cat)}">${emojiCat(s.cat)}</div>
+      <div class="kp-cover-img" id="kp-portada-img"><span class="kp-cover-emoji">${emojiCat(s.cat)}</span></div>
       <h3 class="kp-title">${esc(s.tit)}</h3>
       <p class="kp-desc">${esc(s.desc)}</p>
       <div class="kp-chips">
@@ -410,6 +411,26 @@ function screenPortada(s) {
       <button type="button" class="kp-btn kp-start" onclick="pantallaNext()">🚀 ¡Empezar!</button>
       <div class="kp-hint">👆 Pulsa «¡Empezar!» cuando estés listo.</div>
     </div>`;
+}
+
+// Carga la portada real (16:9) en la pantalla de inicio, en vez del emoji
+function cargarPortadaImg(idx) {
+  const el = document.getElementById('kp-portada-img');
+  if (!el) return;
+  const s = pantallas[idx];
+  const a = actividadActual;
+  const fill = (u) => {
+    if (!u) return;
+    el.style.backgroundImage = `url('${u}')`;
+    el.style.backgroundSize = 'cover';
+    el.style.backgroundPosition = 'center';
+    const em = el.querySelector('.kp-cover-emoji');
+    if (em) em.remove();
+  };
+  if (a && a.portada_url) fill(a.portada_url);
+  else if (typeof generarCaratula === 'function') {
+    generarCaratula({ cat: s.cat, tit: s.tit, tipo: a ? a.tipo : '' }).then(fill);
+  }
 }
 
 function screenTest(s, est) {

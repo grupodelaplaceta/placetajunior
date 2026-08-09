@@ -231,11 +231,10 @@ function verInfo(id) {
     <a class="detail-back" href="javascript:cerrarDetalle()"><span class="material-symbols-rounded">arrow_back</span> Volver a Actividades</a>
     <div class="detail-hero">
       <div class="detail-cover" id="detail-cover"></div>
-      <div class="detail-hero-overlay">
-        <span class="chip" data-color="${color}">${escapeHtml(a.categoria)}</span>
-        <h1>${escapeHtml(a.titulo)}</h1>
-        <p>${escapeHtml(a.descripcion || '')}</p>
-      </div>
+    </div>
+    <div class="detail-head">
+      <span class="chip" data-color="${color}">${escapeHtml(a.categoria)}</span>
+      <h1>${escapeHtml(a.titulo)}</h1>
     </div>
     <div class="detail-body">
       <div class="detail-stats">

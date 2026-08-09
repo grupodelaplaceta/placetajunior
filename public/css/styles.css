@@ -1319,6 +1319,16 @@ footer p { color: rgba(255, 255, 255, .75); }
 }
 .kp-btn.kp-start:hover { filter: brightness(1.05); }
 
+/* ── Portada real en la pantalla de inicio del reproductor ─────────── */
+.kp-cover-img {
+  position: relative; width: min(420px, 90%); aspect-ratio: 16 / 9; margin: 0 auto 6px;
+  border-radius: 20px; overflow: hidden; border: 3px solid var(--pj-gray-200);
+  background: linear-gradient(135deg, var(--pj-purple-light), var(--pj-purple));
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--shadow);
+}
+.kp-cover-img .kp-cover-emoji { font-size: 72px; }
+
 /* ═══ Responsive del reproductor ═══ */
 @media (max-width: 480px) {
   .kp-numtile { min-width: 62px; height: 66px; font-size: 32px; padding: 0 12px; border-radius: 18px; }

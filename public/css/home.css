@@ -541,6 +541,9 @@ body.pj-home.mostrando-detalle .detail-page { display: block; }
 .pj-home .detail-back:hover { color: var(--pj-purple); }
 .pj-home .detail-hero { position: relative; border-radius: 24px; overflow: hidden; box-shadow: 0 14px 40px rgba(17, 24, 39, .16); max-width: 880px; margin: 0 auto; }
 .pj-home .detail-cover { width: 100%; aspect-ratio: 16 / 9; background: #e6e3ec; background-size: cover; background-position: center; }
+.pj-home .detail-head { text-align: center; margin: 18px auto 0; max-width: 880px; }
+.pj-home .detail-head .chip { margin-bottom: 8px; }
+.pj-home .detail-head h1 { font-family: var(--font-head); font-weight: 800; font-size: clamp(24px, 4vw, 36px); text-transform: uppercase; letter-spacing: 1px; color: var(--pj-purple); margin: 0; }
 .pj-home .detail-hero-overlay { position: absolute; inset: auto 0 0 0; padding: 70px 26px 22px; background: linear-gradient(to top, rgba(17, 24, 39, .85), transparent); color: #fff; }
 .pj-home .detail-hero-overlay h1 { font-family: var(--font-head); font-weight: 800; font-size: clamp(26px, 4vw, 40px); text-transform: uppercase; letter-spacing: 1px; margin: 6px 0; }
 .pj-home .detail-hero-overlay p { margin: 0; font-size: 15px; opacity: .95; }
@@ -673,7 +676,7 @@ body.pj-home.mostrando-detalle .detail-page { display: block; }
   box-shadow: 0 4px 18px rgba(78, 59, 112, .28);
 }
 .pj-home .brand-name { color: #fff; }
-.pj-home .nav-links { background: rgba(255, 255, 255, .14); border-color: rgba(255, 255, 255, .25); }
+.pj-home .nav-links { background: transparent; border: none; }
 .pj-home .nav-links a { color: rgba(255, 255, 255, .92); }
 .pj-home .nav-links a:hover { background: rgba(255, 255, 255, .16); color: #fff; }
 .pj-home .nav-links a.active { background: #fff; color: var(--pj-purple); }
