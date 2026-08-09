@@ -6,73 +6,82 @@
   <title>Placeta Junior — Web oficial del proyecto</title>
   <meta name="description" content="Web oficial del proyecto Placeta Junior · Grupo de La Placeta. Actividades educativas públicas, Studio e información del programa educativo." />
   <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/home.css" />
   <link rel="icon" href="img/logo.png" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 </head>
-<body class="pj-2026">
-  <!-- Barra de navegación superior -->
-  <header class="pj-nav">
-    <div class="pj-nav-inner">
-      <a class="pj-brand" href="/">
-        <img class="pj-brand-logo" src="img/logo.png" alt="Placeta Junior" />
-        <span class="pj-brand-name">Placeta Junior</span>
+<body class="pj-home">
+  <!-- Barra de navegación -->
+  <header class="nav">
+    <input type="checkbox" id="nav-toggle" class="nav-toggle" hidden />
+    <div class="nav-inner">
+      <a class="brand" href="/">
+        <img src="img/logo.png" alt="Placeta Junior" />
+        <span class="brand-name">Placeta Junior</span>
       </a>
-      <nav class="pj-nav-links">
-        <a href="/" class="active"><span class="material-symbols-rounded">home</span> Inicio</a>
-        <a href="#actividades"><span class="material-symbols-rounded">extension</span> Actividades</a>
-        <a href="/studio"><span class="material-symbols-rounded">brush</span> Studio</a>
-        <a href="/info"><span class="material-symbols-rounded">info</span> Info</a>
+      <label for="nav-toggle" class="nav-toggle-btn" aria-label="Abrir menú">
+        <span></span><span></span><span></span>
+      </label>
+      <nav class="nav-links">
+        <a href="/" class="active">Inicio</a>
+        <a href="#actividades">Actividades</a>
+        <a href="/studio">Studio</a>
+        <a href="/info">Info</a>
       </nav>
-      <div class="pj-nav-actions">
-        <a class="pj-btn pj-btn-ghost" href="/studio"><span class="material-symbols-rounded">brush</span> Crear</a>
-        <a class="pj-btn pj-btn-primary" href="#actividades"><span class="material-symbols-rounded">play_arrow</span> Jugar</a>
+      <div class="nav-cta">
+        <a class="btn btn-outline" href="/studio"><span class="material-symbols-rounded">brush</span> Crear</a>
+        <a class="btn btn-primary" href="#actividades"><span class="material-symbols-rounded">play_arrow</span> Jugar</a>
       </div>
     </div>
   </header>
 
   <!-- Hero -->
-  <section class="pj-hero">
-    <div class="pj-hero-panel">
-      <div class="pj-mascot animate-float">
-        <img src="img/logo.png" alt="Mascota Placeta Junior" />
-      </div>
-      <div class="pj-hero-text animate-fade-up">
-        <h1 class="pj-hero-title">¡Bienvenidos a<br/>Placeta Junior!</h1>
-        <p class="pj-hero-sub">Explora, aprende y diviértete con nosotros.</p>
-        <a class="pj-btn pj-btn-hero animate-pulse-btn" href="#actividades">
-          ¡Empieza tu aventura!
-          <span class="material-symbols-rounded">play_arrow</span>
-        </a>
+  <section class="hero">
+    <div class="hero-shapes">
+      <span class="shape" style="color:var(--pj-red);top:12%;left:6%;"></span>
+      <span class="shape" style="color:var(--pj-orange);top:24%;right:8%;animation-delay:1.2s;"></span>
+      <span class="shape" style="color:var(--pj-blue);bottom:12%;left:14%;animation-delay:2.4s;"></span>
+      <span class="shape" style="color:var(--pj-green);bottom:18%;right:16%;animation-delay:.6s;"></span>
+    </div>
+    <div class="hero-inner">
+      <img class="hero-logo" src="img/logo.png" alt="Placeta Junior" />
+      <h1 class="wordmark">
+        <span class="w-placeta">Placeta</span>
+        <span class="w-junior"><span class="c0">J</span><span class="c1">U</span><span class="c2">N</span><span class="c3">I</span><span class="c4">O</span><span class="c5">R</span></span>
+      </h1>
+      <p class="tagline">¡Aprende jugando! La web oficial del proyecto · Grupo de La Placeta</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#actividades"><span class="material-symbols-rounded">play_arrow</span> Jugar</a>
+        <a class="btn btn-outline" href="/studio"><span class="material-symbols-rounded">brush</span> Crear (Studio)</a>
       </div>
     </div>
   </section>
 
-  <main class="pj-main">
-    <section class="pj-section" id="actividades">
-      <div class="pj-section-head">
-        <h2 class="pj-title">Actividades</h2>
-        <p class="pj-sub">Desliza para ver más de cada categoría. ¡Hay para todos los gustos!</p>
+  <main>
+    <section class="section" id="actividades">
+      <div class="section-head">
+        <h2>Actividades</h2>
+        <p>Desliza para ver más de cada categoría. ¡Hay para todos los gustos!</p>
       </div>
       <div id="error-banner" class="error-banner hidden"></div>
 
       <h3 class="cat-title"><span class="t-ico material-symbols-rounded">star</span> Populares</h3>
-      <div id="populares-row" class="h-row pj-row"><div class="loader"></div></div>
+      <div id="populares-row" class="h-row"><div class="loader"></div></div>
 
       <div id="categorias"></div>
     </section>
   </main>
 
-  <footer class="pj-footer">
-    <div class="pj-footer-links">
-      <a href="/">Actividades</a>
-      <a href="/studio">Placeta Junior Studio</a>
-      <a href="/info">Info</a>
-      <a href="https://laplaceta.org" target="_blank" rel="noopener">laplaceta.org</a>
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-links">
+        <a href="/">Actividades</a>
+        <a href="/studio">Placeta Junior Studio</a>
+        <a href="/info">Info</a>
+        <a href="https://laplaceta.org" target="_blank" rel="noopener">laplaceta.org</a>
+      </div>
+      <p class="footer-copy">© 2026 Placeta Junior · Grupo de La Placeta</p>
     </div>
-    <p>© 2026 Placeta Junior · Grupo de La Placeta</p>
   </footer>
 
   <!-- Lluvia de confeti al acabar los juegos -->

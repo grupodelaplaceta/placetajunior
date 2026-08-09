@@ -84,10 +84,10 @@ function coverHTML(a) {
 // ── Miniaturas reales: genera una imagen PNG con canvas ─────────────
 function coloresCaratula(color) {
   const map = {
-    blue: ['#4d4dff', '#7d7dff'], green: ['#33cc66', '#5fe08f'],
-    orange: ['#ffa64d', '#ffc07d'], red: ['#ff4d4d', '#ff8080'],
-    purple: ['#a64dff', '#c98cff'], yellow: ['#ffdb4d', '#ffe98a'],
-    pink: ['#ff4da6', '#ff85c4']
+    blue: ['#3A00E1', '#6a4bff'], green: ['#336E45', '#5aa06f'],
+    orange: ['#FF6600', '#ff9a3d'], red: ['#FF3333', '#ff7a5c'],
+    purple: ['#4E3B70', '#7a63a8'], yellow: ['#D6CE52', '#efe78a'],
+    pink: ['#E6007E', '#ff66b3']
   };
   return map[color] || map.purple;
 }
