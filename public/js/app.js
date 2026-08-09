@@ -379,7 +379,12 @@ async function generarMapaPdf(paises, W) {
     cv.width = W; cv.height = H;
     const ctx = cv.getContext('2d');
     const px = (lon) => ((lon + 180) / 360) * W;
-    const py = (lat) => ((90 - lat) / 180) * H;
+    // Proyección Web Mercator (la misma del mapa interactivo de Leaflet): nada de "aplastado"
+    const py = (lat) => {
+      const r = lat * Math.PI / 180;
+      const t = Math.log(Math.tan(Math.PI / 4 + r / 2));
+      return Math.max(0, Math.min(H, (0.5 - t / (2 * Math.PI)) * H));
+    };
     // Fondo océano (igual que el mapa interactivo)
     ctx.fillStyle = '#a9d0f5'; ctx.fillRect(0, 0, W, H);
     const dibujar = (coords) => {
@@ -395,7 +400,9 @@ async function generarMapaPdf(paises, W) {
       ctx.strokeStyle = '#b6c2d9'; ctx.lineWidth = 1; ctx.stroke();
     };
     geo.features.forEach((f) => {
-      if (f.geometry.type === 'Polygon') dibujar([f.geometry.coordinates]);
+      const nm = f.properties && f.properties.name;
+      if (nm === 'Antarctica' || nm === 'Fr. S. Antarctic Lands') return; // evita la franja de la Antártida
+      if (f.geometry.type === 'Polygon') dibujar(f.geometry.coordinates);
       else if (f.geometry.type === 'MultiPolygon') f.geometry.coordinates.forEach(p => dibujar(p));
     });
     return cv.toDataURL('image/png');
