@@ -564,52 +564,55 @@ body.pj-home.mostrando-detalle .detail-page { display: block; }
 .pj-home .detail-actions { display: flex; flex-wrap: wrap; gap: 12px; }
 .pj-home .btn-lg { padding: 15px 28px; font-size: 18px; }
 
-/* Worksheet imprimible en PDF A4 */
+/* Worksheet imprimible en PDF A4 (compacto para aprovechar las páginas) */
 .print-worksheet { display: none; }
-.print-worksheet .ws-head { text-align: center; border-bottom: 3px solid #4E3B70; padding-bottom: 12px; margin-bottom: 14px; }
-.print-worksheet .ws-logo { height: 46px; }
-.print-worksheet .ws-brand { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 6px; }
-.print-worksheet .ws-logo { height: 54px; }
-.print-worksheet .ws-brand-name { font-family: 'HandlyCasual', sans-serif; font-size: 24px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #4E3B70; }
-.print-worksheet .ws-head h1 { font-family: 'HandlyCasual', sans-serif; font-size: 26px; text-transform: uppercase; letter-spacing: 1px; margin: 6px 0 2px; color: #4E3B70; }
-.print-worksheet .ws-head p { margin: 0; font-size: 12px; color: #6B7280; }
-.print-worksheet .ws-meta { border: 1px solid #d1d5db; border-radius: 8px; padding: 8px 12px; margin-bottom: 14px; font-size: 13px; }
-.print-worksheet .ws-sec { margin-bottom: 14px; }
-.print-worksheet .ws-sec h4 { font-family: 'HandlyCasual', sans-serif; font-size: 17px; text-transform: uppercase; color: #3A00E1; border-bottom: 2px solid #e5e7eb; padding-bottom: 4px; margin: 0 0 8px; }
-.print-worksheet .ws-q, .print-worksheet .ws-line { margin-bottom: 8px; font-size: 14px; line-height: 1.5; }
+.print-worksheet .ws-head { text-align: center; border-bottom: 3px solid #4E3B70; padding-bottom: 8px; margin-bottom: 10px; page-break-inside: avoid; break-inside: avoid; }
+.print-worksheet .ws-brand { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 4px; }
+.print-worksheet .ws-logo { height: 42px; }
+.print-worksheet .ws-brand-name { font-family: 'HandlyCasual', sans-serif; font-size: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #4E3B70; }
+.print-worksheet .ws-head h1 { font-family: 'HandlyCasual', sans-serif; font-size: 22px; text-transform: uppercase; letter-spacing: 1px; margin: 4px 0 2px; color: #4E3B70; }
+.print-worksheet .ws-head p { margin: 0; font-size: 11px; color: #6B7280; }
+.print-worksheet .ws-meta { border: 1px solid #d1d5db; border-radius: 8px; padding: 5px 10px; margin-bottom: 10px; font-size: 12px; page-break-inside: avoid; break-inside: avoid; }
+.print-worksheet .ws-sec { margin-bottom: 10px; }
+.print-worksheet .ws-sec h4 { font-family: 'HandlyCasual', sans-serif; font-size: 15px; text-transform: uppercase; color: #3A00E1; border-bottom: 2px solid #e5e7eb; padding-bottom: 3px; margin: 0 0 6px; }
+.print-worksheet .ws-q, .print-worksheet .ws-line { margin-bottom: 6px; font-size: 13px; line-height: 1.4; page-break-inside: avoid; break-inside: avoid; }
 .print-worksheet .ws-n { font-weight: 800; color: #4E3B70; }
-.print-worksheet .ws-opts { margin: 4px 0 0 18px; font-size: 13px; color: #374151; }
-.print-worksheet .ws-opt { display: inline-block; margin-right: 12px; }
-.print-worksheet .ws-foot { margin-top: 18px; padding-top: 8px; border-top: 2px solid #e5e7eb; font-size: 11px; color: #9CA3AF; text-align: center; }
-/* Elementos adaptados al papel (A4) */
-.print-worksheet .ws-sec,
-.print-worksheet .ws-q,
-.print-worksheet .ws-line,
-.print-worksheet .ws-head,
-.print-worksheet .ws-meta { page-break-inside: avoid; break-inside: avoid; }
-.print-worksheet .ws-words { font-size: 12px; color: #374151; margin: 4px 0 6px; text-align: center; }
-.print-worksheet .ws-hint { font-size: 10px; color: #9CA3AF; text-align: center; margin: 4px 0 0; }
+.print-worksheet .ws-opts { margin: 3px 0 0 16px; font-size: 12px; color: #374151; }
+.print-worksheet .ws-opt { display: inline-block; margin-right: 10px; }
+.print-worksheet .ws-foot { margin-top: 12px; padding-top: 6px; border-top: 2px solid #e5e7eb; font-size: 11px; color: #9CA3AF; text-align: center; }
+.print-worksheet .ws-words { font-size: 11px; color: #374151; margin: 3px 0 5px; text-align: center; }
+.print-worksheet .ws-hint { font-size: 10px; color: #9CA3AF; text-align: center; margin: 3px 0 0; }
+/* Secciones cohesionadas que no deben partirse entre páginas */
+.print-worksheet .ws-sopa,
+.print-worksheet .ws-rel,
+.print-worksheet .ws-mapa,
+.print-worksheet .ws-cover,
+.print-worksheet .ws-map-wrap { page-break-inside: avoid; break-inside: avoid; }
 .print-worksheet .ws-sopa { text-align: center; }
 .print-worksheet .ws-grid { border-collapse: collapse; }
 .print-worksheet .ws-grid td { font-family: 'Plus Jakarta Sans', sans-serif; }
 .print-worksheet .ws-rel h4 { text-align: left; }
-.print-worksheet .ws-cols { display: flex; gap: 40px; justify-content: space-around; }
-.print-worksheet .ws-col { flex: 1; display: flex; flex-direction: column; gap: 14px; }
-.print-worksheet .ws-item { border: 1.5px solid #9aa0aa; border-radius: 6px; padding: 6px 10px; text-align: center; font-size: 13px; font-weight: 700; min-height: 16px; }
-.print-worksheet .ws-cover { max-width: 210mm; margin: 0 auto 14px; border-radius: 12px; overflow: hidden; border: 2px solid #e5e7eb; }
+.print-worksheet .ws-cols { display: flex; gap: 24mm; justify-content: space-around; }
+.print-worksheet .ws-col { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.print-worksheet .ws-item { border: 1.5px solid #9aa0aa; border-radius: 6px; padding: 4px 8px; text-align: center; font-size: 12px; font-weight: 700; min-height: 14px; page-break-inside: avoid; break-inside: avoid; }
+.print-worksheet .ws-cover { max-width: 140mm; margin: 0 auto 10px; border-radius: 12px; overflow: hidden; border: 2px solid #e5e7eb; }
 .print-worksheet .ws-cover img { width: 100%; display: block; aspect-ratio: 16 / 9; object-fit: cover; }
-.print-worksheet .ws-img { margin: 6px 0; max-width: 80mm; page-break-inside: avoid; break-inside: avoid; }
+.print-worksheet .ws-img { margin: 4px 0; max-width: 55mm; page-break-inside: avoid; break-inside: avoid; }
 .print-worksheet .ws-img img { width: 100%; border-radius: 8px; border: 1px solid #e5e7eb; display: block; }
 .print-worksheet .ws-fuente { display: block; font-size: 9px; font-style: italic; color: #9CA3AF; margin-top: 2px; }
-.print-worksheet .ws-item-img { margin: 0 auto 6px; text-align: center; }
-.print-worksheet .ws-item-img img { width: 100%; max-width: 40mm; height: auto; border-radius: 6px; border: 1px solid #e5e7eb; display: block; margin: 0 auto; }
-.print-worksheet .ws-map-wrap { text-align: center; page-break-inside: avoid; break-inside: avoid; }
-.print-worksheet .ws-map-wrap img { width: 100%; max-width: 200mm; height: auto; border: 1px solid #cbd5e1; border-radius: 8px; display: inline-block; }
+.print-worksheet .ws-item-img { margin: 0 auto 5px; text-align: center; }
+.print-worksheet .ws-item-img img { width: 100%; max-width: 28mm; height: auto; border-radius: 6px; border: 1px solid #e5e7eb; display: block; margin: 0 auto; }
+.print-worksheet .ws-map-wrap { text-align: center; }
+.print-worksheet .ws-map-wrap img { width: 100%; max-width: 150mm; height: auto; border: 1px solid #cbd5e1; border-radius: 8px; display: inline-block; }
+/* Preguntas en dos columnas para aprovechar el papel */
+.print-worksheet .ws-test { column-count: 2; column-gap: 8mm; }
+.print-worksheet .ws-test h4 { column-span: all; }
+.print-worksheet .ws-test .ws-q { -webkit-column-break-inside: avoid; break-inside: avoid; }
 @media print {
   body * { visibility: hidden; }
   .print-worksheet, .print-worksheet * { visibility: visible; }
   .print-worksheet { display: block; position: absolute; left: 0; top: 0; width: 100%; }
-  @page { size: A4; margin: 16mm; }
+  @page { size: A4; margin: 12mm; }
 }
 
 /* Menú de accesibilidad mejorado (colores de marca e iconos Material) */

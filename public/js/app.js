@@ -285,7 +285,7 @@ async function descargarPdf(id) {
   let cuerpo = '';
   bloques.forEach((b) => {
     if (b.tipo === 'test' && b.preguntas && b.preguntas.length) {
-      cuerpo += '<div class="ws-sec"><h4>Preguntas</h4>';
+      cuerpo += '<div class="ws-sec ws-test"><h4>Preguntas</h4>';
       b.preguntas.forEach((p, k) => {
         const opts = (p.opciones || []).map((o, oi) => '<span class="ws-opt">' + ('ABCDEFGH'[oi] || '') + ') ' + esc(o) + '</span>').join(' ');
         cuerpo += '<div class="ws-q"><span class="ws-n">' + (k + 1) + '.</span> ' + esc(p.pregunta || '') + wsImg(p.imagen_url || p.pictograma, p.fuente) + '<div class="ws-opts">' + opts + '</div></div>';
