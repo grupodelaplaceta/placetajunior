@@ -41,6 +41,10 @@
     .badge { display: inline-block; background: var(--pj-purple-light); color: var(--pj-purple); padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; margin-bottom: 6px; }
     .ok { color: var(--pj-green); font-weight: 700; }
     .err { color: #dc2626; font-weight: 700; }
+    .falta { border-color: #dc2626 !important; background: #fff5f5 !important; }
+    .campo-lbl { display: flex; align-items: center; gap: 4px; }
+    .campo-lbl .req { color: #dc2626; }
+    #info-campos { margin-top: 8px; font-size: 12px; }
     .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
     @media (max-width: 760px) { .grid2 { grid-template-columns: 1fr; } }
   </style>
@@ -109,8 +113,8 @@ Reglas:
         <p class="sub">Edita o pega aquí el JSON (el de la IA o el generado). Con "Previsualizar" lo ves renderizado y con "Publicar" lo envías a revisión.</p>
         <textarea id="codigo" spellcheck="false" placeholder='Pega aquí el JSON de la actividad... o pulsa "Generar código" en el paso 2.'></textarea>
         <div class="meta">
-          <div class="field"><label>Título</label><input id="titulo" placeholder="Título (si no está en el JSON)" /></div>
-          <div class="field"><label>Descripción</label><input id="descripcion" placeholder="Descripción" /></div>
+          <div class="field"><label class="campo-lbl">Título <span class="req">*</span></label><input id="titulo" placeholder="Título (si no está en el JSON)" /></div>
+          <div class="field"><label class="campo-lbl">Descripción <span class="req">*</span></label><input id="descripcion" placeholder="Descripción" /></div>
           <div class="field"><label>Categoría</label>
             <select id="categoria">
               <option>Matemáticas</option><option>Lengua</option><option>Ciencias</option><option>Geografía</option>
@@ -123,6 +127,7 @@ Reglas:
           </div>
           <div class="field"><label>Tiempo (min)</label><input id="tiempo" type="number" value="10" /></div>
         </div>
+        <div id="info-campos" aria-live="polite"></div>
         <div class="row">
           <button class="btn btn-purple" onclick="copiar('codigo')">📋 Copiar código</button>
           <button class="btn btn-outline" onclick="previsualizar()">👁️ Previsualizar</button>
@@ -236,11 +241,13 @@ Reglas:
       $('codigo').value = JSON.stringify({ titulo, descripcion, categoria: $('categoria').value, edad_recomendada: $('edad').value, dificultad: $('dificultad').value, tiempo_estimado: parseInt($('tiempo').value, 10) || 10, contenido }, null, 2);
       $('titulo').value = titulo;
       $('descripcion').value = descripcion;
+      detectarCampos();
       aviso('⚙️ Código generado en el paso 3. Puedes editarlo o previsualizarlo.', false);
     }
 
     // ── Previsualizar ────────────────────────────────────────────────
     function previsualizar() {
+      detectarCampos();
       const m = $('mensaje'); m.textContent = ''; m.className = '';
       let obj;
       try { obj = JSON.parse($('codigo').value); }
@@ -291,6 +298,7 @@ Reglas:
     }
 
     async function publicar() {
+      detectarCampos();
       const m = $('mensaje'); m.textContent = ''; m.className = '';
       let obj;
       try { obj = JSON.parse($('codigo').value); }
@@ -337,6 +345,78 @@ Reglas:
       m.className = esError ? 'err' : 'ok';
       m.textContent = msg;
     }
+
+    // ── Autodetección al pegar/editar el código ──────────────────────
+    // Al pegar el JSON rellena automáticamente los campos de envío y
+    // avisa de los que faltan por rellenar para poder publicar.
+    let debounceDetectar = null;
+    let ultimoAvisoDetect = 0;
+    function detectarCampos() {
+      let obj = null;
+      try { obj = JSON.parse($('codigo').value); }
+      catch (e) { return; }
+      if (!obj || typeof obj !== 'object') return;
+      const bloques = (obj.contenido && obj.contenido.bloques) || obj.bloques || [];
+
+      // Rellena cada campo solo si viene definido en el JSON
+      const rellenar = (sel, val) => {
+        if (val === undefined || val === null || val === '') return false;
+        const el = $(sel);
+        if (!el) return false;
+        if (String(el.value).trim() !== String(val).trim()) { el.value = val; return true; }
+        return false;
+      };
+      let cambiados = 0;
+      if (rellenar('titulo', obj.titulo)) cambiados++;
+      if (rellenar('descripcion', obj.descripcion)) cambiados++;
+      if (obj.categoria) {
+        const sel = $('categoria');
+        if (sel) {
+          if (![...sel.options].some(o => o.value === obj.categoria)) sel.add(new Option(obj.categoria, obj.categoria));
+          if (sel.value !== obj.categoria) { sel.value = obj.categoria; cambiados++; }
+        }
+      }
+      if (rellenar('edad', obj.edad_recomendada)) cambiados++;
+      if (rellenar('dificultad', obj.dificultad)) cambiados++;
+      if (rellenar('tiempo', obj.tiempo_estimado)) cambiados++;
+
+      // Resalta los campos obligatorios que falten para enviar
+      const falta = [];
+      [['titulo', 'Título'], ['descripcion', 'Descripción']].forEach(([id, nombre]) => {
+        const el = $(id);
+        const vacio = !el || !el.value.trim();
+        if (el) el.classList.toggle('falta', vacio);
+        if (vacio) falta.push(nombre);
+      });
+      if (!Array.isArray(bloques) || !bloques.length) falta.push('bloques en contenido');
+
+      const ahora = Date.now();
+      if (cambiados > 0 || falta.length || ahora - ultimoAvisoDetect > 2500) {
+        ultimoAvisoDetect = ahora;
+        const info = $('info-campos');
+        if (info) {
+          if (falta.length) {
+            info.style.color = '#dc2626';
+            info.innerHTML = '⚠️ Código detectado (' + (cambiados || 'sin cambios') + ' campo/s rellenado/s). Faltan por rellenar para enviar: <b>' + falta.join(', ') + '</b>.';
+          } else {
+            info.style.color = 'var(--pj-green)';
+            info.innerHTML = '✅ Código detectado: ' + bloques.length + ' bloque(s) y campos listos. Pulsa <b>🚀 Publicar a revisión</b>.';
+          }
+        }
+      }
+    }
+
+    // Detecta nada más pegar/editar el código y también al cargar la página
+    $('codigo').addEventListener('input', function () {
+      clearTimeout(debounceDetectar);
+      debounceDetectar = setTimeout(detectarCampos, 350);
+    });
+    $('codigo').addEventListener('paste', function () { setTimeout(detectarCampos, 0); });
+    ['titulo', 'descripcion'].forEach(id => {
+      $(id).addEventListener('input', function () { this.classList.toggle('falta', !this.value.trim()); });
+    });
+    detectarCampos();
+
     function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
   </script>
 </body>
