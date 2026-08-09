@@ -49,7 +49,7 @@
         <span class="w-placeta">Placeta</span>
         <span class="w-junior"><span class="c0">J</span><span class="c1">U</span><span class="c2">N</span><span class="c3">I</span><span class="c4">O</span><span class="c5">R</span></span>
       </h1>
-      <p class="tagline">¡Aprende jugando! La web oficial del proyecto · Grupo de La Placeta</p>
+      <p class="tagline">¡Aprende jugando y diviértete!</p>
       <div class="cta-row">
         <a class="btn btn-primary" href="#actividades"><span class="material-symbols-rounded">play_arrow</span> Jugar</a>
         <a class="btn btn-outline" href="/studio"><span class="material-symbols-rounded">brush</span> Crear (Studio)</a>
@@ -65,12 +65,15 @@
       </div>
       <div id="error-banner" class="error-banner hidden"></div>
 
-      <h3 class="cat-title"><span class="t-ico material-symbols-rounded">star</span> Populares</h3>
+      <h3 class="cat-title" data-color="orange"><span class="t-ico material-symbols-rounded">star</span> Populares</h3>
       <div id="populares-row" class="h-row"><div class="loader"></div></div>
 
       <div id="categorias"></div>
     </section>
   </main>
+
+  <!-- Página de detalle de actividad (a pantalla completa, no popup) -->
+  <div id="detail-page" class="detail-page" aria-live="polite"></div>
 
   <footer class="footer">
     <div class="footer-inner">
@@ -87,12 +90,8 @@
   <!-- Lluvia de confeti al acabar los juegos -->
   <div id="confetti" class="hidden"></div>
 
-  <!-- Modal: información de la actividad -->
-  <div id="info-modal" class="modal-overlay hidden">
-    <div class="modal">
-      <div id="info-content"></div>
-    </div>
-  </div>
+  <!-- Zona de impresión para worksheets en PDF A4 -->
+  <div id="print-worksheet" class="print-worksheet" aria-hidden="true"></div>
 
   <!-- Modal: reproductor jugable -->
   <div id="player-modal" class="modal-overlay hidden">

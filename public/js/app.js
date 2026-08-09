@@ -76,7 +76,6 @@ function coverHTML(a) {
       ${!a.portada_url && icono ? `<span class="cover-emoji material-symbols-rounded" style="color:${colorMaterial(a.categoria)}">${icono}</span>` : ''}
       ${badge}
       ${lock}
-      ${!bloqueada ? '<button class="cover-play" onclick="event.stopPropagation();abrirActividad(\'' + a.id + '\', false)" title="Jugar"><span class="material-symbols-rounded">play_arrow</span> Jugar</button>' : ''}
       <button class="info-btn" onclick="event.stopPropagation();verInfo('${a.id}')" title="Ver información"><span class="material-symbols-rounded">info</span></button>
     </div>`;
 }
@@ -207,40 +206,58 @@ function generarCaratulasEn(cont) {
 
 function cardActividad(a) {
   const bloqueada = esBloqueada(a);
+  const color = categoriaColor(a.categoria);
   return `
-    <div class="card" data-color="${categoriaColor(a.categoria)}" onclick="abrirActividad('${a.id}', ${bloqueada})">
+    <div class="card" data-color="${color}" onclick="abrirActividad('${a.id}', ${bloqueada})">
       ${coverHTML(a)}
       <h3>${escapeHtml(a.titulo)}</h3>
-      <div class="meta">
-        <span class="chip" data-color="${categoriaColor(a.categoria)}">${escapeHtml(a.categoria)}</span>
+      <div class="card-foot">
+        <span class="chip" data-color="${color}">${escapeHtml(a.categoria)}</span>
+        ${!bloqueada ? `<button type="button" class="cover-play" onclick="event.stopPropagation();abrirActividad('${a.id}', false)" title="Jugar"><span class="material-symbols-rounded">play_arrow</span> Jugar</button>` : ''}
       </div>
     </div>`;
 }
 
-// Muestra la información de la actividad en un modal (icono ℹ️)
+// Página de DETALLE de la actividad (a pantalla completa, no popup)
 function verInfo(id) {
   const a = TODAS.find(x => x.id === id);
   if (!a) return;
   const bloqueada = esBloqueada(a);
-  document.getElementById('info-content').innerHTML = `
-    <div class="info-cover" id="info-cover"></div>
-    <h3 class="info-title">${escapeHtml(a.titulo)}</h3>
-    <p class="info-desc">${escapeHtml(a.descripcion || '')}</p>
-    <div class="meta" style="margin-bottom:14px;">
-      <span class="chip ${categoriaColor(a.categoria)}">${escapeHtml(a.categoria)}</span>
-      <span class="chip">👧 ${escapeHtml(a.edad_recomendada || '6-12')}</span>
-      <span class="chip">⭐ ${escapeHtml(a.dificultad || 'media')}</span>
-      <span class="chip">⏱️ ${a.tiempo_estimado || '?'} min</span>
-      ${a.recompensa ? `<span class="chip blue">🏆 +${a.recompensa} Pz</span>` : ''}
-      <span class="chip yellow">📊 ${a.estadisticas?.veces_realizada || 0} jugadas</span>
+  const color = categoriaColor(a.categoria);
+  const nBloques = (a.contenido && a.contenido.bloques) ? a.contenido.bloques.length : (a.num_fases || 0);
+  const nPreg = a.num_preguntas || 0;
+  document.getElementById('detail-page').innerHTML = `
+    <a class="detail-back" href="javascript:cerrarDetalle()"><span class="material-symbols-rounded">arrow_back</span> Volver a Actividades</a>
+    <div class="detail-hero">
+      <div class="detail-cover" id="detail-cover"></div>
+      <div class="detail-hero-overlay">
+        <span class="chip" data-color="${color}">${escapeHtml(a.categoria)}</span>
+        <h1>${escapeHtml(a.titulo)}</h1>
+        <p>${escapeHtml(a.descripcion || '')}</p>
+      </div>
     </div>
-    <div class="m-actions">
-      ${bloqueada
-        ? '<span class="chip red" style="font-size:13px;">🔒 De pago (no subvencionada)</span>'
-        : `<button class="btn btn-green" onclick="document.getElementById('info-modal').classList.add('hidden');abrirActividad('${a.id}', false)">🎮 Jugar</button>`}
-      <button class="btn btn-outline" onclick="document.getElementById('info-modal').classList.add('hidden')">Cerrar</button>
+    <div class="detail-body">
+      <div class="detail-stats">
+        <div class="dstat"><span class="material-symbols-rounded">child_care</span><span class="dstat-lbl">Edad</span><span class="dstat-val">${escapeHtml(a.edad_recomendada || '6-12')}</span></div>
+        <div class="dstat"><span class="material-symbols-rounded">trending_up</span><span class="dstat-lbl">Dificultad</span><span class="dstat-val">${escapeHtml(a.dificultad || 'media')}</span></div>
+        <div class="dstat"><span class="material-symbols-rounded">quiz</span><span class="dstat-lbl">Preguntas</span><span class="dstat-val">${nPreg}</span></div>
+        <div class="dstat"><span class="material-symbols-rounded">flag</span><span class="dstat-lbl">Fases</span><span class="dstat-val">${nBloques}</span></div>
+      </div>
+      <div class="detail-card">
+        <h2>¿De qué trata esta actividad?</h2>
+        <p>${escapeHtml(a.descripcion || '')}</p>
+        ${a.recompensa ? `<div class="detail-reward"><span class="material-symbols-rounded">military_tech</span><div><span class="reward-lbl">Recompensa</span><span class="reward-val">+${a.recompensa} Pz</span></div></div>` : ''}
+      </div>
+      <div class="detail-actions">
+        ${bloqueada
+          ? '<span class="chip red">🔒 De pago (no subvencionada)</span>'
+          : `<button class="btn btn-primary btn-lg" onclick="abrirActividad('${a.id}', false)"><span class="material-symbols-rounded">play_arrow</span> Comenzar</button>`}
+        <button class="btn btn-outline btn-lg" onclick="descargarPdf('${a.id}')"><span class="material-symbols-rounded">download</span> Descargar PDF</button>
+      </div>
     </div>`;
-  const coverEl = document.getElementById('info-cover');
+  document.body.classList.add('mostrando-detalle');
+  window.scrollTo(0, 0);
+  const coverEl = document.getElementById('detail-cover');
   if (a.portada_url) {
     coverEl.style.backgroundImage = `url('${a.portada_url}')`;
   } else {
@@ -248,7 +265,57 @@ function verInfo(id) {
       if (url) coverEl.style.backgroundImage = `url('${url}')`;
     });
   }
-  document.getElementById('info-modal').classList.remove('hidden');
+}
+function cerrarDetalle() {
+  document.body.classList.remove('mostrando-detalle');
+  window.scrollTo(0, 0);
+}
+
+// Worksheet imprimible en PDF A4 (ventana de impresión del navegador)
+function descargarPdf(id) {
+  const a = TODAS.find(x => x.id === id) || null;
+  if (!a) return;
+  const bloques = (a.contenido && a.contenido.bloques) || [];
+  let cuerpo = '';
+  bloques.forEach((b) => {
+    if (b.tipo === 'test' && b.preguntas && b.preguntas.length) {
+      cuerpo += '<div class="ws-sec"><h4>Preguntas</h4>';
+      b.preguntas.forEach((p, k) => {
+        const opts = (p.opciones || []).map((o, oi) => '<span class="ws-opt">' + ('ABCDEFGH'[oi] || '') + ') ' + esc(o) + '</span>').join(' ');
+        cuerpo += '<div class="ws-q"><span class="ws-n">' + (k + 1) + '.</span> ' + esc(p.pregunta || '') + '<div class="ws-opts">' + opts + '</div></div>';
+      });
+      cuerpo += '</div>';
+    } else if (b.tipo === 'sopa_letras' && b.palabras && b.palabras.length) {
+      cuerpo += '<div class="ws-sec"><h4>Sopa de letras</h4><p>' + b.palabras.map(esc).join(' · ') + '</p></div>';
+    } else if (b.tipo === 'relacionar' && b.pares && b.pares.length) {
+      cuerpo += '<div class="ws-sec"><h4>Relaciona cada pareja</h4>';
+      b.pares.forEach((p, k) => { cuerpo += '<div class="ws-line"><span class="ws-n">' + (k + 1) + '.</span> ' + esc(p.izq || '') + ' — ' + esc(p.der || '') + '</div>'; });
+      cuerpo += '</div>';
+    } else if (b.tipo === 'ordenar' && b.items && b.items.length) {
+      cuerpo += '<div class="ws-sec"><h4>Ordena los pasos (numéralos del 1 al N)</h4>';
+      b.items.forEach((it, k) => { cuerpo += '<div class="ws-line"><span class="ws-n">' + (k + 1) + '.</span> ____ ' + esc(it) + '</div>'; });
+      cuerpo += '</div>';
+    } else if (b.tipo === 'completar' && b.frases && b.frases.length) {
+      cuerpo += '<div class="ws-sec"><h4>Completa las frases</h4>';
+      b.frases.forEach((f, k) => { cuerpo += '<div class="ws-line"><span class="ws-n">' + (k + 1) + '.</span> ' + esc((f.texto || '').replace(/___/g, '______')) + '</div>'; });
+      cuerpo += '</div>';
+    } else if (b.tipo === 'calculo_mental' && b.sumas && b.sumas.length) {
+      cuerpo += '<div class="ws-sec"><h4>Cálculo mental</h4>';
+      b.sumas.forEach((s2, k) => { cuerpo += '<div class="ws-line"><span class="ws-n">' + (k + 1) + '.</span> ' + (Number(s2.a) || 0) + ' + ' + (Number(s2.b) || 0) + ' = ______</div>'; });
+      cuerpo += '</div>';
+    }
+  });
+  const ws = document.getElementById('print-worksheet');
+  ws.innerHTML = `
+    <div class="ws-head">
+      <img class="ws-logo" src="img/logo.png" alt="Placeta Junior" />
+      <h1>${esc(a.titulo)}</h1>
+      <p>${esc(a.categoria)} · Edad ${esc(a.edad_recomendada || '6-12')} · Dificultad ${esc(a.dificultad || 'media')}</p>
+    </div>
+    <div class="ws-meta">Nombre: _______________&nbsp;&nbsp; Fecha: _______________&nbsp;&nbsp; Puntos: ________</div>
+    ${cuerpo}
+    <div class="ws-foot">Generado por Placeta Junior · junta@laplaceta.org</div>`;
+  window.print();
 }
 
 let TODAS = []; // todas las actividades públicas
@@ -297,7 +364,7 @@ function renderCategorias() {
     if (lista.length === 0) return '';
     return `
       <div class="cat-section">
-        <h3 class="cat-title"><span class="t-ico material-symbols-rounded">${categoriaIcono(cat)}</span> ${escapeHtml(cat)}</h3>
+        <h3 class="cat-title" data-color="${categoriaColor(cat)}"><span class="t-ico material-symbols-rounded">${categoriaIcono(cat)}</span> ${escapeHtml(cat)}</h3>
         <div class="h-row">${lista.map(cardActividad).join('')}</div>
       </div>`;
   }).join('');

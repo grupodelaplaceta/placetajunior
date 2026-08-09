@@ -57,11 +57,11 @@
   panel.hidden = true;
   panel.innerHTML =
     '<div class="acc-head">♿ Accesibilidad</div>' +
-    '<button type="button" class="acc-toggle" id="accMayus">🔠 MAYÚSCULAS</button>' +
-    '<button type="button" class="acc-toggle" id="accAudio">🔊 AUDIO</button>' +
-    '<button type="button" class="acc-toggle" id="accGrande">Aa Letra grande</button>' +
-    '<button type="button" class="acc-toggle" id="accContraste">◐ Alto contraste</button>' +
-    '<button type="button" class="acc-toggle" id="accLeer">📖 Leer</button>';
+    '<button type="button" class="acc-toggle" id="accMayus"><span class="acc-ico material-symbols-rounded">text_fields</span> MAYÚSCULAS</button>' +
+    '<button type="button" class="acc-toggle" id="accAudio"><span class="acc-ico material-symbols-rounded">volume_up</span> AUDIO</button>' +
+    '<button type="button" class="acc-toggle" id="accGrande"><span class="acc-ico material-symbols-rounded">text_increase</span> Letra grande</button>' +
+    '<button type="button" class="acc-toggle" id="accContraste"><span class="acc-ico material-symbols-rounded">contrast</span> Alto contraste</button>' +
+    '<button type="button" class="acc-toggle" id="accLeer"><span class="acc-ico material-symbols-rounded">record_voice_over</span> Leer</button>';
 
   document.body.appendChild(btn);
   document.body.appendChild(panel);
