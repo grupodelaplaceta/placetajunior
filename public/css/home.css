@@ -623,3 +623,29 @@ body.pj-home.mostrando-detalle .detail-page { display: block; }
 .pj-home .acc-toggle.on { background: var(--pj-purple); color: #fff; border-color: var(--pj-purple); }
 .pj-home .acc-toggle .acc-ico { font-size: 18px; }
 .pj-home .acc-toggle.on .acc-ico { color: #fff; }
+
+/* ═══ Barras superior e inferior LLENAS DE COLOR (marca) ═══ */
+.pj-home .nav {
+  background: var(--pj-purple);
+  border-bottom: none;
+  box-shadow: 0 4px 18px rgba(78, 59, 112, .28);
+}
+.pj-home .brand-name { color: #fff; }
+.pj-home .nav-links { background: rgba(255, 255, 255, .14); border-color: rgba(255, 255, 255, .25); }
+.pj-home .nav-links a { color: rgba(255, 255, 255, .92); }
+.pj-home .nav-links a:hover { background: rgba(255, 255, 255, .16); color: #fff; }
+.pj-home .nav-links a.active { background: #fff; color: var(--pj-purple); }
+.pj-home .nav-toggle-btn span { background: #fff; }
+.pj-home .nav-cta .btn-outline { color: #fff; border-color: #fff; }
+.pj-home .nav-cta .btn-outline:hover { background: #fff; color: var(--pj-purple); }
+.pj-home .nav-cta .btn-primary { background: var(--pj-yellow); color: #4E3B70; }
+.pj-home .nav-cta .btn-primary:hover { background: #fff; color: var(--pj-purple); }
+
+.pj-home .footer {
+  background: var(--pj-purple);
+  border-top: none;
+  margin-top: 0;
+}
+.pj-home .footer-links a { color: rgba(255, 255, 255, .92); }
+.pj-home .footer-links a:hover { color: var(--pj-yellow); }
+.pj-home .footer-copy { color: rgba(255, 255, 255, .72); }

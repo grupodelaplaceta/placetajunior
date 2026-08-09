@@ -222,6 +222,7 @@ function cardActividad(a) {
 function verInfo(id) {
   const a = TODAS.find(x => x.id === id);
   if (!a) return;
+  if (window.pjSonido) pjSonido.abrir();
   const bloqueada = esBloqueada(a);
   const color = categoriaColor(a.categoria);
   const nBloques = (a.contenido && a.contenido.bloques) ? a.contenido.bloques.length : (a.num_fases || 0);
@@ -275,6 +276,7 @@ function cerrarDetalle() {
 function descargarPdf(id) {
   const a = TODAS.find(x => x.id === id) || null;
   if (!a) return;
+  if (window.pjSonido) pjSonido.clic();
   const bloques = (a.contenido && a.contenido.bloques) || [];
   let cuerpo = '';
   bloques.forEach((b) => {
@@ -373,6 +375,7 @@ function renderCategorias() {
 
 // Abrir y JUGAR la actividad publicada (reproductor de la web)
 async function abrirActividad(id, bloqueada) {
+  if (window.pjSonido) pjSonido.pop();
   if (bloqueada) {
     juniorAviso('🔒 Esta actividad es de pago (no subvencionada). Puedes adquirirla en la app Placeta Junior y pagarla con Placetas.', 'error');
     return;

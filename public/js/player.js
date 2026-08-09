@@ -75,6 +75,7 @@ function generarSopa(palabras, tamano) {
 // ── Abrir el juego de una actividad publicada ────────────────────────
 function abrirJuego(act) {
   actividadActual = act || null;
+  if (window.pjSonido) pjSonido.abrir();
   bloquesJuego = (act && act.contenido && act.contenido.bloques) ? act.contenido.bloques : [];
   if (!bloquesJuego.length) { juniorAviso('Esta actividad aún no tiene contenido jugable.', 'error'); return; }
   pantallas = [];
@@ -218,7 +219,7 @@ function asegurarFeedback() {
 function mostrarFeedback(acierto, correctaTexto, onNext) {
   const fb = document.getElementById('kp-feedback');
   if (!fb) { if (onNext) onNext(); return; }
-  window.__kpNext = function () { ocultarFeedback(); if (onNext) onNext(); };
+  window.__kpNext = function () { ocultarFeedback(); if (window.pjSonido) pjSonido.pop(); if (onNext) onNext(); };
   fb.innerHTML = acierto
     ? `<div class="kp-fb-card kp-fb-ok" role="alert">
         <div class="kp-fb-ico"><span class="material-symbols-rounded">check_circle</span></div>
@@ -373,7 +374,10 @@ function screenTest(s, est) {
       else if (k === est.sel) cls += ' bad';
       else cls += ' muted';
     }
-    const icono = k === correcta ? 'check_circle' : 'radio_button_unchecked';
+    // No revelar la respuesta: icono neutro hasta que se responde
+    const icono = !est.respondida
+      ? 'chevron_right'
+      : (k === correcta ? 'check_circle' : (k === est.sel ? 'cancel' : 'radio_button_unchecked'));
     html += `<button type="button" class="${cls}" onclick="kpResponder(${pantallaIdx},${k})" ${est.respondida ? 'disabled' : ''}>
       <span class="kp-letra">${'ABCDEFGH'[idx] || '•'}</span>
       <span class="kp-answer-txt">${esc(op || '…')}</span>
@@ -392,7 +396,8 @@ function kpResponder(idx, k) {
   const b = bloquesJuego[s.bi];
   const p = b.preguntas[s.pi];
   est.acierto = (k === p.correcta);
-  if (est.acierto) kpScore.verdes++; else kpScore.rojos++;
+  if (est.acierto) { kpScore.verdes++; if (window.pjSonido) pjSonido.exito(); }
+  else { kpScore.rojos++; if (window.pjSonido) pjSonido.error(); }
   renderPantalla();
   mostrarFeedback(est.acierto, p.opciones[p.correcta], function () {
     if (pantallaIdx < pantallas.length - 1) pantallaIdx++;
@@ -762,11 +767,12 @@ function kpCompletarOpcion(idx, fi, k) {
   renderPantalla();
 }
 
-function pantallaNext() { if (pantallaIdx < pantallas.length - 1) { pantallaIdx++; renderPantalla(); } }
-function pantallaPrev() { if (pantallaIdx > 0) { pantallaIdx--; renderPantalla(); } }
+function pantallaNext() { if (pantallaIdx < pantallas.length - 1) { pantallaIdx++; if (window.pjSonido) pjSonido.clic(); renderPantalla(); } }
+function pantallaPrev() { if (pantallaIdx > 0) { pantallaIdx--; if (window.pjSonido) pjSonido.clic(); renderPantalla(); } }
 
 // Cerrar el reproductor pidiendo confirmación si hay partida en curso
 function cerrarPlayer() {
+  if (window.pjSonido) pjSonido.clic();
   const enCurso = pantallaIdx > 0 && pantallaIdx < pantallas.length - 1;
   const cerrar = () => document.getElementById('player-modal')?.classList.add('hidden');
   if (enCurso) {

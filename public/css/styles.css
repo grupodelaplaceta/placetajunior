@@ -1225,3 +1225,30 @@ body.acces-contraste .kp-answer { background: #fff; color: #000; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   HOMOGENEIZACIÓN SUBPÁGINAS (Studio, Info): barras de marca llenas
+   ═══════════════════════════════════════════════════════════════════ */
+.navbar {
+  background: var(--pj-purple);
+  border-bottom: none;
+}
+.navbar::after { display: none; }
+.navbar .wordmark { color: #fff; }
+.navbar .wordmark .w-placeta { color: #fff; }
+.navbar .wordmark .c0 { color: #FF8A8A; }
+.navbar .wordmark .c1 { color: #FFB066; }
+.navbar .wordmark .c2 { color: #E4D96B; }
+.navbar .wordmark .c3 { color: #8FE0A8; }
+.navbar .wordmark .c4 { color: #A9A6FF; }
+.navbar .wordmark .c5 { color: #CBB9FF; }
+.navbar nav a { color: rgba(255, 255, 255, .92); }
+.navbar nav a:hover { background: rgba(255, 255, 255, .16); color: #fff; }
+.navbar nav a.active { background: #fff; color: var(--pj-purple); }
+footer {
+  background: var(--pj-purple);
+  border-top: none;
+}
+footer .links a { color: rgba(255, 255, 255, .9); }
+footer .links a:hover { color: var(--pj-yellow); }
+footer p { color: rgba(255, 255, 255, .75); }
