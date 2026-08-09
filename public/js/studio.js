@@ -15,7 +15,8 @@ const TIPOS = {
   relacionar:    { ico: 'link', nombre: 'Relacionar' },
   ordenar:       { ico: 'format_list_numbered', nombre: 'Ordenar' },
   completar:     { ico: 'edit_note', nombre: 'Completar' },
-  calculo_mental: { ico: 'calculate', nombre: 'Cálculo mental' }
+  calculo_mental: { ico: 'calculate', nombre: 'Cálculo mental' },
+  mapa_mundi:    { ico: 'public', nombre: 'Mapamundi' }
 };
 
 // ── Galería de imágenes libres ──────────────────────────────────────
@@ -131,6 +132,7 @@ function nuevoBloque(tipo) {
   if (tipo === 'ordenar') b.items = ['', '', ''];
   if (tipo === 'completar') b.frases = [{ texto: '', respuesta: '', opciones: ['', ''] }];
   if (tipo === 'calculo_mental') { b.sumas = [{ a: '', b: '' }]; b.segundos = 10; b.modo = 'opciones'; }
+  if (tipo === 'mapa_mundi') { b.paises = ['España', 'Francia']; b.preguntas = []; }
   return b;
 }
 
@@ -164,6 +166,7 @@ function renderBloque(b, i) {
   else if (b.tipo === 'ordenar') cuerpo = renderOrdenar(b, i);
   else if (b.tipo === 'completar') cuerpo = renderCompletar(b, i);
   else if (b.tipo === 'calculo_mental') cuerpo = renderCalculo(b, i);
+  else if (b.tipo === 'mapa_mundi') cuerpo = renderMapa(b, i);
 
   return `
   <div class="block" id="bloque-${i}">
@@ -306,6 +309,28 @@ function renderRelacionar(b, i) {
   }).join('');
   return togg + filas +
     `<button class="btn btn-outline" type="button" style="margin-top:12px;" onclick="anadirItem(${i},'pares')"><span class="material-symbols-rounded seg-ico">add</span> Añadir ${modo === 'escribir' ? 'palabra' : 'pareja'}</button>`;
+}
+
+// ── Mapamundi ────────────────────────────────────────────────────────
+function renderMapa(b, i) {
+  const filas = (b.paises || []).map((p, j) => {
+    const ok = window.MAPA_MUNDI && MAPA_MUNDI.paises[p];
+    return `
+    <div class="q-item">
+      <div class="q-head"><span class="q-num">País ${j + 1}</span>
+        <div class="q-tools"><button class="b-btn del" onclick="borrarItem(${i},'paises',${j})"><span class="material-symbols-rounded">delete</span></button></div>
+      </div>
+      <input placeholder="Nombre del país (ej: España)" value="${esc(p)}" oninput="setItem(${i},'paises',${j},this.value)" list="mapa-paises" />
+      ${ok ? '<p class="form-note ok" style="margin:4px 0 0;color:var(--pj-green,#22a06b);"><span class="material-symbols-rounded q-ico">check_circle</span> País disponible en el mapamundi</p>'
+           : '<p class="form-note err" style="margin:4px 0 0;color:#dc2626;"><span class="material-symbols-rounded q-ico">error</span> No está en el mapamundi (revisa el nombre)</p>'}
+    </div>`;
+  }).join('');
+  const lista = window.MAPA_MUNDI ? Object.keys(MAPA_MUNDI.paises).map(p => `<option value="${esc(p)}">`).join('') : '';
+  return `
+    <datalist id="mapa-paises">${lista}</datalist>
+    <p class="form-note"><span class="material-symbols-rounded q-ico">public</span> El niño pulsa el país en un mapamundi real (Leaflet). Se le pregunta por cada país añadido.</p>
+    ${filas}
+    <button class="btn btn-outline" type="button" style="margin-top:12px;" onclick="anadirItem(${i},'paises')"><span class="material-symbols-rounded seg-ico">add</span> Añadir país</button>`;
 }
 
 // ── Ordenar ──────────────────────────────────────────────────────────
@@ -574,6 +599,15 @@ function verPreview() {
         pantallas.push({ tipo: 'calculo', bi, si, n: (b.sumas || []).length });
         kpEstado.push({ respondida: false, sel: null, acierto: null, opciones, correcta });
       });
+    } else if (b.tipo === 'mapa_mundi') {
+      const paises = (b.paises || []).map(p => String(p).trim()).filter(Boolean).filter(p => window.MAPA_MUNDI && MAPA_MUNDI.paises[p]);
+      const preg = (b.preguntas && b.preguntas.length) ? b.preguntas : paises.map(p => ({ pide: 'Haz clic en ' + p, correcta: p }));
+      (preg || []).forEach((q, qi) => {
+        const corr = String(q.correcta || '').trim();
+        if (!window.MAPA_MUNDI || !MAPA_MUNDI.paises[corr]) return;
+        pantallas.push({ tipo: 'mapa', bi, qi, n: (preg || []).length, paises, pide: q.pide || ('Haz clic en ' + corr), correcta: corr, correctaEn: MAPA_MUNDI.paises[corr] });
+        kpEstado.push({ respondida: false, acierto: null, sel: null });
+      });
     }
   });
 
@@ -612,7 +646,9 @@ function renderPantalla() {
   else if (s.tipo === 'ordenar') cuerpo = screenOrdenar(s, est);
   else if (s.tipo === 'completar') cuerpo = screenCompletar(s, est);
   else if (s.tipo === 'calculo') cuerpo = screenCalculo(s, est);
+  else if (s.tipo === 'mapa') cuerpo = screenMapa(s, est);
   else if (s.tipo === 'final') { cuerpo = screenFinal(s); if (!kpCelebrado) { kpCelebrado = true; lluviaConfetti(); } }
+  destruirMapas();
   $('preview-content').innerHTML = `
     <div class="kp-nav">
       <button class="kp-nav-btn" onclick="pantallaPrev()" ${pantallaIdx === 0 ? 'disabled' : ''}>←</button>
@@ -622,6 +658,7 @@ function renderPantalla() {
     <div class="kp-stage">${cuerpo}</div>`;
   clearInterval(calcTimer);
   if (s.tipo === 'calculo') iniciarTimerCalculo();
+  if (s.tipo === 'mapa') iniciarMapa(pantallaIdx);
 }
 
 // ── Cálculo mental (vista previa) ─────────────────────────────────────
@@ -801,6 +838,7 @@ function kpStart(e) {
   kpDrag = { on: true, idx, dir: null, cells: [{ r: +cell.dataset.r, c: +cell.dataset.c }] };
   kpEstado[idx].sel = kpDrag.cells;
   pintarSel(idx);
+  if (window.pjSonido) pjSonido.letra();
 }
 function kpMove(e) {
   if (!kpDrag.on) return;
@@ -826,6 +864,7 @@ function kpMove(e) {
   if (dr !== kpDrag.dir.dr || dc !== kpDrag.dir.dc) return;
   cells.push({ r, c });
   pintarSel(kpDrag.idx);
+  if (window.pjSonido) pjSonido.letra();
 }
 function kpEnd() {
   if (!kpDrag.on) return;
@@ -1076,8 +1115,66 @@ function kpCompletarOpcion(idx, fi, k) {
   renderPantalla();
 }
 
-function pantallaNext() { if (pantallaIdx < pantallas.length - 1) { pantallaIdx++; renderPantalla(); } }
-function pantallaPrev() { if (pantallaIdx > 0) { pantallaIdx--; renderPantalla(); } }
+// ── Mapamundi (vista previa, Leaflet) ───────────────────────────────
+const MAP_STYLE = { color: '#b6c2d9', weight: 0.5, fillColor: '#dbeafe', fillOpacity: 0.85 };
+function screenMapa(s, est) {
+  const chips = (s.paises || []).map(p => `<span class="kp-chip">${esc(p)}</span>`).join('');
+  return `<div class="kp-screen">
+    <div class="kp-qt">🌍 Localiza en el mapamundi · ${s.qi + 1} de ${s.n}</div>
+    <div class="kp-map-q">${esc(s.pide)}</div>
+    <div class="kp-map" id="kp-map-${pantallaIdx}"></div>
+    <div class="kp-map-chips">${chips}</div>
+    <div class="kp-hint">👆 Pulsa en el mapa el país correcto.</div>
+  </div>`;
+}
+function destruirMapas() {
+  const arr = window.__pjMapas || [];
+  arr.forEach(m => { try { m.remove(); } catch (e) { /* ok */ } });
+  window.__pjMapas = [];
+}
+function iniciarMapa(idx) {
+  const s = pantallas[idx];
+  const cont = document.getElementById('kp-map-' + idx);
+  if (!cont || !s || s.tipo !== 'mapa') return;
+  MAPA_MUNDI.cargarTodo()
+    .then(() => MAPA_MUNDI.cargarGeo())
+    .then(geo => {
+      if (!document.body.contains(cont) || !window.L) return;
+      const map = L.map(cont, { minZoom: 2, maxZoom: 6, zoomControl: true, attributionControl: false, scrollWheelZoom: true, maxBounds: [[-85, -180], [85, 180]] });
+      map.setView([20, 0], 2);
+      (window.__pjMapas = window.__pjMapas || []).push(map);
+      const layer = L.geoJSON(geo, {
+        style: MAP_STYLE,
+        onEachFeature: (feat, lyr) => {
+          lyr.on('click', () => kpMapa(idx, (feat.properties && feat.properties.name) || ''));
+          lyr.on('mouseover', () => { if (!(kpEstado[idx] && kpEstado[idx].respondida)) lyr.setStyle({ fillColor: '#a5c8f0', color: '#64748b', weight: 1 }); });
+          lyr.on('mouseout', () => { if (!(kpEstado[idx] && kpEstado[idx].respondida)) lyr.setStyle(MAP_STYLE); });
+        }
+      }).addTo(map);
+      if (kpEstado[idx] && kpEstado[idx].respondida) {
+        layer.eachLayer(ll => {
+          const en = ll.feature && ll.feature.properties && ll.feature.properties.name;
+          if (en === s.correctaEn) ll.setStyle({ fillColor: '#22a06b', color: '#166534', weight: 1.5, fillOpacity: 0.9 });
+          else if (en === kpEstado[idx].sel) ll.setStyle({ fillColor: '#f87171', color: '#991b1b', weight: 1.5, fillOpacity: 0.9 });
+        });
+      }
+      setTimeout(() => { try { map.invalidateSize(); } catch (e) { /* ok */ } }, 60);
+    })
+    .catch(() => { if (document.body.contains(cont)) cont.innerHTML = '<div class="kp-msg bad">No se pudo cargar el mapa (comprueba la conexión).</div>'; });
+}
+function kpMapa(idx, en) {
+  const s = pantallas[idx];
+  const est = kpEstado[idx];
+  if (!est || !s || s.tipo !== 'mapa' || est.respondida) return;
+  est.respondida = true;
+  est.sel = en;
+  est.acierto = (en === s.correctaEn);
+  if (est.acierto) kpScore.verdes++; else kpScore.rojos++;
+  renderPantalla();
+}
+
+function pantallaNext() { if (pantallaIdx < pantallas.length - 1) { pantallaIdx++; if (window.pjSonido) pjSonido.hoja(); renderPantalla(); } }
+function pantallaPrev() { if (pantallaIdx > 0) { pantallaIdx--; if (window.pjSonido) pjSonido.hoja(); renderPantalla(); } }
 
 // ── Drag & drop ──────────────────────────────────────────────────────
 function initDrag() {
@@ -1163,6 +1260,7 @@ function contarPreguntas() {
     else if (b.tipo === 'ordenar') n += b.items.filter(Boolean).length;
     else if (b.tipo === 'completar') n += b.frases.filter(f => f.texto && f.respuesta).length;
     else if (b.tipo === 'calculo_mental') n += b.sumas.filter(s => s.a !== '' && s.b !== '').length;
+    else if (b.tipo === 'mapa_mundi') n += (b.paises || []).filter(p => p && window.MAPA_MUNDI && MAPA_MUNDI.paises[p]).length;
   }
   return n;
 }

@@ -323,6 +323,8 @@ function descargarPdf(id) {
       cuerpo += '<div class="ws-sec"><h4>Cálculo mental</h4>';
       b.sumas.forEach((s2, k) => { cuerpo += '<div class="ws-line"><span class="ws-n">' + (k + 1) + '.</span> ' + (Number(s2.a) || 0) + ' + ' + (Number(s2.b) || 0) + ' = ______</div>'; });
       cuerpo += '</div>';
+    } else if (b.tipo === 'mapa_mundi' && b.paises && b.paises.length) {
+      cuerpo += '<div class="ws-sec"><h4>Localiza en el mapamundi</h4><p class="ws-words">' + b.paises.map(esc).join(' · ') + '</p><p class="ws-hint">Busca cada país en un mapamundi y señálalo.</p></div>';
     }
   });
   const ws = document.getElementById('print-worksheet');

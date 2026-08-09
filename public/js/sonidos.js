@@ -12,7 +12,7 @@
   var muted = false;
   try { muted = localStorage.getItem('pj_snd') === '0'; } catch (e) { /* ok */ }
 
-  var NOMBRES = ['clic', 'pop', 'abrir', 'exito', 'error', 'victoria'];
+  var NOMBRES = ['clic', 'pop', 'abrir', 'exito', 'error', 'victoria', 'letra', 'hoja'];
   var buffers = {};   // nombre -> AudioBuffer decodificado
   var ctx = null;
   var master = null;
@@ -79,7 +79,9 @@
     abrir: function () { reproducir('abrir'); },
     exito: function () { reproducir('exito'); },
     error: function () { reproducir('error'); },
-    victoria: function () { reproducir('victoria'); }
+    victoria: function () { reproducir('victoria'); },
+    letra: function () { reproducir('letra'); },
+    hoja: function () { reproducir('hoja'); }
   };
 
   // Primer gesto del usuario: crea el contexto y carga todos los sonidos

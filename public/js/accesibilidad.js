@@ -69,7 +69,7 @@
   document.body.appendChild(btn);
   document.body.appendChild(panel);
 
-  btn.addEventListener('click', () => { panel.hidden = !panel.hidden; });
+  btn.addEventListener('click', () => { panel.hidden = !panel.hidden; if (window.pjSonido) pjSonido.clic(); });
 
   function guardar() { try { localStorage.setItem(KEY, JSON.stringify({ mayus, audio, grande, contraste, sonido })); } catch (e) { /* ok */ } }
   function refrescar() {

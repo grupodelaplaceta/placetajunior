@@ -1252,3 +1252,32 @@ footer {
 footer .links a { color: rgba(255, 255, 255, .9); }
 footer .links a:hover { color: var(--pj-yellow); }
 footer p { color: rgba(255, 255, 255, .75); }
+
+/* ── Mapamundi interactivo (Leaflet) ──────────────────────────────── */
+.kp-map {
+  position: relative;
+  width: 100%;
+  height: clamp(240px, 45vh, 380px);
+  border-radius: 16px;
+  overflow: hidden;
+  border: 2px solid var(--pj-blue, #2563eb);
+  background: #a9d0f5;
+  margin: 10px 0 6px;
+}
+.kp-map .leaflet-container { background: #a9d0f5; width: 100%; height: 100%; }
+.kp-map-q {
+  text-align: center;
+  font-family: 'HandlyCasual', 'Comic Sans MS', cursive;
+  font-weight: 800;
+  font-size: clamp(17px, 2.6vw, 22px);
+  color: var(--pj-purple, #4E3B70);
+  margin: 4px 0 2px;
+}
+.kp-map-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin: 4px 0 2px;
+}
+.kp-map-chips .kp-chip { font-size: 12px; }

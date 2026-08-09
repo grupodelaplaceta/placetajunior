@@ -59,6 +59,7 @@
     };
     el.querySelector('.pj-toast-x').addEventListener('click', cerrar);
     t.appendChild(el);
+    if (window.pjSonido) pjSonido.pop();
     setTimeout(cerrar, 4200);
   };
 
@@ -101,6 +102,7 @@
     confirmEl.addEventListener('click', function (e) { if (e.target === confirmEl) cerrarConfirmar(); });
     document.addEventListener('keydown', onKey);
     document.body.appendChild(confirmEl);
+    if (window.pjSonido) pjSonido.clic();
     var si = confirmEl.querySelector('.pj-confirm-yes');
     if (si) si.focus();
   };

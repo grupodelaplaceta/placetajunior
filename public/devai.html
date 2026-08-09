@@ -48,6 +48,7 @@
     .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
     @media (max-width: 760px) { .grid2 { grid-template-columns: 1fr; } }
   </style>
+  <script src="js/mapa-mundi.js"></script>
 </head>
 <body>
   <div class="topbar">
@@ -81,7 +82,8 @@
       { "tipo": "ordenar", "items": ["Paso 1","Paso 2","Paso 3"] },
       { "tipo": "completar", "modo": "opciones", "frases": [ { "texto": "La frase con ___", "respuesta": "perro", "opciones": ["gato","pájaro"] } ] },
       { "tipo": "completar", "modo": "escribir", "frases": [ { "texto": "La frase con ___", "respuesta": "palabra" } ] },
-      { "tipo": "calculo_mental", "sumas": [ { "a": 3, "b": 5 } ], "segundos": 10, "modo": "opciones" }
+      { "tipo": "calculo_mental", "sumas": [ { "a": 3, "b": 5 } ], "segundos": 10, "modo": "opciones" },
+      { "tipo": "mapa_mundi", "paises": ["España", "Francia", "Italia", "Portugal"] }
     ]
   }
 }
@@ -91,6 +93,7 @@ Reglas:
 - En relacionar modo "escribir": "der" es la palabra que el niño debe teclear (NO la pongas en "izq").
 - Empieza SIEMPRE con un bloque "texto" que enseñe el contenido antes de las preguntas.
 - En completar, usa palabras en SINGULAR y, en modo opciones, escribe "opciones" (distractores).
+- En mapa_mundi, usa solo países conocidos (España, Francia, Italia, Portugal, Reino Unido, Alemania, Egipto, Brasil, México, Estados Unidos, Canadá, China, India, Japón, Australia…).
 - Escribe en español, adáptalo a la edad indicada y numera bien los bloques.
 - IMPORTANTE: devuelve solo el JSON, sin texto ni comillas de código.</textarea>
       <div class="row" style="margin-top:10px;">
@@ -145,7 +148,6 @@ Reglas:
 
   <script>
     const API_BASE = 'https://admin-placeta.vercel.app/api/junior';
-
     function $(id) { return document.getElementById(id); }
     function copiar(id) {
       const el = $(id); el.select();
@@ -274,6 +276,8 @@ Reglas:
           b.frases.forEach(f => { html += '<div style="margin-left:8px;">✏️ ' + esc(f.texto) + ' <b>[' + esc(f.respuesta) + ']</b></div>'; });
         } else if (b.tipo === 'calculo_mental' && Array.isArray(b.sumas)) {
           b.sumas.forEach(s => { html += '<div style="margin-left:8px;">🧮 ' + esc(s.a) + ' + ' + esc(s.b) + ' = ?</div>'; });
+        } else if (b.tipo === 'mapa_mundi' && Array.isArray(b.paises)) {
+          html += '<div style="margin-left:8px;">🌍 Localiza en el mapamundi: ' + b.paises.map(esc).join(', ') + '</div>';
         } else {
           html += '<div style="margin-left:8px;color:var(--pj-gray-500);">(bloque sin contenido detectado)</div>';
         }
@@ -293,6 +297,7 @@ Reglas:
         else if (b.tipo === 'ordenar') n += (b.items || []).filter(Boolean).length;
         else if (b.tipo === 'completar') n += (b.frases || []).filter(f => f.texto && f.respuesta).length;
         else if (b.tipo === 'calculo_mental') n += (b.sumas || []).filter(s => s.a !== '' && s.b !== '').length;
+        else if (b.tipo === 'mapa_mundi') n += (b.paises || []).filter(p => p && window.MAPA_MUNDI && MAPA_MUNDI.paises[p]).length;
       }
       return n;
     }
