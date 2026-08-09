@@ -257,6 +257,7 @@ function verInfo(id) {
       </div>
     </div>`;
   document.body.classList.add('mostrando-detalle');
+  try { if (!location.search.includes('id=')) history.pushState(null, '', '/?id=' + encodeURIComponent(a.id)); } catch (e) { /* sin historial */ }
   window.scrollTo(0, 0);
   const coverEl = document.getElementById('detail-cover');
   if (a.portada_url) {
@@ -269,6 +270,7 @@ function verInfo(id) {
 }
 function cerrarDetalle() {
   document.body.classList.remove('mostrando-detalle');
+  try { if (location.search.includes('id=')) history.replaceState(null, '', '/'); } catch (e) { /* sin historial */ }
   window.scrollTo(0, 0);
 }
 
@@ -410,11 +412,24 @@ async function abrirActividad(id, bloqueada) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-//  INIT
+//  INIT (incluye rutas propias: /?id= detalle y /?jugar= juego)
 // ═══════════════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
-  cargarTodo();
+  cargarTodo().then(() => {
+    const p = new URLSearchParams(location.search);
+    if (p.get('jugar')) abrirActividad(p.get('jugar'), false);
+    else if (p.get('id')) verInfo(p.get('id'));
+  });
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') document.getElementById('info-modal')?.classList.add('hidden');
+    if (e.key === 'Escape') cerrarDetalle();
+  });
+  window.addEventListener('popstate', () => {
+    const p = new URLSearchParams(location.search);
+    if (!p.get('id') && !p.get('jugar')) {
+      cerrarDetalle();
+      document.body.classList.remove('mostrando-juego');
+    } else if (p.get('id')) {
+      verInfo(p.get('id'));
+    }
   });
 });

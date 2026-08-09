@@ -11,6 +11,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
 </head>
 <body class="pj-home">
+  <!-- Tira arcoíris de marca (borde superior) -->
+  <div class="strip" aria-hidden="true"></div>
+
   <!-- Barra de navegación -->
   <header class="nav">
     <input type="checkbox" id="nav-toggle" class="nav-toggle" hidden />
@@ -75,8 +78,12 @@
   <!-- Página de detalle de actividad (a pantalla completa, no popup) -->
   <div id="detail-page" class="detail-page" aria-live="polite"></div>
 
+  <!-- Página de juego (a pantalla completa, no popup) -->
+  <div id="game-page" class="game-page" aria-live="polite"></div>
+
   <footer class="footer">
     <div class="footer-inner">
+      <div class="footer-wordmark">Placeta Junior</div>
       <div class="footer-links">
         <a href="/">Actividades</a>
         <a href="/studio">Placeta Junior Studio</a>
@@ -92,18 +99,6 @@
 
   <!-- Zona de impresión para worksheets en PDF A4 -->
   <div id="print-worksheet" class="print-worksheet" aria-hidden="true"></div>
-
-  <!-- Modal: reproductor jugable -->
-  <div id="player-modal" class="modal-overlay hidden">
-    <div class="modal">
-      <h3>🎮 ¡A jugar!</h3>
-      <p class="m-sub">Prueba la actividad tal y como la verá el peque.</p>
-      <div id="player-content"></div>
-      <div class="m-actions">
-        <button id="player-close" class="btn btn-outline" type="button">Cerrar</button>
-      </div>
-    </div>
-  </div>
 
   <script src="js/avisos.js"></script>
   <script src="js/sonidos.js"></script>

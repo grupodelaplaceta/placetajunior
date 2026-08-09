@@ -130,10 +130,15 @@ function abrirJuego(act) {
   kpScore = { verdes: 0, rojos: 0 };
   kpCelebrado = false;
   pantallaIdx = 0;
+  // Página completa (no popup): renderiza el juego en su propia página
+  const gamePage = document.getElementById('game-page');
+  if (gamePage) {
+    gamePage.innerHTML = '<div id="player-content"></div>';
+    document.body.classList.add('mostrando-juego');
+  }
   asegurarFeedback();
   renderPantalla();
-  const m = document.getElementById('player-modal');
-  if (m) m.classList.remove('hidden');
+  try { if (act && act.id && !location.search.includes('jugar=')) history.pushState(null, '', '/?jugar=' + encodeURIComponent(act.id)); } catch (e) { /* sin historial */ }
 }
 
 function generarOpcionesCalculo(correcta) {
@@ -213,7 +218,7 @@ function asegurarFeedback() {
   fb.setAttribute('role', 'dialog');
   fb.setAttribute('aria-modal', 'true');
   fb.setAttribute('aria-label', 'Resultado de la respuesta');
-  const m = document.getElementById('player-modal');
+  const m = document.getElementById('game-page');
   (m || document.body).appendChild(fb);
 }
 function mostrarFeedback(acierto, correctaTexto, onNext) {
@@ -770,11 +775,15 @@ function kpCompletarOpcion(idx, fi, k) {
 function pantallaNext() { if (pantallaIdx < pantallas.length - 1) { pantallaIdx++; if (window.pjSonido) pjSonido.clic(); renderPantalla(); } }
 function pantallaPrev() { if (pantallaIdx > 0) { pantallaIdx--; if (window.pjSonido) pjSonido.clic(); renderPantalla(); } }
 
-// Cerrar el reproductor pidiendo confirmación si hay partida en curso
+// Cierra el reproductor pidiendo confirmación si hay partida en curso
 function cerrarPlayer() {
   if (window.pjSonido) pjSonido.clic();
   const enCurso = pantallaIdx > 0 && pantallaIdx < pantallas.length - 1;
-  const cerrar = () => document.getElementById('player-modal')?.classList.add('hidden');
+  const cerrar = () => {
+    ocultarFeedback();
+    document.body.classList.remove('mostrando-juego');
+    try { if (location.search.includes('jugar=')) history.replaceState(null, '', '/'); } catch (e) { /* sin historial */ }
+  };
   if (enCurso) {
     juniorConfirmar('¿Seguro que quieres salir? Perderás el progreso de esta partida.', cerrar);
   } else {

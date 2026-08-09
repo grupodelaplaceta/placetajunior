@@ -664,3 +664,38 @@ body.pj-home.mostrando-detalle .detail-page { display: block; }
 .pj-home .footer-links a { color: rgba(255, 255, 255, .92); }
 .pj-home .footer-links a:hover { color: var(--pj-yellow); }
 .pj-home .footer-copy { color: rgba(255, 255, 255, .72); }
+
+/* ═══ Tira arcoíris de marca (superior e inferior) + barras pulidas ═══ */
+.pj-home .strip {
+  height: 6px;
+  background: linear-gradient(90deg, var(--pj-red), var(--pj-orange), var(--pj-yellow), var(--pj-green), var(--pj-blue), var(--pj-purple));
+}
+.pj-home .footer {
+  position: relative;
+}
+.pj-home .footer::before {
+  content: '';
+  display: block;
+  height: 6px;
+  background: linear-gradient(90deg, var(--pj-red), var(--pj-orange), var(--pj-yellow), var(--pj-green), var(--pj-blue), var(--pj-purple));
+}
+.pj-home .footer-wordmark {
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #fff;
+  text-align: center;
+  margin: 0 0 14px;
+}
+
+/* ═══ Página de JUEGO a pantalla completa (no popup) ═══ */
+body.pj-home .game-page { display: none; max-width: 920px; margin: 0 auto; padding: 14px 14px 70px; }
+body.pj-home.mostrando-juego .hero,
+body.pj-home.mostrando-juego .section#actividades,
+body.pj-home.mostrando-detalle .hero,
+body.pj-home.mostrando-detalle .section#actividades { display: none; }
+body.pj-home.mostrando-juego .game-page { display: block; }
+body.pj-home.mostrando-juego .kp-top { border-radius: 16px 16px 0 0; }
+body.pj-home.mostrando-juego .kp-nav-row { padding-bottom: 6px; }
