@@ -338,6 +338,19 @@ h1, h2, h3, .font-casual {
   display: flex; flex-direction: column; gap: 10px;
 }
 .card:hover { transform: translateY(-5px) rotate(-0.5deg); box-shadow: var(--shadow-lg); border-color: var(--pj-purple-light); }
+/* Bordes de color por categoría (igual que la app) */
+.card.blue { border-color: rgba(58, 0, 225, 0.35); }
+.card.red { border-color: rgba(255, 51, 51, 0.35); }
+.card.green { border-color: rgba(51, 110, 69, 0.35); }
+.card.orange { border-color: rgba(255, 102, 0, 0.35); }
+.card.purple { border-color: rgba(78, 59, 112, 0.35); }
+.card.yellow { border-color: rgba(214, 206, 82, 0.5); }
+.card.blue:hover { border-color: var(--pj-blue); }
+.card.red:hover { border-color: var(--pj-red); }
+.card.green:hover { border-color: var(--pj-green); }
+.card.orange:hover { border-color: var(--pj-orange); }
+.card.purple:hover { border-color: var(--pj-purple); }
+.card.yellow:hover { border-color: var(--pj-yellow); }
 .card .card-cover {
   height: 110px;
   border-radius: var(--radius-sm);

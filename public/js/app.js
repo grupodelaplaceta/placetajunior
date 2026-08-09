@@ -25,10 +25,10 @@ function escapeHtml(str) {
 const categoriaColor = (cat = '') => {
   const c = cat.toLowerCase();
   if (c.includes('mate')) return 'blue';
-  if (c.includes('leng') || c.includes('lect')) return 'green';
-  if (c.includes('cien') || c.includes('medio')) return 'orange';
-  if (c.includes('geo')) return 'red';
-  if (c.includes('tecn') || c.includes('inform')) return 'purple';
+  if (c.includes('leng') || c.includes('lect')) return 'red';
+  if (c.includes('natur') || c.includes('cien') || c.includes('bio')) return 'green';
+  if (c.includes('geo') || c.includes('hist') || c.includes('social')) return 'orange';
+  if (c.includes('arte') || c.includes('mús') || c.includes('mus')) return 'purple';
   return 'purple';
 };
 
@@ -206,7 +206,7 @@ function generarCaratulasEn(cont) {
 function cardActividad(a) {
   const bloqueada = esBloqueada(a);
   return `
-    <div class="card" onclick="abrirActividad('${a.id}', ${bloqueada})">
+    <div class="card ${categoriaColor(a.categoria)}" onclick="abrirActividad('${a.id}', ${bloqueada})">
       ${coverHTML(a)}
       <h3>${escapeHtml(a.titulo)}</h3>
       <div class="meta">
