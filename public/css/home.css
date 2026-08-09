@@ -233,6 +233,7 @@ body.pj-home {
   grid-auto-columns: minmax(230px, 270px);
   gap: 16px;
   overflow-x: auto;
+  align-items: start;
   padding: 4px 2px 18px;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
@@ -267,6 +268,8 @@ body.pj-home {
 .pj-home .card-cover {
   position: relative;
   width: 100%;
+  height: auto;
+  flex: 0 0 auto;
   aspect-ratio: 16 / 9;
   border-radius: var(--r-sm);
   overflow: hidden;
@@ -333,7 +336,10 @@ body.pj-home {
 .pj-home .cover-lock { position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: rgba(17, 24, 39, .45); color: #fff; }
 .pj-home .lock-ico { font-size: 40px; }
 .pj-home .lock-txt { font-family: var(--font-head); font-size: 13px; }
-.pj-home .cover-emoji { font-size: 62px; text-shadow: 0 6px 16px rgba(0, 0, 0, .22); }
+.pj-home .cover-emoji {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  font-size: 62px; text-shadow: 0 6px 16px rgba(0, 0, 0, .22); line-height: 1; pointer-events: none;
+}
 .pj-home .cover-play {
   position: absolute;
   right: 10px;
@@ -515,6 +521,17 @@ body.pj-home {
 .pj-home .cat-title[data-color="yellow"] .t-ico { background: rgba(214, 206, 82, .22); color: #8a7f10; }
 .pj-home .cat-title[data-color="yellow"]::before { background: var(--pj-yellow); }
 
+/* Filtro por edad */
+.pj-home .edad-filter { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 18px; align-items: center; }
+.pj-home .edad-filter .ef-btn {
+  border: 2px solid var(--pj-line); background: #fff; color: var(--pj-ink);
+  border-radius: 999px; padding: 8px 16px; font-family: var(--font-body);
+  font-weight: 700; font-size: 13px; cursor: pointer; transition: .15s;
+}
+.pj-home .edad-filter .ef-btn:hover { border-color: var(--pj-purple); color: var(--pj-purple); }
+.pj-home .edad-filter .ef-btn.active { background: var(--pj-purple); border-color: var(--pj-purple); color: #fff; }
+.pj-home .edad-filter .ef-count { margin-left: auto; font-size: 12.5px; color: var(--pj-muted); font-weight: 600; }
+
 /* Página de detalle (a pantalla completa, no popup) */
 .pj-home .detail-page { display: none; max-width: 1080px; margin: 0 auto; padding: 24px 20px 60px; }
 body.pj-home.mostrando-detalle .hero,
@@ -522,7 +539,7 @@ body.pj-home.mostrando-detalle .section#actividades { display: none; }
 body.pj-home.mostrando-detalle .detail-page { display: block; }
 .pj-home .detail-back { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-body); font-weight: 700; color: var(--pj-muted); text-decoration: none; margin-bottom: 16px; }
 .pj-home .detail-back:hover { color: var(--pj-purple); }
-.pj-home .detail-hero { position: relative; border-radius: 24px; overflow: hidden; box-shadow: 0 14px 40px rgba(17, 24, 39, .16); }
+.pj-home .detail-hero { position: relative; border-radius: 24px; overflow: hidden; box-shadow: 0 14px 40px rgba(17, 24, 39, .16); max-width: 880px; margin: 0 auto; }
 .pj-home .detail-cover { width: 100%; aspect-ratio: 16 / 9; background: #e6e3ec; background-size: cover; background-position: center; }
 .pj-home .detail-hero-overlay { position: absolute; inset: auto 0 0 0; padding: 70px 26px 22px; background: linear-gradient(to top, rgba(17, 24, 39, .85), transparent); color: #fff; }
 .pj-home .detail-hero-overlay h1 { font-family: var(--font-head); font-weight: 800; font-size: clamp(26px, 4vw, 40px); text-transform: uppercase; letter-spacing: 1px; margin: 6px 0; }
@@ -576,6 +593,11 @@ body.pj-home.mostrando-detalle .detail-page { display: block; }
 .print-worksheet .ws-cols { display: flex; gap: 40px; justify-content: space-around; }
 .print-worksheet .ws-col { flex: 1; display: flex; flex-direction: column; gap: 14px; }
 .print-worksheet .ws-item { border: 1.5px solid #9aa0aa; border-radius: 6px; padding: 6px 10px; text-align: center; font-size: 13px; font-weight: 700; min-height: 16px; }
+.print-worksheet .ws-cover { max-width: 210mm; margin: 0 auto 14px; border-radius: 12px; overflow: hidden; border: 2px solid #e5e7eb; }
+.print-worksheet .ws-cover img { width: 100%; display: block; aspect-ratio: 16 / 9; object-fit: cover; }
+.print-worksheet .ws-img { margin: 6px 0; max-width: 80mm; page-break-inside: avoid; break-inside: avoid; }
+.print-worksheet .ws-img img { width: 100%; border-radius: 8px; border: 1px solid #e5e7eb; display: block; }
+.print-worksheet .ws-fuente { display: block; font-size: 9px; font-style: italic; color: #9CA3AF; margin-top: 2px; }
 @media print {
   body * { visibility: hidden; }
   .print-worksheet, .print-worksheet * { visibility: visible; }
@@ -702,3 +724,37 @@ body.pj-home.mostrando-detalle .section#actividades { display: none; }
 body.pj-home.mostrando-juego .game-page { display: block; }
 body.pj-home.mostrando-juego .kp-top { border-radius: 16px 16px 0 0; }
 body.pj-home.mostrando-juego .kp-nav-row { padding-bottom: 6px; }
+
+/* ═══ Barra superior mejorada: gradiente, transparencia y animaciones ═══ */
+.pj-home .nav {
+  background: linear-gradient(90deg, #33215c, var(--pj-purple) 45%, #29194a);
+  box-shadow: 0 4px 18px rgba(78, 59, 112, .30);
+  transition: background .3s ease, box-shadow .3s ease;
+}
+.pj-home .nav.scrolled {
+  background: rgba(78, 59, 112, .90);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 26px rgba(41, 25, 74, .40);
+}
+.pj-home .brand img { transition: transform .2s ease; }
+.pj-home .brand:hover img { transform: scale(1.07) rotate(-3deg); }
+.pj-home .brand-name { color: #fff; text-shadow: 0 2px 10px rgba(0, 0, 0, .30); }
+.pj-home .nav-links a { position: relative; transition: transform .15s ease, background .15s ease, color .15s ease; }
+.pj-home .nav-links a:hover { transform: translateY(-1px); }
+.pj-home .nav-links a::after {
+  content: ''; position: absolute; left: 12px; right: 12px; bottom: 5px;
+  height: 3px; border-radius: 3px; background: var(--pj-yellow);
+  transform: scaleX(0); transform-origin: left center; transition: transform .2s ease;
+}
+.pj-home .nav-links a:hover::after,
+.pj-home .nav-links a.active::after { transform: scaleX(1); }
+.pj-home .nav-cta .btn-primary {
+  background: linear-gradient(90deg, var(--pj-yellow), #ffe27a);
+  box-shadow: 0 6px 16px rgba(214, 206, 82, .45);
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.pj-home .nav-cta .btn-primary:hover { transform: translateY(-1px) scale(1.03); }
+.pj-home .nav-cta .btn-outline { transition: transform .15s ease, background .15s ease; }
+.pj-home .nav-cta .btn-outline:hover { transform: translateY(-1px); }
+.pj-home .nav-toggle:checked ~ .nav-inner .nav-toggle-btn { transform: rotate(90deg); }

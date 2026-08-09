@@ -275,16 +275,19 @@ function textoPantallaWeb(s) {
 
 // ── Cálculo mental (reproductor) ──────────────────────────────────────
 let calcTimer = null;
+function numTile(n) { return `<span class="kp-numtile">${n}</span>`; }
 function screenCalculo(s, est) {
   const b = bloquesJuego[s.bi];
   const suma = (b.sumas || [])[s.si] || { a: 0, b: 0 };
   const a = Number(suma.a) || 0, bb = Number(suma.b) || 0;
-  let html = `<div class="kp-screen">
+  const totalSeg = Math.max(1, Number(b.segundos) || 10);
+  let html = `<div class="kp-screen kp-calc-screen">
     <div class="kp-qt">🧮 Cálculo mental · ${s.si + 1} / ${s.n || 1}</div>
-    <div class="kp-timer" data-timer="${b.segundos || 10}">⏱️ ${b.segundos || 10}s</div>
-    <div class="kp-calc">${a} + ${bb} = <span class="kp-calc-q">?</span></div>`;
+    <div class="kp-calc-timer"><span class="kp-timer" data-timer="${totalSeg}">⏱️ ${totalSeg}s</span>
+      <div class="kp-timer-track"><div class="kp-timer-bar" style="width:100%"></div></div></div>
+    <div class="kp-calc">${numTile(a)} <span class="kp-calc-op">+</span> ${numTile(bb)} <span class="kp-calc-op">=</span> <span class="kp-calc-q">?</span></div>`;
   if (est.respondida) {
-    html += `<div class="kp-msg ${est.acierto ? 'ok' : 'bad'}">${est.acierto ? '¡Muy bien! 🎉' : '⏱️ La respuesta era: ' + est.correcta + ' 💪'}</div>`;
+    html += `<div class="kp-msg ${est.acierto ? 'ok' : 'bad'}">${est.acierto ? '¡Muy bien! 🎉' : 'La respuesta era: ' + est.correcta + ' 💪'}</div>`;
   } else if (b.modo === 'escribir') {
     html += `<div class="kp-input-row">
       <input id="kp-calc-input" type="number" inputmode="numeric" placeholder="Tu respuesta"
@@ -295,23 +298,25 @@ function screenCalculo(s, est) {
     html += `<div class="kp-opts">${(est.opciones || []).map((o, k) => `
       <div class="kp-opt" onclick="kpResponderCalculo(${pantallaIdx},${k})"><span class="kp-letra">${'ABC'[k]}</span>${o}</div>`).join('')}</div>`;
   }
-  html += `<div class="kp-hint">⏱️ Tienes ${b.segundos || 10} segundos. ¡Calcula rápido!</div></div>`;
+  html += `<div class="kp-hint">⚡ Responde antes de que acabe el tiempo.</div></div>`;
   return html;
 }
 function iniciarTimerCalculo() {
   const s = pantallas[pantallaIdx];
   if (!s || s.tipo !== 'calculo') return;
   const b = bloquesJuego[s.bi];
-  let seg = Math.max(1, Number(b.segundos) || 10);
+  const total = Math.max(1, Number(b.segundos) || 10);
+  let seg = total;
   const el = document.querySelector('[data-timer]');
-  if (el) el.textContent = '⏱️ ' + seg + 's';
+  if (el) { el.textContent = '⏱️ ' + seg + 's'; el.classList.remove('warn'); }
+  const bar = document.querySelector('.kp-timer-bar');
+  if (bar) bar.style.width = '100%';
   calcTimer = setInterval(() => {
     seg--;
     const el2 = document.querySelector('[data-timer]');
-    if (el2) {
-      el2.textContent = '⏱️ ' + seg + 's';
-      if (seg <= 3) el2.classList.add('warn');
-    }
+    if (el2) { el2.textContent = '⏱️ ' + seg + 's'; el2.classList.toggle('warn', seg <= 3); }
+    const bar2 = document.querySelector('.kp-timer-bar');
+    if (bar2) { bar2.style.width = Math.max(0, (seg / total) * 100) + '%'; bar2.classList.toggle('warn', seg <= 3); }
     if (seg <= 0) { clearInterval(calcTimer); calcTimer = null; kpTimeoutCalculo(pantallaIdx); }
   }, 1000);
 }
@@ -327,12 +332,26 @@ function kpResponderCalculo(idx, k) {
     ok = (est.opciones || [])[k] === est.correcta;
   }
   est.respondida = true; est.acierto = ok;
-  if (ok) kpScore.verdes++; else kpScore.rojos++;
+  if (ok) { kpScore.verdes++; if (window.pjSonido) pjSonido.exito(); }
+  else { kpScore.rojos++; if (window.pjSonido) pjSonido.error(); }
+  clearInterval(calcTimer); calcTimer = null;
   renderPantalla();
+  mostrarFeedback(ok, 'La respuesta era ' + est.correcta, function () {
+    if (pantallaIdx < pantallas.length - 1) pantallaIdx++;
+    renderPantalla();
+  });
 }
 function kpTimeoutCalculo(idx) {
   const est = kpEstado[idx];
-  if (est && !est.respondida) { est.respondida = true; est.acierto = false; kpScore.rojos++; renderPantalla(); }
+  if (est && !est.respondida) {
+    est.respondida = true; est.acierto = false; kpScore.rojos++;
+    if (window.pjSonido) pjSonido.error();
+    renderPantalla();
+    mostrarFeedback(false, 'La respuesta era ' + est.correcta, function () {
+      if (pantallaIdx < pantallas.length - 1) pantallaIdx++;
+      renderPantalla();
+    });
+  }
 }
 
 function screenTexto(s, est) {
@@ -364,7 +383,8 @@ function screenPortada(s) {
         <span class="kp-chip">⭐ ${esc(s.dif)}</span>
         <span class="kp-chip">⏱️ ${esc(s.tiempo)} min</span>
       </div>
-      <div class="kp-hint">👆 ¡Pulsa los botones para responder!</div>
+      <button type="button" class="kp-btn kp-start" onclick="pantallaNext()">🚀 ¡Empezar!</button>
+      <div class="kp-hint">👆 Pulsa «¡Empezar!» cuando estés listo.</div>
     </div>`;
 }
 
@@ -512,9 +532,11 @@ function kpEnd() {
     est.encontradas[wi] = true;
     est.foundCells = [...(est.foundCells || []), ...cells];
     kpScore.verdes++;
+    if (window.pjSonido) pjSonido.exito();
   } else {
     kpScore.rojos++;
     est.error = true;
+    if (window.pjSonido) pjSonido.error();
     setTimeout(() => { if (kpEstado[idx]) { kpEstado[idx].error = false; renderPantalla(); } }, 700);
   }
   renderPantalla();

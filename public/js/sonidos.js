@@ -93,4 +93,24 @@
   }
   try { document.addEventListener('pointerdown', primerGesto, { once: true, passive: true }); } catch (e) { /* ok */ }
   try { document.addEventListener('keydown', primerGesto, { once: true, passive: true }); } catch (e) { /* ok */ }
+
+  // Sonidos de interfaz por delegación: hover sutil (letra) y clic en menú/botones
+  function prepararSonidosUI() {
+    var SEL = '.nav-links a, .nav-cta .btn, .cover-play, .ef-btn, .block-btn';
+    document.addEventListener('pointerover', function (e) {
+      if (muted) return;
+      var t = e.target && e.target.closest ? e.target.closest(SEL) : null;
+      if (t && !t.__snd) { t.__snd = 1; reproducir('letra'); }
+    });
+    document.addEventListener('pointerout', function (e) {
+      var t = e.target && e.target.closest ? e.target.closest(SEL) : null;
+      if (t) t.__snd = 0;
+    });
+    document.addEventListener('click', function (e) {
+      var t = e.target && e.target.closest ? e.target.closest(SEL) : null;
+      if (t) reproducir('clic');
+    }, true);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', prepararSonidosUI);
+  else prepararSonidosUI();
 })();

@@ -68,6 +68,15 @@
       </div>
       <div id="error-banner" class="error-banner hidden"></div>
 
+      <div class="edad-filter" role="group" aria-label="Filtrar actividades por edad">
+        <button type="button" class="ef-btn active" data-edad="todas" onclick="setFiltroEdad('todas', this)">Todas las edades</button>
+        <button type="button" class="ef-btn" data-edad="0-5" onclick="setFiltroEdad('0-5', this)">3-5 años</button>
+        <button type="button" class="ef-btn" data-edad="6-8" onclick="setFiltroEdad('6-8', this)">6-8 años</button>
+        <button type="button" class="ef-btn" data-edad="9-12" onclick="setFiltroEdad('9-12', this)">9-12 años</button>
+        <button type="button" class="ef-btn" data-edad="13+" onclick="setFiltroEdad('13+', this)">12+ años</button>
+        <span class="ef-count" id="edad-count"></span>
+      </div>
+
       <h3 class="cat-title" data-color="orange"><span class="t-ico material-symbols-rounded">star</span> Populares</h3>
       <div id="populares-row" class="h-row"><div class="loader"></div></div>
 

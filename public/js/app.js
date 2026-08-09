@@ -275,20 +275,25 @@ function cerrarDetalle() {
 }
 
 // Worksheet imprimible en PDF A4 (ventana de impresión del navegador)
-function descargarPdf(id) {
+async function descargarPdf(id) {
   const a = TODAS.find(x => x.id === id) || null;
   if (!a) return;
   if (window.pjSonido) pjSonido.clic();
   const bloques = (a.contenido && a.contenido.bloques) || [];
+  const wsImg = (url, fuente) => url
+    ? `<div class="ws-img"><img src="${esc(url)}" alt=""><span class="ws-fuente">${esc(fuente || 'Imagen')}</span></div>`
+    : '';
   let cuerpo = '';
   bloques.forEach((b) => {
     if (b.tipo === 'test' && b.preguntas && b.preguntas.length) {
       cuerpo += '<div class="ws-sec"><h4>Preguntas</h4>';
       b.preguntas.forEach((p, k) => {
         const opts = (p.opciones || []).map((o, oi) => '<span class="ws-opt">' + ('ABCDEFGH'[oi] || '') + ') ' + esc(o) + '</span>').join(' ');
-        cuerpo += '<div class="ws-q"><span class="ws-n">' + (k + 1) + '.</span> ' + esc(p.pregunta || '') + '<div class="ws-opts">' + opts + '</div></div>';
+        cuerpo += '<div class="ws-q"><span class="ws-n">' + (k + 1) + '.</span> ' + esc(p.pregunta || '') + wsImg(p.imagen_url || p.pictograma, p.fuente) + '<div class="ws-opts">' + opts + '</div></div>';
       });
       cuerpo += '</div>';
+    } else if (b.tipo === 'texto' && (((b.contenido || '').trim()) || b.imagen_url)) {
+      cuerpo += '<div class="ws-sec"><h4>' + esc(b.titulo || 'Aprende') + '</h4>' + wsImg(b.imagen_url, b.fuente) + '<p>' + esc((b.contenido || '').replace(/\s*\n+\s*/g, ' ')) + '</p></div>';
     } else if (b.tipo === 'sopa_letras' && b.palabras && b.palabras.length) {
       let gridHtml = '';
       if (typeof generarSopa === 'function') {
@@ -327,6 +332,13 @@ function descargarPdf(id) {
       cuerpo += '<div class="ws-sec"><h4>Localiza en el mapamundi</h4><p class="ws-words">' + b.paises.map(esc).join(' · ') + '</p><p class="ws-hint">Busca cada país en un mapamundi y señálalo.</p></div>';
     }
   });
+  // Portada de la actividad (16:9) en el worksheet
+  let portada = '';
+  if (a.portada_url) portada = `<div class="ws-cover"><img src="${esc(a.portada_url)}" alt="${esc(a.titulo)}"></div>`;
+  else {
+    const url = await generarCaratula({ cat: a.categoria, tit: a.titulo, tipo: a.tipo });
+    if (url) portada = `<div class="ws-cover"><img src="${url}" alt="${esc(a.titulo)}"></div>`;
+  }
   const ws = document.getElementById('print-worksheet');
   ws.innerHTML = `
     <div class="ws-head">
@@ -334,6 +346,7 @@ function descargarPdf(id) {
       <h1>${esc(a.titulo)}</h1>
       <p>${esc(a.categoria)} · Edad ${esc(a.edad_recomendada || '6-12')} · Dificultad ${esc(a.dificultad || 'media')}</p>
     </div>
+    ${portada}
     <div class="ws-meta">Nombre: _______________&nbsp;&nbsp; Fecha: _______________&nbsp;&nbsp; Puntos: ________</div>
     ${cuerpo}
     <div class="ws-foot">Generado por Placeta Junior · junta@laplaceta.org</div>`;
@@ -341,6 +354,36 @@ function descargarPdf(id) {
 }
 
 let TODAS = []; // todas las actividades públicas
+
+// ── Clasificar / filtrar por edad ──────────────────────────────────
+let filtroEdad = 'todas'; // 'todas' | '0-5' | '6-8' | '9-12' | '13+'
+function edadMinima(a) {
+  const m = String(a.edad_recomendada || '').match(/\d+/);
+  return m ? parseInt(m[0], 10) : null;
+}
+function edadCumple(a, banda) {
+  const e = edadMinima(a);
+  if (banda === 'todas') return true;
+  if (e === null) return false;
+  if (banda === '0-5') return e <= 5;
+  if (banda === '6-8') return e >= 6 && e <= 8;
+  if (banda === '9-12') return e >= 9 && e <= 12;
+  if (banda === '13+') return e >= 13;
+  return true;
+}
+function setFiltroEdad(val, el) {
+  filtroEdad = val;
+  document.querySelectorAll('.ef-btn').forEach(b => b.classList.toggle('active', b === el));
+  renderPopulares();
+  renderCategorias();
+  actualizarContadorEdad();
+}
+function actualizarContadorEdad() {
+  const c = document.getElementById('edad-count');
+  if (!c) return;
+  const n = TODAS.filter(a => edadCumple(a, filtroEdad)).length;
+  c.textContent = n + (n === 1 ? ' actividad' : ' actividades');
+}
 
 function esPago(a) { return (a.precio_licencia > 0 || a.precio_intento > 0); }
 function esBloqueada(a) { return esPago(a) && !a.subvencionada; }
@@ -359,12 +402,13 @@ async function cargarTodo() {
   }
   renderPopulares();
   renderCategorias();
+  actualizarContadorEdad();
 }
 
 // ⭐ Populares: las más jugadas (fila horizontal)
 function renderPopulares() {
   const row = document.getElementById('populares-row');
-  const ordenadas = [...TODAS].sort((a, b) =>
+  const ordenadas = [...TODAS].filter(a => edadCumple(a, filtroEdad)).sort((a, b) =>
     (b.estadisticas?.veces_realizada || 0) - (a.estadisticas?.veces_realizada || 0)
   ).slice(0, 10);
   row.innerHTML = ordenadas.length
@@ -376,13 +420,14 @@ function renderPopulares() {
 // 🗂️ Una fila horizontal por categoría (gratis y de pago mezcladas)
 function renderCategorias() {
   const cont = document.getElementById('categorias');
-  const cats = [...new Set(TODAS.map(a => a.categoria).filter(Boolean))];
+  const filtradas = TODAS.filter(a => edadCumple(a, filtroEdad));
+  const cats = [...new Set(filtradas.map(a => a.categoria).filter(Boolean))];
   if (cats.length === 0) {
     cont.innerHTML = '';
     return;
   }
   cont.innerHTML = cats.map(cat => {
-    const lista = TODAS.filter(a => a.categoria === cat);
+    const lista = filtradas.filter(a => a.categoria === cat);
     if (lista.length === 0) return '';
     return `
       <div class="cat-section">
@@ -416,6 +461,13 @@ async function abrirActividad(id, bloqueada) {
 //  INIT (incluye rutas propias: /?id= detalle y /?jugar= juego)
 // ═══════════════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
+  // Barra superior: efecto al hacer scroll (menos transparencia + sombra)
+  const nav = document.querySelector('.nav');
+  if (nav) {
+    const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 8);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
   cargarTodo().then(() => {
     const p = new URLSearchParams(location.search);
     if (p.get('jugar')) abrirActividad(p.get('jugar'), false);
