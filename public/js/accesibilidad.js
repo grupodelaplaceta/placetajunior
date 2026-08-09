@@ -14,14 +14,16 @@
   let audio = false;
   let grande = false;
   let contraste = false;
+  let sonido = true;
   const KEY = 'junior_acc_web';
-  try { const s = JSON.parse(localStorage.getItem(KEY) || '{}'); mayus = !!s.mayus; audio = !!s.audio; grande = !!s.grande; contraste = !!s.contraste; } catch (e) { /* ok */ }
+  try { const s = JSON.parse(localStorage.getItem(KEY) || '{}'); mayus = !!s.mayus; audio = !!s.audio; grande = !!s.grande; contraste = !!s.contraste; sonido = s.sonido !== false; } catch (e) { /* ok */ }
   window.__juniorAudio = audio;
 
   function aplicar() {
     document.body.classList.toggle('acces-mayusculas', mayus);
     document.body.classList.toggle('acces-letra-grande', grande);
     document.body.classList.toggle('acces-contraste', contraste);
+    if (window.pjSonido) pjSonido.setMuted(!sonido);
   }
   aplicar();
 
@@ -61,6 +63,7 @@
     '<button type="button" class="acc-toggle" id="accAudio"><span class="acc-ico material-symbols-rounded">volume_up</span> AUDIO</button>' +
     '<button type="button" class="acc-toggle" id="accGrande"><span class="acc-ico material-symbols-rounded">text_increase</span> Letra grande</button>' +
     '<button type="button" class="acc-toggle" id="accContraste"><span class="acc-ico material-symbols-rounded">contrast</span> Alto contraste</button>' +
+    '<button type="button" class="acc-toggle" id="accSonido"><span class="acc-ico material-symbols-rounded">volume_up</span> Sonidos</button>' +
     '<button type="button" class="acc-toggle" id="accLeer"><span class="acc-ico material-symbols-rounded">record_voice_over</span> Leer</button>';
 
   document.body.appendChild(btn);
@@ -68,12 +71,15 @@
 
   btn.addEventListener('click', () => { panel.hidden = !panel.hidden; });
 
-  function guardar() { try { localStorage.setItem(KEY, JSON.stringify({ mayus, audio, grande, contraste })); } catch (e) { /* ok */ } }
+  function guardar() { try { localStorage.setItem(KEY, JSON.stringify({ mayus, audio, grande, contraste, sonido })); } catch (e) { /* ok */ } }
   function refrescar() {
     document.getElementById('accMayus').classList.toggle('on', mayus);
     document.getElementById('accAudio').classList.toggle('on', audio);
     document.getElementById('accGrande').classList.toggle('on', grande);
     document.getElementById('accContraste').classList.toggle('on', contraste);
+    var sIco = document.querySelector('#accSonido .acc-ico');
+    if (sIco) sIco.textContent = sonido ? 'volume_up' : 'volume_off';
+    document.getElementById('accSonido').classList.toggle('on', sonido);
     aplicar();
   }
 
@@ -86,6 +92,12 @@
   });
   document.getElementById('accGrande').addEventListener('click', () => { grande = !grande; guardar(); refrescar(); if (grande) hablar('Letra grande activada.'); });
   document.getElementById('accContraste').addEventListener('click', () => { contraste = !contraste; guardar(); refrescar(); if (contraste) hablar('Alto contraste activado.'); });
+  document.getElementById('accSonido').addEventListener('click', () => {
+    sonido = !sonido;
+    if (window.pjSonido) pjSonido.setMuted(!sonido);
+    guardar(); refrescar();
+    if (sonido && window.pjSonido) pjSonido.clic();
+  });
   document.getElementById('accLeer').addEventListener('click', leerPagina);
   refrescar();
 

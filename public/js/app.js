@@ -328,7 +328,7 @@ function descargarPdf(id) {
   const ws = document.getElementById('print-worksheet');
   ws.innerHTML = `
     <div class="ws-head">
-      <img class="ws-logo" src="img/logo.png" alt="Placeta Junior" />
+      <div class="ws-brand"><img class="ws-logo" src="img/logo.png" alt="Placeta Junior" /><span class="ws-brand-name">Placeta Junior</span></div>
       <h1>${esc(a.titulo)}</h1>
       <p>${esc(a.categoria)} · Edad ${esc(a.edad_recomendada || '6-12')} · Dificultad ${esc(a.dificultad || 'media')}</p>
     </div>

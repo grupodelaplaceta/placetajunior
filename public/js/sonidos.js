@@ -9,6 +9,8 @@
   window.__pjSonidos = true;
 
   var ctx = null;
+  var muted = false;
+  try { muted = localStorage.getItem('pj_snd') === '0'; } catch (e) { /* ok */ }
   function ac() {
     try {
       if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -17,6 +19,7 @@
     return ctx;
   }
   function tono(frecs, dur, vol) {
+    if (muted) return;
     var c = ac();
     if (!c) return;
     var t0 = c.currentTime;
@@ -24,27 +27,26 @@
     frecs.forEach(function (f, i) {
       var o = c.createOscillator();
       var g = c.createGain();
-      // Triángulo: timbre claro y sin cola reverberante
       o.type = 'triangle';
       o.frequency.value = f;
       var start = t0 + i * seg;
-      var end = start + seg * 0.92;
-      // Envolvente corta y seca (ataque rápido, caída limpia)
+      var end = start + seg * 0.9;
       g.gain.setValueAtTime(0.0001, start);
-      g.gain.linearRampToValueAtTime(vol, start + 0.008);
-      g.gain.linearRampToValueAtTime(vol * 0.35, end - 0.02);
+      g.gain.linearRampToValueAtTime(vol, start + 0.006);
       g.gain.linearRampToValueAtTime(0.0001, end);
       o.connect(g); g.connect(c.destination);
-      o.start(start); o.stop(end + 0.02);
+      o.start(start); o.stop(end + 0.015);
     });
   }
 
   window.pjSonido = {
-    clic: function () { tono([720], 55, 0.11); },
-    pop: function () { tono([560, 830], 90, 0.15); },
-    abrir: function () { tono([392, 523, 659], 150, 0.16); },
-    exito: function () { tono([523, 659, 784], 200, 0.16); },
-    error: function () { tono([220, 175], 190, 0.14); },
-    victoria: function () { tono([523, 659, 784, 1047], 280, 0.18); }
+    setMuted: function (m) { muted = !!m; try { localStorage.setItem('pj_snd', muted ? '0' : '1'); } catch (e) { /* ok */ } },
+    isMuted: function () { return muted; },
+    clic: function () { tono([760], 40, 0.08); },
+    pop: function () { tono([620, 880], 55, 0.10); },
+    abrir: function () { tono([440, 660], 90, 0.11); },
+    exito: function () { tono([660, 990], 100, 0.11); },
+    error: function () { tono([210], 110, 0.09); },
+    victoria: function () { tono([523, 784, 1047], 170, 0.12); }
   };
 })();
