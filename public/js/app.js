@@ -393,7 +393,6 @@ function renderCategorias() {
 
 // Abrir y JUGAR la actividad publicada (reproductor de la web)
 async function abrirActividad(id, bloqueada) {
-  if (window.pjSonido) pjSonido.pop();
   if (bloqueada) {
     juniorAviso('🔒 Esta actividad es de pago (no subvencionada). Puedes adquirirla en la app Placeta Junior y pagarla con Placetas.', 'error');
     return;

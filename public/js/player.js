@@ -167,7 +167,7 @@ function renderPantalla() {
   else if (s.tipo === 'ordenar') cuerpo = screenOrdenar(s, est);
   else if (s.tipo === 'completar') cuerpo = screenCompletar(s, est);
   else if (s.tipo === 'calculo') cuerpo = screenCalculo(s, est);
-  else if (s.tipo === 'final') { cuerpo = screenFinal(s); if (!kpCelebrado) { kpCelebrado = true; lluviaConfetti(); } }
+  else if (s.tipo === 'final') { cuerpo = screenFinal(s); if (!kpCelebrado) { kpCelebrado = true; lluviaConfetti(); if (window.pjSonido) pjSonido.victoria(); } }
   ocultarFeedback();
   const total = pantallas.length;
   const pct = total > 1 ? Math.round((pantallaIdx / (total - 1)) * 100) : 0;
@@ -772,8 +772,8 @@ function kpCompletarOpcion(idx, fi, k) {
   renderPantalla();
 }
 
-function pantallaNext() { if (pantallaIdx < pantallas.length - 1) { pantallaIdx++; if (window.pjSonido) pjSonido.clic(); renderPantalla(); } }
-function pantallaPrev() { if (pantallaIdx > 0) { pantallaIdx--; if (window.pjSonido) pjSonido.clic(); renderPantalla(); } }
+function pantallaNext() { if (pantallaIdx < pantallas.length - 1) { pantallaIdx++; renderPantalla(); } }
+function pantallaPrev() { if (pantallaIdx > 0) { pantallaIdx--; renderPantalla(); } }
 
 // Cierra el reproductor pidiendo confirmación si hay partida en curso
 function cerrarPlayer() {
