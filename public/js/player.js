@@ -275,6 +275,13 @@ function textoPantallaWeb(s) {
 
 // ── Cálculo mental (reproductor) ──────────────────────────────────────
 let calcTimer = null;
+let calcAutoTimer = null;
+// Avanza solo al siguiente ejercicio del cálculo mental (o al final)
+function avanzarCalculo() {
+  clearTimeout(calcAutoTimer);
+  if (pantallaIdx < pantallas.length - 1) pantallaIdx++;
+  renderPantalla();
+}
 function numTile(n) { return `<span class="kp-numtile">${n}</span>`; }
 function screenCalculo(s, est) {
   const b = bloquesJuego[s.bi];
@@ -336,10 +343,9 @@ function kpResponderCalculo(idx, k) {
   else { kpScore.rojos++; if (window.pjSonido) pjSonido.error(); }
   clearInterval(calcTimer); calcTimer = null;
   renderPantalla();
-  mostrarFeedback(ok, 'La respuesta era ' + est.correcta, function () {
-    if (pantallaIdx < pantallas.length - 1) pantallaIdx++;
-    renderPantalla();
-  });
+  mostrarFeedback(ok, 'La respuesta era ' + est.correcta, avanzarCalculo);
+  clearTimeout(calcAutoTimer);
+  calcAutoTimer = setTimeout(avanzarCalculo, 1400);
 }
 function kpTimeoutCalculo(idx) {
   const est = kpEstado[idx];
@@ -347,10 +353,9 @@ function kpTimeoutCalculo(idx) {
     est.respondida = true; est.acierto = false; kpScore.rojos++;
     if (window.pjSonido) pjSonido.error();
     renderPantalla();
-    mostrarFeedback(false, 'La respuesta era ' + est.correcta, function () {
-      if (pantallaIdx < pantallas.length - 1) pantallaIdx++;
-      renderPantalla();
-    });
+    mostrarFeedback(false, 'La respuesta era ' + est.correcta, avanzarCalculo);
+    clearTimeout(calcAutoTimer);
+    calcAutoTimer = setTimeout(avanzarCalculo, 1600);
   }
 }
 
