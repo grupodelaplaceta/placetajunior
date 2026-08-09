@@ -332,7 +332,8 @@ async function descargarPdf(id) {
       b.sumas.forEach((s2, k) => { cuerpo += '<div class="ws-line"><span class="ws-n">' + (k + 1) + '.</span> ' + (Number(s2.a) || 0) + ' + ' + (Number(s2.b) || 0) + ' = ______</div>'; });
       cuerpo += '</div>';
     } else if (b.tipo === 'mapa_mundi' && b.paises && b.paises.length) {
-      cuerpo += '<div class="ws-sec"><h4>Localiza en el mapamundi</h4>' + wsImg(b.imagen_url, b.fuente) + '<p class="ws-words">' + b.paises.map(esc).join(' · ') + '</p><p class="ws-hint">Busca cada país en un mapamundi y señálalo.</p></div>';
+      const recon = (b.paises || []).map(p => String(p).trim()).filter(Boolean).filter(p => window.MAPA_MUNDI && MAPA_MUNDI.paises[p]);
+      cuerpo += '<div class="ws-sec ws-mapa"><h4>Localiza en el mapamundi</h4>' + wsImg(b.imagen_url, b.fuente) + '<div class="ws-map-wrap" data-mapa="1" data-paises="' + esc(JSON.stringify(recon)) + '"></div><p class="ws-words">' + recon.map((p, i) => (i + 1) + '. ' + esc(p)).join(' · ') + '</p><p class="ws-hint">Busca cada país en el mapamundi y señálalo.</p></div>';
     }
   });
   // Portada de la actividad (16:9) en el worksheet
@@ -353,7 +354,75 @@ async function descargarPdf(id) {
     <div class="ws-meta">Nombre: _______________&nbsp;&nbsp; Fecha: _______________&nbsp;&nbsp; Puntos: ________</div>
     ${cuerpo}
     <div class="ws-foot">Generado por Placeta Junior · junta@laplaceta.org</div>`;
+  // Dibuja el mapamundi (world-atlas) en los bloques de mapa_mundi
+  const mapaEls = ws.querySelectorAll('[data-mapa="1"]');
+  for (const el of mapaEls) {
+    let paises = [];
+    try { paises = JSON.parse(el.dataset.paises || '[]'); } catch (e) { /* ok */ }
+    const url = await generarMapaPdf(paises, 800);
+    if (url) el.innerHTML = '<img src="' + url + '" alt="Mapamundi">';
+  }
   window.print();
+}
+
+// Dibuja el mapamundi (world-atlas) en un canvas para la ficha PDF
+async function generarMapaPdf(paises, W) {
+  try {
+    if (!window.MAPA_MUNDI) return '';
+    await MAPA_MUNDI.cargarTodo(); // asegura que topojson esté cargado
+    const geo = await MAPA_MUNDI.cargarGeo();
+    if (!geo || !geo.features) return '';
+    W = W || 900;
+    const H = Math.round(W / 2);
+    const cv = document.createElement('canvas');
+    cv.width = W; cv.height = H;
+    const ctx = cv.getContext('2d');
+    const px = (lon) => ((lon + 180) / 360) * W;
+    const py = (lat) => ((90 - lat) / 180) * H;
+    const targets = (paises || []).filter(p => MAPA_MUNDI.paises[p]);
+    const nombres = targets.map(p => MAPA_MUNDI.paises[p]);
+    ctx.fillStyle = '#dbeafe'; ctx.fillRect(0, 0, W, H);
+    const dibujar = (coords, fill, stroke, lw) => {
+      ctx.beginPath();
+      coords.forEach((ring) => {
+        ring.forEach(([lon, lat], k) => {
+          const x = px(lon), y = py(lat);
+          if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.closePath();
+      });
+      ctx.fillStyle = fill; ctx.fill();
+      ctx.strokeStyle = stroke; ctx.lineWidth = lw || 1; ctx.stroke();
+    };
+    const marcar = {};
+    geo.features.forEach((f) => {
+      const nm = f.properties && f.properties.name;
+      const esObj = nombres.includes(nm);
+      const fill = esObj ? '#3A00E1' : '#dfe6f2';
+      const st = esObj ? '#1f2f8f' : '#b6c2d9';
+      if (f.geometry.type === 'Polygon') dibujar([f.geometry.coordinates], fill, st, esObj ? 2 : 1);
+      else if (f.geometry.type === 'MultiPolygon') f.geometry.coordinates.forEach(p => dibujar(p, fill, st, esObj ? 2 : 1));
+      if (esObj) marcar[nm] = f;
+    });
+    // Números sobre cada país a localizar (centroide aproximado)
+    targets.forEach((es, i) => {
+      const f = marcar[MAPA_MUNDI.paises[es]];
+      if (!f) return;
+      let slon = 0, slat = 0, n = 0;
+      const rings = f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates;
+      rings.forEach(r => r[0].forEach(([lon, lat]) => { slon += lon; slat += lat; n++; }));
+      if (!n) return;
+      const x = px(slon / n), y = py(slat / n);
+      ctx.beginPath(); ctx.arc(x, y, 15, 0, Math.PI * 2);
+      ctx.fillStyle = '#fff'; ctx.fill();
+      ctx.strokeStyle = '#3A00E1'; ctx.lineWidth = 2.5; ctx.stroke();
+      ctx.fillStyle = '#3A00E1';
+      ctx.font = '800 17px "Plus Jakarta Sans", sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(String(i + 1), x, y + 1);
+    });
+    return cv.toDataURL('image/png');
+  } catch (e) { return ''; }
 }
 
 let TODAS = []; // todas las actividades públicas

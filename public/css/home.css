@@ -603,6 +603,8 @@ body.pj-home.mostrando-detalle .detail-page { display: block; }
 .print-worksheet .ws-fuente { display: block; font-size: 9px; font-style: italic; color: #9CA3AF; margin-top: 2px; }
 .print-worksheet .ws-item-img { margin: 0 auto 6px; text-align: center; }
 .print-worksheet .ws-item-img img { width: 100%; max-width: 40mm; height: auto; border-radius: 6px; border: 1px solid #e5e7eb; display: block; margin: 0 auto; }
+.print-worksheet .ws-map-wrap { text-align: center; page-break-inside: avoid; break-inside: avoid; }
+.print-worksheet .ws-map-wrap img { width: 100%; max-width: 200mm; height: auto; border: 1px solid #cbd5e1; border-radius: 8px; display: inline-block; }
 @media print {
   body * { visibility: hidden; }
   .print-worksheet, .print-worksheet * { visibility: visible; }
