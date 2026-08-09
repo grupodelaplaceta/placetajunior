@@ -8,9 +8,15 @@
    ═══════════════════════════════════════════════════════════════════ */
 window.MAPA_MUNDI = {
   cdn: {
+    // Copias locales para no depender del CDN: clave para que el mapamundi
+    // salga SIEMPRE en el PDF y en el juego aunque falle la red/CDN.
+    leafletCssLocal: 'css/leaflet.css',
     leafletCss: 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
+    leafletJsLocal: 'js/leaflet.js',
     leafletJs: 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+    topojsonLocal: 'js/topojson-client.min.js',
     topojson: 'https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js',
+    mundoLocal: 'data/countries-110m.json',
     mundo: 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json'
   },
   // País en español → nombre en world-atlas (properties.name)
@@ -52,33 +58,45 @@ window.MAPA_MUNDI = {
     return this._rev[en] || en;
   },
 
-  // Carga el GeoJSON de los países (una sola vez)
+  // Carga el GeoJSON de los países (una sola vez): archivo LOCAL primero, CDN como respaldo
   cargarGeo: function () {
     var self = this;
     if (this._geo) return Promise.resolve(this._geo);
-    return fetch(this.cdn.mundo)
-      .then(function (r) { return r.json(); })
+    return fetch(this.cdn.mundoLocal)
+      .then(function (r) { if (!r.ok) throw new Error('local'); return r.json(); })
+      .catch(function () { return fetch(self.cdn.mundo).then(function (r) { return r.json(); }); })
       .then(function (topo) {
+        if (!window.topojson) throw new Error('topojson no cargado');
         self._geo = window.topojson.feature(topo, topo.objects.countries);
         return self._geo;
       });
   },
 
-  // Carga bajo demanda Leaflet + topojson-client (devuelve una promesa)
+  // Carga bajo demanda Leaflet + topojson-client (devuelve una promesa).
+  // Todo se carga desde copia LOCAL (siempre disponible) con CDN de respaldo,
+  // para que el mapa funcione (PDF y juego) aunque falle la red/CDN.
   cargarTodo: function () {
-    function loadScript(src) {
-      return new Promise(function (res, rej) {
+    function loadScript(src, fb) {
+      return new Promise(function (res) {
         var s = document.createElement('script');
-        s.src = src; s.onload = res; s.onerror = rej;
+        s.src = src;
+        s.onload = res;
+        s.onerror = function () {
+          if (fb) {
+            var s2 = document.createElement('script');
+            s2.src = fb; s2.onload = res; s2.onerror = res;
+            document.head.appendChild(s2);
+          } else { res(); }
+        };
         document.head.appendChild(s);
       });
     }
     var p = [];
-    if (!window.L) p.push(loadScript(this.cdn.leafletJs));
-    if (!window.topojson) p.push(loadScript(this.cdn.topojson));
+    if (!window.L) p.push(loadScript(this.cdn.leafletJsLocal, this.cdn.leafletJs));
+    if (!window.topojson) p.push(loadScript(this.cdn.topojsonLocal, this.cdn.topojson));
     if (!document.querySelector('link[data-pj-leaflet]')) {
       var l = document.createElement('link');
-      l.rel = 'stylesheet'; l.href = this.cdn.leafletCss; l.setAttribute('data-pj-leaflet', '1');
+      l.rel = 'stylesheet'; l.href = this.cdn.leafletCssLocal; l.setAttribute('data-pj-leaflet', '1');
       document.head.appendChild(l);
     }
     return Promise.all(p);

@@ -360,7 +360,9 @@ async function descargarPdf(id) {
     let paises = [];
     try { paises = JSON.parse(el.dataset.paises || '[]'); } catch (e) { /* ok */ }
     const url = await generarMapaPdf(paises, 800);
-    if (url) el.innerHTML = '<img src="' + url + '" alt="Mapamundi">';
+    el.innerHTML = url
+      ? '<img src="' + url + '" alt="Mapamundi">'
+      : '<div class="ws-msg">Mapamundi no disponible.</div>';
   }
   window.print();
 }

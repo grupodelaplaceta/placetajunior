@@ -911,7 +911,8 @@ function iniciarMapa(idx) {
   MAPA_MUNDI.cargarTodo()
     .then(() => MAPA_MUNDI.cargarGeo())
     .then(geo => {
-      if (!document.body.contains(cont) || !window.L) return;
+      if (!document.body.contains(cont)) return;
+      if (!window.L) { cont.innerHTML = '<div class="kp-msg bad">No se pudo cargar el mapa (comprueba la conexión).</div>'; return; }
       const map = L.map(cont, { minZoom: 2, maxZoom: 6, zoomControl: true, attributionControl: false, scrollWheelZoom: true, maxBounds: [[-85, -180], [85, 180]] });
       map.setView([20, 0], 2);
       (window.__pjMapas = window.__pjMapas || []).push(map);
