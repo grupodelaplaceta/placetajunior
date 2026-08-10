@@ -209,13 +209,19 @@ function generarCaratulasEn(cont) {
 function cardActividad(a) {
   const bloqueada = esBloqueada(a);
   const color = categoriaColor(a.categoria);
+  const enCurso = window.PJPartidas ? PJPartidas.estaEnCurso(a.id) : false;
+  const completada = window.PJPartidas ? PJPartidas.estaCompletada(a.id) : false;
+  const badgeProg = completada
+    ? '<span class="badge-tag badge-free"><span class="material-symbols-rounded b-ico">task_alt</span>Hecha</span>'
+    : (enCurso ? '<span class="badge-tag badge-pend"><span class="material-symbols-rounded b-ico">play_circle</span>En curso</span>' : '');
   return `
     <div class="card" data-color="${color}" onclick="abrirActividad('${a.id}', ${bloqueada})">
       ${coverHTML(a)}
+      ${badgeProg}
       <h3>${escapeHtml(a.titulo)}</h3>
       <div class="card-foot">
         <span class="chip" data-color="${color}">${escapeHtml(a.categoria)}</span>
-        ${!bloqueada ? `<button type="button" class="cover-play" onclick="event.stopPropagation();abrirActividad('${a.id}', false)" title="Jugar"><span class="material-symbols-rounded">play_arrow</span> Jugar</button>` : ''}
+        ${!bloqueada ? `<button type="button" class="cover-play" onclick="event.stopPropagation();abrirActividad('${a.id}', false)" title="${enCurso ? 'Continuar' : 'Jugar'}"><span class="material-symbols-rounded">${enCurso ? 'play_arrow' : 'play_arrow'}</span> ${enCurso ? 'Continuar' : 'Jugar'}</button>` : ''}
       </div>
     </div>`;
 }
@@ -507,11 +513,7 @@ async function abrirActividad(id, bloqueada) {
   try {
     const data = await apiGet(`/actividades/${id}`);
     if (data.actividad) {
-      // Placeta Junior Code → editor de bloques dedicado
-      if (data.actividad.tipo && String(data.actividad.tipo).startsWith('code')) {
-        window.location.href = '/code.html?id=' + encodeURIComponent(id);
-        return;
-      }
+      // El player maneja todos los tipos (incluido Placeta Junior Code)
       if (typeof abrirJuego === 'function') abrirJuego(data.actividad);
       else juniorAviso('No se pudo iniciar el juego.', 'error');
     } else {

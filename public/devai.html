@@ -100,7 +100,7 @@
       { "tipo": "completar", "modo": "escribir", "frases": [ { "texto": "La frase con ___", "respuesta": "palabra" } ] },
       { "tipo": "calculo_mental", "sumas": [ { "a": 3, "b": 5 } ], "segundos": 10, "modo": "opciones" },
       { "tipo": "mapa_mundi", "paises": ["España", "Francia", "Italia", "Portugal"] },
-      { "tipo": "code_blocks", "titulo": "Haz llegar a Candela a la estrella", "lenguaje": "placeta_blocks", "objetivo_texto": "Lleva a Candela hasta la estrella", "bloques_permitidos": ["avanzar", "girar"], "max_bloques": 8, "escenario": { "tipo": "cuadricula", "ancho": 6, "alto": 6, "obstaculos": [{"x": 2, "y": 0}], "monedas": [{"x": 3, "y": 0}] }, "inicio": { "x": 0, "y": 0, "direccion": "derecha" }, "objetivo": { "posicion": { "x": 4, "y": 0 }, "monedas": 1, "max_pasos": 10 }, "pistas": ["Mira dónde está Candela.", "Necesitas avanzar varias veces."] }
+      { "tipo": "code_blocks", "titulo": "Haz llegar a Candela a la estrella", "lenguaje": "placeta_blocks", "objetivo_texto": "Programa a Candela para llegar a la estrella", "ejercicios": [ { "titulo": "Avanza 1 casilla", "explicacion": "Pulsa el bloque AVANZAR una vez.", "objetivo_texto": "Lleva a Candela hasta la estrella (1,0).", "bloques_permitidos": ["avanzar"], "escenario": { "tipo": "cuadricula", "ancho": 6, "alto": 6, "obstaculos": [], "monedas": [] }, "inicio": { "x": 0, "y": 0, "direccion": "derecha" }, "objetivo": { "posicion": { "x": 1, "y": 0 }, "max_pasos": 4 }, "pistas": ["Añade 1 bloque AVANZAR."] }, { "titulo": "Esquiva la roca", "explicacion": "Ahora hay una roca. Usa GIRAR para esquivarla.", "objetivo_texto": "Lleva a Candela hasta la estrella (3,1).", "bloques_permitidos": ["avanzar", "girar"], "escenario": { "tipo": "cuadricula", "ancho": 6, "alto": 6, "obstaculos": [{"x": 2, "y": 0}], "monedas": [] }, "inicio": { "x": 0, "y": 0, "direccion": "derecha" }, "objetivo": { "posicion": { "x": 3, "y": 1 }, "max_pasos": 10 }, "pistas": ["Avanza, gira, pasa y vuelve."] } ] }
     ]
   }
 }
@@ -112,7 +112,7 @@ Reglas:
 - ACCESIBILIDAD: si un bloque usa "imagen_url" o una pareja usa "izq_img", incluye SIEMPRE el texto alternativo en "imagen_alt" o "izq_alt" (una descripción breve de lo que muestra la imagen, p. ej. "Niña leyendo un libro"). Es obligatorio para la accesibilidad.
 - FUENTES DE IMÁGENES: si usas una imagen real, indica SIEMPRE su procedencia en "fuente" (bloque) o "izq_fuente" (pareja), p. ej. "Foto: NASA · dominio público". Si la imagen es decorativa o inventada, deja la fuente en blanco.
 - PRECIOS Y RECOMPENSA (en Pz, IVA incluido): usa 0 para gratis. "precio_licencia" es lo que cuesta desbloquear la actividad para siempre, "precio_intento" lo que cuesta cada intento, "recompensa" el MÁXIMO que gana el niño al completarla (el backend la ajusta según aciertos y errores) y "subvencionada" true solo si una entidad la cubre (entonces es gratis para el niño).
-- CODE_BLOCKS (Placeta Junior Code): para este tipo, define un escenario de cuadrícula (ancho/alto), el inicio de Candela (x,y,direccion), los obstáculos y monedas, el objetivo (posicion x,y y opcionalmente monedas/max_pasos/debe_usar) y los bloques_permitidos. Los bloques válidos son: avanzar, retroceder, girar, saltar, repetir, si. El objetivo siempre es llevar a Candela (👧) a la estrella (⭐) sin chocar.
+- CODE_BLOCKS (Placeta Junior Code): crea una lista `ejercicios` con 3-5 retos progresivos (del más fácil al más difícil). Cada ejercicio tiene: `titulo`, `explicacion` (frase corta explicando qué hacer), `objetivo_texto`, `bloques_permitidos` (solo los necesarios para ese ejercicio: avanzar, retroceder, girar, saltar, repetir, si), `escenario` de cuadrícula (ancho/alto, obstáculos y monedas), `inicio` (x,y,direccion de Candela) y `objetivo` (posicion x,y, opcionalmente monedas/max_pasos/debe_usar) y `pistas`. El objetivo siempre es llevar a Candela (👧) a la estrella (⭐) sin chocar. Empieza con ejercicios muy sencillos (solo AVANZAR) y añade GIRAR, luego obstáculos, REPETIR y SI poco a poco.
 - En completar, usa palabras en SINGULAR y, en modo opciones, escribe "opciones" (distractores).
 - En mapa_mundi, usa solo países conocidos (España, Francia, Italia, Portugal, Reino Unido, Alemania, Egipto, Brasil, México, Estados Unidos, Canadá, China, India, Japón, Australia…).
 - Escribe en español, adáptalo a la edad indicada y numera bien los bloques.
@@ -341,7 +341,7 @@ Reglas:
         else if (b.tipo === 'completar') n += (b.frases || []).filter(f => f.texto && f.respuesta).length;
         else if (b.tipo === 'calculo_mental') n += (b.sumas || []).filter(s => s.a !== '' && s.b !== '').length;
         else if (b.tipo === 'mapa_mundi') n += (b.paises || []).filter(p => p && window.MAPA_MUNDI && MAPA_MUNDI.paises[p]).length;
-        else if (b.tipo === 'code_blocks') n += (b.objetivo && b.objetivo.posicion) ? 1 : 0;
+        else if (b.tipo === 'code_blocks') n += ((b.ejercicios && b.ejercicios.length) || (b.objetivo && b.objetivo.posicion ? 1 : 0));
       }
       return n;
     }

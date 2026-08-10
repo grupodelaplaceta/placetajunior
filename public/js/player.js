@@ -92,8 +92,9 @@ function generarSopa(palabras, tamano) {
 function abrirJuego(act) {
   actividadActual = act || null;
   if (window.pjSonido) pjSonido.abrir();
+  const esCode = act && (String(act.tipo || '').startsWith('code') || (act.contenido && act.contenido.tipo === 'code_blocks'));
   bloquesJuego = (act && act.contenido && act.contenido.bloques) ? act.contenido.bloques : [];
-  if (!bloquesJuego.length) { juniorAviso('Esta actividad aún no tiene contenido jugable.', 'error'); return; }
+  if (!esCode && !bloquesJuego.length) { juniorAviso('Esta actividad aún no tiene contenido jugable.', 'error'); return; }
   pantallas = [];
   kpEstado = [];
   const tit = act.titulo || 'Mi actividad';
@@ -106,55 +107,106 @@ function abrirJuego(act) {
   pantallas.push({ tipo: 'portada', tit, desc, cat, edad, dif, tiempo });
   kpEstado.push({});
 
-  bloquesJuego.forEach((b, bi) => {
-    if (b.tipo === 'test') {
-      (b.preguntas || []).forEach((p, pi) => {
-        pantallas.push({ tipo: 'test', bi, pi, nPreg: b.preguntas.length });
-        kpEstado.push({ respondida: false, sel: null, acierto: null });
-      });
-    } else if (b.tipo === 'texto') {
-      pantallas.push({ tipo: 'texto', bi });
-      kpEstado.push({});
-    } else if (b.tipo === 'sopa_letras') {
-      const { grid, size } = generarSopa(b.palabras, b.tamano);
-      pantallas.push({ tipo: 'sopa', bi, grid, size });
-      kpEstado.push({ encontradas: {}, sel: [], foundCells: [], error: false, toqueInicio: null });
-    } else if (b.tipo === 'relacionar') {
-      const n = (b.pares || []).length;
-      const indices = Array.from({ length: n }, (_, k) => k);
-      pantallas.push({ tipo: 'relacionar', bi });
-      kpEstado.push({ izq: null, hechas: {}, escrito: {}, ordenIzq: shuffleArr(indices), ordenDer: shuffleArr(indices) });
-    } else if (b.tipo === 'ordenar') {
-      pantallas.push({ tipo: 'ordenar', bi });
-      kpEstado.push({ orden: shuffleArr((b.items || []).map((_, k) => k)), hechas: 0 });
-    } else if (b.tipo === 'completar') {
-      pantallas.push({ tipo: 'completar', bi });
-      kpEstado.push({ estado: {} });
-    } else if (b.tipo === 'calculo_mental') {
-      (b.sumas || []).forEach((s, si) => {
-        const a = Number(s.a) || 0, bb = Number(s.b) || 0;
-        const correcta = a + bb;
-        const opciones = b.modo === 'opciones' ? generarOpcionesCalculo(correcta) : [];
-        pantallas.push({ tipo: 'calculo', bi, si, n: (b.sumas || []).length });
-        kpEstado.push({ respondida: false, sel: null, acierto: null, opciones, correcta });
-      });
-    } else if (b.tipo === 'mapa_mundi') {
-      const paises = (b.paises || []).map(p => String(p).trim()).filter(Boolean).filter(p => window.MAPA_MUNDI && MAPA_MUNDI.paises[p]);
-      const preg = (b.preguntas && b.preguntas.length) ? b.preguntas : paises.map(p => ({ pide: 'Haz clic en ' + p, correcta: p }));
-      (preg || []).forEach((q, qi) => {
-        const corr = String(q.correcta || '').trim();
-        if (!window.MAPA_MUNDI || !MAPA_MUNDI.paises[corr]) return;
-        pantallas.push({ tipo: 'mapa', bi, qi, n: (preg || []).length, paises, pide: q.pide || ('Haz clic en ' + corr), correcta: corr, correctaEn: MAPA_MUNDI.paises[corr] });
-        kpEstado.push({ respondida: false, acierto: null, sel: null });
-      });
+  // Placeta Junior Code: un reto (pantalla code) por ejercicio, con evolución
+  if (esCode) {
+    const c = act.contenido || {};
+    const ejercicios = (window.PJCode && PJCode.obtenerEjercicios) ? PJCode.obtenerEjercicios(c) : [];
+    if (!ejercicios.length) {
+      juniorAviso('Esta actividad no tiene ejercicios de código.', 'error');
+      return;
     }
-  });
+    // Pantalla de explicación de la actividad (si la hay)
+    if (c.explicacion) {
+      pantallas.push({ tipo: 'code_explica', bi: 0, explicacion: c.explicacion });
+      kpEstado.push({});
+    }
+    // Una pantalla por ejercicio (evolución progresiva)
+    ejercicios.forEach((ej, i) => {
+      pantallas.push({
+        tipo: 'code',
+        bi: 0,
+        ejercicio: i,
+        total_ejercicios: ejercicios.length,
+        titulo: ej.titulo || ('Ejercicio ' + (i + 1)),
+        explicacion: ej.explicacion || '',
+        objetivo_texto: ej.objetivo_texto || 'Lleva a Candela hasta la estrella.',
+        escenario: ej.escenario || { tipo: 'cuadricula', ancho: 6, alto: 6 },
+        inicio: ej.inicio || { x: 0, y: 0, direccion: 'derecha' },
+        objetivo: ej.objetivo || {},
+        permitidos: PJCode.bloquesPermitidos(act, i),
+        max_bloques: ej.max_bloques || null,
+        pistas: ej.pistas || []
+      });
+      kpEstado.push({ programa: [], superado: false, resultado: null });
+    });
+    // Si hay una partida en curso guardada, se retoma el programa del ejercicio en curso
+    const guardada = window.PJPartidas ? PJPartidas.get(act.id) : null;
+    if (guardada && guardada.code && kpEstado[pantallaIdx]) {
+      kpEstado[pantallaIdx].programa = guardada.code.programa || [];
+    }
+  } else {
+    bloquesJuego.forEach((b, bi) => {
+      if (b.tipo === 'test') {
+        (b.preguntas || []).forEach((p, pi) => {
+          pantallas.push({ tipo: 'test', bi, pi, nPreg: b.preguntas.length });
+          kpEstado.push({ respondida: false, sel: null, acierto: null });
+        });
+      } else if (b.tipo === 'texto') {
+        pantallas.push({ tipo: 'texto', bi });
+        kpEstado.push({});
+      } else if (b.tipo === 'sopa_letras') {
+        const { grid, size } = generarSopa(b.palabras, b.tamano);
+        pantallas.push({ tipo: 'sopa', bi, grid, size });
+        kpEstado.push({ encontradas: {}, sel: [], foundCells: [], error: false, toqueInicio: null });
+      } else if (b.tipo === 'relacionar') {
+        const n = (b.pares || []).length;
+        const indices = Array.from({ length: n }, (_, k) => k);
+        pantallas.push({ tipo: 'relacionar', bi });
+        kpEstado.push({ izq: null, hechas: {}, escrito: {}, ordenIzq: shuffleArr(indices), ordenDer: shuffleArr(indices) });
+      } else if (b.tipo === 'ordenar') {
+        pantallas.push({ tipo: 'ordenar', bi });
+        kpEstado.push({ orden: shuffleArr((b.items || []).map((_, k) => k)), hechas: 0 });
+      } else if (b.tipo === 'completar') {
+        pantallas.push({ tipo: 'completar', bi });
+        kpEstado.push({ estado: {} });
+      } else if (b.tipo === 'calculo_mental') {
+        (b.sumas || []).forEach((s, si) => {
+          const a = Number(s.a) || 0, bb = Number(s.b) || 0;
+          const correcta = a + bb;
+          const opciones = b.modo === 'opciones' ? generarOpcionesCalculo(correcta) : [];
+          pantallas.push({ tipo: 'calculo', bi, si, n: (b.sumas || []).length });
+          kpEstado.push({ respondida: false, sel: null, acierto: null, opciones, correcta });
+        });
+      } else if (b.tipo === 'mapa_mundi') {
+        const paises = (b.paises || []).map(p => String(p).trim()).filter(Boolean).filter(p => window.MAPA_MUNDI && MAPA_MUNDI.paises[p]);
+        const preg = (b.preguntas && b.preguntas.length) ? b.preguntas : paises.map(p => ({ pide: 'Haz clic en ' + p, correcta: p }));
+        (preg || []).forEach((q, qi) => {
+          const corr = String(q.correcta || '').trim();
+          if (!window.MAPA_MUNDI || !MAPA_MUNDI.paises[corr]) return;
+          pantallas.push({ tipo: 'mapa', bi, qi, n: (preg || []).length, paises, pide: q.pide || ('Haz clic en ' + corr), correcta: corr, correctaEn: MAPA_MUNDI.paises[corr] });
+          kpEstado.push({ respondida: false, acierto: null, sel: null });
+        });
+      }
+    });
+  }
 
   pantallas.push({ tipo: 'final', tit, cat });
   kpEstado.push({});
   kpScore = { verdes: 0, rojos: 0 };
   kpCelebrado = false;
   pantallaIdx = 0;
+  // Restaurar partida en curso guardada localmente (retomar donde se dejó)
+  const partida = (window.PJPartidas && act && act.id) ? PJPartidas.get(act.id) : null;
+  if (partida && !partida.completada && partida.pantallaIdx) {
+    try {
+      const idx = Math.min(Math.max(1, Number(partida.pantallaIdx) || 1), pantallas.length - 1);
+      pantallaIdx = idx;
+      if (Array.isArray(partida.kpEstado) && partida.kpEstado.length === kpEstado.length) {
+        kpEstado = partida.kpEstado;
+      }
+      kpScore = { verdes: Number(partida.kpScore?.verdes) || 0, rojos: Number(partida.kpScore?.rojos) || 0 };
+    } catch (e) { /* si algo falla, se empieza de cero */ }
+  }
   // Página completa (no popup): renderiza el juego en su propia página
   const gamePage = document.getElementById('game-page');
   if (gamePage) {
@@ -197,14 +249,20 @@ function renderPantalla() {
   else if (s.tipo === 'completar') cuerpo = screenCompletar(s, est);
   else if (s.tipo === 'calculo') cuerpo = screenCalculo(s, est);
   else if (s.tipo === 'mapa') cuerpo = screenMapa(s, est);
+  else if (s.tipo === 'code') cuerpo = screenCode(s, est);
+  else if (s.tipo === 'code_explica') cuerpo = screenCodeExplica(s);
   else if (s.tipo === 'final') { cuerpo = screenFinal(s); if (!kpCelebrado) { kpCelebrado = true; if (window.PJProgreso) { PJProgreso.sumar(kpScore.verdes, kpScore.rojos); try { window.dispatchEvent(new CustomEvent('pj:progreso')); } catch (e) { /* ok */ } } lluviaConfetti(); if (window.pjSonido) pjSonido.victoria(); } }
   ocultarFeedback();
   destruirMapas();
+  // Guardar la partida localmente (retomar más tarde)
+  guardarPartidaLocal();
   const total = pantallas.length;
   const pct = total > 1 ? Math.round((pantallaIdx / (total - 1)) * 100) : 0;
   let etiqueta;
   if (s.tipo === 'test') etiqueta = 'Pregunta ' + (s.pi + 1) + ' de ' + s.nPreg;
   else if (s.tipo === 'calculo') etiqueta = 'Cálculo ' + (s.si + 1) + ' de ' + s.n;
+  else if (s.tipo === 'code') etiqueta = 'Ejercicio ' + (s.ejercicio + 1) + ' de ' + s.total_ejercicios;
+  else if (s.tipo === 'code_explica') etiqueta = '¿Cómo se juega?';
   else if (s.tipo === 'final') etiqueta = '¡Resultado!';
   else if (s.tipo === 'portada') etiqueta = 'Empieza';
   else etiqueta = 'Pantalla ' + (pantallaIdx + 1) + ' de ' + total;
@@ -231,6 +289,7 @@ function renderPantalla() {
   if (s.tipo === 'calculo') iniciarTimerCalculo();
   if (s.tipo === 'mapa') iniciarMapa(pantallaIdx);
   if (s.tipo === 'portada') cargarPortadaImg(pantallaIdx);
+  if (s.tipo === 'code') { kpCodeDibujarEscenario(); kpCodePintarPrograma(); }
 
   // Accesibilidad: exponer el texto de la pantalla para la lectura con audio
   document.dispatchEvent(new CustomEvent('junior:texto', { detail: textoPantallaWeb(s) }));
@@ -291,6 +350,8 @@ function textoPantallaWeb(s) {
   if (s.tipo === 'completar') return 'Completa las frases';
   if (s.tipo === 'calculo') return 'Calcula';
   if (s.tipo === 'mapa') return 'Localiza en el mapamundi: ' + (s.pide || '');
+  if (s.tipo === 'code') return 'Placeta Junior Code. Ejercicio ' + ((s.ejercicio || 0) + 1) + '. ' + (s.objetivo_texto || 'Lleva a Candela hasta la estrella.');
+  if (s.tipo === 'code_explica') return 'Placeta Junior Code. ' + (s.explicacion || 'Pulsa los bloques para programar a Candela.');
   if (s.tipo === 'final') return '¡Enhorabuena! Actividad completada.';
   return '';
 }
@@ -399,6 +460,9 @@ function screenTexto(s, est) {
 }
 
 function screenPortada(s) {
+  // Si hay una partida en curso guardada, ofrecer "Continuar"
+  const enCurso = window.PJPartidas && actividadActual && actividadActual.id
+    ? PJPartidas.estaEnCurso(actividadActual.id) : false;
   return `
     <div class="kp-screen">
       <div class="kp-cover-img" id="kp-portada-img"><span class="kp-cover-emoji">${emojiCat(s.cat)}</span></div>
@@ -410,9 +474,28 @@ function screenPortada(s) {
         <span class="kp-chip">⭐ ${esc(s.dif)}</span>
         <span class="kp-chip">⏱️ ${esc(s.tiempo)} min</span>
       </div>
-      <button type="button" class="kp-btn kp-start" onclick="pantallaNext()">🚀 ¡Empezar!</button>
-      <div class="kp-hint">👆 Pulsa «¡Empezar!» cuando estés listo.</div>
+      ${enCurso ? `<div class="kp-msg ok" style="margin-top:10px;">💾 Tienes una partida en curso. ¡Puedes continuar!</div>` : ''}
+      <button type="button" class="kp-btn kp-start" onclick="${enCurso ? 'continuarPartida()' : 'pantallaNext()'}">${enCurso ? '▶ Continuar' : '🚀 ¡Empezar!'}</button>
+      <div class="kp-hint">${enCurso ? 'Pulsa «Continuar» para seguir donde lo dejaste.' : '👆 Pulsa «¡Empezar!» cuando estés listo.'}</div>
     </div>`;
+}
+
+// Continúa la partida guardada (salta a la pantalla donde se quedó)
+function continuarPartida() {
+  if (window.pjSonido) pjSonido.hoja();
+  const s = pantallas[pantallaIdx];
+  if (s && s.tipo === 'portada') {
+    // Ya está restaurado pantallaIdx al abrir; si está en 0, ir a la guardada
+    const partida = (window.PJPartidas && actividadActual && actividadActual.id) ? PJPartidas.get(actividadActual.id) : null;
+    if (partida && partida.pantallaIdx && Number(partida.pantallaIdx) > 0) {
+      pantallaIdx = Math.min(Number(partida.pantallaIdx), pantallas.length - 1);
+    } else {
+      pantallaIdx = 1;
+    }
+  } else {
+    pantallaIdx = Math.min(pantallaIdx + 1, pantallas.length - 1);
+  }
+  renderPantalla();
 }
 
 // Carga la portada real (16:9) en la pantalla de inicio, en vez del emoji
@@ -961,13 +1044,370 @@ function kpMapa(idx, en) {
   });
 }
 
+// ── Placeta Junior Code: editor de bloques (integrado en el player) ──
+// Estética tipo Scratch: bloques con forma de pieza, colores por categoría.
+const CODE_BLOQUES_INFO = {
+  avanzar:    { cat: 'mov', nombre: 'AVANZAR', clase: 'b-move', color: '#3a7dff', params: [], desc: 'Avanza 1 casilla', emoji: '➡️' },
+  retroceder: { cat: 'mov', nombre: 'RETROCEDER', clase: 'b-move', color: '#3a7dff', params: [], desc: 'Retrocede 1 casilla', emoji: '⬅️' },
+  girar:      { cat: 'mov', nombre: 'GIRAR', clase: 'b-move', color: '#3a7dff', params: [{ k: 'dir', o: ['derecha', 'izquierda'] }], desc: 'Gira', emoji: '🔄' },
+  saltar:     { cat: 'mov', nombre: 'SALTAR', clase: 'b-move', color: '#3a7dff', params: [], desc: 'Salta 2 casillas', emoji: '⬆️' },
+  repetir:    { cat: 'ctrl', nombre: 'REPETIR', clase: 'b-control', color: '#ff9f1c', params: [{ k: 'veces', n: 1 }], anida: true, desc: 'Repite N veces', emoji: '🔁' },
+  si:         { cat: 'ctrl', nombre: 'SI', clase: 'b-control', color: '#ff9f1c', params: [{ k: 'condicion', o: ['obstáculo', 'moneda', 'libre'] }], anida: true, desc: 'Si se cumple…', emoji: '❓' },
+};
+
+// Pantalla de explicación de la actividad de código
+function screenCodeExplica(s) {
+  return `
+    <div class="kp-screen kp-code">
+      <div class="kp-cover cover-purple">💻</div>
+      <h3 class="kp-title">¡Vamos a programar!</h3>
+      <p class="kp-desc">${esc(s.explicacion)}</p>
+      <div class="code-tutorial">
+        <div class="code-tut-step"><span class="code-tut-n">1</span><span>Pulsa los <b>bloques</b> de colores para armar el programa de Candela 👧.</span></div>
+        <div class="code-tut-step"><span class="code-tut-n">2</span><span>Pulsa <b>▶ Ejecutar</b> para ver qué hace Candela.</span></div>
+        <div class="code-tut-step"><span class="code-tut-n">3</span><span>Llega a la <b>estrella ⭐</b> para superar el reto.</span></div>
+      </div>
+      <button type="button" class="kp-btn kp-start" onclick="pantallaNext()">🚀 ¡A jugar!</button>
+      <div class="kp-hint">Cada ejercicio es un poco más difícil. ¡Tú puedes!</div>
+    </div>`;
+}
+
+function screenCode(s, est) {
+  const esc = s.escenario || {};
+  const ini = s.inicio || {};
+  const obj = s.objetivo || {};
+  const pistas = s.pistas || [];
+  const total = s.total_ejercicios || 1;
+  const actual = (s.ejercicio || 0) + 1;
+  return `
+    <div class="kp-screen kp-code">
+      <div class="code-topline">
+        <span class="code-pill code-pill-prog">Ejercicio ${actual} / ${total}</span>
+        <span class="code-pill code-pill-tit">${esc(s.titulo || '')}</span>
+      </div>
+      ${s.explicacion ? `<div class="code-explica">💡 ${esc(s.explicacion)}</div>` : ''}
+      <div class="kp-qt" style="margin-bottom:4px;">${esc(s.objetivo_texto)}</div>
+      <div class="code-scenario-wrap">
+        <svg id="kp-code-escenario" class="code-scenario" viewBox="0 0 600 380"></svg>
+      </div>
+      <div class="code-chips">
+        <span class="kp-chip chip-blue">🎯 ${obj.posicion ? obj.posicion.x + ',' + obj.posicion.y : '—'}</span>
+        ${obj.monedas ? `<span class="kp-chip chip-green">🪙 ${obj.monedas}</span>` : ''}
+        ${obj.max_pasos ? `<span class="kp-chip chip-orange">⏱ ${obj.max_pasos} pasos</span>` : ''}
+      </div>
+      <div class="code-palette" id="kp-code-paleta">
+        ${s.permitidos.map(op => { const b = CODE_BLOQUES_INFO[op]; if (!b) return ''; return `<button type="button" class="code-block scratch-block" style="--blk:${b.color}" onclick="kpCodeAñadir('${op}')"><span class="blk-emoji">${b.emoji}</span><span class="blk-nombre">${esc(b.nombre)}</span></button>`; }).join('')}
+      </div>
+      <div class="code-programa scratch-programa" id="kp-code-programa"></div>
+      <div class="code-acciones">
+        <button type="button" class="kp-btn kp-start" id="kp-code-run" onclick="kpCodeEjecutar()">▶ Ejecutar</button>
+        <button type="button" class="kp-btn" style="background:var(--pj-orange)" onclick="kpCodeVaciar()">🗑 Vaciar</button>
+      </div>
+      <div class="code-pistas">
+        ${pistas.length ? `<details><summary>💡 Pistas</summary><ul>${pistas.map(p => `<li>${esc(p)}</li>`).join('')}</ul></details>` : ''}
+      </div>
+      <div class="kp-hint">👆 Pulsa los bloques para apilarlos y luego ▶ Ejecutar. Lleva a Candela 👧 hasta la estrella ⭐.</div>
+    </div>`;
+}
+
+// Dibuja el escenario de code en el SVG del player
+function kpCodeDibujarEscenario() {
+  const s = pantallas[pantallaIdx];
+  if (!s || s.tipo !== 'code') return;
+  const esc = s.escenario || {};
+  const ini = s.inicio || {};
+  const obj = s.objetivo || {};
+  const est = kpEstado[pantallaIdx] || {};
+  const svg = document.getElementById('kp-code-escenario');
+  if (!svg) return;
+  const W = 600, H = 380;
+  const ancho = esc.ancho || 6, alto = esc.alto || 6;
+  const cell = Math.min((W - 40) / ancho, (H - 40) / alto);
+  const ox = (W - cell * ancho) / 2, oy = (H - cell * alto) / 2;
+  let html = `<rect x="0" y="0" width="${W}" height="${H}" fill="#eef0fa" rx="12"/>`;
+  for (let r = 0; r < alto; r++) for (let c = 0; c < ancho; c++) {
+    html += `<rect x="${ox + c * cell}" y="${oy + r * cell}" width="${cell - 2}" height="${cell - 2}" rx="6" fill="#ffffff" stroke="#d6d9ea" stroke-width="1"/>`;
+  }
+  (esc.obstaculos || []).forEach(o => {
+    html += `<rect x="${ox + o.x * cell}" y="${oy + o.y * cell}" width="${cell - 2}" height="${cell - 2}" rx="6" fill="#4a1a1a" stroke="#7a3030"/>`;
+    html += `<text x="${ox + o.x * cell + cell / 2}" y="${oy + o.y * cell + cell / 2 + 6}" text-anchor="middle" font-size="18">🚧</text>`;
+  });
+  (esc.monedas || []).forEach(m => {
+    html += `<text x="${ox + m.x * cell + cell / 2}" y="${oy + m.y * cell + cell / 2 + 6}" text-anchor="middle" font-size="16">🪙</text>`;
+  });
+  if (obj.posicion) {
+    const px = obj.posicion.x, py = obj.posicion.y;
+    html += `<circle cx="${ox + px * cell + cell / 2}" cy="${oy + py * cell + cell / 2}" r="${cell * 0.42}" fill="#ffd166" opacity="0.35"/>`;
+    html += `<text x="${ox + px * cell + cell / 2}" y="${oy + py * cell + cell / 2 + 6}" text-anchor="middle" font-size="22">⭐</text>`;
+  }
+  // Posición final (resultado) o inicio
+  const res = est.resultado;
+  const px = res ? res.posicion_final.x : (ini.x ?? 0);
+  const py = res ? res.posicion_final.y : (ini.y ?? 0);
+  const fill = res ? (est.superado ? '#2ecc71' : '#ff5a5a') : '#3a7dff';
+  html += `<circle cx="${ox + px * cell + cell / 2}" cy="${oy + py * cell + cell / 2}" r="${cell * 0.34}" fill="${fill}"/>`;
+  html += `<text x="${ox + px * cell + cell / 2}" y="${oy + py * cell + cell / 2 + 5}" text-anchor="middle" font-size="14">👧</text>`;
+  // Flecha de dirección (solo si no hay resultado aún)
+  if (!res) {
+    const dirs = { derecha: 0, abajo: 90, izquierda: 180, arriba: 270 };
+    const ang = dirs[ini.direccion] ?? 0;
+    html += `<g transform="translate(${ox + px * cell + cell / 2}, ${oy + py * cell + cell / 2 + 12}) rotate(${ang})"><path d="M-6,0 L6,0 M2,-4 L6,0 L2,4" stroke="#1a2b6b" stroke-width="2" fill="none"/></g>`;
+  }
+  svg.innerHTML = html;
+}
+
+// Pinta el programa con forma de pila tipo Scratch (los bloques se apilan)
+function kpCodePintarPrograma() {
+  const s = pantallas[pantallaIdx];
+  if (!s || s.tipo !== 'code') return;
+  const est = kpEstado[pantallaIdx] || {};
+  const cont = document.getElementById('kp-code-programa');
+  if (!cont) return;
+  const programa = est.programa || [];
+  const abierto = est.contenedorAbierto;
+  cont.innerHTML = '';
+  if (!programa.length) {
+    cont.innerHTML = '<div class="code-vacio">👉 Pulsa los bloques para apilarlos aquí</div>';
+  }
+  function dibujarBloque(item, idx, profundidad, esContenedorAbierto) {
+    const b = CODE_BLOQUES_INFO[item.op] || { nombre: item.op, clase: 'b-move', color: '#3a7dff', params: [] };
+    const color = b.color || '#3a7dff';
+    const wrap = document.createElement('div');
+    wrap.className = 'scratch-item-wrap' + (esContenedorAbierto ? ' abierto' : '');
+    wrap.style.marginLeft = (profundidad * 26) + 'px';
+    const row = document.createElement('div');
+    row.className = 'scratch-block-row';
+    row.style.setProperty('--blk', color);
+    // Emoji + nombre
+    const etiq = document.createElement('span');
+    etiq.className = 'blk-etiqueta';
+    etiq.innerHTML = `${b.emoji || ''} ${esc(b.nombre)}`;
+    row.appendChild(etiq);
+    // Parámetros (select / input) con estilo Scratch
+    (b.params || []).forEach(p => {
+      if (p.o) {
+        const sel = document.createElement('select');
+        p.o.forEach(o => { const op = document.createElement('option'); op.value = o; op.textContent = o; sel.appendChild(op); });
+        sel.value = item[p.k] != null ? item[p.k] : p.o[0];
+        sel.onchange = () => { item[p.k] = sel.value; kpCodeGuardarPrograma(); kpCodePintarPrograma(); };
+        row.appendChild(sel);
+      } else if (p.n) {
+        const inp = document.createElement('input'); inp.type = 'number'; inp.min = 1; inp.max = 50;
+        inp.value = item[p.k] != null ? item[p.k] : 1;
+        inp.style.width = '46px'; inp.onchange = () => { item[p.k] = parseInt(inp.value, 10) || 1; kpCodeGuardarPrograma(); };
+        row.appendChild(inp);
+      }
+    });
+    // Botón cerrar contenedor (solo para repetir/si)
+    if (item.bloques !== undefined) {
+      const cerrar = document.createElement('button');
+      cerrar.className = 'code-cerrar';
+      cerrar.textContent = esContenedorAbierto ? '✓ cerrar' : 'abrir';
+      cerrar.onclick = () => {
+        est.contenedorAbierto = esContenedorAbierto ? null : idx;
+        kpCodePintarPrograma();
+      };
+      row.appendChild(cerrar);
+    }
+    const del = document.createElement('button');
+    del.className = 'code-del'; del.textContent = '✕';
+    del.onclick = () => {
+      programa.splice(idx, 1);
+      if (est.contenedorAbierto === idx) est.contenedorAbierto = null;
+      else if (est.contenedorAbierto !== null && est.contenedorAbierto > idx) est.contenedorAbierto--;
+      kpCodeGuardarPrograma(); kpCodePintarPrograma(); kpCodeDibujarEscenario();
+    };
+    row.appendChild(del);
+    wrap.appendChild(row);
+    // Sub-bloques (contenedor REPETIR/SI): se muestran indentados, tipo Scratch
+    if (item.bloques !== undefined) {
+      const sub = document.createElement('div');
+      sub.className = 'scratch-sub';
+      (item.bloques || []).forEach((sb, si) => dibujarBloque(sub, sb, si, profundidad + 1, false));
+      wrap.appendChild(sub);
+    }
+    cont.appendChild(wrap);
+  }
+  programa.forEach((item, idx) => dibujarBloque(programa, item, idx, 0, abierto === idx));
+  const run = document.getElementById('kp-code-run');
+  if (run) run.disabled = !programa.length;
+}
+
+// Añade un bloque al programa; si hay un contenedor (repetir/si) abierto,
+// el bloque de movimiento se apila DENTRO de él (estilo Scratch).
+function kpCodeAñadir(op) {
+  const s = pantallas[pantallaIdx];
+  if (!s || s.tipo !== 'code') return;
+  const est = kpEstado[pantallaIdx] || {};
+  if (!est.programa) est.programa = [];
+  const b = CODE_BLOQUES_INFO[op];
+  if (!b || !s.permitidos.includes(op)) return;
+  const item = { op };
+  if (b.params) b.params.forEach(p => { item[p.k] = p.n ? 1 : (p.o ? p.o[0] : ''); });
+  if (b.anida) item.bloques = [];
+  // Si hay un contenedor abierto y este bloque es de movimiento → dentro
+  if (est.contenedorAbierto != null) {
+    const cont = est.programa[est.contenedorAbierto];
+    if (cont && Array.isArray(cont.bloques)) {
+      if (op === 'repetir' || op === 'si') {
+        // Contenedores no se anidan: se añaden al nivel raíz y se abren
+        est.programa.push(item);
+        est.contenedorAbierto = est.programa.length - 1;
+      } else {
+        cont.bloques.push(item);
+      }
+      kpCodeGuardarPrograma(); kpCodePintarPrograma();
+      return;
+    }
+  }
+  est.programa.push(item);
+  if (op === 'repetir' || op === 'si') est.contenedorAbierto = est.programa.length - 1;
+  kpCodeGuardarPrograma();
+  kpCodePintarPrograma();
+}
+
+function kpCodeGuardarPrograma() {
+  const s = pantallas[pantallaIdx];
+  if (!s || s.tipo !== 'code') return;
+  const est = kpEstado[pantallaIdx] || {};
+  est.resultado = null; est.superado = false;
+  guardarPartidaLocal();
+  kpCodeDibujarEscenario();
+}
+
+function kpCodeVaciar() {
+  const s = pantallas[pantallaIdx];
+  if (!s || s.tipo !== 'code') return;
+  const est = kpEstado[pantallaIdx] || {};
+  est.programa = []; est.resultado = null; est.superado = false;
+  kpCodePintarPrograma(); kpCodeDibujarEscenario();
+  guardarPartidaLocal();
+}
+
+function kpCodeSerializar(prog) {
+  return (prog || []).map(item => {
+    const b = { op: item.op };
+    if (item.veces != null) b.veces = item.veces;
+    if (item.dir) b.dir = item.dir;
+    if (item.condicion) b.condicion = item.condicion;
+    if (item.bloques !== undefined) b.bloques = kpCodeSerializar(item.bloques);
+    return b;
+  });
+}
+
+// Ejecuta el programa con el motor local (igual que las demás actividades)
+async function kpCodeEjecutar() {
+  const s = pantallas[pantallaIdx];
+  if (!s || s.tipo !== 'code') return;
+  const est = kpEstado[pantallaIdx] || {};
+  const programa = est.programa || [];
+  if (!programa.length) return;
+  const run = document.getElementById('kp-code-run');
+  if (run) run.disabled = true;
+  if (!window.PJCode) { kpCodeMostrarMsg('El motor de código no está cargado.', false); if (run) run.disabled = false; return; }
+
+  // 1) Evaluación LOCAL inmediata (funciona sin red ni DIP)
+  const resultado = PJCode.ejecutarCode(s.escenario, s.inicio, kpCodeSerializar(programa), { maxPasos: (s.max_bloques || 10) * 20 });
+  const evalRes = PJCode.evaluarCode(s.escenario, s.inicio, s.objetivo, kpCodeSerializar(programa), resultado);
+  est.resultado = resultado;
+  est.superado = evalRes.superado;
+  kpCodeDibujarEscenario();
+
+  if (evalRes.superado) {
+    kpScore.verdes++;
+    if (window.pjSonido) pjSonido.exito();
+    const esUltimo = s.ejercicio >= (s.total_ejercicios || 1) - 1;
+    kpCodeMostrarMsg(esUltimo ? '🎉 ¡Actividad completada! +1 punto verde' : `🎉 ¡Ejercicio ${(s.ejercicio || 0) + 1} superado! Sigue al siguiente.`, true);
+    // Guarda el progreso (local); solo se marca completada al superar el último
+    if (actividadActual && actividadActual.id && window.PJPartidas) {
+      if (esUltimo) {
+        PJPartidas.completar(actividadActual.id, { verdes: kpScore.verdes, rojos: kpScore.rojos });
+      } else {
+        guardarPartidaLocal();
+      }
+    }
+    // Guardar también en el servidor si hay DIP (best effort, no bloquea)
+    guardarCodeEnServidor(s, programa, evalRes).catch(() => {});
+    setTimeout(() => { if (pantallaIdx < pantallas.length - 1) { pantallaIdx++; renderPantalla(); } }, 1100);
+  } else {
+    kpScore.rojos++;
+    if (window.pjSonido) pjSonido.error();
+    const primerFallo = (evalRes.fallos && evalRes.fallos[0]) || 'No superado. Inténtalo de nuevo.';
+    kpCodeMostrarMsg('💪 ' + primerFallo, false);
+    guardarPartidaLocal();
+  }
+  if (run) run.disabled = false;
+}
+
+// Muestra un mensaje en la pantalla de code
+function kpCodeMostrarMsg(texto, ok) {
+  const s = pantallas[pantallaIdx];
+  if (!s || s.tipo !== 'code') return;
+  let msg = document.getElementById('kp-code-msg');
+  if (!msg) {
+    msg = document.createElement('div');
+    msg.id = 'kp-code-msg';
+    msg.className = 'kp-msg';
+    const acciones = document.querySelector('.code-acciones');
+    if (acciones) acciones.after(msg);
+  }
+  msg.className = 'kp-msg ' + (ok ? 'ok' : 'bad');
+  msg.textContent = texto;
+}
+
+// Envía el resultado al servidor con el DIP si está disponible (opcional)
+async function guardarCodeEnServidor(s, programa, evalRes) {
+  try {
+    let dip = '';
+    try { dip = localStorage.getItem('pj-dip') || ''; } catch (e) { /* ok */ }
+    if (!dip || !actividadActual || !actividadActual.id) return;
+    const r = await fetch(`${API_BASE}/code/evaluar`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dip, actividad_id: actividadActual.id, ejercicio: s.ejercicio || 0, programa: kpCodeSerializar(programa) })
+    }).then(r2 => r2.json()).catch(() => null);
+    if (r && r.success) {
+      // Si el servidor otorgó recompensa, lo reflejamos en el mensaje
+      if (r.placetas_ganadas > 0) {
+        kpCodeMostrarMsg(`🎉 ¡Actividad completada! +${r.placetas_ganadas} Pz`, true);
+      }
+    }
+  } catch (e) { /* silencioso: el progreso ya quedó en local */ }
+}
+
 function pantallaNext() { if (pantallaIdx < pantallas.length - 1) { pantallaIdx++; if (window.pjSonido) pjSonido.hoja(); renderPantalla(); } }
 function pantallaPrev() { if (pantallaIdx > 0) { pantallaIdx--; if (window.pjSonido) pjSonido.hoja(); renderPantalla(); } }
 
-// Cierra el reproductor pidiendo confirmación si hay partida en curso
+// Guarda la partida actual en localStorage (para retomarla después)
+function guardarPartidaLocal() {
+  try {
+    if (!window.PJPartidas || !actividadActual || !actividadActual.id) return;
+    const s = pantallas[pantallaIdx];
+    // En la pantalla final, la actividad se considera completada
+    if (s && s.tipo === 'final') {
+      PJPartidas.completar(actividadActual.id, { verdes: kpScore.verdes, rojos: kpScore.rojos });
+      return;
+    }
+    // En la portada no hay progreso real todavía
+    if (s && s.tipo === 'portada') return;
+    // Serializa el programa de code si la pantalla actual lo tiene
+    let code = null;
+    if (s && s.tipo === 'code') {
+      const est = kpEstado[pantallaIdx] || {};
+      code = { programa: est.programa || [] };
+    }
+    PJPartidas.set(actividadActual.id, {
+      pantallaIdx,
+      kpEstado: JSON.parse(JSON.stringify(kpEstado)),
+      kpScore: { ...kpScore },
+      code
+    });
+    try { window.dispatchEvent(new CustomEvent('pj:partida')); } catch (e) { /* ok */ }
+  } catch (e) { /* sin almacenamiento */ }
+}
+
+// Cierra el reproductor (el progreso se guarda localmente, se puede retomar)
 function cerrarPlayer() {
   if (window.pjSonido) pjSonido.clic();
-  const enCurso = pantallaIdx > 0 && pantallaIdx < pantallas.length - 1;
   const cerrar = () => {
     ocultarFeedback();
     document.body.classList.remove('mostrando-juego');
@@ -980,11 +1420,9 @@ function cerrarPlayer() {
     }
     window.__pjDesdeDetalle = false;
   };
-  if (enCurso) {
-    juniorConfirmar('¿Seguro que quieres salir? Perderás el progreso de esta partida.', cerrar);
-  } else {
-    cerrar();
-  }
+  // El progreso ya se guardó en cada pantalla: se puede retomar más tarde
+  guardarPartidaLocal();
+  juniorConfirmar('¿Quieres salir? Tu progreso se guarda en este dispositivo y puedes continuar cuando quieras.', cerrar);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
