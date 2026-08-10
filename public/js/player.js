@@ -186,6 +186,7 @@ function generarOpcionesCalculo(correcta) {
 function renderPantalla() {
   const s = pantallas[pantallaIdx];
   const est = kpEstado[pantallaIdx] || {};
+  const progNivel = (window.PJProgreso ? PJProgreso.estado().nivel : 1);
   let cuerpo = '';
   if (s.tipo === 'portada') cuerpo = screenPortada(s);
   else if (s.tipo === 'texto') cuerpo = screenTexto(s, est);
@@ -196,7 +197,7 @@ function renderPantalla() {
   else if (s.tipo === 'completar') cuerpo = screenCompletar(s, est);
   else if (s.tipo === 'calculo') cuerpo = screenCalculo(s, est);
   else if (s.tipo === 'mapa') cuerpo = screenMapa(s, est);
-  else if (s.tipo === 'final') { cuerpo = screenFinal(s); if (!kpCelebrado) { kpCelebrado = true; lluviaConfetti(); if (window.pjSonido) pjSonido.victoria(); } }
+  else if (s.tipo === 'final') { cuerpo = screenFinal(s); if (!kpCelebrado) { kpCelebrado = true; if (window.PJProgreso) { PJProgreso.sumar(kpScore.verdes, kpScore.rojos); try { window.dispatchEvent(new CustomEvent('pj:progreso')); } catch (e) { /* ok */ } } lluviaConfetti(); if (window.pjSonido) pjSonido.victoria(); } }
   ocultarFeedback();
   destruirMapas();
   const total = pantallas.length;
@@ -215,6 +216,7 @@ function renderPantalla() {
         <div class="kp-progress-track"><div class="kp-progress-bar" style="width:${pct}%"></div></div>
       </div>
       <div class="kp-score-chips" aria-label="Resultado">
+        <span class="kp-chip-level" title="Tu nivel">🏆 Nv ${progNivel}</span>
         <span class="kp-chip-score ok"><span class="material-symbols-rounded">check_circle</span>${kpScore.verdes}</span>
         <span class="kp-chip-score bad"><span class="material-symbols-rounded">cancel</span>${kpScore.rojos}</span>
       </div>
@@ -633,6 +635,13 @@ function pintarSel(idx) {
   });
 }
 function screenFinal(s) {
+  const prog = (window.PJProgreso && PJProgreso.estado()) || { nivel: 1, enNivel: 0, verdes: 0, pct: 0 };
+  const nivelHtml = `
+    <div class="kp-level">
+      <div class="kp-level-head"><span class="material-symbols-rounded">emoji_events</span> Nivel ${prog.nivel}</div>
+      <div class="kp-level-track"><div class="kp-level-bar" style="width:${Math.round(prog.pct * 100)}%"></div></div>
+      <div class="kp-level-sub">${prog.enNivel} / 50 para el siguiente nivel · ${prog.verdes} puntos verdes en total</div>
+    </div>`;
   return `
     <div class="kp-screen">
       <div class="kp-cover cover-${chipColor(s.cat)}">🎉</div>
@@ -642,6 +651,7 @@ function screenFinal(s) {
         <div class="kp-score-item verdes"><span class="kp-score-num">🟢</span>${kpScore.verdes} <small>puntos verdes</small></div>
         <div class="kp-score-item rojos"><span class="kp-score-num">🔴</span>${kpScore.rojos} <small>puntos rojos</small></div>
       </div>
+      ${nivelHtml}
       <div class="kp-save">
         <h4>💾 Guardar mi progreso</h4>
         <p class="kp-save-sub">Pon tu DIP de Placeta Junior para sumar tus puntos verdes y rojos.</p>

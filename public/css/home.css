@@ -199,6 +199,27 @@ body.pj-home {
 .pj-home .cta-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 6px; }
 .pj-home .cta-row .btn { font-size: 17px; padding: 14px 26px; }
 
+/* ── Insignia de nivel (progreso local, como la app) ── */
+.pj-home .nivel-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  padding: 8px 14px;
+  background: #fff;
+  border: 2px solid var(--pj-purple);
+  border-radius: var(--r-pill);
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--pj-purple);
+}
+.pj-home .nivel-badge[hidden] { display: none; }
+.pj-home .nivel-badge .nb-ico { color: var(--pj-orange); font-size: 18px; }
+.pj-home .nivel-badge .nb-nivel { font-family: var(--font-head); text-transform: uppercase; letter-spacing: .5px; }
+.pj-home .nivel-badge .nb-bar { width: 64px; height: 8px; border-radius: 999px; background: #E5E7EB; overflow: hidden; }
+.pj-home .nivel-badge .nb-fill { display: block; height: 100%; background: var(--pj-green); border-radius: 999px; }
+.pj-home .nivel-badge .nb-sub { font-size: 11px; color: var(--pj-muted); }
+
 /* ── Secciones ── */
 .pj-home .section { max-width: 1200px; margin: 0 auto; padding: 30px 20px 10px; }
 .pj-home .section-head { margin-bottom: 8px; }

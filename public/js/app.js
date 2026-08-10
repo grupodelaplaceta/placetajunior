@@ -548,3 +548,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+// ═══════════════════════════════════════════════════════════════════
+// Insignia de nivel en la portada (progreso local, como la app)
+// ═══════════════════════════════════════════════════════════════════
+function actualizarNivelBadge() {
+  const el = document.getElementById('nivel-badge');
+  if (!el || !window.PJProgreso) return;
+  const p = PJProgreso.estado();
+  el.hidden = p.verdes === 0;
+  el.innerHTML = `<span class="nb-ico material-symbols-rounded">emoji_events</span>
+    <span class="nb-nivel">Nivel ${p.nivel}</span>
+    <span class="nb-bar"><span class="nb-fill" style="width:${Math.round(p.pct * 100)}%"></span></span>
+    <span class="nb-sub">${p.enNivel}/50</span>`;
+}
+if (document.readyState !== 'loading') actualizarNivelBadge();
+else document.addEventListener('DOMContentLoaded', actualizarNivelBadge);
+window.addEventListener('pj:progreso', actualizarNivelBadge);

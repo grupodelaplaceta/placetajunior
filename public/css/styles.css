@@ -1354,3 +1354,43 @@ footer p { color: rgba(255, 255, 255, .75); }
 }
 .navbar nav a:hover::after,
 .navbar nav a.active::after { transform: scaleX(1); }
+
+/* ── Niveles por puntos (como la app: Nivel = verdes/50 + 1) ─────── */
+.kp-chip-level {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--pj-purple);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  padding: 5px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.kp-level {
+  max-width: 420px;
+  margin: 14px auto 6px;
+  background: #fff;
+  border: 2px solid var(--pj-line, #ECEEF3);
+  border-radius: 16px;
+  padding: 14px 16px;
+  text-align: center;
+}
+.kp-level-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: 'HandlyCasual', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--pj-purple);
+}
+.kp-level-head .material-symbols-rounded { color: var(--pj-orange); font-size: 24px; }
+.kp-level-track { height: 12px; border-radius: 999px; background: #E5E7EB; overflow: hidden; margin: 10px 0 6px; }
+.kp-level-bar { height: 100%; border-radius: 999px; background: var(--pj-green); transition: width .6s ease; }
+.kp-level-sub { font-size: 12px; font-weight: 600; color: #6B7280; }
