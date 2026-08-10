@@ -81,8 +81,38 @@
     error: function () { reproducir('error'); },
     victoria: function () { reproducir('victoria'); },
     letra: function () { reproducir('letra'); },
-    hoja: function () { reproducir('hoja'); }
+    hoja: function () { reproducir('hoja'); },
+
+    // ── Sonidos sintetizados (sin archivos) para el editor de código ──
+    // Pequeños "ticks" con osciladores: distintos para cada acción.
+    paso: function () { tono(660, 0.07, 'square', 0.25); },          // avanzar/retroceder
+    saltar: function () { tono(520, 0.06, 'square', 0.25); tono(780, 0.06, 'square', 0.25, 0.07); }, // salto (dos pasos)
+    girar: function () { tono(440, 0.09, 'triangle', 0.3); },        // girar
+    moneda: function () { tono(880, 0.05, 'sine', 0.3); tono(1320, 0.08, 'sine', 0.3, 0.05); },      // recoger moneda (sube)
+    colocarBloque: function () { tono(740, 0.05, 'triangle', 0.22); },  // añadir bloque
+    quitarBloque: function () { tono(300, 0.06, 'triangle', 0.22); },   // borrar bloque
+    soltar: function () { tono(500, 0.08, 'sine', 0.3); },              // soltar con drag&drop
+    golpe: function () { tono(160, 0.12, 'sawtooth', 0.3); }            // chocar / error de ejecución
   };
+
+  // Genera un tono corto (oscillator + gain) sin depender de archivos
+  function tono(freq, dur, tipo, vol, delay) {
+    if (muted) return;
+    var c = ac();
+    if (!c || !master) return;
+    try {
+      var t0 = c.currentTime + (delay || 0);
+      var osc = c.createOscillator();
+      var g = c.createGain();
+      osc.type = tipo || 'sine';
+      osc.frequency.setValueAtTime(freq, t0);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(vol || 0.3, t0 + 0.008);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      osc.connect(g); g.connect(master);
+      osc.start(t0); osc.stop(t0 + dur + 0.03);
+    } catch (e) { /* ok */ }
+  }
 
   // Primer gesto del usuario: crea el contexto y carga todos los sonidos
   function primerGesto() { ac(); NOMBRES.forEach(cargar); }

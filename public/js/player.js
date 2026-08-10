@@ -1063,9 +1063,9 @@ function screenCodeExplica(s) {
       <h3 class="kp-title">¡Vamos a programar!</h3>
       <p class="kp-desc">${esc(s.explicacion)}</p>
       <div class="code-tutorial">
-        <div class="code-tut-step"><span class="code-tut-n">1</span><span>Pulsa los <b>botones redondos</b> con flechas para ir añadiendo pasos a tu programa.</span></div>
-        <div class="code-tut-step"><span class="code-tut-n">2</span><span>Tu programa se monta solo, en <b>una línea</b> como un código de verdad. Puedes quitar pasos con <b>✕</b>.</span></div>
-        <div class="code-tut-step"><span class="code-tut-n">3</span><span>Pulsa el gran botón <b>▶ Ejecutar</b> para ver a Candela 👧 moverse.</span></div>
+        <div class="code-tut-step"><span class="code-tut-n">1</span><span>Toca las <b>flechas redondas</b> o <b>arrástralas</b> hasta tu programa para añadir pasos.</span></div>
+        <div class="code-tut-step"><span class="code-tut-n">2</span><span>El programa se monta en <b>una línea</b> como un código de verdad. Quita pasos con <b>✕</b>.</span></div>
+        <div class="code-tut-step"><span class="code-tut-n">3</span><span>Pulsa <b>▶ Ejecutar</b>: verás a Candela 👧 moverse <b>paso a paso</b> con sus sonidos.</span></div>
         <div class="code-tut-step"><span class="code-tut-n">4</span><span>Llega a la <b>estrella ⭐</b> para superar el reto.</span></div>
       </div>
       <button type="button" class="kp-btn kp-start" onclick="pantallaNext()">🚀 ¡A jugar!</button>
@@ -1097,7 +1097,10 @@ function screenCode(s, est) {
         ${obj.max_pasos ? `<span class="kp-chip chip-orange">⏱ ${obj.max_pasos} pasos</span>` : ''}
       </div>
       <div class="code-palette" id="kp-code-paleta">
-        ${s.permitidos.map(op => { const b = CODE_BLOQUES_INFO[op]; if (!b) return ''; return `<button type="button" class="code-block cute-block" style="--blk:${b.color}" onclick="kpCodeAñadir('${op}')" title="${esc(b.desc)}"><span class="blk-emoji">${b.flecha}</span><span class="blk-nombre">${esc(b.nombre)}</span></button>`; }).join('')}
+        ${s.permitidos.map(op => { const b = CODE_BLOQUES_INFO[op]; if (!b) return ''; return `<button type="button" class="code-block cute-block" draggable="true" data-op="${op}" style="--blk:${b.color}" onclick="kpCodeAñadir('${op}')" title="${esc(b.desc)}"><span class="blk-emoji">${b.flecha}</span><span class="blk-nombre">${esc(b.nombre)}</span></button>`; }).join('')}
+        ${s.permitidos.includes('girar') ? `
+          <button type="button" class="code-block cute-block" draggable="true" data-op="girar" data-dir="derecha" style="--blk:#4c8dff" onclick="kpCodeAñadir('girar', {dir:'derecha'})" title="Gira a la derecha"><span class="blk-emoji">🔄</span><span class="blk-nombre">GIRAR →</span></button>
+          <button type="button" class="code-block cute-block" draggable="true" data-op="girar" data-dir="izquierda" style="--blk:#4c8dff" onclick="kpCodeAñadir('girar', {dir:'izquierda'})" title="Gira a la izquierda"><span class="blk-emoji">🔄</span><span class="blk-nombre">GIRAR ←</span></button>` : ''}
       </div>
       <div class="code-line-wrap">
         <div class="code-line-label">📝 Tu programa</div>
@@ -1184,21 +1187,36 @@ function kpCodePintarPrograma() {
     etiq.className = 'cute-chip-etiqueta';
     etiq.innerHTML = `${b.flecha || '➡️'} ${esc(b.nombre)}`;
     chip.appendChild(etiq);
-    // Parámetros (select / input) inline dentro del chip
-    (b.params || []).forEach(p => {
-      if (p.o) {
-        const sel = document.createElement('select');
-        p.o.forEach(o => { const op = document.createElement('option'); op.value = o; op.textContent = o; sel.appendChild(op); });
-        sel.value = item[p.k] != null ? item[p.k] : p.o[0];
-        sel.onchange = () => { item[p.k] = sel.value; kpCodeGuardarPrograma(); kpCodePintarPrograma(); };
-        chip.appendChild(sel);
-      } else if (p.n) {
-        const inp = document.createElement('input'); inp.type = 'number'; inp.min = 1; inp.max = 50;
-        inp.value = item[p.k] != null ? item[p.k] : 1;
-        inp.style.width = '42px'; inp.onchange = () => { item[p.k] = parseInt(inp.value, 10) || 1; kpCodeGuardarPrograma(); };
-        chip.appendChild(inp);
-      }
-    });
+    // Parámetros: para GIRAR mostramos un botón de dirección (→/←) alternable;
+    // para el resto, select/input inline dentro del chip.
+    if (b.op === 'girar') {
+      const dirBtn = document.createElement('button');
+      dirBtn.className = 'cute-dir';
+      const esIzq = String(item.dir || 'derecha').toLowerCase().startsWith('izq');
+      dirBtn.textContent = esIzq ? '←' : '→';
+      dirBtn.title = esIzq ? 'Gira a la izquierda' : 'Gira a la derecha';
+      dirBtn.onclick = () => {
+        item.dir = esIzq ? 'derecha' : 'izquierda';
+        if (window.pjSonido) pjSonido.girar();
+        kpCodeGuardarPrograma(); kpCodePintarPrograma();
+      };
+      chip.appendChild(dirBtn);
+    } else {
+      (b.params || []).forEach(p => {
+        if (p.o) {
+          const sel = document.createElement('select');
+          p.o.forEach(o => { const op = document.createElement('option'); op.value = o; op.textContent = o; sel.appendChild(op); });
+          sel.value = item[p.k] != null ? item[p.k] : p.o[0];
+          sel.onchange = () => { item[p.k] = sel.value; kpCodeGuardarPrograma(); kpCodePintarPrograma(); };
+          chip.appendChild(sel);
+        } else if (p.n) {
+          const inp = document.createElement('input'); inp.type = 'number'; inp.min = 1; inp.max = 50;
+          inp.value = item[p.k] != null ? item[p.k] : 1;
+          inp.style.width = '42px'; inp.onchange = () => { item[p.k] = parseInt(inp.value, 10) || 1; kpCodeGuardarPrograma(); };
+          chip.appendChild(inp);
+        }
+      });
+    }
     // Botón cerrar contenedor (solo para repetir/si)
     if (item.bloques !== undefined) {
       const cerrar = document.createElement('button');
@@ -1217,6 +1235,7 @@ function kpCodePintarPrograma() {
       programa.splice(idx, 1);
       if (est.contenedorAbierto === idx) est.contenedorAbierto = null;
       else if (est.contenedorAbierto !== null && est.contenedorAbierto > idx) est.contenedorAbierto--;
+      if (window.pjSonido) pjSonido.quitarBloque();
       kpCodeGuardarPrograma(); kpCodePintarPrograma(); kpCodeDibujarEscenario();
     };
     chip.appendChild(del);
@@ -1236,7 +1255,7 @@ function kpCodePintarPrograma() {
 
 // Añade un bloque al programa; si hay un contenedor (repetir/si) abierto,
 // el bloque de movimiento se mete DENTRO de él.
-function kpCodeAñadir(op) {
+function kpCodeAñadir(op, opts) {
   const s = pantallas[pantallaIdx];
   if (!s || s.tipo !== 'code') return;
   const est = kpEstado[pantallaIdx] || {};
@@ -1244,7 +1263,7 @@ function kpCodeAñadir(op) {
   const b = CODE_BLOQUES_INFO[op];
   if (!b || !s.permitidos.includes(op)) return;
   const item = { op };
-  if (b.params) b.params.forEach(p => { item[p.k] = p.n ? 1 : (p.o ? p.o[0] : ''); });
+  if (b.params) b.params.forEach(p => { item[p.k] = (opts && opts[p.k] != null) ? opts[p.k] : (p.n ? 1 : (p.o ? p.o[0] : '')); });
   if (b.anida) item.bloques = [];
   // Si hay un contenedor abierto y este bloque es de movimiento → dentro
   if (est.contenedorAbierto != null) {
@@ -1257,12 +1276,14 @@ function kpCodeAñadir(op) {
       } else {
         cont.bloques.push(item);
       }
+      if (window.pjSonido) pjSonido.colocarBloque();
       kpCodeGuardarPrograma(); kpCodePintarPrograma();
       return;
     }
   }
   est.programa.push(item);
   if (op === 'repetir' || op === 'si') est.contenedorAbierto = est.programa.length - 1;
+  if (window.pjSonido) pjSonido.colocarBloque();
   kpCodeGuardarPrograma();
   kpCodePintarPrograma();
 }
@@ -1281,6 +1302,7 @@ function kpCodeVaciar() {
   if (!s || s.tipo !== 'code') return;
   const est = kpEstado[pantallaIdx] || {};
   est.programa = []; est.resultado = null; est.superado = false;
+  if (window.pjSonido) pjSonido.quitarBloque();
   kpCodePintarPrograma(); kpCodeDibujarEscenario();
   guardarPartidaLocal();
 }
@@ -1296,7 +1318,7 @@ function kpCodeSerializar(prog) {
   });
 }
 
-// Ejecuta el programa con el motor local (igual que las demás actividades)
+// Ejecuta el programa y REPRODUCE la ejecución paso a paso (animación)
 async function kpCodeEjecutar() {
   const s = pantallas[pantallaIdx];
   if (!s || s.tipo !== 'code') return;
@@ -1307,11 +1329,28 @@ async function kpCodeEjecutar() {
   if (run) run.disabled = true;
   if (!window.PJCode) { kpCodeMostrarMsg('El motor de código no está cargado.', false); if (run) run.disabled = false; return; }
 
-  // 1) Evaluación LOCAL inmediata (funciona sin red ni DIP)
+  // 1) Evaluación LOCAL (funciona sin red ni DIP)
   const resultado = PJCode.ejecutarCode(s.escenario, s.inicio, kpCodeSerializar(programa), { maxPasos: (s.max_bloques || 10) * 20 });
   const evalRes = PJCode.evaluarCode(s.escenario, s.inicio, s.objetivo, kpCodeSerializar(programa), resultado);
   est.resultado = resultado;
   est.superado = evalRes.superado;
+
+  // 2) Reproducción paso a paso con sonidos distintos
+  const trazado = (resultado.trazado || []).filter(t => t.accion !== 'inicio');
+  const n = trazado.length;
+  for (let i = 0; i < n; i++) {
+    const t = trazado[i];
+    kpCodeDibujarPaso(t, i + 1, n, est.superado);
+    if (window.pjSonido) {
+      if (t.accion === 'girar') pjSonido.girar();
+      else if (t.accion === 'saltar') pjSonido.saltar();
+      else if (t.accion === 'error') pjSonido.golpe();
+      else if (t.moneda) pjSonido.moneda();
+      else pjSonido.paso();
+    }
+    await new Promise(res => setTimeout(res, 360));
+  }
+  // Estado final
   kpCodeDibujarEscenario();
 
   if (evalRes.superado) {
@@ -1329,7 +1368,7 @@ async function kpCodeEjecutar() {
     }
     // Guardar también en el servidor si hay DIP (best effort, no bloquea)
     guardarCodeEnServidor(s, programa, evalRes).catch(() => {});
-    setTimeout(() => { if (pantallaIdx < pantallas.length - 1) { pantallaIdx++; renderPantalla(); } }, 1100);
+    setTimeout(() => { if (pantallaIdx < pantallas.length - 1) { pantallaIdx++; renderPantalla(); } }, 1200);
   } else {
     kpScore.rojos++;
     if (window.pjSonido) pjSonido.error();
@@ -1338,6 +1377,30 @@ async function kpCodeEjecutar() {
     guardarPartidaLocal();
   }
   if (run) run.disabled = false;
+}
+
+// Dibuja a Candela en el paso indicado del trazado (animación por pasos)
+function kpCodeDibujarPaso(t, i, n, superado) {
+  const s = pantallas[pantallaIdx];
+  if (!s || s.tipo !== 'code') return;
+  const svg = document.getElementById('kp-code-escenario');
+  if (!svg) return;
+  const esc = s.escenario || {};
+  const W = 600, H = 380;
+  const ancho = esc.ancho || 6, alto = esc.alto || 6;
+  const cell = Math.min((W - 40) / ancho, (H - 40) / alto);
+  const ox = (W - cell * ancho) / 2, oy = (H - cell * alto) / 2;
+  const px = t.x, py = t.y;
+  // Marcador del paso actual
+  let html = `<text x="${W - 16}" y="20" text-anchor="end" font-size="15" font-weight="800" fill="#4E3B70">${i}/${n}</text>`;
+  const fill = t.accion === 'error' ? '#ff5a5a' : (superado ? '#2ecc71' : '#4c8dff');
+  html += `<circle cx="${ox + px * cell + cell / 2}" cy="${oy + py * cell + cell / 2}" r="${cell * 0.34}" fill="${fill}"/>`;
+  html += `<text x="${ox + px * cell + cell / 2}" y="${oy + py * cell + cell / 2 + 5}" text-anchor="middle" font-size="14">👧</text>`;
+  // Flecha según la dirección actual
+  const dirs = { 0: 0, 1: 90, 2: 180, 3: 270 };
+  const ang = dirs[t.dir] ?? 0;
+  html += `<g transform="translate(${ox + px * cell + cell / 2}, ${oy + py * cell + cell / 2 + 12}) rotate(${ang})"><path d="M-6,0 L6,0 M2,-4 L6,0 L2,4" stroke="#fff" stroke-width="2" fill="none"/></g>`;
+  svg.innerHTML = html;
 }
 
 // Muestra un mensaje en la pantalla de code
@@ -1437,6 +1500,43 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Escape') {
       const modal = document.getElementById('player-modal');
       if (modal && !modal.classList.contains('hidden')) cerrarPlayer();
+    }
+  });
+
+  // Drag & drop: arrastrar bloques de la paleta al área de programa
+  document.addEventListener('dragstart', (e) => {
+    const btn = e.target && e.target.closest ? e.target.closest('.cute-block[data-op]') : null;
+    if (btn) {
+      const dir = btn.dataset.dir || '';
+      e.dataTransfer.setData('text/plain', btn.dataset.op);
+      e.dataTransfer.setData('text/dir', dir);
+      if (e.dataTransfer.setDragImage) {
+        try { e.dataTransfer.setDragImage(btn, 20, 20); } catch (err) { /* ok */ }
+      }
+    }
+  });
+  document.addEventListener('dragover', (e) => {
+    const prog = e.target && e.target.closest ? e.target.closest('#kp-code-programa') : null;
+    if (prog) {
+      e.preventDefault();
+      prog.classList.add('drag-over');
+    }
+  });
+  document.addEventListener('dragleave', (e) => {
+    const prog = e.target && e.target.closest ? e.target.closest('#kp-code-programa') : null;
+    if (prog) prog.classList.remove('drag-over');
+  });
+  document.addEventListener('drop', (e) => {
+    const prog = e.target && e.target.closest ? e.target.closest('#kp-code-programa') : null;
+    if (!prog) return;
+    e.preventDefault();
+    prog.classList.remove('drag-over');
+    const op = e.dataTransfer.getData('text/plain');
+    const dir = e.dataTransfer.getData('text/dir');
+    if (op && typeof kpCodeAñadir === 'function') {
+      if (op === 'girar' && dir) kpCodeAñadir('girar', { dir });
+      else kpCodeAñadir(op);
+      if (window.pjSonido) pjSonido.soltar();
     }
   });
 });

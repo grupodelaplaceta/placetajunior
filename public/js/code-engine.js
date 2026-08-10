@@ -69,9 +69,15 @@ window.PJCode = (function () {
     const error = { tipo: null, mensaje: '' };
     let posicionFinal = { x, y };
     let maxBloquesUsados = 0;
+    // Trazado paso a paso: permite animar la ejecución (reproducción)
+    const trazado = [{ accion: 'inicio', x, y, dir, moneda: false }];
 
     const dentro = (cx, cy) => cx >= 0 && cx < ancho && cy >= 0 && cy < alto;
     const hayObstaculo = (cx, cy) => obstaculos.has(`${cx},${cy}`);
+
+    function registrar(accion, extra) {
+      trazado.push({ accion, x, y, dir, ...(extra || {}) });
+    }
 
     function ejecutarBloque(b, profundidad) {
       if (fin || pasos >= maxPasos) return;
@@ -83,33 +89,37 @@ window.PJCode = (function () {
           pasos++;
           const nx = x + DELTAS[dir].x;
           const ny = y + DELTAS[dir].y;
-          if (!dentro(nx, ny)) { fin = true; error.tipo = 'fuera'; error.mensaje = 'Candela se salió del tablero.'; return; }
-          if (hayObstaculo(nx, ny)) { fin = true; error.tipo = 'obstaculo'; error.mensaje = 'Candela chocó con un obstáculo.'; return; }
+          if (!dentro(nx, ny)) { fin = true; error.tipo = 'fuera'; error.mensaje = 'Candela se salió del tablero.'; registrar('error', { tipo: 'fuera' }); return; }
+          if (hayObstaculo(nx, ny)) { fin = true; error.tipo = 'obstaculo'; error.mensaje = 'Candela chocó con un obstáculo.'; registrar('error', { tipo: 'obstaculo' }); return; }
           x = nx; y = ny;
           visitadas.add(`${x},${y}`);
           posicionFinal = { x, y };
-          if (monedas.has(`${x},${y}`) && !monedasRecogidas.includes(`${x},${y}`)) monedasRecogidas.push(`${x},${y}`);
+          const coge = monedas.has(`${x},${y}`) && !monedasRecogidas.includes(`${x},${y}`);
+          if (coge) monedasRecogidas.push(`${x},${y}`);
+          registrar('avanzar', { moneda: coge });
           break;
         }
         case 'retroceder': {
           pasos++;
           const nx = x - DELTAS[dir].x;
           const ny = y - DELTAS[dir].y;
-          if (!dentro(nx, ny)) { fin = true; error.tipo = 'fuera'; error.mensaje = 'Candela se salió del tablero.'; return; }
-          if (hayObstaculo(nx, ny)) { fin = true; error.tipo = 'obstaculo'; error.mensaje = 'Candela chocó con un obstáculo.'; return; }
+          if (!dentro(nx, ny)) { fin = true; error.tipo = 'fuera'; error.mensaje = 'Candela se salió del tablero.'; registrar('error', { tipo: 'fuera' }); return; }
+          if (hayObstaculo(nx, ny)) { fin = true; error.tipo = 'obstaculo'; error.mensaje = 'Candela chocó con un obstáculo.'; registrar('error', { tipo: 'obstaculo' }); return; }
           x = nx; y = ny;
           visitadas.add(`${x},${y}`);
           posicionFinal = { x, y };
+          registrar('retroceder');
           break;
         }
         case 'saltar': {
           pasos++;
           const nx = x + DELTAS[dir].x * 2;
           const ny = y + DELTAS[dir].y * 2;
-          if (!dentro(nx, ny)) { fin = true; error.tipo = 'fuera'; error.mensaje = 'Candela saltó fuera del tablero.'; return; }
+          if (!dentro(nx, ny)) { fin = true; error.tipo = 'fuera'; error.mensaje = 'Candela saltó fuera del tablero.'; registrar('error', { tipo: 'fuera' }); return; }
           x = nx; y = ny;
           visitadas.add(`${x},${y}`);
           posicionFinal = { x, y };
+          registrar('saltar');
           break;
         }
         case 'girar': {
@@ -117,6 +127,7 @@ window.PJCode = (function () {
           const d = String(b.dir || 'derecha').toLowerCase();
           if (d === 'izquierda' || d === 'izq' || d === '-') dir = (dir + 3) % 4;
           else dir = (dir + 1) % 4;
+          registrar('girar', { a: d });
           break;
         }
         case 'repetir': {
@@ -154,6 +165,7 @@ window.PJCode = (function () {
       max_pasos: maxPasos,
       error: error.tipo ? error : null,
       finalizado: !error.tipo,
+      trazado,
     };
   }
 
