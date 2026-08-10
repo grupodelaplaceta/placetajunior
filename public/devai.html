@@ -39,6 +39,18 @@
     #preview h3 { margin: 0 0 8px; color: var(--pj-purple); }
     .bloque-prev { background: #fff; border: 1px solid var(--pj-gray-200); border-radius: 10px; padding: 10px; margin: 8px 0; font-size: 13px; }
     .badge { display: inline-block; background: var(--pj-purple-light); color: var(--pj-purple); padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; margin-bottom: 6px; }
+    .prev-img { margin: 6px 0; }
+    .prev-img img { max-width: 220px; max-height: 150px; border-radius: 8px; border: 1px solid var(--pj-gray-200); display: block; }
+    .prev-alt { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+    .prev-alt-tag { font-size: 11px; font-weight: 700; color: var(--pj-purple); white-space: nowrap; }
+    .alt-input { flex: 1; min-width: 0; border: 1px solid var(--pj-gray-300); border-radius: 6px; padding: 4px 8px; font-size: 12px; }
+    .alt-input:focus { outline: none; border-color: var(--pj-purple); }
+    .prev-economia { border-color: var(--pj-green) !important; background: #f6fbf7 !important; }
+    .prev-meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin-top: 8px; }
+    .prev-meta-field { display: flex; flex-direction: column; gap: 3px; font-size: 11px; font-weight: 700; color: var(--pj-gray-600); }
+    .prev-meta-field input[type="number"] { border: 1px solid var(--pj-gray-300); border-radius: 6px; padding: 5px 8px; font-size: 13px; font-weight: 600; }
+    .prev-meta-field input[type="number"]:focus { outline: none; border-color: var(--pj-green); }
+    .prev-meta-field.check { flex-direction: row; align-items: center; gap: 6px; font-weight: 600; }
     .ok { color: var(--pj-green); font-weight: 700; }
     .err { color: #dc2626; font-weight: 700; }
     .falta { border-color: #dc2626 !important; background: #fff5f5 !important; }
@@ -71,19 +83,24 @@
   "edad_recomendada": "6-12",
   "dificultad": "facil|media|dificil",
   "tiempo_estimado": 10,
+  "precio_licencia": 0,
+  "precio_intento": 0,
+  "recompensa": 0,
+  "subvencionada": false,
   "contenido": {
     "version": 2,
     "bloques": [
-      { "tipo": "texto", "titulo": "Aprende", "contenido": "Explicación en una o varias líneas\nSegundo párrafo.", "imagen_url": "" },
+      { "tipo": "texto", "titulo": "Aprende", "contenido": "Explicación en una o varias líneas\nSegundo párrafo.", "imagen_url": "", "imagen_alt": "", "fuente": "" },
       { "tipo": "test", "preguntas": [ { "pregunta": "¿...?", "opciones": ["A","B","C","D"], "correcta": 0 } ] },
       { "tipo": "sopa_letras", "palabras": ["SOL","LUNA"], "pistas": ["Estrella central","Satélite"], "tamano": 10 },
-      { "tipo": "relacionar", "modo": "escribir", "pares": [ { "izq": "pista que ve el niño", "der": "palabra correcta", "izq_img": "" } ] },
+      { "tipo": "relacionar", "modo": "escribir", "pares": [ { "izq": "pista que ve el niño", "der": "palabra correcta", "izq_img": "", "izq_alt": "", "izq_fuente": "" } ] },
       { "tipo": "relacionar", "modo": "emparejar", "pares": [ { "izq": "izquierda", "der": "derecha" } ] },
       { "tipo": "ordenar", "items": ["Paso 1","Paso 2","Paso 3"] },
       { "tipo": "completar", "modo": "opciones", "frases": [ { "texto": "La frase con ___", "respuesta": "perro", "opciones": ["gato","pájaro"] } ] },
       { "tipo": "completar", "modo": "escribir", "frases": [ { "texto": "La frase con ___", "respuesta": "palabra" } ] },
       { "tipo": "calculo_mental", "sumas": [ { "a": 3, "b": 5 } ], "segundos": 10, "modo": "opciones" },
-      { "tipo": "mapa_mundi", "paises": ["España", "Francia", "Italia", "Portugal"] }
+      { "tipo": "mapa_mundi", "paises": ["España", "Francia", "Italia", "Portugal"] },
+      { "tipo": "code_blocks", "titulo": "Haz llegar a Candela a la estrella", "lenguaje": "placeta_blocks", "objetivo_texto": "Lleva a Candela hasta la estrella", "bloques_permitidos": ["avanzar", "girar"], "max_bloques": 8, "escenario": { "tipo": "cuadricula", "ancho": 6, "alto": 6, "obstaculos": [{"x": 2, "y": 0}], "monedas": [{"x": 3, "y": 0}] }, "inicio": { "x": 0, "y": 0, "direccion": "derecha" }, "objetivo": { "posicion": { "x": 4, "y": 0 }, "monedas": 1, "max_pasos": 10 }, "pistas": ["Mira dónde está Candela.", "Necesitas avanzar varias veces."] }
     ]
   }
 }
@@ -92,6 +109,10 @@ Reglas:
 - "correcta" es el índice (base 0) de la opción correcta de cada pregunta.
 - En relacionar modo "escribir": "der" es la palabra que el niño debe teclear (NO la pongas en "izq").
 - Empieza SIEMPRE con un bloque "texto" que enseñe el contenido antes de las preguntas.
+- ACCESIBILIDAD: si un bloque usa "imagen_url" o una pareja usa "izq_img", incluye SIEMPRE el texto alternativo en "imagen_alt" o "izq_alt" (una descripción breve de lo que muestra la imagen, p. ej. "Niña leyendo un libro"). Es obligatorio para la accesibilidad.
+- FUENTES DE IMÁGENES: si usas una imagen real, indica SIEMPRE su procedencia en "fuente" (bloque) o "izq_fuente" (pareja), p. ej. "Foto: NASA · dominio público". Si la imagen es decorativa o inventada, deja la fuente en blanco.
+- PRECIOS Y RECOMPENSA (en Pz, IVA incluido): usa 0 para gratis. "precio_licencia" es lo que cuesta desbloquear la actividad para siempre, "precio_intento" lo que cuesta cada intento, "recompensa" el MÁXIMO que gana el niño al completarla (el backend la ajusta según aciertos y errores) y "subvencionada" true solo si una entidad la cubre (entonces es gratis para el niño).
+- CODE_BLOCKS (Placeta Junior Code): para este tipo, define un escenario de cuadrícula (ancho/alto), el inicio de Candela (x,y,direccion), los obstáculos y monedas, el objetivo (posicion x,y y opcionalmente monedas/max_pasos/debe_usar) y los bloques_permitidos. Los bloques válidos son: avanzar, retroceder, girar, saltar, repetir, si. El objetivo siempre es llevar a Candela (👧) a la estrella (⭐) sin chocar.
 - En completar, usa palabras en SINGULAR y, en modo opciones, escribe "opciones" (distractores).
 - En mapa_mundi, usa solo países conocidos (España, Francia, Italia, Portugal, Reino Unido, Alemania, Egipto, Brasil, México, Estados Unidos, Canadá, China, India, Japón, Australia…).
 - Escribe en español, adáptalo a la edad indicada y numera bien los bloques.
@@ -129,6 +150,10 @@ Reglas:
             <select id="dificultad"><option>facil</option><option selected>media</option><option>dificil</option></select>
           </div>
           <div class="field"><label>Tiempo (min)</label><input id="tiempo" type="number" value="10" /></div>
+          <div class="field"><label>Precio licencia (Pz)</label><input id="precio-licencia" type="number" min="0" value="0" /></div>
+          <div class="field"><label>Precio intento (Pz)</label><input id="precio-intento" type="number" min="0" value="0" /></div>
+          <div class="field"><label>Recompensa (Pz)</label><input id="recompensa" type="number" min="0" value="0" /></div>
+          <div class="field"><label class="check" style="display:flex;align-items:center;gap:6px;"><input id="subvencionada" type="checkbox" /> 🎁 Subvencionada</label></div>
         </div>
         <div id="info-campos" aria-live="polite"></div>
         <div class="row">
@@ -223,7 +248,7 @@ Reglas:
           const a = l.slice(0, eq).trim();
           const b = l.slice(eq + 1).trim();
           if (a && b && !a.endsWith('?') && !b.endsWith('?')) {
-            paresEsc.push({ izq: a, der: b, izq_img: '' });
+            paresEsc.push({ izq: a, der: b, izq_img: '', izq_alt: '', izq_fuente: '' });
             relTipo = 'escribir';
             continue;
           }
@@ -231,8 +256,8 @@ Reglas:
         if (preguntas.length < 20) preguntas.push({ pregunta: l, opciones: ['Sí', 'No'], correcta: 0 });
       }
 
-      if (explicaciones.length) bloques.push({ tipo: 'texto', titulo: 'Aprende', contenido: explicaciones.join('\n'), imagen_url: null, fuente: null });
-      if (preguntas.length) bloques.push({ tipo: 'test', titulo: 'Preguntas', imagen_url: null, fuente: null, preguntas });
+      if (explicaciones.length) bloques.push({ tipo: 'texto', titulo: 'Aprende', contenido: explicaciones.join('\n'), imagen_url: null, imagen_alt: null, fuente: null });
+      if (preguntas.length) bloques.push({ tipo: 'test', titulo: 'Preguntas', imagen_url: null, imagen_alt: null, fuente: null, preguntas });
       if (paresEmp.length) bloques.push({ tipo: 'relacionar', titulo: 'Relaciona', modo: 'emparejar', pares: paresEmp });
       if (paresEsc.length) bloques.push({ tipo: 'relacionar', titulo: 'Escribe la palabra', modo: 'escribir', pares: paresEsc });
       if (frases.length) bloques.push({ tipo: 'completar', titulo: 'Completa', frases });
@@ -240,7 +265,7 @@ Reglas:
       if (!bloques.length) { aviso('No pude detectar bloques. Usa preguntas con "?" o parejas con "->".', true); return; }
 
       const contenido = { version: 2, bloques };
-      $('codigo').value = JSON.stringify({ titulo, descripcion, categoria: $('categoria').value, edad_recomendada: $('edad').value, dificultad: $('dificultad').value, tiempo_estimado: parseInt($('tiempo').value, 10) || 10, contenido }, null, 2);
+      $('codigo').value = JSON.stringify({ titulo, descripcion, categoria: $('categoria').value, edad_recomendada: $('edad').value, dificultad: $('dificultad').value, tiempo_estimado: parseInt($('tiempo').value, 10) || 10, precio_licencia: parseInt($('precio-licencia').value, 10) || 0, precio_intento: parseInt($('precio-intento').value, 10) || 0, recompensa: parseInt($('recompensa').value, 10) || 0, subvencionada: $('subvencionada').checked, contenido }, null, 2);
       $('titulo').value = titulo;
       $('descripcion').value = descripcion;
       detectarCampos();
@@ -256,18 +281,36 @@ Reglas:
       catch (e) { aviso('❌ El código no es JSON válido: ' + e.message, true); return; }
       const bloques = (obj.contenido && obj.contenido.bloques) || [];
       if (!Array.isArray(bloques)) { aviso('❌ Falta contenido.bloques en el JSON.', true); return; }
+      // Ruta base para editar el alt según dónde vivan los bloques en el JSON
+      const pathBase = (obj.contenido && Array.isArray(obj.contenido.bloques)) ? 'contenido.bloques' : 'bloques';
       const tit = obj.titulo || $('titulo').value || 'Actividad';
       let html = '<h3>' + esc(tit) + '</h3>';
       if (obj.descripcion) html += '<p style="font-size:13px;color:var(--pj-gray-500);margin:0 0 10px;">' + esc(obj.descripcion) + '</p>';
+
+      // Panel de precios / recompensa editable (sincroniza el JSON)
+      html += '<div class="bloque-prev prev-economia">'
+        + '<span class="badge" style="background:var(--pj-green-light);color:var(--pj-green);">💰 Precios y recompensa (Pz · IVA incl.)</span>'
+        + '<div class="prev-meta-grid">'
+        + '<label class="prev-meta-field"><span>Precio licencia</span><input type="number" min="0" class="meta-input" data-meta-path="precio_licencia" value="' + esc(String(obj.precio_licencia ?? 0)) + '"></label>'
+        + '<label class="prev-meta-field"><span>Precio intento</span><input type="number" min="0" class="meta-input" data-meta-path="precio_intento" value="' + esc(String(obj.precio_intento ?? 0)) + '"></label>'
+        + '<label class="prev-meta-field"><span>Recompensa máx</span><input type="number" min="0" class="meta-input" data-meta-path="recompensa" value="' + esc(String(obj.recompensa ?? 0)) + '"></label>'
+        + '<label class="prev-meta-field check"><input type="checkbox" class="meta-input" data-meta-path="subvencionada"' + (obj.subvencionada ? ' checked' : '') + '> 🎁 Subvencionada (gratis)</label>'
+        + '</div></div>';
+
       bloques.forEach((b, i) => {
         html += '<div class="bloque-prev"><span class="badge">Bloque ' + (i + 1) + ' · ' + esc(b.tipo || '?') + '</span>';
+        if (b.imagen_url) html += imgPrev(b.imagen_url, b.imagen_alt, b.fuente, pathBase + '.' + i + '.imagen_alt', pathBase + '.' + i + '.fuente');
         if (b.tipo === 'test' && Array.isArray(b.preguntas)) {
-          b.preguntas.forEach(p => {
+          b.preguntas.forEach((p, k) => {
             html += '<div><b>' + esc(p.pregunta || '¿?') + '</b></div>';
+            if (p.imagen_url) html += imgPrev(p.imagen_url, p.imagen_alt, p.fuente, pathBase + '.' + i + '.preguntas.' + k + '.imagen_alt', pathBase + '.' + i + '.preguntas.' + k + '.fuente');
             (p.opciones || []).forEach((op, k) => { html += '<div style="margin-left:14px;">' + (k === p.correcta ? '✅ ' : '○ ') + esc(op) + '</div>'; });
           });
         } else if (b.tipo === 'relacionar' && Array.isArray(b.pares)) {
-          b.pares.forEach(p => { html += '<div style="margin-left:8px;">🔗 ' + esc(p.izq) + ' ↔ <b>' + esc(p.der) + '</b></div>'; });
+          b.pares.forEach((p, k) => {
+            html += '<div style="margin-left:8px;">🔗 ' + esc(p.izq) + ' ↔ <b>' + esc(p.der) + '</b></div>';
+            if (p.izq_img) html += imgPrev(p.izq_img, p.izq_alt, p.izq_fuente, pathBase + '.' + i + '.pares.' + k + '.izq_alt', pathBase + '.' + i + '.pares.' + k + '.izq_fuente');
+          });
         } else if (b.tipo === 'sopa_letras' && Array.isArray(b.palabras)) {
           html += '<div style="margin-left:8px;">🔤 ' + b.palabras.map(esc).join(', ') + '</div>';
         } else if (b.tipo === 'ordenar' && Array.isArray(b.items)) {
@@ -298,6 +341,7 @@ Reglas:
         else if (b.tipo === 'completar') n += (b.frases || []).filter(f => f.texto && f.respuesta).length;
         else if (b.tipo === 'calculo_mental') n += (b.sumas || []).filter(s => s.a !== '' && s.b !== '').length;
         else if (b.tipo === 'mapa_mundi') n += (b.paises || []).filter(p => p && window.MAPA_MUNDI && MAPA_MUNDI.paises[p]).length;
+        else if (b.tipo === 'code_blocks') n += (b.objetivo && b.objetivo.posicion) ? 1 : 0;
       }
       return n;
     }
@@ -322,6 +366,10 @@ Reglas:
         edad_recomendada: obj.edad_recomendada || $('edad').value,
         dificultad: obj.dificultad || $('dificultad').value,
         tiempo_estimado: parseInt(obj.tiempo_estimado || $('tiempo').value, 10) || 10,
+        precio_licencia: parseInt(obj.precio_licencia ?? $('precio-licencia').value, 10) || 0,
+        precio_intento: parseInt(obj.precio_intento ?? $('precio-intento').value, 10) || 0,
+        recompensa: parseInt(obj.recompensa ?? $('recompensa').value, 10) || 0,
+        subvencionada: (obj.subvencionada ?? $('subvencionada').checked) === true,
         num_preguntas: contarPreguntas(bloques),
         num_fases: bloques.length,
         contenido
@@ -384,6 +432,13 @@ Reglas:
       if (rellenar('edad', obj.edad_recomendada)) cambiados++;
       if (rellenar('dificultad', obj.dificultad)) cambiados++;
       if (rellenar('tiempo', obj.tiempo_estimado)) cambiados++;
+      if (obj.precio_licencia != null) { if (rellenar('precio-licencia', obj.precio_licencia)) cambiados++; }
+      if (obj.precio_intento != null) { if (rellenar('precio-intento', obj.precio_intento)) cambiados++; }
+      if (obj.recompensa != null) { if (rellenar('recompensa', obj.recompensa)) cambiados++; }
+      if (obj.subvencionada != null) {
+        const cb = $('subvencionada');
+        if (cb && cb.checked !== !!obj.subvencionada) { cb.checked = !!obj.subvencionada; cambiados++; }
+      }
 
       // Resalta los campos obligatorios que falten para enviar
       const falta = [];
@@ -423,6 +478,68 @@ Reglas:
     detectarCampos();
 
     function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
+    // Renderiza una imagen en la previsualización con su texto alternativo
+    // (alt) y su fuente editables. Los paths apuntan al JSON de #codigo.
+    function imgPrev(url, alt, fuente, altPath, fuentePath) {
+      return '<div class="prev-img">'
+        + '<img src="' + esc(url) + '" alt="' + esc(alt || '') + '">'
+        + '<div class="prev-alt"><span class="prev-alt-tag">Alt (accesibilidad)</span>'
+        + '<input type="text" class="alt-input" data-alt-path="' + esc(altPath) + '" value="' + esc(alt || '') + '" placeholder="Describe la imagen…">'
+        + '</div>'
+        + '<div class="prev-alt"><span class="prev-alt-tag">📸 Fuente</span>'
+        + '<input type="text" class="alt-input" data-alt-path="' + esc(fuentePath) + '" value="' + esc(fuente || '') + '" placeholder="Ej: Foto: NASA · dominio público">'
+        + '</div></div>';
+    }
+
+    // Al escribir el alt o la fuente en la previsualización, actualiza el JSON de #codigo
+    document.addEventListener('input', function (e) {
+      const el = e.target;
+      if (!el || !el.classList || !el.classList.contains('alt-input')) return;
+      const path = el.getAttribute('data-alt-path');
+      if (!path) return;
+      try {
+        const obj = JSON.parse($('codigo').value);
+        const parts = path.split('.');
+        let cur = obj;
+        for (let i = 0; i < parts.length - 1; i++) {
+          if (cur[parts[i]] == null) return;
+          cur = cur[parts[i]];
+        }
+        cur[parts[parts.length - 1]] = el.value;
+        $('codigo').value = JSON.stringify(obj, null, 2);
+      } catch (err) { /* si el JSON no es válido, no hacemos nada */ }
+    });
+
+    // Al editar el panel de precios / recompensa, sincroniza el JSON y los campos meta
+    document.addEventListener('input', function (e) {
+      const el = e.target;
+      if (!el || !el.classList || !el.classList.contains('meta-input')) return;
+      const path = el.getAttribute('data-meta-path');
+      if (!path) return;
+      try {
+        const obj = JSON.parse($('codigo').value);
+        const parts = path.split('.');
+        let cur = obj;
+        for (let i = 0; i < parts.length - 1; i++) {
+          if (cur[parts[i]] == null) return;
+          cur = cur[parts[i]];
+        }
+        if (el.type === 'checkbox') cur[parts[parts.length - 1]] = el.checked;
+        else cur[parts[parts.length - 1]] = parseInt(el.value, 10) || 0;
+        $('codigo').value = JSON.stringify(obj, null, 2);
+        // Refleja en los campos meta del formulario (paso 3)
+        const map = { precio_licencia: 'precio-licencia', precio_intento: 'precio-intento', recompensa: 'recompensa', subvencionada: 'subvencionada' };
+        const campoId = map[path];
+        if (campoId) {
+          const campo = $(campoId);
+          if (campo) {
+            if (el.type === 'checkbox') campo.checked = el.checked;
+            else campo.value = el.value;
+          }
+        }
+      } catch (err) { /* si el JSON no es válido, no hacemos nada */ }
+    });
   </script>
 </body>
 </html>

@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>💻 Placeta Junior Code — Acceso anticipado</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    :root {
+      --pj-code-bg: #0f1424;
+      --pj-code-card: #1a2038;
+      --pj-code-border: #2a3356;
+      --pj-code-text: #e6e9f5;
+      --pj-code-muted: #8a93b8;
+      --pj-block-move: #3a7dff;
+      --pj-block-control: #ff9f1c;
+      --pj-block-event: #2ecc71;
+    }
+    body { background: var(--pj-code-bg); color: var(--pj-code-text); font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; }
+    .code-topbar { display: flex; align-items: center; gap: 12px; padding: 14px 22px; background: #0b0f1c; border-bottom: 1px solid var(--pj-code-border); }
+    .code-topbar .logo { font-weight: 800; font-size: 17px; }
+    .code-topbar .tag { background: #ff9f1c; color: #1a1030; font-size: 11px; font-weight: 700; padding: 2px 10px; border-radius: 999px; }
+    .code-wrap { max-width: 1200px; margin: 0 auto; padding: 22px; }
+    .code-grid { display: grid; grid-template-columns: 1fr 320px; gap: 20px; }
+    @media (max-width: 900px) { .code-grid { grid-template-columns: 1fr; } }
+    .panel { background: var(--pj-code-card); border: 1px solid var(--pj-code-border); border-radius: 16px; padding: 18px; }
+    .panel h2 { margin: 0 0 12px; font-size: 18px; }
+    .panel h3 { margin: 16px 0 8px; font-size: 14px; color: var(--pj-code-muted); text-transform: uppercase; letter-spacing: .5px; }
+    /* Escenario */
+    #escenario { width: 100%; background: #0d1224; border-radius: 12px; border: 1px solid var(--pj-code-border); }
+    /* Paleta de bloques */
+    .palette { display: flex; flex-direction: column; gap: 8px; }
+    .block-pal { display: flex; align-items: center; gap: 8px; padding: 9px 12px; border-radius: 10px; color: #fff; font-weight: 700; font-size: 13px; cursor: grab; user-select: none; }
+    .block-pal:active { cursor: grabbing; opacity: .85; }
+    .b-move { background: var(--pj-block-move); }
+    .b-control { background: var(--pj-block-control); color: #241a00; }
+    .b-event { background: var(--pj-block-event); color: #06240f; }
+    /* Área de programa */
+    #programa { min-height: 180px; border: 2px dashed var(--pj-code-border); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+    .prog-item { display: flex; align-items: center; gap: 6px; padding: 7px 10px; border-radius: 8px; font-weight: 700; font-size: 12px; color: #fff; }
+    .prog-item .del { margin-left: auto; cursor: pointer; background: rgba(0,0,0,.3); border: none; color: #fff; border-radius: 6px; padding: 2px 8px; }
+    .prog-item select, .prog-item input { border: none; border-radius: 6px; padding: 3px 6px; font-size: 12px; font-weight: 700; }
+    /* Botones */
+    .code-btn { padding: 11px 18px; border: none; border-radius: 12px; font-weight: 800; font-size: 14px; cursor: pointer; }
+    .btn-run { background: #2ecc71; color: #06240f; }
+    .btn-run:disabled { background: #35503f; cursor: not-allowed; }
+    .btn-reset { background: #2a3356; color: #e6e9f5; }
+    .btn-clear { background: transparent; color: var(--pj-code-muted); border: 1px solid var(--pj-code-border); }
+    .msg { margin-top: 12px; padding: 12px; border-radius: 10px; font-weight: 600; font-size: 14px; display: none; }
+    .msg.ok { background: rgba(46,204,113,.15); color: #5ee89a; display: block; }
+    .msg.err { background: rgba(255,80,80,.12); color: #ff7a7a; display: block; }
+    .hint { font-size: 13px; color: var(--pj-code-muted); margin-top: 8px; }
+    .pistas { margin-top: 14px; }
+    .pistas summary { cursor: pointer; font-weight: 700; color: #ffd166; }
+    .pistas ul { margin: 8px 0 0; padding-left: 18px; font-size: 13px; color: var(--pj-code-text); }
+    .estado-reto { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+    .chip { background: var(--pj-code-border); padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+    .lock-screen { text-align: center; padding: 40px 20px; }
+    .lock-screen h2 { font-size: 24px; }
+    .lock-screen p { color: var(--pj-code-muted); }
+  </style>
+</head>
+<body>
+  <div class="code-topbar">
+    <span class="logo">💻 Placeta Junior Code</span>
+    <span class="tag">🧪 ACCESO ANTICIPADO</span>
+    <span style="flex:1"></span>
+    <a href="/" style="color:#8a93b8;font-size:13px;text-decoration:none;">← Actividades</a>
+  </div>
+
+  <div class="code-wrap">
+    <div id="lock" class="panel lock-screen" style="display:none;">
+      <h2>🔒 Actividad bloqueada</h2>
+      <p id="lock-titulo">Esta actividad es de pago.</p>
+      <div class="estado-reto" style="justify-content:center;margin-top:16px;">
+        <button class="code-btn btn-run" id="btn-desbloquear">🔓 Desbloquear (20 Pz)</button>
+      </div>
+      <p id="lock-bundle" class="hint" style="margin-top:14px;"></p>
+    </div>
+
+    <div id="juego" class="code-grid" style="display:none;">
+      <div class="panel">
+        <h2 id="retro-titulo">Carga el reto…</h2>
+        <p id="retro-objetivo" class="hint"></p>
+        <svg id="escenario" height="380"></svg>
+        <div class="estado-reto" id="estado-reto"></div>
+        <div class="msg" id="msg"></div>
+        <details class="pistas">
+          <summary>💡 Pistas</summary>
+          <ul id="pistas-lista"></ul>
+        </details>
+      </div>
+
+      <div class="panel">
+        <h2>🧩 Bloques</h2>
+        <h3>Movimiento</h3>
+        <div class="palette" id="paleta-mov"></div>
+        <h3>Control</h3>
+        <div class="palette" id="paleta-ctrl"></div>
+        <h3 style="margin-top:18px;">Tu programa</h3>
+        <div id="programa"></div>
+        <div class="hint" style="margin:10px 0 0;">⬇️ Arrastra los bloques hasta aquí. Pulsa ▶ para ejecutar.</div>
+        <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
+          <button class="code-btn btn-run" id="btn-run" disabled>▶ Ejecutar</button>
+          <button class="code-btn btn-reset" id="btn-reset">↺ Reiniciar</button>
+          <button class="code-btn btn-clear" id="btn-clear">🗑 Vaciar</button>
+        </div>
+        <div class="msg" id="run-msg"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'https://admin-placeta.vercel.app/api/junior';
+    const BLOQUES_INFO = {
+      avanzar:    { cat: 'mov', nombre: 'AVANZAR', clase: 'b-move', params: [], desc: 'Avanza una casilla' },
+      retroceder: { cat: 'mov', nombre: 'RETROCEDER', clase: 'b-move', params: [], desc: 'Retrocede una casilla' },
+      girar:      { cat: 'mov', nombre: 'GIRAR', clase: 'b-move', params: [{ k: 'dir', o: ['derecha','izquierda'] }], desc: 'Gira' },
+      saltar:     { cat: 'mov', nombre: 'SALTAR', clase: 'b-move', params: [], desc: 'Salta dos casillas' },
+      repetir:    { cat: 'ctrl', nombre: 'REPETIR', clase: 'b-control', params: [{ k: 'veces', n: 1 }], anida: true, desc: 'Repite N veces' },
+      si:         { cat: 'ctrl', nombre: 'SI', clase: 'b-control', params: [{ k: 'condicion', o: ['obstaculo','moneda','libre'] }], anida: true, desc: 'Si se cumple…' },
+    };
+
+    let actividad = null;
+    let escenario = null;
+    let inicio = null;
+    let objetivo = null;
+    let permitidos = [];
+    let programa = []; // programa construido
+    let dip = localStorage.getItem('pj-dip') || '';
+
+    function $(id) { return document.getElementById(id); }
+    function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
+    const params = new URLSearchParams(location.search);
+    const actId = params.get('id') || params.get('actividad');
+
+    async function iniciar() {
+      if (!actId) { $('retro-titulo').textContent = 'No se indicó actividad.'; return; }
+      // Cargar actividad
+      const r = await fetch(`${API_BASE}/actividades/${actId}`).then(r => r.json()).catch(() => null);
+      if (!r || !r.actividad) { $('retro-titulo').textContent = 'Actividad no encontrada.'; return; }
+      actividad = r.actividad;
+      const cont = actividad.contenido || {};
+
+      // Comprobar acceso si hay DIP
+      if (dip) {
+        try {
+          const acc = await fetch(`${API_BASE}/actividades/${actId}/acceso?dip=${encodeURIComponent(dip)}`).then(r => r.json());
+          if (acc.success && !acc.desbloqueada) { mostrarBloqueo(acc); return; }
+        } catch (e) { /* sin red → se intenta jugar igual */ }
+      }
+
+      escenario = cont.escenario || { tipo: 'cuadricula', ancho: 6, alto: 6 };
+      inicio = cont.inicio || { x: 0, y: 0, direccion: 'derecha' };
+      objetivo = cont.objetivo || {};
+      permitidos = (cont.bloques_permitidos && cont.bloques_permitidos.length) ? cont.bloques_permitidos : Object.keys(BLOQUES_INFO);
+
+      $('retro-titulo').textContent = actividad.titulo || 'Reto de código';
+      $('retro-objetivo').textContent = cont.objetivo_texto || 'Lleva a Candela hasta la estrella.';
+      $('lock').style.display = 'none';
+      $('juego').style.display = 'grid';
+
+      // Pistas
+      const pistas = cont.pistas || [];
+      $('pistas-lista').innerHTML = pistas.map(p => `<li>${esc(p)}</li>`).join('') || '<li>Sin pistas.</li>';
+
+      pintarPaleta();
+      pintarEscenario();
+      actualizarBoton();
+    }
+
+    function mostrarBloqueo(acc) {
+      $('juego').style.display = 'none';
+      $('lock').style.display = 'block';
+      const precio = acc.precio_licencia || 20;
+      $('lock-titulo').textContent = actividad ? actividad.titulo : 'Actividad de pago';
+      $('btn-desbloquear').textContent = `🔓 Desbloquear (${precio} Pz)`;
+      $('btn-desbloquear').onclick = () => desbloquearActividad(actId, precio);
+      const bundles = acc.bundles || [];
+      if (bundles.length) {
+        const b = bundles[0];
+        $('lock-bundle').innerHTML = `⭐ También incluida en <b>${esc(b.nombre)}</b> por <b>${b.precio} Pz</b>.`;
+      }
+    }
+
+    async function desbloquearActividad(id, precio) {
+      if (!dip) { dip = prompt('Escribe tu DIP de Placeta Junior:'); if (dip) localStorage.setItem('pj-dip', dip); }
+      if (!dip) return;
+      const r = await fetch(`${API_BASE}/actividades/${id}/desbloquear`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dip })
+      }).then(r => r.json()).catch(() => ({}));
+      if (r.success) { alert(r.mensaje || '¡Desbloqueada!'); location.reload(); }
+      else alert(r.error || 'No se pudo desbloquear.');
+    }
+
+    function pintarPaleta() {
+      const mov = $('paleta-mov'), ctrl = $('paleta-ctrl');
+      mov.innerHTML = ''; ctrl.innerHTML = '';
+      for (const op of permitidos) {
+        const b = BLOQUES_INFO[op]; if (!b) continue;
+        const el = document.createElement('div');
+        el.className = 'block-pal ' + b.clase;
+        el.draggable = true;
+        el.textContent = b.nombre;
+        el.dataset.op = op;
+        el.addEventListener('dragstart', e => e.dataTransfer.setData('text/plain', op));
+        el.addEventListener('click', () => añadirBloque(op));
+        (b.cat === 'mov' ? mov : ctrl).appendChild(el);
+      }
+    }
+
+    function añadirBloque(op) {
+      const b = BLOQUES_INFO[op]; if (!b || !permitidos.includes(op)) return;
+      const item = { op };
+      if (b.params) b.params.forEach(p => { item[p.k] = p.n ? 1 : (p.o ? p.o[0] : ''); });
+      item.bloques = b.anida ? [] : undefined;
+      programa.push(item);
+      pintarPrograma();
+    }
+
+    function pintarPrograma() {
+      const cont = $('programa');
+      cont.innerHTML = '';
+      programa.forEach((item, idx) => {
+        const b = BLOQUES_INFO[item.op] || { nombre: item.op, clase: 'b-move', params: [] };
+        const row = document.createElement('div');
+        row.className = 'prog-item ' + b.clase;
+        row.textContent = b.nombre + ' ';
+        (b.params || []).forEach(p => {
+          if (p.o) {
+            const sel = document.createElement('select');
+            p.o.forEach(o => { const op = document.createElement('option'); op.value = o; op.textContent = o; sel.appendChild(op); });
+            sel.value = item[p.k]; sel.onchange = () => { item[p.k] = sel.value; };
+            row.appendChild(sel);
+          } else if (p.n) {
+            const inp = document.createElement('input'); inp.type = 'number'; inp.min = 1; inp.max = 50; inp.value = item[p.k];
+            inp.style.width = '46px'; inp.onchange = () => { item[p.k] = parseInt(inp.value, 10) || 1; };
+            row.appendChild(inp);
+          }
+        });
+        const del = document.createElement('button');
+        del.className = 'del'; del.textContent = '✕';
+        del.onclick = () => { programa.splice(idx, 1); pintarPrograma(); };
+        row.appendChild(del);
+        cont.appendChild(row);
+      });
+      actualizarBoton();
+    }
+
+    function pintarEscenario() {
+      const svg = $('escenario');
+      const W = 600, H = 380;
+      const ancho = escenario.ancho || 6, alto = escenario.alto || 6;
+      const cell = Math.min((W - 40) / ancho, (H - 40) / alto);
+      const ox = (W - cell * ancho) / 2, oy = (H - cell * alto) / 2;
+      let html = `<rect x="0" y="0" width="${W}" height="${H}" fill="#0d1224" rx="12"/>`;
+
+      // Cuadrícula
+      for (let r = 0; r < alto; r++) for (let c = 0; c < ancho; c++) {
+        html += `<rect x="${ox + c * cell}" y="${oy + r * cell}" width="${cell - 2}" height="${cell - 2}" rx="6" fill="#171e3a" stroke="#232c52" stroke-width="1"/>`;
+      }
+      // Obstáculos
+      (escenario.obstaculos || []).forEach(o => {
+        html += `<rect x="${ox + o.x * cell}" y="${oy + o.y * cell}" width="${cell - 2}" height="${cell - 2}" rx="6" fill="#4a1a1a" stroke="#7a3030"/>`;
+        html += `<text x="${ox + o.x * cell + cell / 2}" y="${oy + o.y * cell + cell / 2 + 6}" text-anchor="middle" font-size="18">🚧</text>`;
+      });
+      // Monedas
+      (escenario.monedas || []).forEach(m => {
+        html += `<text x="${ox + m.x * cell + cell / 2}" y="${oy + m.y * cell + cell / 2 + 6}" text-anchor="middle" font-size="16">🪙</text>`;
+      });
+      // Objetivo (estrella)
+      if (objetivo.posicion) {
+        const px = objetivo.posicion.x, py = objetivo.posicion.y;
+        html += `<circle cx="${ox + px * cell + cell / 2}" cy="${oy + py * cell + cell / 2}" r="${cell * 0.42}" fill="#ffd166" opacity="0.25"/>`;
+        html += `<text x="${ox + px * cell + cell / 2}" y="${oy + py * cell + cell / 2 + 6}" text-anchor="middle" font-size="22">⭐</text>`;
+      }
+      // Candela (inicio)
+      const ix = inicio.x, iy = inicio.y;
+      html += `<circle cx="${ox + ix * cell + cell / 2}" cy="${oy + iy * cell + cell / 2}" r="${cell * 0.34}" fill="#3a7dff"/>`;
+      html += `<text x="${ox + ix * cell + cell / 2}" y="${oy + iy * cell + cell / 2 + 5}" text-anchor="middle" font-size="14">👧</text>`;
+      // Flecha de dirección
+      const dirs = { derecha: 0, abajo: 90, izquierda: 180, arriba: 270 };
+      const ang = dirs[inicio.direccion] ?? 0;
+      html += `<g transform="translate(${ox + ix * cell + cell / 2}, ${oy + iy * cell + cell / 2 + 12}) rotate(${ang})"><path d="M-6,0 L6,0 M2,-4 L6,0 L2,4" stroke="#cfe0ff" stroke-width="2" fill="none"/></g>`;
+
+      svg.innerHTML = html;
+      $('estado-reto').innerHTML = [
+        `<span class="chip">🎯 Objetivo: ${objetivo.posicion ? `(${objetivo.posicion.x},${objetivo.posicion.y})` : '—'}</span>`,
+        objetivo.monedas ? `<span class="chip">🪙 Monedas: ${objetivo.monedas}</span>` : '',
+        objetivo.max_pasos ? `<span class="chip">⏱ Máx pasos: ${objetivo.max_pasos}</span>` : '',
+      ].join('');
+    }
+
+    function serializarPrograma() {
+      return programa.map(item => {
+        const b = { op: item.op };
+        if (item.veces != null) b.veces = item.veces;
+        if (item.dir) b.dir = item.dir;
+        if (item.condicion) b.condicion = item.condicion;
+        if (item.bloques !== undefined) b.bloques = serializarPrograma(item.bloques);
+        return b;
+      });
+    }
+
+    async function ejecutar() {
+      if (!programa.length) { $('run-msg').className = 'msg err'; $('run-msg').textContent = 'Añade bloques al programa.'; return; }
+      if (!dip) { dip = prompt('Escribe tu DIP de Placeta Junior para guardar tu progreso:'); if (dip) localStorage.setItem('pj-dip', dip); }
+      $('btn-run').disabled = true;
+      $('run-msg').className = 'msg'; $('run-msg').textContent = '⏳ Ejecutando…';
+      const body = { actividad_id: actId, programa: serializarPrograma() };
+      if (dip) body.dip = dip;
+      try {
+        const r = await fetch(`${API_BASE}/code/evaluar`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+        }).then(r => r.json()).catch(() => ({ success: false, error: 'Sin conexión.' }));
+        if (r.success && r.superado) {
+          $('run-msg').className = 'msg ok';
+          $('run-msg').textContent = r.mensaje || '🎉 ¡Reto superado!';
+          dibujarResultado(r.resultado, true);
+        } else if (r.success) {
+          $('run-msg').className = 'msg err';
+          $('run-msg').textContent = (r.fallos && r.fallos[0]) || r.mensaje || 'No superado.';
+          dibujarResultado(r.resultado, false);
+        } else {
+          $('run-msg').className = 'msg err';
+          $('run-msg').textContent = r.error || 'Error al evaluar.';
+          if (r.bloqueada) mostrarBloqueo(r);
+        }
+      } finally { $('btn-run').disabled = false; }
+    }
+
+    function dibujarResultado(res, ok) {
+      if (!res || !res.posicion_final) return;
+      const svg = $('escenario');
+      const W = 600, H = 380;
+      const ancho = escenario.ancho || 6, alto = escenario.alto || 6;
+      const cell = Math.min((W - 40) / ancho, (H - 40) / alto);
+      const ox = (W - cell * ancho) / 2, oy = (H - cell * alto) / 2;
+      const px = res.posicion_final.x, py = res.posicion_final.y;
+      const m = svg.querySelector('svg');
+      const ns = 'http://www.w3.org/2000/svg';
+      const circ = document.createElementNS(ns, 'circle');
+      circ.setAttribute('cx', ox + px * cell + cell / 2);
+      circ.setAttribute('cy', oy + py * cell + cell / 2);
+      circ.setAttribute('r', cell * 0.34);
+      circ.setAttribute('fill', ok ? '#2ecc71' : '#ff5a5a');
+      const txt = document.createElementNS(ns, 'text');
+      txt.setAttribute('x', ox + px * cell + cell / 2);
+      txt.setAttribute('y', oy + py * cell + cell / 2 + 5);
+      txt.setAttribute('text-anchor', 'middle');
+      txt.setAttribute('font-size', '14');
+      txt.textContent = '👧';
+      svg.appendChild(circ); svg.appendChild(txt);
+    }
+
+    function actualizarBoton() { $('btn-run').disabled = programa.length === 0; }
+
+    // Drag & drop
+    $('programa').addEventListener('dragover', e => e.preventDefault());
+    $('programa').addEventListener('drop', e => {
+      e.preventDefault();
+      const op = e.dataTransfer.getData('text/plain');
+      if (op) añadirBloque(op);
+    });
+
+    $('btn-run').addEventListener('click', ejecutar);
+    $('btn-reset').addEventListener('click', () => { pintarEscenario(); $('run-msg').className = 'msg'; });
+    $('btn-clear').addEventListener('click', () => { programa = []; pintarPrograma(); $('run-msg').className = 'msg'; });
+
+    iniciar();
+  </script>
+</body>
+</html>

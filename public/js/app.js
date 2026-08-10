@@ -29,6 +29,7 @@ const categoriaColor = (cat = '') => {
   if (c.includes('natur') || c.includes('cien') || c.includes('bio')) return 'green';
   if (c.includes('geo') || c.includes('hist') || c.includes('social')) return 'orange';
   if (c.includes('arte') || c.includes('mús') || c.includes('mus')) return 'purple';
+  if (c.includes('code') || c.includes('program') || c.includes('inform')) return 'purple';
   return 'purple';
 };
 
@@ -41,6 +42,7 @@ const categoriaIcono = (cat = '') => {
   if (c.includes('geo')) return 'public';
   if (c.includes('tecn') || c.includes('inform')) return 'computer';
   if (c.includes('logic')) return 'psychology';
+  if (c.includes('code') || c.includes('program') || c.includes('inform')) return 'code';
   return 'extension';
 };
 
@@ -505,6 +507,11 @@ async function abrirActividad(id, bloqueada) {
   try {
     const data = await apiGet(`/actividades/${id}`);
     if (data.actividad) {
+      // Placeta Junior Code → editor de bloques dedicado
+      if (data.actividad.tipo && String(data.actividad.tipo).startsWith('code')) {
+        window.location.href = '/code.html?id=' + encodeURIComponent(id);
+        return;
+      }
       if (typeof abrirJuego === 'function') abrirJuego(data.actividad);
       else juniorAviso('No se pudo iniciar el juego.', 'error');
     } else {

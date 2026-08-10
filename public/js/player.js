@@ -17,8 +17,8 @@ let guardandoDIP = false;
 function esc(s) {
   return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
-function kpImg(url, fuente) {
-  return `<div class="kp-img"><img src="${esc(url)}" alt=""><div class="kp-fuente">📸 ${esc(fuente || 'Fuente sin indicar')}</div></div>`;
+function kpImg(url, fuente, alt) {
+  return `<div class="kp-img"><img src="${esc(url)}" alt="${esc(alt || '')}"><div class="kp-fuente">📸 ${esc(fuente || 'Fuente sin indicar')}</div></div>`;
 }
 function shuffleArr(a) {
   const x = [...a];
@@ -386,7 +386,7 @@ function screenTexto(s, est) {
   const parrafos = (b.contenido || '').split(/\n+/).map(t => t.trim()).filter(Boolean);
   let html = `<div class="kp-screen">
     <div class="kp-qt">📖 ${esc(b.titulo || 'Aprende')}</div>`;
-  if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente);
+  if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente, b.imagen_alt);
   html += `<div class="kp-explicacion">`;
   parrafos.forEach(p => {
     if (p.startsWith('- ') || p.startsWith('• ')) html += `<div class="kp-expl-item">• ${esc(p.slice(2))}</div>`;
@@ -447,8 +447,8 @@ function screenTest(s, est) {
       <span class="kp-orb" aria-hidden="true"></span>
       <div class="kp-qt">📝 Pregunta ${s.pi + 1} de ${s.nPreg}</div>
       <div class="kp-q">${esc(p.pregunta || '…')}</div>`;
-  if (p.imagen_url) html += kpImg(p.imagen_url, p.fuente);
-  if (p.pictograma) html += kpImg(p.pictograma, p.fuente);
+  if (p.imagen_url) html += kpImg(p.imagen_url, p.fuente, p.imagen_alt);
+  if (p.pictograma) html += kpImg(p.pictograma, p.fuente, p.imagen_alt);
   html += `</div>`;
   html += `<div class="kp-answers">`;
   orden.forEach((k, idx) => {
@@ -505,7 +505,7 @@ function screenSopa(s, est) {
   let html = `<div class="kp-screen">
     <div class="kp-qt">🔤 Sopa de letras</div>
     <div class="kp-wordchips">${chips}</div>`;
-  if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente);
+  if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente, b.imagen_alt);
   html += `<div class="kp-grid" data-pantalla="${pantallaIdx}" data-size="${s.size}" style="grid-template-columns:repeat(${s.size},1fr);">`;
   s.grid.forEach((row, r) => row.forEach((c, cc) => {
     let cls = 'kp-cell';
@@ -730,11 +730,11 @@ function screenRelacionar(s, est) {
   const izqCls = (j) => (hechas[j] ? ' ok' : (est.izq === j ? ' sel' : ''));
   const derCls = (j) => (hechas[j] ? ' ok' : '');
   const itemIzq = (j) => pares[j].izq_img
-    ? `<div class="kp-pair-img" style="background-image:url('${esc(pares[j].izq_img)}')" title="${esc(pares[j].izq || '')}"></div>`
+    ? `<div class="kp-pair-img" style="background-image:url('${esc(pares[j].izq_img)}')" role="img" aria-label="${esc(pares[j].izq_alt || pares[j].izq || 'Imagen')}" title="${esc(pares[j].izq || '')}"></div>`
     : esc(pares[j].izq || '…');
   let html = `<div class="kp-screen">
     <div class="kp-qt">🔗 Relacionar</div>`;
-  if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente);
+  if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente, b.imagen_alt);
   html += `<div class="kp-match">
       <div class="kp-col">${izqOrder.map((j) => `<div class="kp-pair${izqCls(j)}" onclick="kpIzq(${pantallaIdx},${j})">${hechas[j] ? '✅ ' : ''}${itemIzq(j)}</div>`).join('')}</div>
       <div class="kp-col">${derOrder.map((j) => `<div class="kp-pair alt${derCls(j)}" onclick="kpDer(${pantallaIdx},${j})">${hechas[j] ? '✅ ' : ''}${esc(pares[j].der || '…')}</div>`).join('')}</div>
@@ -751,14 +751,14 @@ function screenRelacionarEscribir(s, est, pares) {
   const done = pares.every((_, j) => escrito[j] === 'ok');
   let html = `<div class="kp-screen">
     <div class="kp-qt">✏️ Escribe la palabra</div>`;
-  if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente);
+  if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente, b.imagen_alt);
   html += `<div class="kp-esc-list">`;
   pares.forEach((p, j) => {
     const st = escrito[j];
     const pista = (p.izq || '').trim();
     html += `<div class="kp-esc-item">
       <div class="kp-esc-fig">${p.izq_img
-        ? `<img src="${esc(p.izq_img)}" alt="${esc(pista || p.der || '')}">`
+        ? `<img src="${esc(p.izq_img)}" alt="${esc(p.izq_alt || pista || p.der || '')}">`
         : `<span class="kp-esc-texto">${esc(pista || '…')}</span>`}</div>
       <div class="kp-input-row">
         <input id="kp-esc-${pantallaIdx}-${j}" class="kp-input" type="text" placeholder="Escribe la palabra…" ${st === 'ok' ? 'disabled' : ''} value="${st === 'ok' ? esc(p.der) : ''}" />
@@ -815,7 +815,7 @@ function screenOrdenar(s, est) {
   const pend = est.orden.slice(est.hechas);
   let html = `<div class="kp-screen">
     <div class="kp-qt">📌 Ordena los pasos</div>`;
-  if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente);
+  if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente, b.imagen_alt);
   html += `<div class="kp-steps">`;
   done.forEach((ix, k) => { html += `<div class="kp-step done"><span class="kp-num">${k + 1}</span>${esc(b.items[ix] || '…')}</div>`; });
   pend.forEach((ix) => { html += `<div class="kp-step" onclick="kpOrden(${pantallaIdx},${ix})"><span class="kp-num">?</span>${esc(b.items[ix] || '…')}</div>`; });
@@ -840,7 +840,7 @@ function screenCompletar(s, est) {
   const modo = b.modo || 'escribir';
   let html = `<div class="kp-screen">
     <div class="kp-qt">✏️ Completa la frase</div>`;
-  if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente);
+  if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente, b.imagen_alt);
   (b.frases || []).forEach((f, fi) => {
     const st = estado[fi];
     html += `<div class="kp-frase">${esc(f.texto || '').replace('___', '<span class="kp-blank"></span>')}</div>`;

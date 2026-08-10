@@ -629,6 +629,11 @@ footer a { color: var(--pj-yellow); text-decoration: none; }
   background: var(--pj-gray-100);
   padding: 6px 10px; font-style: italic;
 }
+.img-preview .img-alt-txt {
+  font-size: 12px; color: var(--pj-purple);
+  background: var(--pj-purple-light);
+  padding: 6px 10px;
+}
 .img-preview .img-remove {
   position: absolute; top: 6px; right: 6px;
   border: none; border-radius: 8px;

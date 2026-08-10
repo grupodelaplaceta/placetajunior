@@ -92,6 +92,8 @@
       <input id="img-url" type="url" placeholder="https://…" />
       <label>Fuente (cita / autoría)</label>
       <input id="img-fuente" type="text" placeholder="Ej: NASA · imagen de dominio público" />
+      <label>Texto alternativo (alt) <span style="font-weight:400;color:#666;">· accesibilidad</span></label>
+      <input id="img-alt" type="text" placeholder="Describe la imagen para accesibilidad…" />
       <div class="m-actions">
         <button id="img-cancel" class="btn btn-outline" type="button">Cancelar</button>
         <button id="img-ok" class="btn btn-purple" type="button">Usar imagen</button>
@@ -185,6 +187,27 @@
             <option value="entidad_eip">🏛️ Entidad (EIP)</option>
             <option value="profesor">👨‍🏫 Profesor (Google)</option>
           </select>
+        </div>
+      </div>
+      <div class="m-precios">
+        <p class="form-note" style="margin:2px 0 6px;">💰 <strong>Precios y recompensa</strong> (Pz · IVA incluido). El Filtro puede ajustarlos al aprobar.</p>
+        <div class="row2" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+          <div>
+            <label>Precio licencia (Pz)</label>
+            <input id="m-precio-licencia" type="number" min="0" value="0" placeholder="0" />
+          </div>
+          <div>
+            <label>Precio intento (Pz)</label>
+            <input id="m-precio-intento" type="number" min="0" value="0" placeholder="0" />
+          </div>
+          <div>
+            <label>Recompensa (Pz)</label>
+            <input id="m-recompensa" type="number" min="0" value="0" placeholder="0" />
+          </div>
+        </div>
+        <div class="row2" style="display:flex;gap:16px;margin-top:8px;">
+          <label class="check"><input id="m-subvencionada" type="checkbox"> 🎁 Subvencionada (gratis para el niño)</label>
+          <label class="check"><input id="m-destacada" type="checkbox"> ⭐ Destacada</label>
         </div>
       </div>
       <div id="m-identidad"></div>

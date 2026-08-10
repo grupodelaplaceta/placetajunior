@@ -124,11 +124,11 @@ function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;
 
 // ── Estado ───────────────────────────────────────────────────────────
 function nuevoBloque(tipo) {
-  const b = { tipo, titulo: TIPOS[tipo].nombre, imagen_url: null, fuente: null };
-  if (tipo === 'test') b.preguntas = [{ pregunta: '', opciones: ['', '', '', ''], correcta: 0, imagen_url: null, fuente: null }];
+  const b = { tipo, titulo: TIPOS[tipo].nombre, imagen_url: null, imagen_alt: null, fuente: null };
+  if (tipo === 'test') b.preguntas = [{ pregunta: '', opciones: ['', '', '', ''], correcta: 0, imagen_url: null, imagen_alt: null, fuente: null }];
   if (tipo === 'texto') b.contenido = '';
   if (tipo === 'sopa_letras') { b.palabras = ['', '']; b.pistas = ['', '']; b.tamano = 10; }
-  if (tipo === 'relacionar') b.pares = [{ izq: '', der: '' }];
+  if (tipo === 'relacionar') b.pares = [{ izq: '', der: '', izq_img: null, izq_alt: null, izq_fuente: null }];
   if (tipo === 'ordenar') b.items = ['', '', ''];
   if (tipo === 'completar') b.frases = [{ texto: '', respuesta: '', opciones: ['', ''] }];
   if (tipo === 'calculo_mental') { b.sumas = [{ a: '', b: '' }]; b.segundos = 10; b.modo = 'opciones'; }
@@ -190,7 +190,8 @@ function renderBloque(b, i) {
 
 function renderImagenBloque(b, i) {
   const prev = b.imagen_url
-    ? `<div class="img-preview"><img src="${esc(b.imagen_url)}"><div class="img-fuente"><span class="material-symbols-rounded q-ico">photo_camera</span> ${esc(b.fuente || 'Fuente sin indicar')}</div>
+    ? `<div class="img-preview"><img src="${esc(b.imagen_url)}" alt="${esc(b.imagen_alt || '')}"><div class="img-fuente"><span class="material-symbols-rounded q-ico">photo_camera</span> ${esc(b.fuente || 'Fuente sin indicar')}</div>
+       ${b.imagen_alt ? `<div class="img-alt-txt">♿ ${esc(b.imagen_alt)}</div>` : ''}
        <button class="img-remove" onclick="quitarImagenBloque(${i})">✕</button></div>`
     : '';
   return `
@@ -210,8 +211,9 @@ function renderTexto(b, i) {
       </div>
       ${b.imagen_url ? `
       <div class="img-preview">
-        <img src="${esc(b.imagen_url)}">
+        <img src="${esc(b.imagen_url)}" alt="${esc(b.imagen_alt || '')}">
         <div class="img-fuente"><span class="material-symbols-rounded q-ico">photo_camera</span> ${esc(b.fuente || 'Fuente sin indicar')}</div>
+        ${b.imagen_alt ? `<div class="img-alt-txt">♿ ${esc(b.imagen_alt)}</div>` : ''}
         <button class="img-remove" onclick="quitarImagenBloque(${i})">✕</button>
       </div>` : ''}
       <textarea rows="5" placeholder="Explica el contenido antes de preguntar. Puedes usar saltos de línea y listas." style="width:100%;margin-top:8px;" oninput="setCampo(${i},'contenido',this.value)">${esc(b.contenido || '')}</textarea>
@@ -233,8 +235,9 @@ function renderTest(b, i) {
       <input placeholder="Escribe la pregunta" value="${esc(p.pregunta)}" oninput="setPregunta(${i},${j},'pregunta',this.value)" />
       ${p.imagen_url ? `
         <div class="img-preview">
-          <img src="${esc(p.imagen_url)}">
+          <img src="${esc(p.imagen_url)}" alt="${esc(p.imagen_alt || '')}">
           <div class="img-fuente"><span class="material-symbols-rounded q-ico">photo_camera</span> ${esc(p.fuente || 'Fuente sin indicar')}</div>
+          ${p.imagen_alt ? `<div class="img-alt-txt">♿ ${esc(p.imagen_alt)}</div>` : ''}
           <button class="img-remove" onclick="quitarImagenPregunta(${i},${j})">✕</button>
         </div>` : ''}
       ${p.opciones.map((op, k) => `
@@ -294,8 +297,9 @@ function renderRelacionar(b, i) {
       </div>
       ${p.izq_img ? `
       <div class="img-preview">
-        <img src="${esc(p.izq_img)}">
+        <img src="${esc(p.izq_img)}" alt="${esc(p.izq_alt || '')}">
         <div class="img-fuente"><span class="material-symbols-rounded q-ico">photo_camera</span> ${esc(p.izq_fuente || 'Fuente sin indicar')}</div>
+        ${p.izq_alt ? `<div class="img-alt-txt">♿ ${esc(p.izq_alt)}</div>` : ''}
         <button class="img-remove" onclick="quitarImagenPareja(${i},${j})">✕</button>
       </div>` : ''}
       <div class="row2">
@@ -430,7 +434,7 @@ function setPregunta(i, j, campo, valor, k) {
   else bloques[i].preguntas[j][campo] = valor;
 }
 function anadirPregunta(i) {
-  bloques[i].preguntas.push({ pregunta: '', opciones: ['', '', '', ''], correcta: 0, imagen_url: null, fuente: null });
+  bloques[i].preguntas.push({ pregunta: '', opciones: ['', '', '', ''], correcta: 0, imagen_url: null, imagen_alt: null, fuente: null });
   render();
 }
 function borrarPregunta(i, j) { bloques[i].preguntas.splice(j, 1); render(); }
@@ -443,7 +447,7 @@ function borrarOpcion(i, j, k) {
 }
 function marcarCorrecta(i, j, k) { bloques[i].preguntas[j].correcta = k; render(); }
 function anadirItem(i, campo, campo2) {
-  if (campo === 'pares') bloques[i].pares.push({ izq: '', der: '', izq_img: null, izq_fuente: null });
+  if (campo === 'pares') bloques[i].pares.push({ izq: '', der: '', izq_img: null, izq_alt: null, izq_fuente: null });
   else if (campo === 'frases') bloques[i].frases.push({ texto: '', respuesta: '', opciones: ['', ''] });
   else bloques[i][campo].push('');
   if (campo2) bloques[i][campo2].push('');
@@ -463,6 +467,14 @@ function abrirImagen(donde, i, j) {
   imgTarget = { donde, i, j };
   $('img-url').value = '';
   $('img-fuente').value = '';
+  $('img-alt').value = '';
+  // Precarga el alt existente si la imagen ya estaba puesta
+  try {
+    const b = bloques[i];
+    if (donde === 'bloque') $('img-alt').value = b.imagen_alt || '';
+    else if (donde === 'pregunta') $('img-alt').value = (b.preguntas[j] && b.preguntas[j].imagen_alt) || '';
+    else if (donde === 'pareja') $('img-alt').value = (b.pares[j] && b.pares[j].izq_alt) || '';
+  } catch (e) { /* sin bloque no hay nada que precargar */ }
   renderGaleria();
   $('img-modal').classList.remove('hidden');
 }
@@ -471,22 +483,25 @@ function imagenPareja(i, j) { abrirImagen('pareja', i, j); }
 function aplicarImagen() {
   const url = $('img-url').value.trim();
   const fuente = $('img-fuente').value.trim() || 'Fuente sin indicar';
+  const alt = $('img-alt').value.trim();
   if (!url) { juniorAviso('Elige o pega una URL de imagen.', 'error'); return; }
   const t = imgTarget;
-  if (t.donde === 'bloque') { bloques[t.i].imagen_url = url; bloques[t.i].fuente = fuente; }
+  if (t.donde === 'bloque') { bloques[t.i].imagen_url = url; bloques[t.i].fuente = fuente; bloques[t.i].imagen_alt = alt; }
   else if (t.donde === 'pregunta') {
     bloques[t.i].preguntas[t.j].imagen_url = url;
     bloques[t.i].preguntas[t.j].fuente = fuente;
+    bloques[t.i].preguntas[t.j].imagen_alt = alt;
   } else if (t.donde === 'pareja') {
     bloques[t.i].pares[t.j].izq_img = url;
     bloques[t.i].pares[t.j].izq_fuente = fuente;
+    bloques[t.i].pares[t.j].izq_alt = alt;
   }
   $('img-modal').classList.add('hidden');
   render();
 }
-function quitarImagenBloque(i) { bloques[i].imagen_url = null; bloques[i].fuente = null; render(); }
-function quitarImagenPregunta(i, j) { bloques[i].preguntas[j].imagen_url = null; bloques[i].preguntas[j].fuente = null; render(); }
-function quitarImagenPareja(i, j) { bloques[i].pares[j].izq_img = null; bloques[i].pares[j].izq_fuente = null; render(); }
+function quitarImagenBloque(i) { bloques[i].imagen_url = null; bloques[i].fuente = null; bloques[i].imagen_alt = null; render(); }
+function quitarImagenPregunta(i, j) { bloques[i].preguntas[j].imagen_url = null; bloques[i].preguntas[j].fuente = null; bloques[i].preguntas[j].imagen_alt = null; render(); }
+function quitarImagenPareja(i, j) { bloques[i].pares[j].izq_img = null; bloques[i].pares[j].izq_fuente = null; bloques[i].pares[j].izq_alt = null; render(); }
 
 // ── Vista previa JUGABLE: cómo lo verán los niños ────────────────────
 let pantallas = [];
@@ -513,8 +528,8 @@ function emojiCat(cat = '') {
   if (c.includes('logic')) return 'psychology';
   return 'extension';
 }
-function kpImg(url, fuente) {
-  return `<div class="kp-img"><img src="${esc(url)}" alt=""><div class="kp-fuente"><span class="material-symbols-rounded q-ico">photo_camera</span> ${esc(fuente || 'Fuente sin indicar')}</div></div>`;
+function kpImg(url, fuente, alt) {
+  return `<div class="kp-img"><img src="${esc(url)}" alt="${esc(alt || '')}"><div class="kp-fuente"><span class="material-symbols-rounded q-ico">photo_camera</span> ${esc(fuente || 'Fuente sin indicar')}</div></div>`;
 }
 function shuffleArr(a) {
   const x = [...a];
@@ -739,7 +754,7 @@ function screenTexto(s, est) {
   const parrafos = (b.contenido || '').split(/\n+/).map(t => t.trim()).filter(Boolean);
   let html = `<div class="kp-screen">
     <div class="kp-qt">📖 ${esc(b.titulo || 'Aprende')}</div>`;
-  if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente);
+  if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente, b.imagen_alt);
   html += `<div class="kp-explicacion">`;
   parrafos.forEach(p => {
     if (p.startsWith('- ') || p.startsWith('• ')) html += `<div class="kp-expl-item">• ${esc(p.slice(2))}</div>`;
@@ -776,7 +791,7 @@ function screenTest(s, est) {
   let html = `<div class="kp-screen">
     <div class="kp-qt">📝 Pregunta ${s.pi + 1} de ${s.nPreg}</div>
     <div class="kp-q">${esc(p.pregunta || '…')}</div>`;
-  if (p.imagen_url) html += kpImg(p.imagen_url, p.fuente);
+  if (p.imagen_url) html += kpImg(p.imagen_url, p.fuente, p.imagen_alt);
   html += `<div class="kp-opts">`;
   orden.forEach((k) => {
     const op = p.opciones[k];
@@ -821,7 +836,7 @@ function screenSopa(s, est) {
   let html = `<div class="kp-screen">
     <div class="kp-qt">🔤 Sopa de letras</div>
     <div class="kp-wordchips">${chips}</div>`;
-  if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente);
+  if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente, b.imagen_alt);
   html += `<div class="kp-grid" data-pantalla="${pantallaIdx}" data-size="${s.size}" style="grid-template-columns:repeat(${s.size},1fr);">`;
   s.grid.forEach((row, r) => row.forEach((c, cc) => {
     let cls = 'kp-cell';
@@ -994,11 +1009,11 @@ function screenRelacionar(s, est) {
   const izqCls = (j) => (hechas[j] ? ' ok' : (est.izq === j ? ' sel' : ''));
   const derCls = (j) => (hechas[j] ? ' ok' : '');
   const itemIzq = (j) => pares[j].izq_img
-    ? `<div class="kp-pair-img" style="background-image:url('${esc(pares[j].izq_img)}')" title="${esc(pares[j].izq || '')}"></div>`
+    ? `<div class="kp-pair-img" style="background-image:url('${esc(pares[j].izq_img)}')" role="img" aria-label="${esc(pares[j].izq_alt || pares[j].izq || 'Imagen')}" title="${esc(pares[j].izq || '')}"></div>`
     : esc(pares[j].izq || '…');
   let html = `<div class="kp-screen">
     <div class="kp-qt">🔗 Relacionar</div>`;
-  if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente);
+  if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente, b.imagen_alt);
   html += `<div class="kp-match">
       <div class="kp-col">${izqOrder.map((j) => `<div class="kp-pair${izqCls(j)}" onclick="kpIzq(${pantallaIdx},${j})">${hechas[j] ? '✅ ' : ''}${itemIzq(j)}</div>`).join('')}</div>
       <div class="kp-col">${derOrder.map((j) => `<div class="kp-pair alt${derCls(j)}" onclick="kpDer(${pantallaIdx},${j})">${hechas[j] ? '✅ ' : ''}${esc(pares[j].der || '…')}</div>`).join('')}</div>
@@ -1015,14 +1030,14 @@ function screenRelacionarEscribir(s, est, pares) {
   const done = pares.every((_, j) => escrito[j] === 'ok');
   let html = `<div class="kp-screen">
     <div class="kp-qt">✏️ Escribe la palabra</div>`;
-  if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente);
+  if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente, b.imagen_alt);
   html += `<div class="kp-esc-list">`;
   pares.forEach((p, j) => {
     const st = escrito[j];
     const pista = (p.izq || '').trim();
     html += `<div class="kp-esc-item">
       <div class="kp-esc-fig">${p.izq_img
-        ? `<img src="${esc(p.izq_img)}" alt="${esc(pista || p.der || '')}">`
+        ? `<img src="${esc(p.izq_img)}" alt="${esc(p.izq_alt || pista || p.der || '')}">`
         : `<span class="kp-esc-texto">${esc(pista || '…')}</span>`}</div>
       <div class="kp-input-row">
         <input id="kp-esc-${pantallaIdx}-${j}" class="kp-input" type="text" placeholder="Escribe la palabra…" ${st === 'ok' ? 'disabled' : ''} value="${st === 'ok' ? esc(p.der) : ''}" />
@@ -1079,7 +1094,7 @@ function screenOrdenar(s, est) {
   const pend = est.orden.slice(est.hechas);
   let html = `<div class="kp-screen">
     <div class="kp-qt">📌 Ordena los pasos</div>`;
-  if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente);
+  if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente, b.imagen_alt);
   html += `<div class="kp-steps">`;
   done.forEach((ix, k) => { html += `<div class="kp-step done"><span class="kp-num">${k + 1}</span>${esc(b.items[ix] || '…')}</div>`; });
   pend.forEach((ix) => { html += `<div class="kp-step" onclick="kpOrden(${pantallaIdx},${ix})"><span class="kp-num">?</span>${esc(b.items[ix] || '…')}</div>`; });
@@ -1104,7 +1119,7 @@ function screenCompletar(s, est) {
   const modo = b.modo || 'escribir';
   let html = `<div class="kp-screen">
     <div class="kp-qt">✏️ Completa la frase</div>`;
-  if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente);
+  if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente, b.imagen_alt);
   (b.frases || []).forEach((f, fi) => {
     const st = estado[fi];
     html += `<div class="kp-frase">${esc(f.texto || '').replace('___', '<span class="kp-blank"></span>')}</div>`;
@@ -1255,6 +1270,11 @@ function abrirMeta() {
   $('m-dificultad').value = meta.dificultad;
   $('m-tiempo').value = meta.tiempo;
   $('m-titular').value = meta.titular || 'interno';
+  if ($('m-precio-licencia')) $('m-precio-licencia').value = meta.precio_licencia || 0;
+  if ($('m-precio-intento')) $('m-precio-intento').value = meta.precio_intento || 0;
+  if ($('m-recompensa')) $('m-recompensa').value = meta.recompensa || 0;
+  if ($('m-subvencionada')) $('m-subvencionada').checked = !!meta.subvencionada;
+  if ($('m-destacada')) $('m-destacada').checked = !!meta.destacada;
   actualizarIdentidad();
   if (meta.eip) $('m-eip').value = meta.eip;
   if (meta.entidad) $('m-entidad').value = meta.entidad;
@@ -1346,6 +1366,11 @@ async function publicar() {
   const dificultad = $('m-dificultad').value;
   const tiempo_estimado = parseInt($('m-tiempo').value, 10) || 10;
   const titular = $('m-titular').value;
+  const precio_licencia = parseInt($('m-precio-licencia')?.value, 10) || 0;
+  const precio_intento = parseInt($('m-precio-intento')?.value, 10) || 0;
+  const recompensa = parseInt($('m-recompensa')?.value, 10) || 0;
+  const subvencionada = !!($('m-subvencionada')?.checked);
+  const destacada = !!($('m-destacada')?.checked);
 
   let dip = '';
   let eip = '';
@@ -1363,7 +1388,7 @@ async function publicar() {
   const num_preguntas = contarPreguntas();
   if (num_preguntas === 0) { aviso('Añade contenido real en los bloques (preguntas, palabras, parejas…).', true); return; }
 
-  meta = { titulo, descripcion, categoria, tipo, edad: edad_recomendada, dificultad, tiempo: tiempo_estimado, titular, dip, eip, entidad, autor, pictograma };
+  meta = { titulo, descripcion, categoria, tipo, edad: edad_recomendada, dificultad, tiempo: tiempo_estimado, titular, dip, eip, entidad, autor, pictograma, precio_licencia, precio_intento, recompensa, subvencionada, destacada };
   guardar();
 
   const body = {
@@ -1372,6 +1397,7 @@ async function publicar() {
     edad_recomendada, dificultad, tiempo_estimado,
     num_preguntas,
     num_fases: bloques.length,
+    precio_licencia, precio_intento, recompensa, subvencionada, destacada,
     contenido: { version: 2, bloques, ...(pictograma ? { pictograma } : {}) }
   };
 
