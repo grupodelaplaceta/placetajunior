@@ -1323,7 +1323,13 @@ footer p { color: rgba(255, 255, 255, .75); }
 }
 .cute-block:hover { transform: translateY(-3px); box-shadow: 0 7px 0 rgba(0,0,0,.16), 0 10px 20px rgba(76,141,255,.32); }
 .cute-block:active { transform: translateY(2px) scale(.96); box-shadow: 0 1px 0 rgba(0,0,0,.2); }
-.cute-block .blk-emoji { font-size: 24px; line-height: 1; }
+.cute-block .blk-emoji { font-size: 24px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
+.blk-icono { display: inline-block; vertical-align: middle; color: #fff; }
+.cute-block .blk-icono { width: 26px; height: 26px; }
+.cute-chip .blk-icono { width: 16px; height: 16px; }
+.cute-chip-etiqueta { display: inline-flex; align-items: center; gap: 4px; }
+.cute-dir .blk-icono { width: 18px; height: 18px; }
+.cute-dir { display: inline-flex; align-items: center; justify-content: center; }
 .cute-block .blk-nombre { font-size: 10px; letter-spacing: .4px; font-weight: 800; text-transform: uppercase; }
 /* Línea de código */
 .code-line-wrap { margin: 8px 0 4px; }
@@ -1353,6 +1359,10 @@ footer p { color: rgba(255, 255, 255, .75); }
 .cute-del { cursor: pointer; background: rgba(0,0,0,.28); border: none; color: #fff; border-radius: 999px; width: 20px; height: 20px; font-size: 11px; font-weight: 700; line-height: 1; }
 .cute-dir { cursor: pointer; background: rgba(255,255,255,.35); border: none; color: #fff; border-radius: 999px; width: 26px; height: 26px; font-size: 15px; font-weight: 800; line-height: 1; transition: transform .1s; }
 .cute-dir:hover { transform: scale(1.15); }
+.cute-chip-explica { font-size: 10px; font-weight: 600; color: rgba(255,255,255,.9); opacity: .85; }
+.cute-chip.contenedor { border: 2px dashed rgba(255,255,255,.55); background: linear-gradient(135deg, var(--blk, #ff9f1c), #ffbe4d); }
+.cute-chip.contenedor.abierto { border-color: #fff; box-shadow: 0 0 0 3px var(--pj-orange, #FF6600), 0 4px 0 rgba(0,0,0,.16); }
+.cute-chip.contenedor .cute-sub { margin-top: 2px; }
 .cute-sub { display: inline-flex; gap: 4px; align-items: center; flex-wrap: wrap; }
 /* Botones de acción */
 .code-acciones { display: flex; gap: 10px; justify-content: center; align-items: center; margin: 12px 0; flex-wrap: wrap; }

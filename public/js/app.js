@@ -281,16 +281,89 @@ function cerrarDetalle() {
   window.scrollTo(0, 0);
 }
 
+// Genera el worksheet imprimible de una actividad code_blocks.
+// Muestra cada ejercicio con su cuadrícula, la instrucción y líneas en
+// blanco para escribir el programa a mano en papel (AVANZAR, GIRAR, etc.).
+function generarPdfCode(a) {
+  const contenido = a.contenido || {};
+  const ejercicios = (window.PJCode && PJCode.obtenerEjercicios)
+    ? PJCode.obtenerEjercicios(contenido)
+    : [{
+        titulo: contenido.titulo || 'Ejercicio 1',
+        explicacion: contenido.explicacion || '',
+        objetivo_texto: contenido.objetivo_texto || 'Lleva a Candela hasta la estrella.',
+        escenario: contenido.escenario || { tipo: 'cuadricula', ancho: 6, alto: 6 },
+        inicio: contenido.inicio || { x: 0, y: 0, direccion: 'derecha' },
+        objetivo: contenido.objetivo || {},
+        bloques_permitidos: contenido.bloques_permitidos || null,
+        pistas: contenido.pistas || []
+      }];
+
+  const nombresBloque = {
+    avanzar: 'AVANZAR ➡️', retroceder: 'RETROCEDER ⬅️', girar: 'GIRAR',
+    saltar: 'SALTAR ⤴️', repetir: 'REPETIR 🔁', si: 'SI ❓'
+  };
+
+  // Dibuja la cuadrícula del ejercicio como tabla HTML para imprimir
+  function cuadricula(ej) {
+    const esc = ej.escenario || {};
+    const ancho = esc.ancho || 6, alto = esc.alto || 6;
+    const obj = ej.objetivo || {};
+    const ini = ej.inicio || {};
+    const obst = new Set((esc.obstaculos || []).map(o => o.x + ',' + o.y));
+    const mon = new Set((esc.monedas || []).map(m => m.x + ',' + m.y));
+    const cellMm = Math.max(6, Math.min(12, Math.floor(150 / ancho)));
+    const fs = Math.max(8, cellMm - 3);
+    let html = '<table class="ws-code-grid" style="border-collapse:collapse;margin:8px auto;">';
+    for (let r = 0; r < alto; r++) {
+      html += '<tr>';
+      for (let c = 0; c < ancho; c++) {
+        let txt = '';
+        if (obst.has(c + ',' + r)) txt = '🚧';
+        else if (mon.has(c + ',' + r)) txt = '🪙';
+        if (obj.posicion && obj.posicion.x === c && obj.posicion.y === r) txt = '⭐';
+        if (ini.x === c && ini.y === r) txt = '👧';
+        html += '<td style="width:' + cellMm + 'mm;height:' + cellMm + 'mm;text-align:center;vertical-align:middle;border:1px solid #8a91a0;font-size:' + fs + 'px;">' + txt + '</td>';
+      }
+      html += '</tr>';
+    }
+    html += '</table>';
+    return html;
+  }
+
+  let cuerpo = '<div class="ws-sec ws-code"><h4>💻 Placeta Junior Code — Escribe el programa</h4>';
+  cuerpo += '<p class="ws-hint">Escribe los pasos del programa en cada línea para llevar a Candela 👧 hasta la estrella ⭐ sin chocar.</p>';
+  ejercicios.forEach((ej, i) => {
+    const permitidos = (ej.bloques_permitidos && ej.bloques_permitidos.length) ? ej.bloques_permitidos : ['avanzar', 'girar'];
+    cuerpo += '<div class="ws-code-ej">';
+    cuerpo += '<h5>Ejercicio ' + (i + 1) + ' — ' + esc(ej.titulo || '') + '</h5>';
+    if (ej.explicacion) cuerpo += '<p class="ws-hint">' + esc(ej.explicacion) + '</p>';
+    cuerpo += '<p class="ws-hint"><b>Objetivo:</b> ' + esc(ej.objetivo_texto || '') + '</p>';
+    cuerpo += '<p class="ws-words"><b>Bloques que puedes usar:</b> ' + permitidos.map(p => esc(nombresBloque[p] || p)).join(' · ') + '</p>';
+    cuerpo += cuadricula(ej);
+    cuerpo += '<div class="ws-code-lineas">';
+    for (let k = 0; k < 8; k++) cuerpo += '<div class="ws-line">' + (k + 1) + '. _______________</div>';
+    cuerpo += '</div>';
+    cuerpo += '</div>';
+  });
+  cuerpo += '</div>';
+  return cuerpo;
+}
+
 // Worksheet imprimible en PDF A4 (ventana de impresión del navegador)
 async function descargarPdf(id) {
   const a = TODAS.find(x => x.id === id) || null;
   if (!a) return;
   if (window.pjSonido) pjSonido.clic();
+  const esCode = a.tipo === 'code_blocks' || (a.contenido && a.contenido.tipo === 'code_blocks');
   const bloques = (a.contenido && a.contenido.bloques) || [];
   const wsImg = (url, fuente) => url
     ? `<div class="ws-img"><img src="${esc(url)}" alt=""><span class="ws-fuente">${esc(fuente || 'Imagen')}</span></div>`
     : '';
   let cuerpo = '';
+  if (esCode) {
+    cuerpo = generarPdfCode(a);
+  }
   bloques.forEach((b) => {
     if (b.tipo === 'test' && b.preguntas && b.preguntas.length) {
       cuerpo += '<div class="ws-sec ws-test"><h4>Preguntas</h4>';

@@ -1045,15 +1045,32 @@ function kpMapa(idx, en) {
 }
 
 // ── Placeta Junior Code: editor de bloques (integrado en el player) ──
-// Estética "cute": botones redondeados con flechas y colores suaves.
+// Estética "cute": botones redondeados con iconos SVG descriptivos (no emojis).
+// Cada icono es una flecha clara que muestra EXACTAMENTE qué hace Candela.
 const CODE_BLOQUES_INFO = {
-  avanzar:    { cat: 'mov', nombre: 'AVANZAR', clase: 'b-move', color: '#4c8dff', flecha: '➡️', params: [], desc: 'Avanza 1 casilla', emoji: '➡️' },
-  retroceder: { cat: 'mov', nombre: 'RETROCEDER', clase: 'b-move', color: '#4c8dff', flecha: '⬅️', params: [], desc: 'Retrocede 1 casilla', emoji: '⬅️' },
-  girar:      { cat: 'mov', nombre: 'GIRAR', clase: 'b-move', color: '#4c8dff', flecha: '🔄', params: [{ k: 'dir', o: ['derecha', 'izquierda'] }], desc: 'Gira', emoji: '🔄' },
-  saltar:     { cat: 'mov', nombre: 'SALTAR', clase: 'b-move', color: '#4c8dff', flecha: '⤴️', params: [], desc: 'Salta 2 casillas', emoji: '⤴️' },
-  repetir:    { cat: 'ctrl', nombre: 'REPETIR', clase: 'b-control', color: '#ff9f1c', flecha: '🔁', params: [{ k: 'veces', n: 1 }], anida: true, desc: 'Repite N veces', emoji: '🔁' },
-  si:         { cat: 'ctrl', nombre: 'SI', clase: 'b-control', color: '#ff9f1c', flecha: '❓', params: [{ k: 'condicion', o: ['obstáculo', 'moneda', 'libre'] }], anida: true, desc: 'Si se cumple…', emoji: '❓' },
+  avanzar:    { cat: 'mov', nombre: 'AVANZAR', clase: 'b-move', color: '#4c8dff', params: [], desc: 'Avanza 1 casilla', icono: 'flecha-derecha' },
+  retroceder: { cat: 'mov', nombre: 'RETROCEDER', clase: 'b-move', color: '#4c8dff', params: [], desc: 'Retrocede 1 casilla', icono: 'flecha-izquierda' },
+  girar:      { cat: 'mov', nombre: 'GIRAR', clase: 'b-move', color: '#4c8dff', params: [{ k: 'dir', o: ['derecha', 'izquierda'] }], desc: 'Gira', icono: 'flecha-curva' },
+  saltar:     { cat: 'mov', nombre: 'SALTAR', clase: 'b-move', color: '#4c8dff', params: [], desc: 'Salta 2 casillas', icono: 'flecha-salto' },
+  repetir:    { cat: 'ctrl', nombre: 'REPETIR', clase: 'b-control', color: '#ff9f1c', params: [{ k: 'veces', n: 1 }], anida: true, desc: 'Repite N veces', icono: 'bucle' },
+  si:         { cat: 'ctrl', nombre: 'SI', clase: 'b-control', color: '#ff9f1c', params: [{ k: 'condicion', o: ['obstáculo', 'moneda', 'libre'] }], anida: true, desc: 'Si se cumple…', icono: 'diamante' },
 };
+
+// Iconos SVG 100% descriptivos (16x16, trazo blanco) para los bloques
+function codeIconoSVG(icono, extra) {
+  const s = extra || '';
+  const d = {
+    'flecha-derecha': '<path d="M2 8h11M9 4l4 4-4 4" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+    'flecha-izquierda': '<path d="M14 8H3M7 4L3 8l4 4" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+    'flecha-curva': '<path d="M8 2v7a3 3 0 0 0 3 3h3M12 9l2 3-2 3" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+    'flecha-curva-der': '<path d="M8 2v5a3 3 0 0 0 3 3h3M12 7l2 3-2 3" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+    'flecha-curva-izq': '<path d="M8 2v5a3 3 0 0 1-3 3H2M4 7L2 10l2 3" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+    'flecha-salto': '<path d="M3 12c1-4 2-6 5-7M8 2l3 3-3 3M13 13c0-2 0-3-1-5" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+    'bucle': '<path d="M3 7a5 5 0 0 1 5-4 5 5 0 0 1 5 4M13 9v4M13 9h-4M2 14l3-3 3 3" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+    'diamante': '<path d="M8 2l6 6-6 6-6-6 6-6zM8 5.5L10.5 8 8 10.5 5.5 8 8 5.5z" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+  }[icono] || d['flecha-derecha'];
+  return `<svg class="blk-icono" width="20" height="20" viewBox="0 0 16 16" aria-hidden="true" ${s}>${d}</svg>`;
+}
 
 // Pantalla de explicación de la actividad de código (tutorial de uso)
 function screenCodeExplica(s) {
@@ -1097,10 +1114,10 @@ function screenCode(s, est) {
         ${obj.max_pasos ? `<span class="kp-chip chip-orange">⏱ ${obj.max_pasos} pasos</span>` : ''}
       </div>
       <div class="code-palette" id="kp-code-paleta">
-        ${s.permitidos.map(op => { const b = CODE_BLOQUES_INFO[op]; if (!b) return ''; return `<button type="button" class="code-block cute-block" draggable="true" data-op="${op}" style="--blk:${b.color}" onclick="kpCodeAñadir('${op}')" title="${esc(b.desc)}"><span class="blk-emoji">${b.flecha}</span><span class="blk-nombre">${esc(b.nombre)}</span></button>`; }).join('')}
+        ${s.permitidos.map(op => { const b = CODE_BLOQUES_INFO[op]; if (!b) return ''; return `<button type="button" class="code-block cute-block" draggable="true" data-op="${op}" style="--blk:${b.color}" onclick="kpCodeAñadir('${op}')" title="${esc(b.desc)}"><span class="blk-emoji">${codeIconoSVG(b.icono)}</span><span class="blk-nombre">${esc(b.nombre)}</span></button>`; }).join('')}
         ${s.permitidos.includes('girar') ? `
-          <button type="button" class="code-block cute-block" draggable="true" data-op="girar" data-dir="derecha" style="--blk:#4c8dff" onclick="kpCodeAñadir('girar', {dir:'derecha'})" title="Gira a la derecha"><span class="blk-emoji">🔄</span><span class="blk-nombre">GIRAR →</span></button>
-          <button type="button" class="code-block cute-block" draggable="true" data-op="girar" data-dir="izquierda" style="--blk:#4c8dff" onclick="kpCodeAñadir('girar', {dir:'izquierda'})" title="Gira a la izquierda"><span class="blk-emoji">🔄</span><span class="blk-nombre">GIRAR ←</span></button>` : ''}
+          <button type="button" class="code-block cute-block" draggable="true" data-op="girar" data-dir="derecha" style="--blk:#4c8dff" onclick="kpCodeAñadir('girar', {dir:'derecha'})" title="Gira a la derecha"><span class="blk-emoji">${codeIconoSVG('flecha-curva-der')}</span><span class="blk-nombre">GIRAR →</span></button>
+          <button type="button" class="code-block cute-block" draggable="true" data-op="girar" data-dir="izquierda" style="--blk:#4c8dff" onclick="kpCodeAñadir('girar', {dir:'izquierda'})" title="Gira a la izquierda"><span class="blk-emoji">${codeIconoSVG('flecha-curva-izq')}</span><span class="blk-nombre">GIRAR ←</span></button>` : ''}
       </div>
       <div class="code-line-wrap">
         <div class="code-line-label">📝 Tu programa</div>
@@ -1117,16 +1134,13 @@ function screenCode(s, est) {
     </div>`;
 }
 
-// Dibuja el escenario de code en el SVG del player
-function kpCodeDibujarEscenario() {
+// Dibuja el escenario de code completo (tablero) con Candela en una posición.
+// `cx`/`cy` = posición de Candela; `dirIdx` = índice de dirección (0..3).
+// Si `extra` tiene `marcador`, muestra "i/n" en la esquina (reproducción).
+function kpCodeTableroHTML(cx, cy, dirIdx, extra) {
   const s = pantallas[pantallaIdx];
-  if (!s || s.tipo !== 'code') return;
-  const esc = s.escenario || {};
-  const ini = s.inicio || {};
-  const obj = s.objetivo || {};
-  const est = kpEstado[pantallaIdx] || {};
-  const svg = document.getElementById('kp-code-escenario');
-  if (!svg) return;
+  const esc = (s && s.escenario) || {};
+  const obj = (s && s.objetivo) || {};
   const W = 600, H = 380;
   const ancho = esc.ancho || 6, alto = esc.alto || 6;
   const cell = Math.min((W - 40) / ancho, (H - 40) / alto);
@@ -1147,20 +1161,44 @@ function kpCodeDibujarEscenario() {
     html += `<circle cx="${ox + px * cell + cell / 2}" cy="${oy + py * cell + cell / 2}" r="${cell * 0.42}" fill="#ffd166" opacity="0.35"/>`;
     html += `<text x="${ox + px * cell + cell / 2}" y="${oy + py * cell + cell / 2 + 6}" text-anchor="middle" font-size="22">⭐</text>`;
   }
+  // Candela en (cx, cy) (salvo que extra.sinCandela lo desactive)
+  const fill = (extra && extra.fill) || '#3a7dff';
+  if (!(extra && extra.sinCandela)) {
+    html += `<circle cx="${ox + cx * cell + cell / 2}" cy="${oy + cy * cell + cell / 2}" r="${cell * 0.34}" fill="${fill}"/>`;
+    html += `<text x="${ox + cx * cell + cell / 2}" y="${oy + cy * cell + cell / 2 + 5}" text-anchor="middle" font-size="14">👧</text>`;
+  }
+  // Flecha de dirección (siempre que dirIdx != null)
+  if (dirIdx != null) {
+    const dirs = { 0: 0, 1: 90, 2: 180, 3: 270 };
+    const ang = dirs[dirIdx] ?? 0;
+    html += `<g transform="translate(${ox + cx * cell + cell / 2}, ${oy + cy * cell + cell / 2 + 12}) rotate(${ang})"><path d="M-6,0 L6,0 M2,-4 L6,0 L2,4" stroke="#1a2b6b" stroke-width="2" fill="none"/></g>`;
+  }
+  // Marcador de paso (reproducción)
+  if (extra && extra.marcador) {
+    html += `<text x="${W - 16}" y="22" text-anchor="end" font-size="15" font-weight="800" fill="#4E3B70">${extra.marcador}</text>`;
+  }
+  return html;
+}
+
+// Dibuja el escenario de code en el SVG del player (estado actual)
+function kpCodeDibujarEscenario() {
+  const s = pantallas[pantallaIdx];
+  if (!s || s.tipo !== 'code') return;
+  const esc = s.escenario || {};
+  const ini = s.inicio || {};
+  const est = kpEstado[pantallaIdx] || {};
+  const svg = document.getElementById('kp-code-escenario');
+  if (!svg) return;
   // Posición final (resultado) o inicio
   const res = est.resultado;
   const px = res ? res.posicion_final.x : (ini.x ?? 0);
   const py = res ? res.posicion_final.y : (ini.y ?? 0);
+  const dirIdx = res
+    ? ['derecha', 'abajo', 'izquierda', 'arriba'].indexOf(res.direccion_final)
+    : ['derecha', 'abajo', 'izquierda', 'arriba'].indexOf(ini.direccion || 'derecha');
   const fill = res ? (est.superado ? '#2ecc71' : '#ff5a5a') : '#3a7dff';
-  html += `<circle cx="${ox + px * cell + cell / 2}" cy="${oy + py * cell + cell / 2}" r="${cell * 0.34}" fill="${fill}"/>`;
-  html += `<text x="${ox + px * cell + cell / 2}" y="${oy + py * cell + cell / 2 + 5}" text-anchor="middle" font-size="14">👧</text>`;
-  // Flecha de dirección (solo si no hay resultado aún)
-  if (!res) {
-    const dirs = { derecha: 0, abajo: 90, izquierda: 180, arriba: 270 };
-    const ang = dirs[ini.direccion] ?? 0;
-    html += `<g transform="translate(${ox + px * cell + cell / 2}, ${oy + py * cell + cell / 2 + 12}) rotate(${ang})"><path d="M-6,0 L6,0 M2,-4 L6,0 L2,4" stroke="#1a2b6b" stroke-width="2" fill="none"/></g>`;
-  }
-  svg.innerHTML = html;
+  // Tras la reproducción no mostramos la flecha si ya hay resultado
+  svg.innerHTML = kpCodeTableroHTML(px, py, res ? null : dirIdx, { fill });
 }
 
 // Pinta el programa como UNA LÍNEA de código (bloques redondeados en fila)
@@ -1182,18 +1220,18 @@ function kpCodePintarPrograma() {
     const chip = document.createElement('span');
     chip.className = 'cute-chip' + (esContenedorAbierto ? ' abierto' : '') + (item.bloques !== undefined ? ' contenedor' : '');
     chip.style.setProperty('--blk', color);
-    // Flecha + nombre
+    // Icono SVG descriptivo + nombre
     const etiq = document.createElement('span');
     etiq.className = 'cute-chip-etiqueta';
-    etiq.innerHTML = `${b.flecha || '➡️'} ${esc(b.nombre)}`;
+    etiq.innerHTML = codeIconoSVG(b.icono) + ' ' + esc(b.nombre);
     chip.appendChild(etiq);
     // Parámetros: para GIRAR mostramos un botón de dirección (→/←) alternable;
-    // para el resto, select/input inline dentro del chip.
+    // para REPETIR/SI, número/condición + etiqueta explicativa.
     if (b.op === 'girar') {
       const dirBtn = document.createElement('button');
       dirBtn.className = 'cute-dir';
       const esIzq = String(item.dir || 'derecha').toLowerCase().startsWith('izq');
-      dirBtn.textContent = esIzq ? '←' : '→';
+      dirBtn.innerHTML = codeIconoSVG(esIzq ? 'flecha-curva-izq' : 'flecha-curva-der', 'class="blk-icono"');
       dirBtn.title = esIzq ? 'Gira a la izquierda' : 'Gira a la derecha';
       dirBtn.onclick = () => {
         item.dir = esIzq ? 'derecha' : 'izquierda';
@@ -1201,6 +1239,28 @@ function kpCodePintarPrograma() {
         kpCodeGuardarPrograma(); kpCodePintarPrograma();
       };
       chip.appendChild(dirBtn);
+    } else if (b.op === 'repetir') {
+      const veces = document.createElement('input');
+      veces.type = 'number'; veces.min = 1; veces.max = 50;
+      veces.value = item.veces != null ? item.veces : 1;
+      veces.style.width = '42px';
+      veces.title = '¿Cuántas veces repetimos?';
+      veces.onchange = () => { item.veces = parseInt(veces.value, 10) || 1; kpCodeGuardarPrograma(); kpCodePintarPrograma(); };
+      chip.appendChild(veces);
+      const vecesLbl = document.createElement('span');
+      vecesLbl.className = 'cute-chip-explica';
+      vecesLbl.textContent = 'veces';
+      chip.appendChild(vecesLbl);
+    } else if (b.op === 'si') {
+      const sel = document.createElement('select');
+      ['obstáculo', 'moneda', 'libre'].forEach(o => { const op = document.createElement('option'); op.value = o; op.textContent = o; sel.appendChild(op); });
+      sel.value = item.condicion != null ? item.condicion : 'obstáculo';
+      sel.onchange = () => { item.condicion = sel.value; kpCodeGuardarPrograma(); kpCodePintarPrograma(); };
+      chip.appendChild(sel);
+      const condLbl = document.createElement('span');
+      condLbl.className = 'cute-chip-explica';
+      condLbl.textContent = '¿delante?';
+      chip.appendChild(condLbl);
     } else {
       (b.params || []).forEach(p => {
         if (p.o) {
@@ -1217,17 +1277,29 @@ function kpCodePintarPrograma() {
         }
       });
     }
-    // Botón cerrar contenedor (solo para repetir/si)
+    // Botón contenedor (solo para repetir/si): + para añadir pasos dentro, ✓ para cerrar
     if (item.bloques !== undefined) {
       const cerrar = document.createElement('button');
       cerrar.className = 'cute-cerrar';
-      cerrar.textContent = esContenedorAbierto ? '✓' : '+';
-      cerrar.title = esContenedorAbierto ? 'Cerrar bloque' : 'Añadir pasos dentro';
+      if (esContenedorAbierto) {
+        cerrar.textContent = '✓';
+        cerrar.title = 'Cerrar: los siguientes pasos van fuera';
+      } else {
+        cerrar.textContent = '+';
+        cerrar.title = 'Añadir pasos dentro';
+      }
       cerrar.onclick = () => {
         est.contenedorAbierto = esContenedorAbierto ? null : idx;
         kpCodePintarPrograma();
       };
       chip.appendChild(cerrar);
+    }
+    // Etiqueta de ayuda para contenedores con pasos dentro
+    if (item.bloques !== undefined && (item.bloques || []).length > 0) {
+      const dentro = document.createElement('span');
+      dentro.className = 'cute-chip-explica';
+      dentro.textContent = '(' + item.bloques.length + ' paso' + (item.bloques.length > 1 ? 's' : '') + ' dentro)';
+      chip.appendChild(dentro);
     }
     const del = document.createElement('button');
     del.className = 'cute-del'; del.textContent = '✕';
@@ -1294,7 +1366,51 @@ function kpCodeGuardarPrograma() {
   const est = kpEstado[pantallaIdx] || {};
   est.resultado = null; est.superado = false;
   guardarPartidaLocal();
-  kpCodeDibujarEscenario();
+  // Previsualización en vivo: muestra el camino que haría Candela con el
+  // programa actual (sin animar, solo orientación mientras programas).
+  kpCodePrevisualizar();
+}
+
+// Dibuja una vista previa del recorrido de Candela con el programa actual.
+function kpCodePrevisualizar() {
+  const s = pantallas[pantallaIdx];
+  if (!s || s.tipo !== 'code') return;
+  const est = kpEstado[pantallaIdx] || {};
+  const svg = document.getElementById('kp-code-escenario');
+  if (!svg) return;
+  const programa = est.programa || [];
+  if (!programa.length || !window.PJCode) {
+    kpCodeDibujarEscenario();
+    return;
+  }
+  const resultado = PJCode.ejecutarCode(s.escenario, s.inicio, kpCodeSerializar(programa), { maxPasos: (s.max_bloques || 10) * 20 });
+  const trazado = (resultado.trazado || []).filter(t => t.accion !== 'inicio' && t.accion !== 'error' && t.accion !== 'si');
+  if (!trazado.length) { kpCodeDibujarEscenario(); return; }
+  const esc = s.escenario || {};
+  const W = 600, H = 380;
+  const ancho = esc.ancho || 6, alto = esc.alto || 6;
+  const cell = Math.min((W - 40) / ancho, (H - 40) / alto);
+  const ox = (W - cell * ancho) / 2, oy = (H - cell * alto) / 2;
+  // Tablero base SIN Candela (para pintar el camino y a Candela al final)
+  let html = kpCodeTableroHTML(trazado[0].x, trazado[0].y, trazado[0].dir, { sinCandela: true });
+  // Camino punteado por todas las posiciones
+  const puntos = trazado.map(t => `${ox + t.x * cell + cell / 2},${oy + t.y * cell + cell / 2}`);
+  const ultimo = trazado[trazado.length - 1];
+  html += `<polyline points="${puntos.join(' ')}" fill="none" stroke="#4c8dff" stroke-width="3" stroke-dasharray="6 5" opacity="0.6"/>`;
+  // Pequeños puntos en cada posición visitada
+  trazado.forEach((t, i) => {
+    if (i === trazado.length - 1) return;
+    html += `<circle cx="${ox + t.x * cell + cell / 2}" cy="${oy + t.y * cell + cell / 2}" r="5" fill="#4c8dff" opacity="0.45"/>`;
+  });
+  // Candela final con color según si llegaría a la estrella
+  const obj = s.objetivo || {};
+  const llega = obj.posicion && ultimo.x === Number(obj.posicion.x) && ultimo.y === Number(obj.posicion.y);
+  const fillFinal = llega ? '#2ecc71' : '#4c8dff';
+  html += `<circle cx="${ox + ultimo.x * cell + cell / 2}" cy="${oy + ultimo.y * cell + cell / 2}" r="${cell * 0.34}" fill="${fillFinal}"/>`;
+  html += `<text x="${ox + ultimo.x * cell + cell / 2}" y="${oy + ultimo.y * cell + cell / 2 + 5}" text-anchor="middle" font-size="14">👧</text>`;
+  // Etiqueta de vista previa
+  html += `<text x="${W - 16}" y="22" text-anchor="end" font-size="13" font-weight="800" fill="#8a93b8">👀 prevista</text>`;
+  svg.innerHTML = html;
 }
 
 function kpCodeVaciar() {
@@ -1338,6 +1454,7 @@ async function kpCodeEjecutar() {
   // 2) Reproducción paso a paso con sonidos distintos
   const trazado = (resultado.trazado || []).filter(t => t.accion !== 'inicio');
   const n = trazado.length;
+  let monedasCogidas = 0;
   for (let i = 0; i < n; i++) {
     const t = trazado[i];
     kpCodeDibujarPaso(t, i + 1, n, est.superado);
@@ -1348,6 +1465,12 @@ async function kpCodeEjecutar() {
       else if (t.moneda) pjSonido.moneda();
       else pjSonido.paso();
     }
+    // Las monedas también suman puntos verdes (mientras se reproducen)
+    if (t.moneda) {
+      kpScore.verdes++;
+      monedasCogidas++;
+      if (window.PJProgreso) { PJProgreso.sumar(1, 0); try { window.dispatchEvent(new CustomEvent('pj:progreso')); } catch (e) { /* ok */ } }
+    }
     await new Promise(res => setTimeout(res, 360));
   }
   // Estado final
@@ -1357,7 +1480,10 @@ async function kpCodeEjecutar() {
     kpScore.verdes++;
     if (window.pjSonido) pjSonido.exito();
     const esUltimo = s.ejercicio >= (s.total_ejercicios || 1) - 1;
-    kpCodeMostrarMsg(esUltimo ? '🎉 ¡Actividad completada! +1 punto verde' : `🎉 ¡Ejercicio ${(s.ejercicio || 0) + 1} superado! Sigue al siguiente.`, true);
+    const extraMonedas = monedasCogidas > 0 ? ` +${monedasCogidas} 🪙` : '';
+    kpCodeMostrarMsg(esUltimo
+      ? '🎉 ¡Actividad completada! +1 punto verde' + extraMonedas
+      : `🎉 ¡Ejercicio ${(s.ejercicio || 0) + 1} superado!` + extraMonedas, true);
     // Guarda el progreso (local); solo se marca completada al superar el último
     if (actividadActual && actividadActual.id && window.PJPartidas) {
       if (esUltimo) {
@@ -1379,28 +1505,15 @@ async function kpCodeEjecutar() {
   if (run) run.disabled = false;
 }
 
-// Dibuja a Candela en el paso indicado del trazado (animación por pasos)
+// Dibuja a Candela en el paso indicado del trazado (animación por pasos).
+// Dibuja SIEMPRE el tablero completo (cuadrícula, obstáculos, monedas, estrella).
 function kpCodeDibujarPaso(t, i, n, superado) {
   const s = pantallas[pantallaIdx];
   if (!s || s.tipo !== 'code') return;
   const svg = document.getElementById('kp-code-escenario');
   if (!svg) return;
-  const esc = s.escenario || {};
-  const W = 600, H = 380;
-  const ancho = esc.ancho || 6, alto = esc.alto || 6;
-  const cell = Math.min((W - 40) / ancho, (H - 40) / alto);
-  const ox = (W - cell * ancho) / 2, oy = (H - cell * alto) / 2;
-  const px = t.x, py = t.y;
-  // Marcador del paso actual
-  let html = `<text x="${W - 16}" y="20" text-anchor="end" font-size="15" font-weight="800" fill="#4E3B70">${i}/${n}</text>`;
   const fill = t.accion === 'error' ? '#ff5a5a' : (superado ? '#2ecc71' : '#4c8dff');
-  html += `<circle cx="${ox + px * cell + cell / 2}" cy="${oy + py * cell + cell / 2}" r="${cell * 0.34}" fill="${fill}"/>`;
-  html += `<text x="${ox + px * cell + cell / 2}" y="${oy + py * cell + cell / 2 + 5}" text-anchor="middle" font-size="14">👧</text>`;
-  // Flecha según la dirección actual
-  const dirs = { 0: 0, 1: 90, 2: 180, 3: 270 };
-  const ang = dirs[t.dir] ?? 0;
-  html += `<g transform="translate(${ox + px * cell + cell / 2}, ${oy + py * cell + cell / 2 + 12}) rotate(${ang})"><path d="M-6,0 L6,0 M2,-4 L6,0 L2,4" stroke="#fff" stroke-width="2" fill="none"/></g>`;
-  svg.innerHTML = html;
+  svg.innerHTML = kpCodeTableroHTML(t.x, t.y, t.dir, { fill, marcador: i + '/' + n });
 }
 
 // Muestra un mensaje en la pantalla de code

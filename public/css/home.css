@@ -612,6 +612,12 @@ body.pj-home.mostrando-detalle .detail-page { display: block; }
 .print-worksheet .ws-sopa { text-align: center; }
 .print-worksheet .ws-grid { border-collapse: collapse; }
 .print-worksheet .ws-grid td { font-family: 'Plus Jakarta Sans', sans-serif; }
+.print-worksheet .ws-code { page-break-inside: avoid; break-inside: avoid; }
+.print-worksheet .ws-code-ej { page-break-inside: avoid; break-inside: avoid; margin-bottom: 12px; }
+.print-worksheet .ws-code-ej h5 { font-family: 'HandlyCasual', sans-serif; font-size: 13px; text-transform: uppercase; color: #FF6600; margin: 8px 0 4px; }
+.print-worksheet .ws-code-grid { border-collapse: collapse; }
+.print-worksheet .ws-code-grid td { font-size: 16px; font-weight: 700; }
+.print-worksheet .ws-code-lineas { margin-top: 6px; }
 .print-worksheet .ws-rel h4 { text-align: left; }
 .print-worksheet .ws-cols { display: flex; gap: 24mm; justify-content: space-around; }
 .print-worksheet .ws-col { flex: 1; display: flex; flex-direction: column; gap: 8px; }
