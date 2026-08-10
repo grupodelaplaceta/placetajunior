@@ -1045,17 +1045,17 @@ function kpMapa(idx, en) {
 }
 
 // ── Placeta Junior Code: editor de bloques (integrado en el player) ──
-// Estética tipo Scratch: bloques con forma de pieza, colores por categoría.
+// Estética "cute": botones redondeados con flechas y colores suaves.
 const CODE_BLOQUES_INFO = {
-  avanzar:    { cat: 'mov', nombre: 'AVANZAR', clase: 'b-move', color: '#3a7dff', params: [], desc: 'Avanza 1 casilla', emoji: '➡️' },
-  retroceder: { cat: 'mov', nombre: 'RETROCEDER', clase: 'b-move', color: '#3a7dff', params: [], desc: 'Retrocede 1 casilla', emoji: '⬅️' },
-  girar:      { cat: 'mov', nombre: 'GIRAR', clase: 'b-move', color: '#3a7dff', params: [{ k: 'dir', o: ['derecha', 'izquierda'] }], desc: 'Gira', emoji: '🔄' },
-  saltar:     { cat: 'mov', nombre: 'SALTAR', clase: 'b-move', color: '#3a7dff', params: [], desc: 'Salta 2 casillas', emoji: '⬆️' },
-  repetir:    { cat: 'ctrl', nombre: 'REPETIR', clase: 'b-control', color: '#ff9f1c', params: [{ k: 'veces', n: 1 }], anida: true, desc: 'Repite N veces', emoji: '🔁' },
-  si:         { cat: 'ctrl', nombre: 'SI', clase: 'b-control', color: '#ff9f1c', params: [{ k: 'condicion', o: ['obstáculo', 'moneda', 'libre'] }], anida: true, desc: 'Si se cumple…', emoji: '❓' },
+  avanzar:    { cat: 'mov', nombre: 'AVANZAR', clase: 'b-move', color: '#4c8dff', flecha: '➡️', params: [], desc: 'Avanza 1 casilla', emoji: '➡️' },
+  retroceder: { cat: 'mov', nombre: 'RETROCEDER', clase: 'b-move', color: '#4c8dff', flecha: '⬅️', params: [], desc: 'Retrocede 1 casilla', emoji: '⬅️' },
+  girar:      { cat: 'mov', nombre: 'GIRAR', clase: 'b-move', color: '#4c8dff', flecha: '🔄', params: [{ k: 'dir', o: ['derecha', 'izquierda'] }], desc: 'Gira', emoji: '🔄' },
+  saltar:     { cat: 'mov', nombre: 'SALTAR', clase: 'b-move', color: '#4c8dff', flecha: '⤴️', params: [], desc: 'Salta 2 casillas', emoji: '⤴️' },
+  repetir:    { cat: 'ctrl', nombre: 'REPETIR', clase: 'b-control', color: '#ff9f1c', flecha: '🔁', params: [{ k: 'veces', n: 1 }], anida: true, desc: 'Repite N veces', emoji: '🔁' },
+  si:         { cat: 'ctrl', nombre: 'SI', clase: 'b-control', color: '#ff9f1c', flecha: '❓', params: [{ k: 'condicion', o: ['obstáculo', 'moneda', 'libre'] }], anida: true, desc: 'Si se cumple…', emoji: '❓' },
 };
 
-// Pantalla de explicación de la actividad de código
+// Pantalla de explicación de la actividad de código (tutorial de uso)
 function screenCodeExplica(s) {
   return `
     <div class="kp-screen kp-code">
@@ -1063,9 +1063,10 @@ function screenCodeExplica(s) {
       <h3 class="kp-title">¡Vamos a programar!</h3>
       <p class="kp-desc">${esc(s.explicacion)}</p>
       <div class="code-tutorial">
-        <div class="code-tut-step"><span class="code-tut-n">1</span><span>Pulsa los <b>bloques</b> de colores para armar el programa de Candela 👧.</span></div>
-        <div class="code-tut-step"><span class="code-tut-n">2</span><span>Pulsa <b>▶ Ejecutar</b> para ver qué hace Candela.</span></div>
-        <div class="code-tut-step"><span class="code-tut-n">3</span><span>Llega a la <b>estrella ⭐</b> para superar el reto.</span></div>
+        <div class="code-tut-step"><span class="code-tut-n">1</span><span>Pulsa los <b>botones redondos</b> con flechas para ir añadiendo pasos a tu programa.</span></div>
+        <div class="code-tut-step"><span class="code-tut-n">2</span><span>Tu programa se monta solo, en <b>una línea</b> como un código de verdad. Puedes quitar pasos con <b>✕</b>.</span></div>
+        <div class="code-tut-step"><span class="code-tut-n">3</span><span>Pulsa el gran botón <b>▶ Ejecutar</b> para ver a Candela 👧 moverse.</span></div>
+        <div class="code-tut-step"><span class="code-tut-n">4</span><span>Llega a la <b>estrella ⭐</b> para superar el reto.</span></div>
       </div>
       <button type="button" class="kp-btn kp-start" onclick="pantallaNext()">🚀 ¡A jugar!</button>
       <div class="kp-hint">Cada ejercicio es un poco más difícil. ¡Tú puedes!</div>
@@ -1096,17 +1097,20 @@ function screenCode(s, est) {
         ${obj.max_pasos ? `<span class="kp-chip chip-orange">⏱ ${obj.max_pasos} pasos</span>` : ''}
       </div>
       <div class="code-palette" id="kp-code-paleta">
-        ${s.permitidos.map(op => { const b = CODE_BLOQUES_INFO[op]; if (!b) return ''; return `<button type="button" class="code-block scratch-block" style="--blk:${b.color}" onclick="kpCodeAñadir('${op}')"><span class="blk-emoji">${b.emoji}</span><span class="blk-nombre">${esc(b.nombre)}</span></button>`; }).join('')}
+        ${s.permitidos.map(op => { const b = CODE_BLOQUES_INFO[op]; if (!b) return ''; return `<button type="button" class="code-block cute-block" style="--blk:${b.color}" onclick="kpCodeAñadir('${op}')" title="${esc(b.desc)}"><span class="blk-emoji">${b.flecha}</span><span class="blk-nombre">${esc(b.nombre)}</span></button>`; }).join('')}
       </div>
-      <div class="code-programa scratch-programa" id="kp-code-programa"></div>
+      <div class="code-line-wrap">
+        <div class="code-line-label">📝 Tu programa</div>
+        <div class="code-programa cute-linea" id="kp-code-programa"></div>
+      </div>
       <div class="code-acciones">
-        <button type="button" class="kp-btn kp-start" id="kp-code-run" onclick="kpCodeEjecutar()">▶ Ejecutar</button>
-        <button type="button" class="kp-btn" style="background:var(--pj-orange)" onclick="kpCodeVaciar()">🗑 Vaciar</button>
+        <button type="button" class="code-run-btn" id="kp-code-run" onclick="kpCodeEjecutar()">▶ Ejecutar</button>
+        <button type="button" class="code-clear-btn" onclick="kpCodeVaciar()">🗑 Vaciar</button>
       </div>
       <div class="code-pistas">
         ${pistas.length ? `<details><summary>💡 Pistas</summary><ul>${pistas.map(p => `<li>${esc(p)}</li>`).join('')}</ul></details>` : ''}
       </div>
-      <div class="kp-hint">👆 Pulsa los bloques para apilarlos y luego ▶ Ejecutar. Lleva a Candela 👧 hasta la estrella ⭐.</div>
+      <div class="kp-hint">👆 Pulsa las flechas para montar el programa y luego ▶ Ejecutar. Lleva a Candela 👧 hasta la estrella ⭐.</div>
     </div>`;
 }
 
@@ -1156,7 +1160,7 @@ function kpCodeDibujarEscenario() {
   svg.innerHTML = html;
 }
 
-// Pinta el programa con forma de pila tipo Scratch (los bloques se apilan)
+// Pinta el programa como UNA LÍNEA de código (bloques redondeados en fila)
 function kpCodePintarPrograma() {
   const s = pantallas[pantallaIdx];
   if (!s || s.tipo !== 'code') return;
@@ -1167,66 +1171,63 @@ function kpCodePintarPrograma() {
   const abierto = est.contenedorAbierto;
   cont.innerHTML = '';
   if (!programa.length) {
-    cont.innerHTML = '<div class="code-vacio">👉 Pulsa los bloques para apilarlos aquí</div>';
+    cont.innerHTML = '<div class="code-vacio">👉 Toca las flechas para montar tu programa</div>';
   }
   function dibujarBloque(item, idx, profundidad, esContenedorAbierto) {
-    const b = CODE_BLOQUES_INFO[item.op] || { nombre: item.op, clase: 'b-move', color: '#3a7dff', params: [] };
-    const color = b.color || '#3a7dff';
-    const wrap = document.createElement('div');
-    wrap.className = 'scratch-item-wrap' + (esContenedorAbierto ? ' abierto' : '');
-    wrap.style.marginLeft = (profundidad * 26) + 'px';
-    const row = document.createElement('div');
-    row.className = 'scratch-block-row';
-    row.style.setProperty('--blk', color);
-    // Emoji + nombre
+    const b = CODE_BLOQUES_INFO[item.op] || { nombre: item.op, clase: 'b-move', color: '#4c8dff', params: [], flecha: '➡️' };
+    const color = b.color || '#4c8dff';
+    const chip = document.createElement('span');
+    chip.className = 'cute-chip' + (esContenedorAbierto ? ' abierto' : '') + (item.bloques !== undefined ? ' contenedor' : '');
+    chip.style.setProperty('--blk', color);
+    // Flecha + nombre
     const etiq = document.createElement('span');
-    etiq.className = 'blk-etiqueta';
-    etiq.innerHTML = `${b.emoji || ''} ${esc(b.nombre)}`;
-    row.appendChild(etiq);
-    // Parámetros (select / input) con estilo Scratch
+    etiq.className = 'cute-chip-etiqueta';
+    etiq.innerHTML = `${b.flecha || '➡️'} ${esc(b.nombre)}`;
+    chip.appendChild(etiq);
+    // Parámetros (select / input) inline dentro del chip
     (b.params || []).forEach(p => {
       if (p.o) {
         const sel = document.createElement('select');
         p.o.forEach(o => { const op = document.createElement('option'); op.value = o; op.textContent = o; sel.appendChild(op); });
         sel.value = item[p.k] != null ? item[p.k] : p.o[0];
         sel.onchange = () => { item[p.k] = sel.value; kpCodeGuardarPrograma(); kpCodePintarPrograma(); };
-        row.appendChild(sel);
+        chip.appendChild(sel);
       } else if (p.n) {
         const inp = document.createElement('input'); inp.type = 'number'; inp.min = 1; inp.max = 50;
         inp.value = item[p.k] != null ? item[p.k] : 1;
-        inp.style.width = '46px'; inp.onchange = () => { item[p.k] = parseInt(inp.value, 10) || 1; kpCodeGuardarPrograma(); };
-        row.appendChild(inp);
+        inp.style.width = '42px'; inp.onchange = () => { item[p.k] = parseInt(inp.value, 10) || 1; kpCodeGuardarPrograma(); };
+        chip.appendChild(inp);
       }
     });
     // Botón cerrar contenedor (solo para repetir/si)
     if (item.bloques !== undefined) {
       const cerrar = document.createElement('button');
-      cerrar.className = 'code-cerrar';
-      cerrar.textContent = esContenedorAbierto ? '✓ cerrar' : 'abrir';
+      cerrar.className = 'cute-cerrar';
+      cerrar.textContent = esContenedorAbierto ? '✓' : '+';
+      cerrar.title = esContenedorAbierto ? 'Cerrar bloque' : 'Añadir pasos dentro';
       cerrar.onclick = () => {
         est.contenedorAbierto = esContenedorAbierto ? null : idx;
         kpCodePintarPrograma();
       };
-      row.appendChild(cerrar);
+      chip.appendChild(cerrar);
     }
     const del = document.createElement('button');
-    del.className = 'code-del'; del.textContent = '✕';
+    del.className = 'cute-del'; del.textContent = '✕';
     del.onclick = () => {
       programa.splice(idx, 1);
       if (est.contenedorAbierto === idx) est.contenedorAbierto = null;
       else if (est.contenedorAbierto !== null && est.contenedorAbierto > idx) est.contenedorAbierto--;
       kpCodeGuardarPrograma(); kpCodePintarPrograma(); kpCodeDibujarEscenario();
     };
-    row.appendChild(del);
-    wrap.appendChild(row);
-    // Sub-bloques (contenedor REPETIR/SI): se muestran indentados, tipo Scratch
+    chip.appendChild(del);
+    // Sub-bloques (contenedor REPETIR/SI): se pintan dentro del chip, en línea
     if (item.bloques !== undefined) {
-      const sub = document.createElement('div');
-      sub.className = 'scratch-sub';
+      const sub = document.createElement('span');
+      sub.className = 'cute-sub';
       (item.bloques || []).forEach((sb, si) => dibujarBloque(sub, sb, si, profundidad + 1, false));
-      wrap.appendChild(sub);
+      chip.appendChild(sub);
     }
-    cont.appendChild(wrap);
+    cont.appendChild(chip);
   }
   programa.forEach((item, idx) => dibujarBloque(programa, item, idx, 0, abierto === idx));
   const run = document.getElementById('kp-code-run');
@@ -1234,7 +1235,7 @@ function kpCodePintarPrograma() {
 }
 
 // Añade un bloque al programa; si hay un contenedor (repetir/si) abierto,
-// el bloque de movimiento se apila DENTRO de él (estilo Scratch).
+// el bloque de movimiento se mete DENTRO de él.
 function kpCodeAñadir(op) {
   const s = pantallas[pantallaIdx];
   if (!s || s.tipo !== 'code') return;
