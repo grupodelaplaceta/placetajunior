@@ -1074,7 +1074,7 @@ function screenCodeExplica(s) {
 }
 
 function screenCode(s, est) {
-  const esc = s.escenario || {};
+  const escen = s.escenario || {};
   const ini = s.inicio || {};
   const obj = s.objetivo || {};
   const pistas = s.pistas || [];
