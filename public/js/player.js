@@ -281,7 +281,7 @@ function renderPantalla() {
       </div>
     </div>
     <div class="kp-nav-row">
-      <button type="button" class="kp-nav-btn" onclick="pantallaPrev()" ${pantallaIdx === 0 ? 'disabled' : ''} title="Anterior"><span class="material-symbols-rounded">chevron_left</span></button>
+      <button type="button" class="kp-nav-btn" onclick="pantallaPrev()" ${(pantallaIdx === 0 || s.tipo === 'final') ? 'disabled' : ''} title="Anterior"><span class="material-symbols-rounded">chevron_left</span></button>
       <span class="kp-dots">${pantallas.map((_, i) => `<span class="kp-dot ${i === pantallaIdx ? 'on' : ''}"></span>`).join('')}</span>
       <button type="button" class="kp-nav-btn" onclick="pantallaNext()" ${pantallaIdx === pantallas.length - 1 ? 'disabled' : ''} title="Siguiente"><span class="material-symbols-rounded">chevron_right</span></button>
     </div>
@@ -1066,8 +1066,8 @@ const CODE_ICONOS_SVG = {
   'flecha-curva-der': '<path d="M8 2v5a3 3 0 0 0 3 3h3M12 7l2 3-2 3" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
   'flecha-curva-izq': '<path d="M8 2v5a3 3 0 0 1-3 3H2M4 7L2 10l2 3" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
   'flecha-salto': '<path d="M3 12c1-4 2-6 5-7M8 2l3 3-3 3M13 13c0-2 0-3-1-5" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
-  'bucle': '<path d="M3 7a5 5 0 0 1 5-4 5 5 0 0 1 5 4M13 9v4M13 9h-4M2 14l3-3 3 3" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
-  'diamante': '<path d="M8 2l6 6-6 6-6-6 6-6zM8 5.5L10.5 8 8 10.5 5.5 8 8 5.5z" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+  'bucle': '<path d="M5 4h6a3 3 0 0 1 0 6H7M7 7l-3 3 3 3" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+  'diamante': '<path d="M8 2l6 6-6 6-6-6 6-6z" fill="currentColor"/><text x="8" y="10" text-anchor="middle" font-size="9" font-weight="800" fill="#ffffff">?</text>',
 };
 
 function codeIconoSVG(icono, extra) {
@@ -1118,7 +1118,7 @@ function screenCode(s, est) {
         ${obj.max_pasos ? `<span class="kp-chip chip-orange">⏱ ${obj.max_pasos} pasos</span>` : ''}
       </div>
       <div class="code-palette" id="kp-code-paleta">
-        ${s.permitidos.map(op => { const b = CODE_BLOQUES_INFO[op]; if (!b) return ''; return `<button type="button" class="code-block cute-block" draggable="true" data-op="${op}" style="--blk:${b.color}" onclick="kpCodeAñadir('${op}')" title="${esc(b.desc)}"><span class="blk-emoji">${codeIconoSVG(b.icono)}</span><span class="blk-nombre">${esc(b.nombre)}</span></button>`; }).join('')}
+        ${s.permitidos.filter(op => op !== 'girar').map(op => { const b = CODE_BLOQUES_INFO[op]; if (!b) return ''; return `<button type="button" class="code-block cute-block" draggable="true" data-op="${op}" style="--blk:${b.color}" onclick="kpCodeAñadir('${op}')" title="${esc(b.desc)}"><span class="blk-emoji">${codeIconoSVG(b.icono)}</span><span class="blk-nombre">${esc(b.nombre)}</span></button>`; }).join('')}
         ${s.permitidos.includes('girar') ? `
           <button type="button" class="code-block cute-block" draggable="true" data-op="girar" data-dir="derecha" style="--blk:#4c8dff" onclick="kpCodeAñadir('girar', {dir:'derecha'})" title="Gira a la derecha"><span class="blk-emoji">${codeIconoSVG('flecha-curva-der')}</span><span class="blk-nombre">GIRAR →</span></button>
           <button type="button" class="code-block cute-block" draggable="true" data-op="girar" data-dir="izquierda" style="--blk:#4c8dff" onclick="kpCodeAñadir('girar', {dir:'izquierda'})" title="Gira a la izquierda"><span class="blk-emoji">${codeIconoSVG('flecha-curva-izq')}</span><span class="blk-nombre">GIRAR ←</span></button>` : ''}
@@ -1567,7 +1567,7 @@ async function guardarCodeEnServidor(s, programa, evalRes) {
 }
 
 function pantallaNext() { if (pantallaIdx < pantallas.length - 1) { pantallaIdx++; if (window.pjSonido) pjSonido.hoja(); renderPantalla(); } }
-function pantallaPrev() { if (pantallaIdx > 0) { pantallaIdx--; if (window.pjSonido) pjSonido.hoja(); renderPantalla(); } }
+function pantallaPrev() { if (pantallaIdx > 0 && pantallas[pantallaIdx]?.tipo !== 'final') { pantallaIdx--; if (window.pjSonido) pjSonido.hoja(); renderPantalla(); } }
 
 // Guarda la partida actual en localStorage (para retomarla después)
 function guardarPartidaLocal() {
