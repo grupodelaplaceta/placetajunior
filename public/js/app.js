@@ -533,7 +533,14 @@ function esBloqueada(a) { return esPago(a) && !a.subvencionada; }
 async function cargarTodo() {
   const banner = document.getElementById('error-banner');
   try {
-    const data = await apiGet('/actividades?solo_publicas=1');
+    // Si hay un DIP guardado (sesión web), se envía para que el DIP demo
+    // (16381756J) pueda ver además las actividades "en revisión".
+    let url = '/actividades?solo_publicas=1';
+    try {
+      const dipSesion = localStorage.getItem('pj-dip') || '';
+      if (dipSesion) url += '&dip=' + encodeURIComponent(dipSesion);
+    } catch (e) { /* sin almacenamiento */ }
+    const data = await apiGet(url);
     TODAS = data.actividades || [];
   } catch (e) {
     banner.textContent = 'No se pudieron cargar las actividades. Inténtalo de nuevo en unos instantes.';
@@ -584,7 +591,13 @@ async function abrirActividad(id, bloqueada) {
     return;
   }
   try {
-    const data = await apiGet(`/actividades/${id}`);
+    // Enviar el DIP de sesión para que el DIP demo pueda ver las actividades en revisión.
+    let url = `/actividades/${id}`;
+    try {
+      const dipSesion = localStorage.getItem('pj-dip') || '';
+      if (dipSesion) url += '?dip=' + encodeURIComponent(dipSesion);
+    } catch (e) { /* sin almacenamiento */ }
+    const data = await apiGet(url);
     if (data.actividad) {
       // El player maneja todos los tipos (incluido Placeta Junior Code)
       if (typeof abrirJuego === 'function') abrirJuego(data.actividad);

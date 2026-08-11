@@ -11,6 +11,7 @@ let kpScore = { verdes: 0, rojos: 0 };
 let kpCelebrado = false;
 let actividadActual = null;   // actividad que se está jugando (para guardar progreso)
 let dipGuardado = '';
+try { dipGuardado = localStorage.getItem('pj-dip') || ''; } catch (e) { /* sin almacenamiento */ }
 let msgGuardar = '';
 let guardandoDIP = false;
 
@@ -770,6 +771,7 @@ async function guardarProgreso() {
     const data = await res.json().catch(() => ({}));
     if (res.ok && data.success) {
       dipGuardado = dip;
+      try { localStorage.setItem('pj-dip', dip); } catch (e) { /* sin almacenamiento */ }
       const extra = data.recompensa ? ` · +${data.recompensa} Pz` : '';
       msgGuardar = `✅ ¡Guardado! ${kpScore.verdes} verdes y ${kpScore.rojos} rojos sumados${extra}.`;
     } else {
