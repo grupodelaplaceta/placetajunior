@@ -27,6 +27,14 @@
   <!-- Barra superior del editor -->
   <div class="studio-toolbar">
     <span class="studio-title">🎨 Studio — Crea tu actividad</span>
+    <div class="studio-proyectos" title="Gestiona varios proyectos">
+      <span class="sp-label"><span class="material-symbols-rounded">folder</span> Proyecto</span>
+      <input id="proyecto-nombre" type="text" placeholder="Nombre del proyecto" style="width:150px;" onchange="renombrarProyecto(this.value)" />
+      <select id="proyecto-select" onchange="cargarProyecto(this.value)"></select>
+      <button id="btn-nuevo" class="btn btn-outline" type="button" title="Nuevo proyecto" onclick="nuevoProyectoPrompt()"><span class="material-symbols-rounded">add</span></button>
+      <button id="btn-duplicar" class="btn btn-outline" type="button" title="Duplicar proyecto" onclick="duplicarProyecto(proyectoActual)"><span class="material-symbols-rounded">content_copy</span></button>
+      <button id="btn-borrar" class="btn btn-outline" type="button" title="Borrar proyecto" onclick="borrarProyectoPrompt()"><span class="material-symbols-rounded">delete</span></button>
+    </div>
     <div class="studio-actions">
       <button id="btn-vista" class="btn btn-purple" type="button">👁️ Vista previa</button>
       <button id="btn-guardar" class="btn btn-outline" type="button">💾 Guardar</button>
@@ -50,17 +58,23 @@
         <span><b>2</b> Rellena sus datos</span>
         <span><b>3</b> Vista previa y publica</span>
       </div>
-      <div class="block-btn" draggable="true" data-tipo="test"><span class="b-ico">📝</span><span class="b-name">Test</span></div>
-      <div class="block-btn" draggable="true" data-tipo="texto"><span class="b-ico">📖</span><span class="b-name">Texto explicativo</span></div>
-      <div class="block-btn" draggable="true" data-tipo="sopa_letras"><span class="b-ico">🔤</span><span class="b-name">Sopa de letras</span></div>
-      <div class="block-btn" draggable="true" data-tipo="relacionar"><span class="b-ico">🔗</span><span class="b-name">Relacionar</span></div>
-      <div class="block-btn" draggable="true" data-tipo="ordenar"><span class="b-ico">📌</span><span class="b-name">Ordenar</span></div>
-      <div class="block-btn" draggable="true" data-tipo="completar"><span class="b-ico">✏️</span><span class="b-name">Completar</span></div>
-      <div class="block-btn" draggable="true" data-tipo="calculo_mental"><span class="b-ico">🧮</span><span class="b-name">Cálculo mental</span></div>
-      <div class="block-btn" draggable="true" data-tipo="mapa_mundi"><span class="b-ico">🌍</span><span class="b-name">Mapamundi</span></div>
+      <div class="block-btn" draggable="true" data-tipo="test"><span class="b-ico svg-ico"><svg class="blk-icono" width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="3" width="12" height="14" rx="2"/><path d="M5 7h6M5 10h6M5 13h4" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg></span><span class="b-name">Test</span></div>
+      <div class="block-btn" draggable="true" data-tipo="texto"><span class="b-ico svg-ico"><svg class="blk-icono" width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 4h5a3 3 0 0 1 3 3v9a3 3 0 0 0-3-3H3z"/><path d="M13 4h5a3 3 0 0 1 3 3v9a3 3 0 0 0-3-3h-5z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg></span><span class="b-name">Texto explicativo</span></div>
+      <div class="block-btn" draggable="true" data-tipo="sopa_letras"><span class="b-ico svg-ico"><svg class="blk-icono" width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 5h8M8 5v11M5 16h6" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg></span><span class="b-name">Sopa de letras</span></div>
+      <div class="block-btn" draggable="true" data-tipo="relacionar"><span class="b-ico svg-ico"><svg class="blk-icono" width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 11l5-5a3.5 3.5 0 0 1 5 5l-2 2M10 13l-5 5a3.5 3.5 0 0 1-5-5l2-2" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg></span><span class="b-name">Relacionar</span></div>
+      <div class="block-btn" draggable="true" data-tipo="ordenar"><span class="b-ico svg-ico"><svg class="blk-icono" width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><path d="M9 6h7M9 10h7M9 14h5M3 5l1-1v3M3 10h2M4 10v4M3 14h3" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg></span><span class="b-name">Ordenar</span></div>
+      <div class="block-btn" draggable="true" data-tipo="completar"><span class="b-ico svg-ico"><svg class="blk-icono" width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h13M3 10h13M3 14h8M13 14l4-4 2 2-4 4h-2z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="b-name">Completar</span></div>
+      <div class="block-btn" draggable="true" data-tipo="calculo_mental"><span class="b-ico svg-ico"><svg class="blk-icono" width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="3" width="9" height="9" rx="1"/><path d="M6 6h1M9 6h1M6 9h1M9 9h1M6 12h4M12 13l3-3M12 10l3 3" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg></span><span class="b-name">Cálculo mental</span></div>
+      <div class="block-btn" draggable="true" data-tipo="mapa_mundi"><span class="b-ico svg-ico"><svg class="blk-icono" width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M2 8h12M8 2c-2 2-2 10 0 12M8 2c2 2 2 10 0 12" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></span><span class="b-name">Mapamundi</span></div>
+      <div class="block-btn block-btn-code" draggable="true" data-tipo="code_blocks"><span class="b-ico svg-ico"><svg class="blk-icono" width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 5L2 8l4 3M10 5l4 3-4 3" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="b-name">Placeta Junior Code</span></div>
       <div class="form-note" style="margin-top:14px;">
         🖼️ Puedes añadir <strong>imágenes de stock</strong> a cualquier pregunta o bloque.
         Siempre se muestra la <strong>fuente</strong> bajo la imagen, en la web y en la app.
+      </div>
+      <div class="form-note" style="margin-top:10px;">
+        💻 Con <strong>Placeta Junior Code</strong> los niños programan a Candela 👧 con
+        bloques y la llevan hasta la estrella ⭐. Puedes crear <strong>varios ejercicios
+        progresivos</strong> en la misma actividad.
       </div>
     </aside>
 
@@ -235,6 +249,7 @@
   <script src="js/sonidos.js"></script>
   <script src="js/pictogramas.js"></script>
   <script src="js/mapa-mundi.js"></script>
+  <script src="js/code-engine.js"></script>
   <script src="js/studio.js"></script>
 </body>
 </html>

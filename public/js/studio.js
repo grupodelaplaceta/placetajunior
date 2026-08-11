@@ -16,8 +16,34 @@ const TIPOS = {
   ordenar:       { ico: 'format_list_numbered', nombre: 'Ordenar' },
   completar:     { ico: 'edit_note', nombre: 'Completar' },
   calculo_mental: { ico: 'calculate', nombre: 'Cálculo mental' },
-  mapa_mundi:    { ico: 'public', nombre: 'Mapamundi' }
+  mapa_mundi:    { ico: 'public', nombre: 'Mapamundi' },
+  code_blocks:   { ico: 'code', nombre: 'Placeta Junior Code' }
 };
+
+// Iconos SVG 100% descriptivos para los bloques del Studio (en vez de emojis)
+const STUDIO_ICONOS_SVG = {
+  quiz: '<rect x="2" y="3" width="12" height="14" rx="2"/><path d="M5 7h6M5 10h6M5 13h4" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>',
+  menu_book: '<path d="M3 4h5a3 3 0 0 1 3 3v9a3 3 0 0 0-3-3H3z"/><path d="M13 4h5a3 3 0 0 1 3 3v9a3 3 0 0 0-3-3h-5z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>',
+  text_fields: '<path d="M4 5h8M8 5v11M5 16h6" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>',
+  link: '<path d="M6 11l5-5a3.5 3.5 0 0 1 5 5l-2 2M10 13l-5 5a3.5 3.5 0 0 1-5-5l2-2" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>',
+  format_list_numbered: '<path d="M9 6h7M9 10h7M9 14h5M3 5l1-1v3M3 10h2M4 10v4M3 14h3" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>',
+  edit_note: '<path d="M3 6h13M3 10h13M3 14h8M13 14l4-4 2 2-4 4h-2z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+  calculate: '<path d="M4 3h9a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M6 6h1M9 6h1M6 9h1M9 9h1M6 12h4M12 13l3-3M12 10l3 3" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>',
+  public: '<circle cx="8" cy="8" r="6"/><path d="M2 8h12M8 2c-2 2-2 10 0 12M8 2c2 2 2 10 0 12" stroke="currentColor" stroke-width="1.5" fill="none"/>',
+  code: '<path d="M6 5L2 8l4 3M10 5l4 3-4 3" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+  flecha_derecha: '<path d="M2 8h11M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+  flecha_izquierda: '<path d="M14 8H3M7 4L3 8l4 4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+  girar_derecha: '<path d="M8 2v5a3 3 0 0 0 3 3h3M12 7l2 3-2 3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+  girar_izquierda: '<path d="M8 2v5a3 3 0 0 1-3 3H2M4 7L2 10l2 3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+  saltar: '<path d="M3 12c1-4 2-6 5-7M8 2l3 3-3 3M13 13c0-2 0-3-1-5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+  bucle: '<path d="M3 7a5 5 0 0 1 5-4 5 5 0 0 1 5 4M13 9v4M13 9h-4M2 14l3-3 3 3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+  diamante: '<path d="M8 2l6 6-6 6-6-6 6-6zM8 5.5L10.5 8 8 10.5 5.5 8 8 5.5z" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+};
+
+function studioIconoSVG(ico, cls) {
+  const d = STUDIO_ICONOS_SVG[ico] || STUDIO_ICONOS_SVG.quiz;
+  return `<svg class="blk-icono ${cls || ''}" width="18" height="18" viewBox="0 0 16 16" aria-hidden="true">${d}</svg>`;
+}
 
 // ── Galería de imágenes libres ──────────────────────────────────────
 // Temas con imágenes por seed en Picsum (fotos reales de Unsplash)
@@ -117,10 +143,118 @@ function elegirGaleria(i) {
 
 let bloques = [];
 let meta = { titulo: '', descripcion: '', categoria: 'Matemáticas', tipo: 'test', edad: '6-12', dificultad: 'media', tiempo: 10, dip: '' };
+let proyectoActual = 'Mi actividad';
 let imgTarget = null; // dónde se aplicará la imagen del modal
 
 function $(id) { return document.getElementById(id); }
 function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
+// ── Multi-proyecto ───────────────────────────────────────────────────
+// Todos los proyectos se guardan en localStorage bajo 'pj-studio-proyectos'
+// (un objeto { id: { nombre, bloques, meta, actualizado } }). El activo se
+// recuerda en 'pj-studio-activo'. Compatible con el antiguo 'pj-studio'.
+const STORE_KEY = 'pj-studio-proyectos';
+const ACTIVE_KEY = 'pj-studio-activo';
+
+function listarProyectos() {
+  try {
+    const d = JSON.parse(localStorage.getItem(STORE_KEY) || '{}');
+    return d || {};
+  } catch (e) { return {}; }
+}
+function guardarProyecto(nombre) {
+  const clave = (nombre || '').trim() || 'Mi actividad';
+  const d = listarProyectos();
+  if (!d[clave]) d[clave] = { nombre: clave };
+  d[clave].bloques = bloques;
+  d[clave].meta = meta;
+  d[clave].actualizado = Date.now();
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(d)); } catch (e) {}
+  proyectoActual = clave;
+  try { localStorage.setItem(ACTIVE_KEY, clave); } catch (e) {}
+  renderProyectos();
+}
+function cargarProyecto(clave) {
+  const d = listarProyectos();
+  const p = d[clave];
+  if (!p) return false;
+  bloques = p.bloques || [];
+  meta = Object.assign(meta, p.meta || {});
+  proyectoActual = clave;
+  try { localStorage.setItem(ACTIVE_KEY, clave); } catch (e) {}
+  render();
+  renderProyectos();
+  return true;
+}
+function nuevoProyecto(nombre) {
+  const clave = (nombre || '').trim() || ('Mi actividad ' + (Object.keys(listarProyectos()).length + 1));
+  bloques = [];
+  meta = { titulo: '', descripcion: '', categoria: 'Matemáticas', tipo: 'test', edad: '6-12', dificultad: 'media', tiempo: 10, dip: '' };
+  proyectoActual = clave;
+  guardarProyecto(clave);
+  render();
+}
+function duplicarProyecto(clave) {
+  const d = listarProyectos();
+  const p = d[clave];
+  if (!p) return;
+  const nueva = clave + ' (copia)';
+  let n = 1;
+  let nombreFinal = nueva;
+  while (d[nombreFinal]) { nombreFinal = nueva + ' ' + (++n); }
+  d[nombreFinal] = { nombre: nombreFinal, bloques: JSON.parse(JSON.stringify(p.bloques || [])), meta: JSON.parse(JSON.stringify(p.meta || {})), actualizado: Date.now() };
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(d)); } catch (e) {}
+  cargarProyecto(nombreFinal);
+}
+function borrarProyecto(clave) {
+  const d = listarProyectos();
+  if (!d[clave]) return;
+  delete d[clave];
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(d)); } catch (e) {}
+  if (proyectoActual === clave) {
+    const restantes = Object.keys(d);
+    if (restantes.length) cargarProyecto(restantes[0]);
+    else { bloques = []; meta = { titulo: '', descripcion: '', categoria: 'Matemáticas', tipo: 'test', edad: '6-12', dificultad: 'media', tiempo: 10, dip: '' }; proyectoActual = 'Mi actividad'; render(); }
+  }
+  renderProyectos();
+}
+function renderProyectos() {
+  const sel = $('proyecto-select');
+  if (!sel) return;
+  const d = listarProyectos();
+  const claves = Object.keys(d).sort((a, b) => (d[b].actualizado || 0) - (d[a].actualizado || 0));
+  sel.innerHTML = claves.map(c => `<option value="${esc(c)}" ${c === proyectoActual ? 'selected' : ''}>${esc(c)}</option>`).join('') || '<option value="Mi actividad">Mi actividad</option>';
+  const name = $('proyecto-nombre');
+  if (name) name.value = proyectoActual;
+}
+
+function renombrarProyecto(nombre) {
+  const nuevo = (nombre || '').trim();
+  if (!nuevo) { renderProyectos(); return; }
+  const d = listarProyectos();
+  if (d[nuevo] && nuevo !== proyectoActual) {
+    aviso('Ya existe un proyecto con ese nombre.', true);
+    renderProyectos();
+    return;
+  }
+  if (nuevo === proyectoActual) { renderProyectos(); return; }
+  // Renombra (cambia la clave)
+  d[nuevo] = { nombre: nuevo, bloques: bloques, meta: meta, actualizado: Date.now() };
+  if (d[proyectoActual] && proyectoActual !== nuevo) delete d[proyectoActual];
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(d)); } catch (e) {}
+  proyectoActual = nuevo;
+  try { localStorage.setItem(ACTIVE_KEY, nuevo); } catch (e) {}
+  renderProyectos();
+}
+function nuevoProyectoPrompt() {
+  const nombre = prompt('Nombre del nuevo proyecto:', '');
+  if (nombre === null) return;
+  nuevoProyecto(nombre);
+}
+function borrarProyectoPrompt() {
+  if (!confirm(`¿Borrar el proyecto "${proyectoActual}"? Esta acción no se puede deshacer.`)) return;
+  borrarProyecto(proyectoActual);
+}
 
 // ── Estado ───────────────────────────────────────────────────────────
 function nuevoBloque(tipo) {
@@ -133,17 +267,45 @@ function nuevoBloque(tipo) {
   if (tipo === 'completar') b.frases = [{ texto: '', respuesta: '', opciones: ['', ''] }];
   if (tipo === 'calculo_mental') { b.sumas = [{ a: '', b: '' }]; b.segundos = 10; b.modo = 'opciones'; }
   if (tipo === 'mapa_mundi') { b.paises = ['España', 'Francia']; b.preguntas = []; }
+  if (tipo === 'code_blocks') {
+    b.explicacion = '';
+    b.ejercicios = [{
+      titulo: 'Ejercicio 1',
+      explicacion: '',
+      objetivo_texto: 'Lleva a Candela hasta la estrella.',
+      escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [] },
+      inicio: { x: 0, y: 0, direccion: 'derecha' },
+      objetivo: { posicion: { x: 1, y: 0 }, max_pasos: 5 },
+      permitidos: ['avanzar', 'retroceder', 'girar', 'saltar'],
+      max_bloques: 5,
+      pistas: []
+    }];
+  }
   return b;
 }
 
 function guardar() {
-  try { localStorage.setItem('pj-studio', JSON.stringify({ bloques, meta })); } catch (e) {}
+  try { guardarProyecto(proyectoActual); } catch (e) {}
 }
 function cargar() {
   try {
+    // 1) Proyecto activo (multi-proyecto)
+    const activo = localStorage.getItem(ACTIVE_KEY);
+    if (activo && cargarProyecto(activo)) return;
+    // 2) Compatibilidad: antigua clave única 'pj-studio'
     const d = JSON.parse(localStorage.getItem('pj-studio') || 'null');
-    if (d) { bloques = d.bloques || []; meta = Object.assign(meta, d.meta || {}); }
-  } catch (e) {}
+    if (d) {
+      bloques = d.bloques || [];
+      meta = Object.assign(meta, d.meta || {});
+      proyectoActual = d.meta?.titulo || 'Mi actividad';
+      guardarProyecto(proyectoActual);
+      renderProyectos();
+      return;
+    }
+    // 3) Sin nada: asegurar que existe al menos un proyecto por defecto
+    if (!Object.keys(listarProyectos()).length) guardarProyecto('Mi actividad');
+    renderProyectos();
+  } catch (e) { /* sin almacenamiento */ }
 }
 
 // ── Render ───────────────────────────────────────────────────────────
@@ -167,6 +329,7 @@ function renderBloque(b, i) {
   else if (b.tipo === 'completar') cuerpo = renderCompletar(b, i);
   else if (b.tipo === 'calculo_mental') cuerpo = renderCalculo(b, i);
   else if (b.tipo === 'mapa_mundi') cuerpo = renderMapa(b, i);
+  else if (b.tipo === 'code_blocks') cuerpo = renderCode(b, i);
 
   return `
   <div class="block" id="bloque-${i}">
@@ -417,6 +580,165 @@ function renderCalculo(b, i) {
 function setSuma(i, j, lado, valor) { bloques[i].sumas[j][lado] = valor; }
 function anadirSuma(i) { bloques[i].sumas.push({ a: '', b: '' }); render(); }
 
+// ── Placeta Junior Code ─────────────────────────────────────────────
+const CODE_BLOQUES_EDITOR = [
+  { op: 'avanzar',    nombre: 'AVANZAR',    icono: 'flecha_derecha' },
+  { op: 'retroceder', nombre: 'RETROCEDER', icono: 'flecha_izquierda' },
+  { op: 'girar',      nombre: 'GIRAR →',    icono: 'girar_derecha' },
+  { op: 'girar_izq',  nombre: 'GIRAR ←',    icono: 'girar_izquierda' },
+  { op: 'saltar',     nombre: 'SALTAR',     icono: 'saltar' },
+  { op: 'repetir',    nombre: 'REPETIR',    icono: 'bucle' },
+  { op: 'si',         nombre: 'SI',         icono: 'diamante' },
+];
+
+function renderCode(b, i) {
+  const ejercicios = b.ejercicios || [];
+  const explicacion = `
+    <div class="q-item">
+      <div class="q-head"><span class="q-num"><span class="material-symbols-rounded q-ico">code</span> Explicación de la actividad</span></div>
+      <textarea rows="3" placeholder="Explica qué va a aprender el niño (se muestra antes de jugar)…" style="width:100%;margin-top:8px;" oninput="setCampo(${i},'explicacion',this.value)">${esc(b.explicacion || '')}</textarea>
+      <p class="form-note" style="margin-top:6px;"><span class="material-symbols-rounded q-ico">lightbulb</span> El niño programa a Candela 👧 con bloques y la lleva hasta la estrella ⭐. Cada ejercicio es un poco más difícil.</p>
+    </div>`;
+  const lista = ejercicios.map((ej, j) => renderCodeEjercicio(b, i, ej, j)).join('');
+  return explicacion + lista +
+    `<button class="btn btn-outline" type="button" style="margin-top:12px;" onclick="anadirEjercicio(${i})"><span class="material-symbols-rounded seg-ico">add</span> Añadir ejercicio</button>
+     <p class="form-note" style="margin-top:6px;"><span class="material-symbols-rounded q-ico">flag</span> Con 2 o más ejercicios se crea una <b>evolución progresiva</b>: el niño los supera uno a uno.</p>`;
+}
+
+function renderCodeEjercicio(b, i, ej, j) {
+  const permitidos = ej.permitidos || [];
+  const escen = ej.escenario || {};
+  const obst = (escen.obstaculos || []).map((o, k) =>
+    `<div class="row2" style="align-items:center;gap:8px;">
+      <input type="number" min="0" placeholder="X" value="${o.x}" style="flex:1;" oninput="setObstaculo(${i},${j},${k},'x',this.value)" />
+      <input type="number" min="0" placeholder="Y" value="${o.y}" style="flex:1;" oninput="setObstaculo(${i},${j},${k},'y',this.value)" />
+      <button class="b-btn del" type="button" onclick="borrarObstaculo(${i},${j},${k})"><span class="material-symbols-rounded">delete</span></button>
+    </div>`).join('');
+  const monedas = (escen.monedas || []).map((m, k) =>
+    `<div class="row2" style="align-items:center;gap:8px;">
+      <input type="number" min="0" placeholder="X" value="${m.x}" style="flex:1;" oninput="setMoneda(${i},${j},${k},'x',this.value)" />
+      <input type="number" min="0" placeholder="Y" value="${m.y}" style="flex:1;" oninput="setMoneda(${i},${j},${k},'y',this.value)" />
+      <button class="b-btn del" type="button" onclick="borrarMoneda(${i},${j},${k})"><span class="material-symbols-rounded">delete</span></button>
+    </div>`).join('');
+  const pistas = (ej.pistas || []).map((p, k) =>
+    `<div class="row2" style="align-items:center;gap:8px;">
+      <input placeholder="Pista ${k + 1}" value="${esc(p)}" style="flex:1;" oninput="setPista(${i},${j},${k},this.value)" />
+      <button class="b-btn del" type="button" onclick="borrarPista(${i},${j},${k})"><span class="material-symbols-rounded">delete</span></button>
+    </div>`).join('');
+  return `
+  <div class="q-item" style="border-left:4px solid var(--pj-purple,#4E3B70);">
+    <div class="q-head">
+      <span class="q-num"><span class="material-symbols-rounded q-ico">code</span> Ejercicio ${j + 1}</span>
+      <div class="q-tools">
+        <button class="b-btn up"   onclick="moverEjercicio(${i},${j},-1)" title="Subir ejercicio"><span class="material-symbols-rounded">arrow_upward</span></button>
+        <button class="b-btn down" onclick="moverEjercicio(${i},${j}, 1)" title="Bajar ejercicio"><span class="material-symbols-rounded">arrow_downward</span></button>
+        <button class="b-btn del"  onclick="borrarEjercicio(${i},${j})" title="Eliminar ejercicio"><span class="material-symbols-rounded">delete</span></button>
+      </div>
+    </div>
+    <input placeholder="Título del ejercicio (ej: Avanza 1 casilla)" value="${esc(ej.titulo || '')}" oninput="setEjercicio(${i},${j},'titulo',this.value)" />
+    <input placeholder="Objetivo para el niño (ej: Lleva a Candela a la estrella (1,0))" value="${esc(ej.objetivo_texto || '')}" style="margin-top:6px;" oninput="setEjercicio(${i},${j},'objetivo_texto',this.value)" />
+    <textarea rows="2" placeholder="Explicación extra del ejercicio (opcional)" style="width:100%;margin-top:6px;" oninput="setEjercicio(${i},${j},'explicacion',this.value)">${esc(ej.explicacion || '')}</textarea>
+    <div class="row2" style="grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px;">
+      <div><label>Ancho (columnas)</label><input type="number" min="3" max="12" value="${escen.ancho || 6}" oninput="setEscenario(${i},${j},'ancho',this.value)" /></div>
+      <div><label>Alto (filas)</label><input type="number" min="3" max="12" value="${escen.alto || 6}" oninput="setEscenario(${i},${j},'alto',this.value)" /></div>
+      <div><label>Máx. pasos</label><input type="number" min="1" max="40" value="${ej.objetivo ? (ej.objetivo.max_pasos || 5) : 5}" oninput="setObjetivo(${i},${j},'max_pasos',this.value)" /></div>
+    </div>
+    <div class="row2" style="grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+      <div>
+        <label>Inicio de Candela (x,y)</label>
+        <div class="row2" style="gap:8px;">
+          <input type="number" min="0" placeholder="X" value="${ej.inicio ? ej.inicio.x : 0}" oninput="setInicio(${i},${j},'x',this.value)" />
+          <input type="number" min="0" placeholder="Y" value="${ej.inicio ? ej.inicio.y : 0}" oninput="setInicio(${i},${j},'y',this.value)" />
+        </div>
+      </div>
+      <div>
+        <label>Estrella (x,y)</label>
+        <div class="row2" style="gap:8px;">
+          <input type="number" min="0" placeholder="X" value="${ej.objetivo && ej.objetivo.posicion ? ej.objetivo.posicion.x : 0}" oninput="setObjetivoPos(${i},${j},'x',this.value)" />
+          <input type="number" min="0" placeholder="Y" value="${ej.objetivo && ej.objetivo.posicion ? ej.objetivo.posicion.y : 0}" oninput="setObjetivoPos(${i},${j},'y',this.value)" />
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:8px;">
+      <label>Bloques permitidos</label>
+      <div class="seg" style="flex-wrap:wrap;gap:6px;">
+        ${CODE_BLOQUES_EDITOR.map(cb => `
+          <button type="button" class="chip-cat ${permitidos.includes(cb.op === 'girar_izq' ? 'girar' : cb.op) ? 'active' : ''}"
+            onclick="togglePermitido(${i},${j},'${cb.op}')">
+            ${studioIconoSVG(cb.icono)} ${esc(cb.nombre)}
+          </button>`).join('')}
+      </div>
+    </div>
+    <div style="margin-top:10px;">
+      <label>Obstáculos 🚧 (x,y)</label>
+      ${obst || '<p class="form-note" style="margin:2px 0;">Sin obstáculos.</p>'}
+      <button class="b-btn" type="button" onclick="anadirObstaculo(${i},${j})"><span class="material-symbols-rounded seg-ico">add</span> Obstáculo</button>
+    </div>
+    <div style="margin-top:10px;">
+      <label>Monedas 🪙 (x,y) — dan puntos verdes</label>
+      ${monedas || '<p class="form-note" style="margin:2px 0;">Sin monedas.</p>'}
+      <button class="b-btn" type="button" onclick="anadirMoneda(${i},${j})"><span class="material-symbols-rounded seg-ico">add</span> Moneda</button>
+    </div>
+    <div style="margin-top:10px;">
+      <label>Pistas 💡 (opcional)</label>
+      ${pistas || ''}
+      <button class="b-btn" type="button" onclick="anadirPista(${i},${j})"><span class="material-symbols-rounded seg-ico">add</span> Pista</button>
+    </div>
+  </div>`;
+}
+
+// Mutaciones de code_blocks (globales para los onclick)
+function anadirEjercicio(i) {
+  bloques[i].ejercicios = bloques[i].ejercicios || [];
+  bloques[i].ejercicios.push({
+    titulo: 'Ejercicio ' + (bloques[i].ejercicios.length + 1),
+    explicacion: '', objetivo_texto: 'Lleva a Candela hasta la estrella.',
+    escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [] },
+    inicio: { x: 0, y: 0, direccion: 'derecha' },
+    objetivo: { posicion: { x: 1, y: 0 }, max_pasos: 5 },
+    permitidos: ['avanzar', 'retroceder', 'girar', 'saltar'],
+    max_bloques: 5, pistas: []
+  });
+  render();
+}
+function borrarEjercicio(i, j) { bloques[i].ejercicios.splice(j, 1); render(); }
+function moverEjercicio(i, j, dir) {
+  const k = j + dir;
+  if (k < 0 || k >= bloques[i].ejercicios.length) return;
+  [bloques[i].ejercicios[j], bloques[i].ejercicios[k]] = [bloques[i].ejercicios[k], bloques[i].ejercicios[j]];
+  render();
+}
+function setEjercicio(i, j, campo, valor) { bloques[i].ejercicios[j][campo] = valor; }
+function setEscenario(i, j, campo, valor) {
+  bloques[i].ejercicios[j].escenario[campo] = parseInt(valor, 10) || (campo === 'ancho' || campo === 'alto' ? 6 : 0);
+}
+function setInicio(i, j, campo, valor) {
+  bloques[i].ejercicios[j].inicio[campo] = parseInt(valor, 10) || 0;
+}
+function setObjetivo(i, j, campo, valor) {
+  bloques[i].ejercicios[j].objetivo[campo] = parseInt(valor, 10) || 0;
+}
+function setObjetivoPos(i, j, campo, valor) {
+  bloques[i].ejercicios[j].objetivo.posicion[campo] = parseInt(valor, 10) || 0;
+}
+function togglePermitido(i, j, op) {
+  const ej = bloques[i].ejercicios[j];
+  if (!ej.permitidos) ej.permitidos = [];
+  const real = op === 'girar_izq' ? 'girar' : op;
+  if (ej.permitidos.includes(real)) ej.permitidos = ej.permitidos.filter(p => p !== real);
+  else ej.permitidos.push(real);
+  render();
+}
+function anadirObstaculo(i, j) { bloques[i].ejercicios[j].escenario.obstaculos.push({ x: 2, y: 2 }); render(); }
+function setObstaculo(i, j, k, campo, valor) { bloques[i].ejercicios[j].escenario.obstaculos[k][campo] = parseInt(valor, 10) || 0; }
+function borrarObstaculo(i, j, k) { bloques[i].ejercicios[j].escenario.obstaculos.splice(k, 1); render(); }
+function anadirMoneda(i, j) { bloques[i].ejercicios[j].escenario.monedas.push({ x: 1, y: 0 }); render(); }
+function setMoneda(i, j, k, campo, valor) { bloques[i].ejercicios[j].escenario.monedas[k][campo] = parseInt(valor, 10) || 0; }
+function borrarMoneda(i, j, k) { bloques[i].ejercicios[j].escenario.monedas.splice(k, 1); render(); }
+function anadirPista(i, j) { bloques[i].ejercicios[j].pistas.push(''); render(); }
+function setPista(i, j, k, valor) { bloques[i].ejercicios[j].pistas[k] = valor; }
+function borrarPista(i, j, k) { bloques[i].ejercicios[j].pistas.splice(k, 1); render(); }
+
 // ── Mutaciones (globales para los onclick) ───────────────────────────
 function setCampo(i, ruta, valor) { bloques[i][ruta] = valor; }
 function setItem(i, campo, idx, valor) { bloques[i][campo][idx] = valor; }
@@ -623,6 +945,29 @@ function verPreview() {
         pantallas.push({ tipo: 'mapa', bi, qi, n: (preg || []).length, paises, pide: q.pide || ('Haz clic en ' + corr), correcta: corr, correctaEn: MAPA_MUNDI.paises[corr] });
         kpEstado.push({ respondida: false, acierto: null, sel: null });
       });
+    } else if (b.tipo === 'code_blocks') {
+      const ejercicios = (b.ejercicios || []).filter(e => e.objetivo && e.objetivo.posicion);
+      if (!ejercicios.length) return;
+      if (b.explicacion) {
+        pantallas.push({ tipo: 'code_explica', bi, explicacion: b.explicacion });
+        kpEstado.push({});
+      }
+      ejercicios.forEach((ej, ei) => {
+        const permitidos = (ej.permitidos && ej.permitidos.length) ? ej.permitidos : ['avanzar', 'retroceder', 'girar', 'saltar', 'repetir', 'si'];
+        pantallas.push({
+          tipo: 'code', bi, ejercicio: ei, total_ejercicios: ejercicios.length,
+          titulo: ej.titulo || ('Ejercicio ' + (ei + 1)),
+          explicacion: ej.explicacion || '',
+          objetivo_texto: ej.objetivo_texto || 'Lleva a Candela hasta la estrella.',
+          escenario: ej.escenario || { tipo: 'cuadricula', ancho: 6, alto: 6 },
+          inicio: ej.inicio || { x: 0, y: 0, direccion: 'derecha' },
+          objetivo: ej.objetivo || {},
+          permitidos,
+          max_bloques: ej.max_bloques || null,
+          pistas: ej.pistas || []
+        });
+        kpEstado.push({ programa: [], superado: false, resultado: null, contenedorAbierto: null });
+      });
     }
   });
 
@@ -662,6 +1007,8 @@ function renderPantalla() {
   else if (s.tipo === 'completar') cuerpo = screenCompletar(s, est);
   else if (s.tipo === 'calculo') cuerpo = screenCalculo(s, est);
   else if (s.tipo === 'mapa') cuerpo = screenMapa(s, est);
+  else if (s.tipo === 'code') cuerpo = screenCodePreview(s, est);
+  else if (s.tipo === 'code_explica') cuerpo = screenCodeExplicaPreview(s);
   else if (s.tipo === 'final') { cuerpo = screenFinal(s); if (!kpCelebrado) { kpCelebrado = true; lluviaConfetti(); } }
   destruirMapas();
   $('preview-content').innerHTML = `
@@ -674,6 +1021,7 @@ function renderPantalla() {
   clearInterval(calcTimer);
   if (s.tipo === 'calculo') iniciarTimerCalculo();
   if (s.tipo === 'mapa') iniciarMapa(pantallaIdx);
+  if (s.tipo === 'code') { kpPrevPintar(); kpPrevDibujar(); }
 }
 
 // ── Cálculo mental (vista previa) ─────────────────────────────────────
@@ -780,6 +1128,217 @@ function screenPortada(s) {
       </div>
       <div class="kp-hint">👆 ¡Pulsa los botones para responder!</div>
     </div>`;
+}
+
+// ── Vista previa: Placeta Junior Code (como lo verá el niño) ────────
+const CODE_BLOQUES_PREV = {
+  avanzar:    { nombre: 'AVANZAR', color: '#4c8dff', icono: 'flecha_derecha' },
+  retroceder: { nombre: 'RETROCEDER', color: '#4c8dff', icono: 'flecha_izquierda' },
+  girar:      { nombre: 'GIRAR', color: '#4c8dff', icono: 'girar_derecha' },
+  saltar:     { nombre: 'SALTAR', color: '#4c8dff', icono: 'saltar' },
+  repetir:    { nombre: 'REPETIR', color: '#ff9f1c', icono: 'bucle' },
+  si:         { nombre: 'SI', color: '#ff9f1c', icono: 'diamante' },
+};
+
+function screenCodeExplicaPreview(s) {
+  return `
+    <div class="kp-screen kp-code">
+      <div class="kp-cover cover-purple">💻</div>
+      <h3 class="kp-title">¡Vamos a programar!</h3>
+      <p class="kp-desc">${esc(s.explicacion)}</p>
+      <div class="code-tutorial">
+        <div class="code-tut-step"><span class="code-tut-n">1</span><span>Toca las <b>flechas redondas</b> o <b>arrástralas</b> hasta tu programa.</span></div>
+        <div class="code-tut-step"><span class="code-tut-n">2</span><span>El programa se monta en <b>una línea</b>. Quita pasos con <b>✕</b>.</span></div>
+        <div class="code-tut-step"><span class="code-tut-n">3</span><span>Pulsa <b>▶ Ejecutar</b>: verás a Candela 👧 moverse <b>paso a paso</b>.</span></div>
+        <div class="code-tut-step"><span class="code-tut-n">4</span><span>Llega a la <b>estrella ⭐</b> para superar el reto.</span></div>
+      </div>
+      <button type="button" class="kp-btn kp-start" onclick="pantallaNext()">🚀 ¡A jugar!</button>
+      <div class="kp-hint">Cada ejercicio es un poco más difícil. ¡Tú puedes!</div>
+    </div>`;
+}
+
+function screenCodePreview(s, est) {
+  const total = s.total_ejercicios || 1;
+  const actual = (s.ejercicio || 0) + 1;
+  const bInfo = CODE_BLOQUES_PREV;
+  return `
+    <div class="kp-screen kp-code">
+      <div class="code-topline">
+        <span class="code-pill code-pill-prog">Ejercicio ${actual} / ${total}</span>
+        <span class="code-pill code-pill-tit">${esc(s.titulo || '')}</span>
+      </div>
+      ${s.explicacion ? `<div class="code-explica">💡 ${esc(s.explicacion)}</div>` : ''}
+      <div class="kp-qt" style="margin-bottom:4px;">${esc(s.objetivo_texto)}</div>
+      <div class="code-scenario-wrap">
+        <svg id="kp-code-escenario-prev" class="code-scenario" viewBox="0 0 600 380"></svg>
+      </div>
+      <div class="code-chips">
+        ${s.objetivo && s.objetivo.posicion ? `<span class="kp-chip chip-blue">🎯 ${s.objetivo.posicion.x},${s.objetivo.posicion.y}</span>` : ''}
+        ${s.objetivo && s.objetivo.max_pasos ? `<span class="kp-chip chip-orange">⏱ ${s.objetivo.max_pasos} pasos</span>` : ''}
+      </div>
+      <div class="code-palette">
+        ${(s.permitidos || []).map(op => {
+          const b = bInfo[op];
+          if (!b) return '';
+          return `<button type="button" class="code-block cute-block" style="--blk:${b.color}" onclick="kpPrevAñadir('${op}')" title="Añadir ${b.nombre}"><span class="blk-emoji">${studioIconoSVG(b.icono)}</span><span class="blk-nombre">${b.nombre}</span></button>`;
+        }).join('')}
+        ${(s.permitidos || []).includes('girar') ? `
+          <button type="button" class="code-block cute-block" style="--blk:#4c8dff" onclick="kpPrevAñadir('girar',{dir:'derecha'})" title="Girar a la derecha"><span class="blk-emoji">${studioIconoSVG('girar_derecha')}</span><span class="blk-nombre">GIRAR →</span></button>
+          <button type="button" class="code-block cute-block" style="--blk:#4c8dff" onclick="kpPrevAñadir('girar',{dir:'izquierda'})" title="Girar a la izquierda"><span class="blk-emoji">${studioIconoSVG('girar_izquierda')}</span><span class="blk-nombre">GIRAR ←</span></button>` : ''}
+      </div>
+      <div class="code-line-wrap">
+        <div class="code-line-label">📝 Tu programa</div>
+        <div class="code-programa cute-linea" id="kp-code-programa-prev"></div>
+      </div>
+      <div class="code-acciones">
+        <button type="button" class="code-run-btn" id="kp-code-run-prev" onclick="kpPrevEjecutar()">▶ Ejecutar</button>
+        <button type="button" class="code-clear-btn" onclick="kpPrevVaciar()">🗑 Vaciar</button>
+      </div>
+      <div class="kp-hint">👆 Pulsa las flechas para montar el programa y luego ▶ Ejecutar.</div>
+    </div>`;
+}
+
+// Estado local de la vista previa de code en el Studio
+let kpPrev = { programa: [], resultado: null, superado: false };
+
+function kpPrevAñadir(op, opts) {
+  kpPrev.programa.push({ op, ...(opts || {}) });
+  kpPrev.resultado = null; kpPrev.superado = false;
+  kpPrevPintar();
+  kpPrevDibujar();
+}
+
+function kpPrevVaciar() {
+  kpPrev = { programa: [], resultado: null, superado: false };
+  kpPrevPintar();
+  kpPrevDibujar();
+}
+
+function kpPrevSerializar() {
+  return kpPrev.programa.map(i => ({ op: i.op, dir: i.dir, veces: i.veces, condicion: i.condicion, bloques: i.bloques || [] }));
+}
+
+function kpPrevPintar() {
+  const cont = document.getElementById('kp-code-programa-prev');
+  const run = document.getElementById('kp-code-run-prev');
+  if (!cont) return;
+  cont.innerHTML = '';
+  if (!kpPrev.programa.length) {
+    cont.innerHTML = '<div class="code-vacio">👉 Toca las flechas para montar tu programa</div>';
+  } else {
+    kpPrev.programa.forEach((item, i) => {
+      const b = CODE_BLOQUES_PREV[item.op] || { nombre: item.op, color: '#4c8dff', icono: 'flecha_derecha' };
+      const chip = document.createElement('span');
+      chip.className = 'cute-chip';
+      chip.style.setProperty('--blk', b.color);
+      chip.innerHTML = `<span class="cute-chip-etiqueta">${studioIconoSVG(b.icono)} ${esc(b.nombre)}</span>
+        ${item.op === 'girar' ? `<button class="cute-dir" onclick="kpPrevGirar(${i})" title="Cambiar dirección">${studioIconoSVG(item.dir === 'izquierda' ? 'girar_izquierda' : 'girar_derecha')}</button>` : ''}
+        ${item.op === 'repetir' ? `<input type="number" min="1" max="20" value="${item.veces || 1}" style="width:42px;" onchange="kpPrevVeces(${i},this.value)"><span class="cute-chip-explica">veces</span>` : ''}
+        <button class="cute-del" onclick="kpPrevBorrar(${i})">✕</button>`;
+      cont.appendChild(chip);
+    });
+  }
+  if (run) run.disabled = !kpPrev.programa.length;
+}
+function kpPrevBorrar(i) { kpPrev.programa.splice(i, 1); kpPrev.resultado = null; kpPrevPintar(); kpPrevDibujar(); }
+function kpPrevGirar(i) { kpPrev.programa[i].dir = kpPrev.programa[i].dir === 'izquierda' ? 'derecha' : 'izquierda'; kpPrevPintar(); kpPrevDibujar(); }
+function kpPrevVeces(i, v) { kpPrev.programa[i].veces = parseInt(v, 10) || 1; kpPrevDibujar(); }
+
+// Dibuja el escenario de la vista previa de code
+function kpPrevDibujar() {
+  const s = pantallas[pantallaIdx];
+  const svg = document.getElementById('kp-code-escenario-prev');
+  if (!s || s.tipo !== 'code' || !svg) return;
+  const esc = s.escenario || {};
+  const ini = s.inicio || {};
+  const obj = s.objetivo || {};
+  const W = 600, H = 380;
+  const ancho = esc.ancho || 6, alto = esc.alto || 6;
+  const cell = Math.min((W - 40) / ancho, (H - 40) / alto);
+  const ox = (W - cell * ancho) / 2, oy = (H - cell * alto) / 2;
+  // Resultado o posición inicial
+  let px = ini.x ?? 0, py = ini.y ?? 0, dirIdx = ['derecha', 'abajo', 'izquierda', 'arriba'].indexOf(ini.direccion || 'derecha');
+  let fill = '#3a7dff';
+  let html = `<rect x="0" y="0" width="${W}" height="${H}" fill="#eef0fa" rx="12"/>`;
+  for (let r = 0; r < alto; r++) for (let c = 0; c < ancho; c++) {
+    html += `<rect x="${ox + c * cell}" y="${oy + r * cell}" width="${cell - 2}" height="${cell - 2}" rx="6" fill="#fff" stroke="#d6d9ea" stroke-width="1"/>`;
+  }
+  (esc.obstaculos || []).forEach(o => {
+    html += `<rect x="${ox + o.x * cell}" y="${oy + o.y * cell}" width="${cell - 2}" height="${cell - 2}" rx="6" fill="#4a1a1a"/><text x="${ox + o.x * cell + cell / 2}" y="${oy + o.y * cell + cell / 2 + 6}" text-anchor="middle" font-size="18">🚧</text>`;
+  });
+  (esc.monedas || []).forEach(m => {
+    html += `<text x="${ox + m.x * cell + cell / 2}" y="${oy + m.y * cell + cell / 2 + 6}" text-anchor="middle" font-size="16">🪙</text>`;
+  });
+  if (obj.posicion) {
+    html += `<circle cx="${ox + obj.posicion.x * cell + cell / 2}" cy="${oy + obj.posicion.y * cell + cell / 2}" r="${cell * 0.42}" fill="#ffd166" opacity="0.35"/><text x="${ox + obj.posicion.x * cell + cell / 2}" y="${oy + obj.posicion.y * cell + cell / 2 + 6}" text-anchor="middle" font-size="22">⭐</text>`;
+  }
+  // Si hay programa, previsualizar el camino
+  if (kpPrev.programa.length && window.PJCode) {
+    try {
+      const r = PJCode.ejecutarCode(s.escenario, s.inicio, kpPrevSerializar(), { maxPasos: (s.max_bloques || 10) * 20 });
+      const trazado = (r.trazado || []).filter(t => t.accion !== 'inicio' && t.accion !== 'si');
+      if (trazado.length) {
+        const ultimo = trazado[trazado.length - 1];
+        px = ultimo.x; py = ultimo.y; dirIdx = ultimo.dir;
+        const llega = obj.posicion && ultimo.x === Number(obj.posicion.x) && ultimo.y === Number(obj.posicion.y);
+        fill = llega ? '#2ecc71' : '#4c8dff';
+        const puntos = trazado.map(t => `${ox + t.x * cell + cell / 2},${oy + t.y * cell + cell / 2}`);
+        html += `<polyline points="${puntos.join(' ')}" fill="none" stroke="#4c8dff" stroke-width="3" stroke-dasharray="6 5" opacity="0.6"/>`;
+        html += `<text x="${W - 16}" y="22" text-anchor="end" font-size="13" font-weight="800" fill="#8a93b8">👀 prevista</text>`;
+      }
+    } catch (e) { /* sin motor */ }
+  }
+  html += `<circle cx="${ox + px * cell + cell / 2}" cy="${oy + py * cell + cell / 2}" r="${cell * 0.34}" fill="${fill}"/><text x="${ox + px * cell + cell / 2}" y="${oy + py * cell + cell / 2 + 5}" text-anchor="middle" font-size="14">👧</text>`;
+  if (dirIdx >= 0) {
+    const angs = { 0: 0, 1: 90, 2: 180, 3: 270 };
+    html += `<g transform="translate(${ox + px * cell + cell / 2}, ${oy + py * cell + cell / 2 + 12}) rotate(${angs[dirIdx]})"><path d="M-6,0 L6,0 M2,-4 L6,0 L2,4" stroke="#1a2b6b" stroke-width="2" fill="none"/></g>`;
+  }
+  svg.innerHTML = html;
+}
+
+async function kpPrevEjecutar() {
+  const s = pantallas[pantallaIdx];
+  if (!s || s.tipo !== 'code' || !kpPrev.programa.length || !window.PJCode) return;
+  const run = document.getElementById('kp-code-run-prev');
+  if (run) run.disabled = true;
+  const r = PJCode.ejecutarCode(s.escenario, s.inicio, kpPrevSerializar(), { maxPasos: (s.max_bloques || 10) * 20 });
+  const evalRes = PJCode.evaluarCode(s.escenario, s.inicio, s.objetivo, kpPrevSerializar(), r);
+  kpPrev.resultado = r; kpPrev.superado = evalRes.superado;
+  const trazado = (r.trazado || []).filter(t => t.accion !== 'inicio');
+  const svg = document.getElementById('kp-code-escenario-prev');
+  const esc = s.escenario || {}, ini = s.inicio || {}, obj = s.objetivo || {};
+  const W = 600, H = 380;
+  const ancho = esc.ancho || 6, alto = esc.alto || 6;
+  const cell = Math.min((W - 40) / ancho, (H - 40) / alto);
+  const ox = (W - cell * ancho) / 2, oy = (H - cell * alto) / 2;
+  // Reproducción paso a paso
+  const n = trazado.length;
+  for (let i = 0; i < n; i++) {
+    const t = trazado[i];
+    const fill = t.accion === 'error' ? '#ff5a5a' : (kpPrev.superado ? '#2ecc71' : '#4c8dff');
+    let html = `<rect x="0" y="0" width="${W}" height="${H}" fill="#eef0fa" rx="12"/>`;
+    for (let r = 0; r < alto; r++) for (let c = 0; c < ancho; c++) html += `<rect x="${ox + c * cell}" y="${oy + r * cell}" width="${cell - 2}" height="${cell - 2}" rx="6" fill="#fff" stroke="#d6d9ea" stroke-width="1"/>`;
+    (esc.obstaculos || []).forEach(o => html += `<rect x="${ox + o.x * cell}" y="${oy + o.y * cell}" width="${cell - 2}" height="${cell - 2}" rx="6" fill="#4a1a1a"/><text x="${ox + o.x * cell + cell / 2}" y="${oy + o.y * cell + cell / 2 + 6}" text-anchor="middle" font-size="18">🚧</text>`);
+    (esc.monedas || []).forEach(m => html += `<text x="${ox + m.x * cell + cell / 2}" y="${oy + m.y * cell + cell / 2 + 6}" text-anchor="middle" font-size="16">🪙</text>`);
+    if (obj.posicion) html += `<circle cx="${ox + obj.posicion.x * cell + cell / 2}" cy="${oy + obj.posicion.y * cell + cell / 2}" r="${cell * 0.42}" fill="#ffd166" opacity="0.35"/><text x="${ox + obj.posicion.x * cell + cell / 2}" y="${oy + obj.posicion.y * cell + cell / 2 + 6}" text-anchor="middle" font-size="22">⭐</text>`;
+    html += `<circle cx="${ox + t.x * cell + cell / 2}" cy="${oy + t.y * cell + cell / 2}" r="${cell * 0.34}" fill="${fill}"/><text x="${ox + t.x * cell + cell / 2}" y="${oy + t.y * cell + cell / 2 + 5}" text-anchor="middle" font-size="14">👧</text>`;
+    html += `<text x="${W - 16}" y="22" text-anchor="end" font-size="15" font-weight="800" fill="#4E3B70">${i + 1}/${n}</text>`;
+    if (svg) svg.innerHTML = html;
+    await new Promise(res => setTimeout(res, 320));
+  }
+  // Estado final
+  kpPrevDibujar();
+  let msg = document.getElementById('kp-prev-msg');
+  if (!msg) {
+    msg = document.createElement('div');
+    msg.id = 'kp-prev-msg';
+    msg.className = 'kp-msg';
+    const acc = document.querySelector('.code-acciones');
+    if (acc) acc.after(msg);
+  }
+  msg.className = 'kp-msg ' + (kpPrev.superado ? 'ok' : 'bad');
+  msg.textContent = kpPrev.superado ? '🎉 ¡Superado!' : '💪 Inténtalo de nuevo.';
+  if (run) run.disabled = false;
 }
 
 function screenTest(s, est) {
@@ -1234,8 +1793,8 @@ function kpMapa(idx, en) {
   renderPantalla();
 }
 
-function pantallaNext() { if (pantallaIdx < pantallas.length - 1) { pantallaIdx++; if (window.pjSonido) pjSonido.hoja(); renderPantalla(); } }
-function pantallaPrev() { if (pantallaIdx > 0) { pantallaIdx--; if (window.pjSonido) pjSonido.hoja(); renderPantalla(); } }
+function pantallaNext() { if (pantallaIdx < pantallas.length - 1) { pantallaIdx++; if (window.pjSonido) pjSonido.hoja(); kpPrev = { programa: [], resultado: null, superado: false }; renderPantalla(); } }
+function pantallaPrev() { if (pantallaIdx > 0) { pantallaIdx--; if (window.pjSonido) pjSonido.hoja(); kpPrev = { programa: [], resultado: null, superado: false }; renderPantalla(); } }
 
 // ── Drag & drop ──────────────────────────────────────────────────────
 function initDrag() {
@@ -1327,6 +1886,7 @@ function contarPreguntas() {
     else if (b.tipo === 'completar') n += b.frases.filter(f => f.texto && f.respuesta).length;
     else if (b.tipo === 'calculo_mental') n += b.sumas.filter(s => s.a !== '' && s.b !== '').length;
     else if (b.tipo === 'mapa_mundi') n += (b.paises || []).filter(p => p && window.MAPA_MUNDI && MAPA_MUNDI.paises[p]).length;
+    else if (b.tipo === 'code_blocks') n += (b.ejercicios || []).filter(e => e.objetivo && e.objetivo.posicion).length;
   }
   return n;
 }
@@ -1349,6 +1909,9 @@ function estimarEdad() {
     } else if (b.tipo === 'test') {
       const np = (b.preguntas || []).length;
       total += (np >= 10 ? 9 : (np >= 6 ? 8 : 6)); n++;
+    } else if (b.tipo === 'code_blocks') {
+      const ne = (b.ejercicios || []).length;
+      total += (ne >= 4 ? 9 : (ne >= 2 ? 7 : 6)); n++;
     }
   }
   if (!n) return '6-12';
@@ -1391,14 +1954,45 @@ async function publicar() {
   meta = { titulo, descripcion, categoria, tipo, edad: edad_recomendada, dificultad, tiempo: tiempo_estimado, titular, dip, eip, entidad, autor, pictograma, precio_licencia, precio_intento, recompensa, subvencionada, destacada };
   guardar();
 
+  // Construye el contenido según los tipos de bloque presentes.
+  const bloquesCode = bloques.filter(b => b.tipo === 'code_blocks');
+  const bloquesNormales = bloques.filter(b => b.tipo !== 'code_blocks');
+  let contenido;
+  const tipoReal = bloquesCode.length ? 'code_blocks' : tipo;
+  if (bloquesCode.length) {
+    // Combina todos los ejercicios de todos los bloques code en una evolución progresiva.
+    const ejercicios = [];
+    for (const bc of bloquesCode) {
+      for (const ej of (bc.ejercicios || [])) {
+        if (!ej.objetivo || !ej.objetivo.posicion) continue;
+        ejercicios.push({
+          titulo: ej.titulo || `Ejercicio ${ejercicios.length + 1}`,
+          explicacion: ej.explicacion || '',
+          objetivo_texto: ej.objetivo_texto || 'Lleva a Candela hasta la estrella.',
+          escenario: ej.escenario || { tipo: 'cuadricula', ancho: 6, alto: 6 },
+          inicio: ej.inicio || { x: 0, y: 0, direccion: 'derecha' },
+          objetivo: ej.objetivo || {},
+          bloques_permitidos: (ej.permitidos && ej.permitidos.length) ? ej.permitidos : null,
+          max_bloques: ej.max_bloques || null,
+          pistas: ej.pistas || []
+        });
+      }
+    }
+    contenido = { version: 2, bloques: bloquesNormales, ejercicios,
+      explicacion: (bloquesCode[0].explicacion || 'Programa a Candela 👧 para que llegue a la estrella ⭐. Cada ejercicio es un poco más difícil.'),
+      ...(pictograma ? { pictograma } : {}) };
+  } else {
+    contenido = { version: 2, bloques, ...(pictograma ? { pictograma } : {}) };
+  }
+
   const body = {
     tipo_titular: titular, dip: dip || null, eip: eip || null, nombre_entidad: entidad || null, nombre_autor: autor || null,
-    titulo, descripcion, categoria, tipo,
+    titulo, descripcion, categoria, tipo: tipoReal,
     edad_recomendada, dificultad, tiempo_estimado,
     num_preguntas,
     num_fases: bloques.length,
     precio_licencia, precio_intento, recompensa, subvencionada, destacada,
-    contenido: { version: 2, bloques, ...(pictograma ? { pictograma } : {}) }
+    contenido
   };
 
   const btn = $('meta-ok');
@@ -1446,10 +2040,14 @@ document.addEventListener('DOMContentLoaded', () => {
   cargar();
   initDrag();
   render();
+  renderProyectos();
 
   $('btn-guardar').addEventListener('click', () => { guardar(); aviso('💾 Borrador guardado en este navegador.', false); });
   $('btn-publicar').addEventListener('click', abrirMeta);
   $('btn-vista').addEventListener('click', verPreview);
+  if ($('btn-nuevo')) $('btn-nuevo').addEventListener('click', nuevoProyectoPrompt);
+  if ($('btn-duplicar')) $('btn-duplicar').addEventListener('click', () => duplicarProyecto(proyectoActual));
+  if ($('btn-borrar')) $('btn-borrar').addEventListener('click', borrarProyectoPrompt);
 
   $('img-ok').addEventListener('click', aplicarImagen);
   $('img-cancel').addEventListener('click', () => $('img-modal').classList.add('hidden'));

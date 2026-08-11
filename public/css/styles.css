@@ -460,6 +460,31 @@ footer a { color: var(--pj-yellow); text-decoration: none; }
 }
 .studio-toolbar .studio-actions { margin-left: auto; display: flex; gap: 10px; flex-wrap: wrap; }
 
+/* Selector de proyectos (multi-proyecto) */
+.studio-proyectos {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--pj-gray-50, #f8f7fc);
+  border: 1px solid var(--pj-gray-200, #e7e2f0);
+  border-radius: 12px;
+  padding: 4px 10px;
+}
+.studio-proyectos .sp-label {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 12px; font-weight: 700; color: var(--pj-gray-600, #666);
+}
+.studio-proyectos .sp-label .material-symbols-rounded { font-size: 16px; color: var(--pj-purple); }
+.studio-proyectos input, .studio-proyectos select {
+  border: 1px solid var(--pj-gray-200, #e7e2f0);
+  border-radius: 8px; padding: 4px 8px; font-size: 13px; background: #fff;
+}
+.studio-proyectos .btn { padding: 4px 8px; font-size: 13px; }
+.studio-proyectos .btn .material-symbols-rounded { font-size: 16px; }
+
+.block-btn.block-btn-code {
+  border-color: var(--pj-purple);
+  background: linear-gradient(90deg, var(--pj-purple-light), var(--pj-white));
+}
+
 .studio {
   display: grid;
   grid-template-columns: 240px 1fr;
