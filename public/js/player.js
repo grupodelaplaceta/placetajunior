@@ -1059,18 +1059,20 @@ const CODE_BLOQUES_INFO = {
 };
 
 // Iconos SVG 100% descriptivos (16x16, trazo blanco) para los bloques
+const CODE_ICONOS_SVG = {
+  'flecha-derecha': '<path d="M2 8h11M9 4l4 4-4 4" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+  'flecha-izquierda': '<path d="M14 8H3M7 4L3 8l4 4" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+  'flecha-curva': '<path d="M8 2v7a3 3 0 0 0 3 3h3M12 9l2 3-2 3" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+  'flecha-curva-der': '<path d="M8 2v5a3 3 0 0 0 3 3h3M12 7l2 3-2 3" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+  'flecha-curva-izq': '<path d="M8 2v5a3 3 0 0 1-3 3H2M4 7L2 10l2 3" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+  'flecha-salto': '<path d="M3 12c1-4 2-6 5-7M8 2l3 3-3 3M13 13c0-2 0-3-1-5" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+  'bucle': '<path d="M3 7a5 5 0 0 1 5-4 5 5 0 0 1 5 4M13 9v4M13 9h-4M2 14l3-3 3 3" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+  'diamante': '<path d="M8 2l6 6-6 6-6-6 6-6zM8 5.5L10.5 8 8 10.5 5.5 8 8 5.5z" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+};
+
 function codeIconoSVG(icono, extra) {
   const s = extra || '';
-  const d = {
-    'flecha-derecha': '<path d="M2 8h11M9 4l4 4-4 4" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
-    'flecha-izquierda': '<path d="M14 8H3M7 4L3 8l4 4" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
-    'flecha-curva': '<path d="M8 2v7a3 3 0 0 0 3 3h3M12 9l2 3-2 3" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
-    'flecha-curva-der': '<path d="M8 2v5a3 3 0 0 0 3 3h3M12 7l2 3-2 3" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
-    'flecha-curva-izq': '<path d="M8 2v5a3 3 0 0 1-3 3H2M4 7L2 10l2 3" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
-    'flecha-salto': '<path d="M3 12c1-4 2-6 5-7M8 2l3 3-3 3M13 13c0-2 0-3-1-5" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
-    'bucle': '<path d="M3 7a5 5 0 0 1 5-4 5 5 0 0 1 5 4M13 9v4M13 9h-4M2 14l3-3 3 3" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
-    'diamante': '<path d="M8 2l6 6-6 6-6-6 6-6zM8 5.5L10.5 8 8 10.5 5.5 8 8 5.5z" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
-  }[icono] || d['flecha-derecha'];
+  const d = CODE_ICONOS_SVG[icono] || CODE_ICONOS_SVG['flecha-derecha'];
   return `<svg class="blk-icono" width="20" height="20" viewBox="0 0 16 16" aria-hidden="true" ${s}>${d}</svg>`;
 }
 
