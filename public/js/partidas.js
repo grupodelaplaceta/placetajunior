@@ -19,7 +19,10 @@ window.PJPartidas = {
   // Guarda una partida en curso
   set: function (actividadId, partida) {
     const todas = this.leer();
-    todas[actividadId] = { ...partida, guardado: Date.now() };
+    const prev = todas[actividadId] || {};
+    // Si ya estaba completada, se mantiene completada (no se revierte a "en curso")
+    // aunque se vuelva a guardar una partida en curso (p. ej. al navegar atrás desde el final).
+    todas[actividadId] = { ...partida, ...(prev.completada ? { completada: true } : {}), guardado: Date.now() };
     this.guardarTodo(todas);
   },
 
