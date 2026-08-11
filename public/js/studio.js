@@ -684,6 +684,11 @@ function renderCodeEjercicio(b, i, ej, j) {
       ${pistas || ''}
       <button class="b-btn" type="button" onclick="anadirPista(${i},${j})"><span class="material-symbols-rounded seg-ico">add</span> Pista</button>
     </div>
+    <div style="margin-top:10px;">
+      <label>Programa solución (opcional) — se imprime en la ficha PDF</label>
+      <input placeholder="Ej: avanzar, avanzar, girar izquierda, avanzar" value="${esc(ej.programa_solucion_texto || '')}" style="width:100%;margin-top:4px;" oninput="setProgramaSolucion(${i},${j},this.value)" />
+      <p class="form-note" style="margin:2px 0;">Escribe los bloques separados por comas (avanzar, retroceder, girar derecha/izquierda, saltar). Si lo dejas vacío, la ficha PDF lo calcula solo.</p>
+    </div>
   </div>`;
 }
 
@@ -738,6 +743,22 @@ function borrarMoneda(i, j, k) { bloques[i].ejercicios[j].escenario.monedas.spli
 function anadirPista(i, j) { bloques[i].ejercicios[j].pistas.push(''); render(); }
 function setPista(i, j, k, valor) { bloques[i].ejercicios[j].pistas[k] = valor; }
 function borrarPista(i, j, k) { bloques[i].ejercicios[j].pistas.splice(k, 1); render(); }
+
+// Programa solución del ejercicio (opcional): se guarda como lista de bloques
+// y se imprime en la ficha PDF. Texto: "avanzar, girar izquierda, ...".
+function setProgramaSolucion(i, j, valor) {
+  const ej = bloques[i].ejercicios[j];
+  ej.programa_solucion_texto = valor;
+  const ops = String(valor || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+  ej.programa_solucion = ops.map(op => {
+    if (op.startsWith('girar')) {
+      const dir = (op.includes('izq') || op.includes('-') || op.includes('←')) ? 'izquierda' : 'derecha';
+      return { op: 'girar', dir };
+    }
+    if (['avanzar', 'retroceder', 'saltar'].includes(op)) return { op };
+    return null;
+  }).filter(Boolean);
+}
 
 // ── Mutaciones (globales para los onclick) ───────────────────────────
 function setCampo(i, ruta, valor) { bloques[i][ruta] = valor; }
@@ -1974,7 +1995,8 @@ async function publicar() {
           objetivo: ej.objetivo || {},
           bloques_permitidos: (ej.permitidos && ej.permitidos.length) ? ej.permitidos : null,
           max_bloques: ej.max_bloques || null,
-          pistas: ej.pistas || []
+          pistas: ej.pistas || [],
+          programa_solucion: (ej.programa_solucion && ej.programa_solucion.length) ? ej.programa_solucion : null
         });
       }
     }

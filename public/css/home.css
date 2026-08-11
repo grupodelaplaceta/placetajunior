@@ -618,6 +618,9 @@ body.pj-home.mostrando-detalle .detail-page { display: block; }
 .print-worksheet .ws-code-grid { border-collapse: collapse; }
 .print-worksheet .ws-code-grid td { font-size: 16px; font-weight: 700; }
 .print-worksheet .ws-code-lineas { margin-top: 6px; }
+.print-worksheet .ws-guia-bloques { margin: 6px 0 4px; font-size: 11px; color: #374151; text-align: center; line-height: 1.6; }
+.print-worksheet .ws-bloque { display: inline-block; background: #f3f4f6; border: 1px solid #d1d5db; border-radius: 8px; padding: 2px 7px; margin: 2px; font-size: 10px; }
+.print-worksheet .ws-programa { margin-top: 6px; }
 .print-worksheet .ws-rel h4 { text-align: left; }
 .print-worksheet .ws-cols { display: flex; gap: 24mm; justify-content: space-around; }
 .print-worksheet .ws-col { flex: 1; display: flex; flex-direction: column; gap: 8px; }

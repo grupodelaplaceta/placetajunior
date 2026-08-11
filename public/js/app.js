@@ -286,8 +286,8 @@ function cerrarDetalle() {
 }
 
 // Genera el worksheet imprimible de una actividad code_blocks.
-// Muestra cada ejercicio con su cuadrícula, la instrucción y líneas en
-// blanco para escribir el programa a mano en papel (AVANZAR, GIRAR, etc.).
+// Muestra cada ejercicio con su cuadrícula, una GUÍA de los bloques
+// disponibles y el PROGRAMA COMPLETO (la solución), no casillas en blanco.
 function generarPdfCode(a) {
   const contenido = a.contenido || {};
   const ejercicios = (window.PJCode && PJCode.obtenerEjercicios)
@@ -303,9 +303,14 @@ function generarPdfCode(a) {
         pistas: contenido.pistas || []
       }];
 
-  const nombresBloque = {
-    avanzar: 'AVANZAR ➡️', retroceder: 'RETROCEDER ⬅️', girar: 'GIRAR',
-    saltar: 'SALTAR ⤴️', repetir: 'REPETIR 🔁', si: 'SI ❓'
+  // Guía de cada bloque (icono + nombre + qué hace)
+  const guiaBloque = {
+    avanzar:    { nombre: 'AVANZAR',    ico: '➡️', desc: 'Avanza 1 casilla' },
+    retroceder: { nombre: 'RETROCEDER', ico: '⬅️', desc: 'Retrocede 1 casilla' },
+    girar:      { nombre: 'GIRAR',      ico: '🔄', desc: 'Gira a la derecha o a la izquierda' },
+    saltar:     { nombre: 'SALTAR',     ico: '⤴️', desc: 'Salta 2 casillas' },
+    repetir:    { nombre: 'REPETIR',    ico: '🔁', desc: 'Repite los pasos N veces' },
+    si:         { nombre: 'SI',         ico: '❓', desc: 'Si se cumple la condición…' }
   };
 
   // Dibuja la cuadrícula del ejercicio como tabla HTML para imprimir
@@ -335,18 +340,91 @@ function generarPdfCode(a) {
     return html;
   }
 
-  let cuerpo = '<div class="ws-sec ws-code"><h4>💻 Placeta Junior Code — Escribe el programa</h4>';
-  cuerpo += '<p class="ws-hint">Escribe los pasos del programa en cada línea para llevar a Candela 👧 hasta la estrella ⭐ sin chocar.</p>';
+  // Calcula el programa solución con BFS (bloques simples) y lo VERIFICA
+  // con el motor real. Devuelve null si no se puede resolver (p. ej. ejercicios
+  // que exigen REPETIR/SI) → entonces se muestra una zona de escritura.
+  function resolverPrograma(ej, permitidos) {
+    const obj = ej.objetivo || {};
+    if (!obj.posicion || !window.PJCode) return null;
+    if ((obj.debe_usar || []).some(op => op === 'repetir' || op === 'si')) return null;
+    const ops = [];
+    if (permitidos.includes('avanzar')) ops.push('avanzar');
+    if (permitidos.includes('retroceder')) ops.push('retroceder');
+    if (permitidos.includes('saltar')) ops.push('saltar');
+    if (permitidos.includes('girar')) { ops.push('girar:der'); ops.push('girar:izq'); }
+    if (!ops.length) return null;
+    const esc = ej.escenario || {};
+    const ancho = esc.ancho || 6, alto = esc.alto || 6;
+    const obst = new Set((esc.obstaculos || []).map(o => o.x + ',' + o.y));
+    const ini = ej.inicio || {};
+    const sx = ini.x ?? 0, sy = ini.y ?? 0;
+    const sd = ['derecha', 'abajo', 'izquierda', 'arriba'].indexOf(ini.direccion || 'derecha');
+    const d0 = sd < 0 ? 0 : sd;
+    const deltas = [{ x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 0 }, { x: 0, y: -1 }];
+    const tx = Number(obj.posicion.x), ty = Number(obj.posicion.y);
+    const maxDepth = Math.min(Number(obj.max_pasos) || (ancho * alto * 2), 40);
+    const dentro = (xx, yy) => xx >= 0 && xx < ancho && yy >= 0 && yy < alto;
+    const visitado = new Set();
+    const cola = [{ x: sx, y: sy, d: d0, acc: [] }];
+    visitado.add(sx + ',' + sy + ',' + d0);
+    let solucion = null;
+    while (cola.length) {
+      const st = cola.shift();
+      if (st.acc.length > maxDepth) continue;
+      if (st.x === tx && st.y === ty) { solucion = st.acc; break; }
+      for (const op of ops) {
+        let nx = st.x, ny = st.y, nd = st.d, acc = null;
+        if (op === 'avanzar') { nx = st.x + deltas[st.d].x; ny = st.y + deltas[st.d].y; if (!dentro(nx, ny) || obst.has(nx + ',' + ny)) continue; acc = { op: 'avanzar' }; }
+        else if (op === 'retroceder') { nx = st.x - deltas[st.d].x; ny = st.y - deltas[st.d].y; if (!dentro(nx, ny) || obst.has(nx + ',' + ny)) continue; acc = { op: 'retroceder' }; }
+        else if (op === 'saltar') { nx = st.x + deltas[st.d].x * 2; ny = st.y + deltas[st.d].y * 2; if (!dentro(nx, ny)) continue; acc = { op: 'saltar' }; }
+        else if (op === 'girar:der') { nd = (st.d + 1) % 4; acc = { op: 'girar', dir: 'derecha' }; }
+        else if (op === 'girar:izq') { nd = (st.d + 3) % 4; acc = { op: 'girar', dir: 'izquierda' }; }
+        const key = nx + ',' + ny + ',' + nd;
+        if (visitado.has(key)) continue;
+        visitado.add(key);
+        cola.push({ x: nx, y: ny, d: nd, acc: st.acc.concat([acc]) });
+      }
+    }
+    if (!solucion) return null;
+    // Verificación final con el motor real (incluye monedas)
+    const res = PJCode.ejecutarCode(esc, ini, solucion, { maxPasos: maxDepth });
+    const monedasReq = Number(obj.monedas) || 0;
+    const ok = res && res.posicion_final && res.posicion_final.x === tx && res.posicion_final.y === ty
+      && (res.monedas_recogidas ? res.monedas_recogidas.length : 0) >= monedasReq;
+    return ok ? solucion : null;
+  }
+
+  let cuerpo = '<div class="ws-sec ws-code"><h4>💻 Placeta Junior Code — Programa</h4>';
+  cuerpo += '<p class="ws-hint">Programa a Candela 👧 para llegar a la estrella ⭐. Revisa la guía de bloques y el programa completo de cada ejercicio.</p>';
   ejercicios.forEach((ej, i) => {
     const permitidos = (ej.bloques_permitidos && ej.bloques_permitidos.length) ? ej.bloques_permitidos : ['avanzar', 'girar'];
     cuerpo += '<div class="ws-code-ej">';
     cuerpo += '<h5>Ejercicio ' + (i + 1) + ' — ' + esc(ej.titulo || '') + '</h5>';
     if (ej.explicacion) cuerpo += '<p class="ws-hint">' + esc(ej.explicacion) + '</p>';
     cuerpo += '<p class="ws-hint"><b>Objetivo:</b> ' + esc(ej.objetivo_texto || '') + '</p>';
-    cuerpo += '<p class="ws-words"><b>Bloques que puedes usar:</b> ' + permitidos.map(p => esc(nombresBloque[p] || p)).join(' · ') + '</p>';
+    // GUÍA DE BLOQUES del ejercicio (al inicio)
+    cuerpo += '<div class="ws-guia-bloques"><b>Guía de bloques:</b>';
+    permitidos.forEach(p => {
+      const g = guiaBloque[p];
+      if (g) cuerpo += '<span class="ws-bloque">' + g.ico + ' ' + esc(g.nombre) + ' · ' + esc(g.desc) + '</span>';
+    });
+    cuerpo += '</div>';
     cuerpo += cuadricula(ej);
-    cuerpo += '<div class="ws-code-lineas">';
-    for (let k = 0; k < 8; k++) cuerpo += '<div class="ws-line">' + (k + 1) + '. _______________</div>';
+    // PROGRAMA COMPLETO (solución del autor o calculada; si no, zona de escritura)
+    const sol = (Array.isArray(ej.programa_solucion) && ej.programa_solucion.length)
+      ? ej.programa_solucion
+      : resolverPrograma(ej, permitidos);
+    cuerpo += '<div class="ws-programa">';
+    if (sol && sol.length) {
+      const texto = sol.map(bl => {
+        const g = guiaBloque[bl.op];
+        if (bl.op === 'girar') return (String(bl.dir || 'derecha').toLowerCase().startsWith('izq') ? 'GIRAR ←' : 'GIRAR →');
+        return g ? g.nombre : String(bl.op || '').toUpperCase();
+      }).join('  ·  ');
+      cuerpo += '<p class="ws-words"><b>Programa:</b> ' + esc(texto) + '</p>';
+    } else {
+      cuerpo += '<p class="ws-words"><b>Programa:</b> ______________________________</p>';
+    }
     cuerpo += '</div>';
     cuerpo += '</div>';
   });
