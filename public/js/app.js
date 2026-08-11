@@ -165,15 +165,19 @@ function generarCaratula(a) {
       roundRectPath(ctx, mx - r + 7, my - r + 7, r * 2 - 14, r * 2 - 14, 24);
       ctx.stroke();
 
-      // Degradado inferior para contraste
+      // Degradado inferior para contraste (blanco en code para leer título negro)
+      const esCode = a.tipo === 'code_blocks'
+        || (a.cat || '').toLowerCase().includes('code')
+        || (a.cat || '').toLowerCase().includes('progra');
       const fade = ctx.createLinearGradient(0, H - 130, 0, H);
-      fade.addColorStop(0, 'rgba(0,0,0,0)'); fade.addColorStop(1, 'rgba(0,0,0,0.38)');
+      fade.addColorStop(0, 'rgba(0,0,0,0)');
+      fade.addColorStop(1, esCode ? 'rgba(255,255,255,0.88)' : 'rgba(0,0,0,0.38)');
       ctx.fillStyle = fade; ctx.fillRect(0, H - 130, W, 130);
 
-      // Título compacto con sombra
+      // Título compacto con sombra (negro en la categoría code)
       ctx.save();
-      ctx.shadowColor = 'rgba(0,0,0,0.4)'; ctx.shadowBlur = 12; ctx.shadowOffsetY = 3;
-      ctx.fillStyle = '#ffffff';
+      ctx.shadowColor = esCode ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.4)'; ctx.shadowBlur = 12; ctx.shadowOffsetY = 3;
+      ctx.fillStyle = esCode ? '#111111' : '#ffffff';
       ctx.font = '800 28px "Plus Jakarta Sans","Arial",sans-serif';
       const t = (a.tit || '').toUpperCase();
       ctx.fillText(t.length > 22 ? t.slice(0, 21) + '…' : t, W / 2, 244);
