@@ -1138,6 +1138,23 @@ function screenCode(s, est) {
     </div>`;
 }
 
+// Dibuja a Candela (círculo + cara) con un indicador de dirección MUY claro:
+// una flecha triangular que sobresale del borde y rota según hacia dónde mira
+// (derecha/abajo/izquierda/arriba), para que se entienda perfectamente cuando gira.
+function kpCandelaSVG(cxPx, cyPx, cell, dirIdx, fill) {
+  const r = cell * 0.34;
+  let h = `<circle cx="${cxPx}" cy="${cyPx}" r="${r}" fill="${fill}"/>`;
+  h += `<text x="${cxPx}" y="${cyPx + 5}" text-anchor="middle" font-size="14">👧</text>`;
+  if (dirIdx != null) {
+    const ang = ({ 0: 0, 1: 90, 2: 180, 3: 270 })[dirIdx] ?? 0;
+    // Punta de flecha triangular en el borde; con rotate() apunta a la dirección
+    h += `<g transform="rotate(${ang} ${cxPx} ${cyPx})">`;
+    h += `<path d="M${cxPx + r * 0.85} ${cyPx - 6} L${cxPx + r + 11} ${cyPx} L${cxPx + r * 0.85} ${cyPx + 6} Z" fill="#1a2b6b" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"/>`;
+    h += `</g>`;
+  }
+  return h;
+}
+
 // Dibuja el escenario de code completo (tablero) con Candela en una posición.
 // `cx`/`cy` = posición de Candela; `dirIdx` = índice de dirección (0..3).
 // Si `extra` tiene `marcador`, muestra "i/n" en la esquina (reproducción).
@@ -1165,17 +1182,11 @@ function kpCodeTableroHTML(cx, cy, dirIdx, extra) {
     html += `<circle cx="${ox + px * cell + cell / 2}" cy="${oy + py * cell + cell / 2}" r="${cell * 0.42}" fill="#ffd166" opacity="0.35"/>`;
     html += `<text x="${ox + px * cell + cell / 2}" y="${oy + py * cell + cell / 2 + 6}" text-anchor="middle" font-size="22">⭐</text>`;
   }
-  // Candela en (cx, cy) (salvo que extra.sinCandela lo desactive)
+  // Candela en (cx, cy) con indicador de dirección claro
+  // (salvo que extra.sinCandela lo desactive)
   const fill = (extra && extra.fill) || '#3a7dff';
   if (!(extra && extra.sinCandela)) {
-    html += `<circle cx="${ox + cx * cell + cell / 2}" cy="${oy + cy * cell + cell / 2}" r="${cell * 0.34}" fill="${fill}"/>`;
-    html += `<text x="${ox + cx * cell + cell / 2}" y="${oy + cy * cell + cell / 2 + 5}" text-anchor="middle" font-size="14">👧</text>`;
-  }
-  // Flecha de dirección (siempre que dirIdx != null)
-  if (dirIdx != null) {
-    const dirs = { 0: 0, 1: 90, 2: 180, 3: 270 };
-    const ang = dirs[dirIdx] ?? 0;
-    html += `<g transform="translate(${ox + cx * cell + cell / 2}, ${oy + cy * cell + cell / 2 + 12}) rotate(${ang})"><path d="M-6,0 L6,0 M2,-4 L6,0 L2,4" stroke="#1a2b6b" stroke-width="2" fill="none"/></g>`;
+    html += kpCandelaSVG(ox + cx * cell + cell / 2, oy + cy * cell + cell / 2, cell, dirIdx, fill);
   }
   // Marcador de paso (reproducción)
   if (extra && extra.marcador) {
@@ -1410,8 +1421,8 @@ function kpCodePrevisualizar() {
   const obj = s.objetivo || {};
   const llega = obj.posicion && ultimo.x === Number(obj.posicion.x) && ultimo.y === Number(obj.posicion.y);
   const fillFinal = llega ? '#2ecc71' : '#4c8dff';
-  html += `<circle cx="${ox + ultimo.x * cell + cell / 2}" cy="${oy + ultimo.y * cell + cell / 2}" r="${cell * 0.34}" fill="${fillFinal}"/>`;
-  html += `<text x="${ox + ultimo.x * cell + cell / 2}" y="${oy + ultimo.y * cell + cell / 2 + 5}" text-anchor="middle" font-size="14">👧</text>`;
+  // Candela final con su flecha de dirección (para ver hacia dónde queda mirando)
+  html += kpCandelaSVG(ox + ultimo.x * cell + cell / 2, oy + ultimo.y * cell + cell / 2, cell, ultimo.dir, fillFinal);
   // Etiqueta de vista previa
   html += `<text x="${W - 16}" y="22" text-anchor="end" font-size="13" font-weight="800" fill="#8a93b8">👀 prevista</text>`;
   svg.innerHTML = html;
