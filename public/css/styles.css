@@ -25,6 +25,39 @@
   font-display: swap;
 }
 
+/* Rediseño 2026: Outfit (texto) + Aristotelica Pro (títulos, comercial).
+   Aristotelica se aplica automáticamente al añadir el .otf a fonts/. */
+@font-face {
+  font-family: 'Outfit';
+  src: url('../fonts/outfit_regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Outfit';
+  src: url('../fonts/outfit_medium.ttf') format('truetype');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Outfit';
+  src: url('../fonts/outfit_bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Aristotelica Pro';
+  src: url('../fonts/AristotelicaPro.otf') format('opentype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Aristotelica Pro';
+  src: url('../fonts/AristotelicaPro-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-display: swap;
+}
+
 :root {
   /* Paleta oficial PJ (P-J-U-N-I-O-R) */
   --pj-black: #000000;
@@ -57,8 +90,12 @@
   --radius-sm: 12px;
   --radius-md: 18px;
   --radius-lg: 28px;
-  --shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 12px 30px rgba(0, 0, 0, 0.14);
+  --shadow: none;
+  --shadow-lg: none;
+
+  /* Rediseño 2026: Aristotelica Pro (títulos) + Outfit (texto), mayúsculas */
+  --font-head: 'Aristotelica Pro', Outfit, 'Plus Jakarta Sans', sans-serif;
+  --font-body: 'Outfit', 'Plus Jakarta Sans', sans-serif;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -1525,3 +1562,45 @@ footer p { color: rgba(255, 255, 255, .75); }
 .kp-level-track { height: 12px; border-radius: 999px; background: #E5E7EB; overflow: hidden; margin: 10px 0 6px; }
 .kp-level-bar { height: 100%; border-radius: 999px; background: var(--pj-green); transition: width .6s ease; }
 .kp-level-sub { font-size: 12px; font-weight: 600; color: #6B7280; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   REDISEÑO 2026 — Paleta plana · Aristotelica Pro / Outfit
+   Mayúsculas siempre · letras juntas (tracking -60) · pastillas · animado
+   ═══════════════════════════════════════════════════════════════════ */
+body {
+  font-family: var(--font-body);
+  letter-spacing: -0.01em;
+}
+h1, h2, h3, h4, h5,
+.section h2, .section-head h2, .cat-title, .wordmark, .brand-name,
+.kp-title, .info-title, .modal h3, .card h3, .cover-lock .lock-txt {
+  font-family: var(--font-head);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  font-weight: 800;
+}
+.hero h1, .hero .wordmark, .section-head h2,
+.pj-home .hero .wordmark, .pj-home .wordmark {
+  letter-spacing: -0.05em;
+}
+/* Plano: sin sombras */
+.btn, .btn:hover, .card, .card:hover, .cover-play, .cover-play:hover,
+.info-btn, .modal, .navbar, .nav, .nivel-badge, .badge-tag, .chip, .chip-cat,
+.hero, .cover-emoji, .kp-btn, .kp-check, .code-block, .cute-chip, .code-run-btn {
+  box-shadow: none !important;
+}
+/* Pastillas */
+.btn, .btn-purple, .btn-red, .btn-orange, .btn-green, .btn-yellow, .btn-outline,
+.kp-btn, .kp-check, .code-run-btn, .cover-play, .info-btn, .chip-cat, .nav-links a {
+  border-radius: 999px;
+}
+.btn { border-width: 3px; }
+.btn:hover { transform: translateY(-3px); filter: brightness(1.05); }
+.btn:active { transform: scale(0.96); }
+/* Animaciones sutiles */
+@keyframes pj-pop-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.card, .h-row .card, .cat-section, .pj-home .card { animation: pj-pop-in .45s ease both; }
+.card:hover, .pj-home .card:hover { transform: translateY(-6px); }

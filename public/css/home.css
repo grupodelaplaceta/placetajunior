@@ -39,8 +39,8 @@
   --pj-muted: #6B7280;
   --pj-bg: #F9FAFB;
   --pj-line: #ECEEF3;
-  --font-head: 'HandlyCasual', 'Segoe UI', sans-serif;
-  --font-body: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+  --font-head: 'Aristotelica Pro', Outfit, 'Plus Jakarta Sans', sans-serif;
+  --font-body: 'Outfit', 'Plus Jakarta Sans', sans-serif;
   --r: 18px;
   --r-sm: 12px;
   --r-pill: 999px;
@@ -468,6 +468,30 @@ body.pj-home {
 
 /* ── Accesibilidad (superpone el botón flotante del panel) ── */
 .pj-home #juniorAccBtn { z-index: 200; }
+
+/* ═══ REDISEÑO 2026 — Landing (plano · pastillas · animado) ═══ */
+.pj-home .nav { box-shadow: none; border-bottom: 3px solid var(--pj-purple); }
+.pj-home .hero { background: var(--pj-bg); }
+.pj-home .hero .wordmark, .pj-home .wordmark { letter-spacing: -0.05em; }
+.pj-home .tagline { text-transform: uppercase; letter-spacing: .03em; font-weight: 700; color: var(--pj-purple); }
+.pj-home .btn { box-shadow: none; border: 3px solid transparent; }
+.pj-home .btn-primary { background: var(--pj-purple); border-color: var(--pj-purple); }
+.pj-home .btn-primary:hover { box-shadow: none; filter: brightness(1.05); }
+.pj-home .btn-orange { background: var(--pj-orange); border-color: var(--pj-orange); }
+.pj-home .btn-orange:hover { filter: brightness(1.05); }
+.pj-home .btn-green { background: var(--pj-green); border-color: var(--pj-green); }
+.pj-home .btn-green:hover { filter: brightness(1.05); }
+.pj-home .btn-outline { border-width: 3px; }
+.pj-home .card { box-shadow: none; border-width: 3px; animation: pj-pop-in .45s ease both; }
+.pj-home .card:hover { box-shadow: none; transform: translateY(-6px); }
+.pj-home .cover-play, .pj-home .info-btn { box-shadow: none; border: 2px solid var(--accent, var(--pj-purple)); }
+.pj-home .cover-emoji { text-shadow: none; }
+.pj-home .modal { box-shadow: none; border: 3px solid var(--pj-purple); }
+.pj-home .nivel-badge { box-shadow: none; }
+.pj-home .section-head h2, .pj-home .cat-title { letter-spacing: -0.03em; }
+.pj-home .card h3 { letter-spacing: -0.02em; }
+.pj-home .chip, .pj-home .badge-tag { letter-spacing: 0; }
+.pj-home .footer { border-top: 4px solid var(--pj-purple); }
 
 /* ═══════════════════════════════════════════════════════════════════
    PULIDO 2026 — calidad final (tarjetas, detalle, PDF A4, accesibilidad)
