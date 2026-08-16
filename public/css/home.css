@@ -39,7 +39,7 @@
   --pj-muted: #6B7280;
   --pj-bg: #F9FAFB;
   --pj-line: #ECEEF3;
-  --font-head: 'Aristotelica Pro', Outfit, 'Plus Jakarta Sans', sans-serif;
+  --font-head: 'Outfit', 'Plus Jakarta Sans', sans-serif;
   --font-body: 'Outfit', 'Plus Jakarta Sans', sans-serif;
   --r: 18px;
   --r-sm: 12px;
@@ -172,8 +172,7 @@ body.pj-home {
   text-align: center;
   gap: 20px;
 }
-.pj-home .hero-logo { width: 120px; height: auto; }
-@media (min-width: 640px) { .pj-home .hero-logo { width: 150px; } }
+.pj-home .hero-logo { width: min(430px, 84vw); height: auto; margin-bottom: 6px; }
 .pj-home .wordmark {
   font-family: var(--font-head);
   text-transform: uppercase;
@@ -778,6 +777,12 @@ body.pj-home.mostrando-detalle .detail-page { display: block; }
   color: #fff;
   text-align: center;
   margin: 0 0 14px;
+}
+.pj-home .footer-logo {
+  display: block;
+  height: 46px;
+  width: auto;
+  margin: 0 auto 14px;
 }
 
 /* ═══ Página de JUEGO a pantalla completa (no popup) ═══ */

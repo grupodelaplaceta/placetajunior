@@ -45,18 +45,8 @@
   font-weight: 700;
   font-display: swap;
 }
-@font-face {
-  font-family: 'Aristotelica Pro';
-  src: url('../fonts/AristotelicaPro.otf') format('opentype');
-  font-weight: 400;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Aristotelica Pro';
-  src: url('../fonts/AristotelicaPro-Bold.otf') format('opentype');
-  font-weight: 700;
-  font-display: swap;
-}
+/* Aristotelica Pro (comercial) — se activa automáticamente al añadir los .otf
+   a fonts/. Mientras no esté disponible se usa Outfit como tipografía de títulos. */
 
 :root {
   /* Paleta oficial PJ (P-J-U-N-I-O-R) */
@@ -93,12 +83,23 @@
   --shadow: none;
   --shadow-lg: none;
 
-  /* Rediseño 2026: Aristotelica Pro (títulos) + Outfit (texto), mayúsculas */
-  --font-head: 'Aristotelica Pro', Outfit, 'Plus Jakarta Sans', sans-serif;
+  /* Rediseño 2026: Outfit (títulos + texto), mayúsculas con tracking apretado */
+  --font-head: 'Outfit', 'Plus Jakarta Sans', sans-serif;
   --font-body: 'Outfit', 'Plus Jakarta Sans', sans-serif;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* Utilidad: texto solo para lectores de pantalla / SEO */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
 
 body {
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
@@ -152,9 +153,8 @@ h1, h2, h3, .font-casual {
   text-transform: uppercase;
 }
 .navbar .brand img.brand-logo {
-  width: 42px; height: 42px;
-  border-radius: 10px;
-  object-fit: cover;
+  height: 38px; width: auto;
+  object-fit: contain;
 }
 /* Marca bicolor en la barra superior (mismo logotipo que el hero) */
 .navbar .brand .wordmark { display: inline-flex; align-items: baseline; gap: 0 5px; white-space: nowrap; }
@@ -189,7 +189,8 @@ h1, h2, h3, .font-casual {
     var(--pj-white);
 }
 .hero .hero-logo {
-  width: 128px; height: 128px;
+  width: min(340px, 78vw);
+  height: auto;
   object-fit: contain;
   margin-bottom: 14px;
   animation: heroPop 0.8s ease-out;
@@ -988,7 +989,7 @@ footer a { color: var(--pj-yellow); text-decoration: none; }
   .navbar nav { width: 100%; justify-content: center; margin-top: 2px; }
   .navbar .brand .w-placeta, .navbar .brand .w-junior { font-size: 14px; }
   .navbar .brand .w-placeta { letter-spacing: 0; }
-  .navbar .brand img.brand-logo { width: 34px; height: 34px; }
+  .navbar .brand img.brand-logo { height: 30px; width: auto; }
   .section { padding: 40px 16px; }
   .h-row .card { flex: 0 0 210px; }
   .card .card-cover { aspect-ratio: 16 / 9; }
