@@ -25,7 +25,7 @@
   font-display: swap;
 }
 
-/* Rediseño 2026: Outfit (texto) + Aristotelica Pro (títulos, comercial).
+/* Rediseño 2026: Fredoka One (títulos, mayúsculas bold) + Outfit (texto).
    Aristotelica se aplica automáticamente al añadir el .otf a fonts/. */
 @font-face {
   font-family: 'Outfit';
@@ -45,8 +45,20 @@
   font-weight: 700;
   font-display: swap;
 }
-/* Aristotelica Pro (comercial) — se activa automáticamente al añadir los .otf
-   a fonts/. Mientras no esté disponible se usa Outfit como tipografía de títulos. */
+/* Fredoka One (Google Fonts, gratis) — títulos en mayúsculas bold. */
+@font-face {
+  font-family: 'Fredoka One';
+  src: url('../fonts/fredoka_one.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Fredoka One';
+  src: url('../fonts/fredoka_one.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+/* Aristotelica Pro (comercial) — se activa al añadir los .otf a fonts/. */
 
 :root {
   /* Paleta oficial PJ (P-J-U-N-I-O-R) */
@@ -83,8 +95,8 @@
   --shadow: none;
   --shadow-lg: none;
 
-  /* Rediseño 2026: Outfit (títulos + texto), mayúsculas con tracking apretado */
-  --font-head: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+  /* Rediseño 2026: Fredoka One (títulos, mayúsculas bold) + Outfit (texto) */
+  --font-head: 'Fredoka One', 'Outfit', 'Plus Jakarta Sans', sans-serif;
   --font-body: 'Outfit', 'Plus Jakarta Sans', sans-serif;
 }
 
@@ -1565,7 +1577,7 @@ footer p { color: rgba(255, 255, 255, .75); }
 .kp-level-sub { font-size: 12px; font-weight: 600; color: #6B7280; }
 
 /* ═══════════════════════════════════════════════════════════════════
-   REDISEÑO 2026 — Paleta plana · Aristotelica Pro / Outfit
+   REDISEÑO 2026 — Paleta plana · Fredoka One / Outfit
    Mayúsculas siempre · letras juntas (tracking -60) · pastillas · animado
    ═══════════════════════════════════════════════════════════════════ */
 body {
