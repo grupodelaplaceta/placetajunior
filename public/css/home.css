@@ -250,13 +250,17 @@ body.pj-home {
 .pj-home .h-row {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: minmax(230px, 270px);
-  gap: 16px;
+  grid-auto-columns: minmax(210px, 260px);
+  gap: 14px;
   overflow-x: auto;
   align-items: start;
   padding: 4px 2px 18px;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
+}
+@media (max-width: 430px) {
+  .pj-home .h-row { grid-auto-columns: minmax(190px, 235px); gap: 12px; }
+  .pj-home .card { padding: 10px; }
 }
 .pj-home .h-row::-webkit-scrollbar { height: 10px; }
 .pj-home .h-row::-webkit-scrollbar-thumb { background: #d8d5de; border-radius: 8px; }
@@ -513,10 +517,13 @@ body.pj-home {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 6px 8px;
+  flex-wrap: wrap;
   padding: 2px 4px 2px;
   margin-top: auto;
+  min-width: 0;
 }
+.pj-home .card-foot .chip { min-width: 0; flex-shrink: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pj-home .cover-play {
   position: static;
   display: inline-flex;
@@ -526,11 +533,13 @@ body.pj-home {
   color: #fff;
   border: none;
   border-radius: 999px;
-  padding: 8px 14px;
+  padding: 8px 12px;
   font-family: var(--font-head);
-  font-size: 13px;
-  letter-spacing: .5px;
+  font-size: 12px;
+  letter-spacing: .4px;
   text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0, 0, 0, .14);
   transition: transform .15s, box-shadow .2s;
