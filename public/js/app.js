@@ -704,6 +704,16 @@ async function abrirActividad(id, bloqueada) {
 // ═══════════════════════════════════════════════════════════════════
 //  INIT (incluye rutas propias: /?id= detalle y /?jugar= juego)
 // ═══════════════════════════════════════════════════════════════════
+
+// ── Pantalla de carga: se oculta cuando la web está lista ──────────
+function ocultarCarga() {
+  const el = document.getElementById('pj-loading');
+  if (!el) return;
+  el.classList.add('oculto');
+  // Se retira del DOM tras la transición para no bloquear scroll ni clics.
+  setTimeout(() => el.remove(), 500);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   // Barra superior: efecto al hacer scroll (menos transparencia + sombra)
   const nav = document.querySelector('.nav');
@@ -713,10 +723,13 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('scroll', onScroll, { passive: true });
   }
   cargarTodo().then(() => {
+    ocultarCarga();
     const p = new URLSearchParams(location.search);
     if (p.get('jugar')) abrirActividad(p.get('jugar'), false);
     else if (p.get('id')) verInfo(p.get('id'));
-  });
+  }).catch(() => ocultarCarga());
+  // Seguridad: nunca dejar la pantalla de carga bloqueando la web.
+  setTimeout(ocultarCarga, 8000);
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') cerrarDetalle();
   });
