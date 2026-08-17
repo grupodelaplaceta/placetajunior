@@ -216,9 +216,10 @@ function cardActividad(a) {
   const color = categoriaColor(a.categoria);
   const enCurso = window.PJPartidas ? PJPartidas.estaEnCurso(a.id) : false;
   const completada = window.PJPartidas ? PJPartidas.estaCompletada(a.id) : false;
+  // Solo mostramos "Hecha"; el botón "Continuar" ya indica una partida en curso.
   const badgeProg = completada
     ? '<span class="badge-tag badge-free badge-prog"><span class="material-symbols-rounded b-ico">task_alt</span>Hecha</span>'
-    : (enCurso ? '<span class="badge-tag badge-pend badge-prog"><span class="material-symbols-rounded b-ico">play_circle</span>En curso</span>' : '');
+    : '';
   return `
     <div class="card" data-color="${color}" onclick="abrirActividad('${a.id}', ${bloqueada})">
       ${coverHTML(a, badgeProg)}
