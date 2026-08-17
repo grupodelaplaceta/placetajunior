@@ -3,233 +3,202 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Info — Placeta Junior</title>
-  <meta name="description" content="Conoce la Academia Placeta Junior: actividades públicas, Studio, autores, puntos verdes, diplomas y el modelo económico con IVA." />
-  <link rel="stylesheet" href="css/styles.css?v=20260820" />
+  <title>Placeta Junior — La academia que convierte el juego en aprendizaje</title>
+  <meta name="description" content="Placeta Junior: actividades educativas gratuitas para peques de 6 a 14 años. Juega en la web, crea con el Studio y vive la gamificación en la app." />
+  <link rel="stylesheet" href="css/styles.css?v=20260825" />
+  <link rel="stylesheet" href="css/info.css?v=20260825" />
   <link rel="icon" href="img/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
 </head>
-<body>
-  <header class="navbar">
-    <a class="brand" href="/">
-      <img class="brand-logo" src="img/PJ-BLANCO-LOGO.png" alt="Placeta Junior" />
-    </a>
-    <nav>
-      <a href="/">Actividades</a>
-      <a href="/studio">Studio</a>
-      <a href="/info" class="active">Info</a>
-    </nav>
+<body class="info-page">
+  <!-- Tira arcoíris de marca -->
+  <div class="strip" aria-hidden="true"></div>
+
+  <!-- Barra de navegación -->
+  <header class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="/">
+        <img src="img/PJ-BLANCO-LOGO.png" alt="Placeta Junior" />
+      </a>
+      <nav class="nav-links">
+        <a href="/">Actividades</a>
+        <a href="/studio">Studio</a>
+        <a href="/info" class="active">Info</a>
+      </nav>
+      <div class="nav-cta">
+        <a class="btn-primary" href="/"><span class="material-symbols-rounded">play_arrow</span> Jugar</a>
+      </div>
+    </div>
   </header>
 
-  <section class="hero" style="padding-bottom:40px;">
-    <div class="floating-shape shape" style="color:var(--pj-purple);top:15%;left:10%;"></div>
-    <div class="floating-shape shape" style="color:var(--pj-orange);top:18%;right:12%;animation-delay:1s;"></div>
-    <img class="hero-logo" src="img/PJ-COLOR-LOGO.png" alt="Placeta Junior" />
-    <h1>Info</h1>
-    <p class="tagline">Todo sobre la Academia Placeta Junior: cómo funciona, quiénes crean y cómo se sostiene.</p>
+  <!-- Hero -->
+  <section class="info-hero">
+    <span class="hero-kicker">Academia educativa · Grupo de La Placeta</span>
+    <h1>El juego se convierte en <span class="hl">aprendizaje</span></h1>
+    <p class="hero-sub">Actividades educativas gratuitas para peques de 6 a 14 años. Juega en la web, crea con el Studio y vive la gamificación completa en la app.</p>
+    <div class="hero-cta">
+      <a class="btn-primary" href="/"><span class="material-symbols-rounded">play_arrow</span> Jugar gratis</a>
+      <a class="btn-ghost" href="/studio"><span class="material-symbols-rounded">brush</span> Crear en el Studio</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><b>+30</b><span>actividades públicas</span></div>
+      <div class="stat"><b>100%</b><span>gratis para jugar</span></div>
+      <div class="stat"><b>6–14</b><span>años recomendados</span></div>
+      <div class="stat"><b>✔</b><span>revisado por el Filtro</span></div>
+    </div>
   </section>
 
   <main>
-    <!-- Identidad -->
-    <section class="section">
-      <h2>🎓 El proyecto</h2>
-      <p>
-        <strong>Placeta Junior</strong> es el programa educativo de <strong>Grupo de La Placeta</strong>.
-        Esta es su <strong>web oficial</strong>, donde encontrarás las <strong>actividades públicas</strong>,
-        el <strong>Studio</strong> para crear y la <strong>Info</strong> del programa.
-      </p>
-      <p>
-        Los peques aprenden jugando con actividades educativas diseñadas para su edad: matemáticas,
-        lengua, ciencias, geografía, tecnología, lógica y cultura.
-        El resto del programa (monedero, puntos, progreso, amigos y retos) vive dentro de la app <strong>Placeta Junior</strong>.
-      </p>
+    <!-- Qué es -->
+    <section class="info-section alt">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Una academia pensada para peques</h2>
+          <p>Placeta Junior es el programa educativo de Grupo de La Placeta: una plataforma donde aprender es un juego, sin barreras y sin coste.</p>
+        </div>
+        <div class="grid">
+          <div class="card accent-blue"><div class="ico">🕹️</div><h3>Juega en la web</h3><p>Descubre y juega las actividades públicas desde cualquier dispositivo, sin instalar nada.</p></div>
+          <div class="card accent-purple"><div class="ico">🎨</div><h3>Crea con el Studio</h3><p>Un editor visual drag &amp; drop estilo Canva para construir tus propias actividades.</p></div>
+          <div class="card accent-orange"><div class="ico">📄</div><h3>Fichas en PDF</h3><p>Descarga cualquier actividad como ficha A4 para seguir aprendiendo en papel.</p></div>
+          <div class="card accent-green"><div class="ico">📱</div><h3>App gamificada</h3><p>Monedero, puntos, diplomas, amigos y retos: todo el programa vive en la app Android.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Beneficios -->
+    <section class="info-section">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>¿Por qué Placeta Junior?</h2>
+          <p>Hecho para que los niños aprendan felices y las familias estén tranquilas.</p>
+        </div>
+        <div class="grid">
+          <div class="card accent-green"><div class="ico">🎁</div><h3>Gratis de verdad</h3><p>Jugar, filtrar por edad y descargar en PDF no cuesta nada. El contenido es público.</p></div>
+          <div class="card accent-purple"><div class="ico">🛡️</div><h3>Contenido seguro</h3><p>Toda actividad pasa por el Filtro: calidad, corrección y adecuación a la edad.</p></div>
+          <div class="card accent-blue"><div class="ico">⚡</div><h3>Sin instalar nada</h3><p>Funciona en el navegador, en cualquier móvil, tablet u ordenador. Abre y a jugar.</p></div>
+          <div class="card accent-orange"><div class="ico">🏅</div><h3>Premios y diplomas</h3><p>Puntos verdes, Placetas y diplomas oficiales al aprobar los exámenes.</p></div>
+        </div>
+      </div>
     </section>
 
     <!-- Tipos de actividad -->
-    <section class="section">
-      <h2>🧩 Tipos de actividad</h2>
-      <div class="grid">
-        <div class="card"><div class="card-cover">🧪</div><h3>Test</h3><p>Preguntas con opciones. Si es examen y apruebas, obtienes un diploma.</p></div>
-        <div class="card"><div class="card-cover">🔤</div><h3>Sopa de letras</h3><p>Encuentra las palabras escondidas.</p></div>
-        <div class="card"><div class="card-cover">🔗</div><h3>Relacionar conceptos</h3><p>Une cada concepto con su definición.</p></div>
-        <div class="card"><div class="card-cover">🖼️</div><h3>Relacionar imágenes</h3><p>Conecta imágenes con sus nombres.</p></div>
-        <div class="card"><div class="card-cover">✏️</div><h3>Completar frases</h3><p>Rellena los huecos que faltan.</p></div>
-        <div class="card"><div class="card-cover">📌</div><h3>Ordenar elementos</h3><p>Coloca cada cosa en su sitio.</p></div>
-        <div class="card"><div class="card-cover">⚖️</div><h3>Verdadero o falso</h3><p>Decide si cada afirmación es cierta.</p></div>
-        <div class="card"><div class="card-cover">🧠</div><h3>Lógica</h3><p>Retos que hacen pensar.</p></div>
+    <section class="info-section tint">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Mucho más que preguntas</h2>
+          <p>Formatos variados para trabajar distintas habilidades: memoria, lógica, cálculo y geografía.</p>
+        </div>
+        <div class="grid">
+          <div class="card accent-purple"><div class="ico">🧪</div><h3>Test</h3><p>Preguntas con opciones. Si es examen y apruebas, obtienes un diploma.</p></div>
+          <div class="card accent-blue"><div class="ico">🔤</div><h3>Sopa de letras</h3><p>Encuentra las palabras escondidas.</p></div>
+          <div class="card accent-green"><div class="ico">🔗</div><h3>Relacionar</h3><p>Une conceptos, definiciones e imágenes con sus parejas.</p></div>
+          <div class="card accent-orange"><div class="ico">✏️</div><h3>Completar frases</h3><p>Rellena los huecos que faltan.</p></div>
+          <div class="card accent-red"><div class="ico">📌</div><h3>Ordenar elementos</h3><p>Coloca cada cosa en su sitio.</p></div>
+          <div class="card accent-yellow"><div class="ico">⚖️</div><h3>Verdadero o falso</h3><p>Decide si cada afirmación es cierta.</p></div>
+          <div class="card accent-purple"><div class="ico">🧮</div><h3>Cálculo mental</h3><p>Sumas contra el reloj para agilizar la cabeza.</p></div>
+          <div class="card accent-green"><div class="ico">🗺️</div><h3>Mapamundi</h3><p>Localiza países en un mapa real clicable.</p></div>
+        </div>
       </div>
     </section>
 
-    <!-- Quiénes crean -->
-    <section class="section">
-      <h2>👩‍🏫 Quiénes crean (autores y titulares)</h2>
-      <p class="section-sub">La Academia la construyen entre todos, siempre con la supervisión del Filtro de Placeta Junior.</p>
-      <div class="grid">
-        <div class="card">
-          <div class="card-cover">🏛️</div>
-          <h3>EIP (Entidad)</h3>
-          <p>Colegios, academias e instituciones con su Entidad de Interés Público. Reciben un porcentaje por las actividades que publican sus profesores.</p>
+    <!-- Autores -->
+    <section class="info-section alt">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Creado entre todos</h2>
+          <p>Colegios, profesores y el equipo de Placeta Junior construyen la Academia con supervisión del Filtro.</p>
         </div>
-        <div class="card">
-          <div class="card-cover">👨‍🏫</div>
-          <h3>Profesor colaborador</h3>
-          <p>Docentes y profesionales mayores de 18 que crean actividades a título personal.</p>
+        <div class="grid">
+          <div class="card accent-purple"><div class="ico">🏛️</div><h3>Entidades (EIP)</h3><p>Colegios y academias con Entidad de Interés Público. Reciben un porcentaje por lo que publican sus profesores.</p></div>
+          <div class="card accent-blue"><div class="ico">👨‍🏫</div><h3>Profesor colaborador</h3><p>Docentes mayores de 18 que crean actividades a título personal y firman el Acuerdo de Colaborador.</p></div>
+          <div class="card accent-green"><div class="ico">🏠</div><h3>Contenido interno</h3><p>Actividades creadas directamente por el equipo de Placeta Junior.</p></div>
         </div>
-        <div class="card">
-          <div class="card-cover">🏠</div>
-          <h3>Contenido interno PJ</h3>
-          <p>Actividades creadas directamente por el equipo de Placeta Junior.</p>
-        </div>
+        <p class="form-note">✍️ ¿Quieres publicar? Necesitas ser mayor de 18 años y firmar el Acuerdo de Colaborador (vía PlacetaID). Solícitalo desde el <a href="/studio">Studio</a>.</p>
       </div>
-      <p class="form-note">
-        ✍️ Para publicar necesitas ser <strong>mayor de 18 años</strong> y firmar el <strong>Acuerdo de Colaborador</strong>
-        (vía PlacetaID). Puedes solicitarlo desde el <a href="/studio">Studio</a>.
-      </p>
     </section>
 
-    <!-- Puntos y recompensas -->
-    <section class="section">
-      <h2>⭐ Puntos y recompensas</h2>
-      <div class="grid">
-        <div class="card"><div class="card-cover">🟢</div><h3>Puntos verdes</h3><p>Por buen comportamiento, constancia y participación. Se canjean por Placetas (moneda de la app).</p></div>
-        <div class="card"><div class="card-cover">🔴</div><h3>Puntos rojos</h3><p>Por mal comportamiento. Restan privilegios hasta que se recuperan.</p></div>
-        <div class="card"><div class="card-cover">🎖️</div><h3>Placetas</h3><p>La moneda de la Academia. Se ganan al completar actividades y se usan para desbloquear niveles y acceder a contenido.</p></div>
-        <div class="card"><div class="card-cover">🏆</div><h3>Diplomas</h3><p>Al aprobar un examen (70% o más) obtienes tu diploma oficial de la Academia.</p></div>
+    <!-- Puntos -->
+    <section class="info-section">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Jugar tiene premio</h2>
+          <p>El sistema de puntos y Placetas mantiene la motivación y recompensa el esfuerzo.</p>
+        </div>
+        <div class="grid">
+          <div class="card accent-green"><div class="ico">🟢</div><h3>Puntos verdes</h3><p>Por buen comportamiento y constancia. Se canjean por Placetas.</p></div>
+          <div class="card accent-red"><div class="ico">🔴</div><h3>Puntos rojos</h3><p>Por fallos. Restan privilegios hasta que se recuperan.</p></div>
+          <div class="card accent-yellow"><div class="ico">🎖️</div><h3>Placetas</h3><p>La moneda de la Academia. Desbloquea niveles y contenido.</p></div>
+          <div class="card accent-purple"><div class="ico">🏆</div><h3>Diplomas</h3><p>Aprueba un examen con 70% o más y llévate tu diploma oficial.</p></div>
+        </div>
       </div>
     </section>
 
     <!-- Modelo económico -->
-    <section class="section">
-      <h2>💰 Modelo económico</h2>
-      <div class="grid">
-        <div class="card">
-          <div class="card-cover">🧾</div>
-          <h3>IVA incluido</h3>
-          <p>Todos los precios <strong>incluyen el IVA</strong>. El IVA lo abona Capitalia (Placeta Junior) a Tributos, y el precio que ves es el total final.</p>
+    <section class="info-section alt">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Transparencia total</h2>
+          <p>Un modelo económico claro, con IVA incluido y pagos reales desde el banco.</p>
         </div>
-        <div class="card">
-          <div class="card-cover">🏦</div>
-          <h3>Pagos reales desde banco</h3>
-          <p>Las compras se realizan con las cuentas de banco de los juniors y quedan registradas en su historial. Los fondos van a Capitalia (Placeta Junior).</p>
-        </div>
-        <div class="card">
-          <div class="card-cover">🤝</div>
-          <h3>Regalías a autores</h3>
-          <p>Los administradores pagan las regalías a los titulares (EIP / profesor / interno) desde su cuenta, con su historial correspondiente.</p>
+        <div class="grid">
+          <div class="card accent-blue"><div class="ico">🧾</div><h3>IVA incluido</h3><p>El precio que ves es el total. El IVA lo abona Capitalia (Placeta Junior) a Tributos.</p></div>
+          <div class="card accent-green"><div class="ico">🏦</div><h3>Pagos reales</h3><p>Las compras salen de las cuentas de banco de los juniors y quedan registradas.</p></div>
+          <div class="card accent-orange"><div class="ico">🤝</div><h3>Regalías a autores</h3><p>Los autores cobran regalías por sus actividades publicadas, con su historial.</p></div>
         </div>
       </div>
     </section>
 
-    <!-- Studio -->
-    <section class="section">
-      <h2>🎨 El Studio</h2>
-      <p>
-        El <a href="/studio">Placeta Junior Studio</a> es un <strong>editor visual drag &amp; drop
-        estilo Canva</strong>: arrastra bloques de ejercicio al lienzo y construye tu actividad
-        con <strong>test</strong>, <strong>sopas de letras</strong>, <strong>relacionar</strong>,
-        <strong>ordenar</strong> y <strong>completar</strong>. Las actividades creadas funcionan
-        en la web y en la app.
-      </p>
-      <p>
-        🖼️ Puedes añadir <strong>imágenes de stock</strong> a cualquier pregunta o bloque.
-        La <strong>fuente</strong> de cada imagen se muestra siempre bajo ella, tanto en la web
-        como en la app.
-      </p>
-      <p class="form-note">
-        ✍️ Para publicar necesitas ser <strong>mayor de 18 años</strong> y firmar el <strong>Acuerdo de Colaborador</strong>
-        (vía PlacetaID). Puedes solicitarlo desde el <a href="/studio">Studio</a>.
-      </p>
-    </section>
-
-    <!-- Filtro -->
-    <section class="section">
-      <h2>🔍 El Filtro de Placeta Junior</h2>
-      <p>
-        Toda actividad pasa por el <strong>Filtro</strong> antes de publicarse: calidad, corrección, adecuación a la edad,
-        diseño y normativa. El Filtro decide el precio de licencia, el precio de intento y la recompensa definitivos.
-        Nada se publica sin superar la revisión.
-      </p>
-    </section>
-
-    <!-- Qué es / plataforma -->
-    <section class="section">
-      <h2>🌍 ¿Qué es esta plataforma?</h2>
-      <p>
-        <strong>Placeta Junior</strong> es una <strong>plataforma educativa gratuita</strong> para niños y niñas de
-        <strong>6 a 14 años</strong>, impulsada por la asociación <strong>Grupo de La Placeta</strong>. Es un ecosistema
-        completo: una <strong>web oficial</strong> para descubrir y jugar actividades, un <strong>Studio</strong> para
-        crear tus propias actividades, unas <strong>fichas PDF</strong> para seguir aprendiendo en papel y una
-        <strong>app</strong> donde vive el programa gamificado (puntos, Placetas, diplomas, amigos y retos).
-      </p>
-      <p>
-        Aquí puedes <strong>jugar gratis</strong>, <strong>filtrar por edad</strong>, <strong>descargar ejercicios en PDF</strong>
-        y <strong>crear actividades</strong> con el Studio. Todo el contenido pasa por el Filtro antes de publicarse.
-      </p>
-    </section>
-
-    <!-- Tecnologías -->
-    <section class="section">
-      <h2>⚙️ ¿Qué tecnologías usa para los ejercicios?</h2>
-      <p class="section-sub">La web funciona en cualquier dispositivo (móvil, tablet u ordenador), sin instalar nada, y de forma accesible.</p>
-      <div class="grid">
-        <div class="card"><div class="card-cover">🌐</div><h3>Web rápida</h3><p>HTML5, CSS3 y JavaScript modernos. Las actividades se cargan al instante desde la nube (Vercel).</p></div>
-        <div class="card"><div class="card-cover">🗺️</div><h3>Mapamundi real</h3><p>La geografía usa un mapa interactivo de verdad (Leaflet + world-atlas) con las formas clicables de los países.</p></div>
-        <div class="card"><div class="card-cover">🖼️</div><h3>Portadas 16:9</h3><p>Cada actividad genera su propia carátula (16:9) con los colores de la marca, sin deformar imágenes.</p></div>
-        <div class="card"><div class="card-cover">🔊</div><h3>Sonidos suaves</h3><p>Feedback sonoro (Web Audio + archivos de Mixkit) para aciertos, errores, letras y navegación. Silenciable en ♿.</p></div>
-        <div class="card"><div class="card-cover">♿</div><h3>Accesibilidad</h3><p>Letra grande, alto contraste, lectura en voz alta y sonidos opcionales desde el menú de accesibilidad.</p></div>
-        <div class="card"><div class="card-cover">🖨️</div><h3>PDF en A4</h3><p>Descarga cualquier actividad como ficha A4 con logo, portada, imágenes y ejercicios listos para imprimir.</p></div>
-        <div class="card"><div class="card-cover">📱</div><h3>App Android</h3><p>El programa completo gamificado (monedero, puntos, diplomas, amigos) vive en la app, hecha con Kotlin y Jetpack Compose.</p></div>
-        <div class="card"><div class="card-cover">🔤</div><h3>Tipografía de marca</h3><p>HandlyCasual (títulos) y Plus Jakarta Sans (texto) con iconos Material Symbols: todo reconocible y adaptado a niños.</p></div>
+    <!-- Studio CTA -->
+    <section class="info-section">
+      <div class="wrap">
+        <div class="cta-band">
+          <h2>Crea tu propia actividad</h2>
+          <p>Con el Studio arrastras bloques de test, sopas, relacionar, ordenar y completar… y lo publicas para todos. Sin saber programar.</p>
+          <a class="btn-primary" href="/studio"><span class="material-symbols-rounded">brush</span> Abrir el Studio</a>
+        </div>
       </div>
     </section>
 
     <!-- Metodología -->
-    <section class="section">
-      <h2>🎯 Metodología: aprender jugando</h2>
-      <p>
-        Placeta Junior sigue el <strong>aprendizaje basado en el juego</strong> (<em>game-based learning</em>):
-        los niños aprenden haciendo, con retos cortos, feedback inmediato y refuerzo positivo.
-      </p>
-      <div class="grid">
-        <div class="card"><div class="card-cover">🧠</div><h3>Aprender haciendo</h3><p>Responder, arrastrar, ordenar, completar, calcular y localizar en el mapa: el niño es protagonista de su aprendizaje.</p></div>
-        <div class="card"><div class="card-cover">✅</div><h3>Feedback inmediato</h3><p>Cada respuesta se corrige al momento, con sonido y color, para saber siempre si va bien y por qué.</p></div>
-        <div class="card"><div class="card-cover">🎮</div><h3>Refuerzo positivo</h3><p>Puntos verdes por aciertos, recompensas y celebración al terminar: motivación constante.</p></div>
-        <div class="card"><div class="card-cover">👧</div><h3>A su ritmo y por edad</h3><p>Actividades clasificadas por edad y dificultad. Puedes filtrar por edad y cada uno avanza a su ritmo.</p></div>
-        <div class="card"><div class="card-cover">🧩</div><h3>Formatos variados</h3><p>Test, sopa de letras, relacionar, ordenar, completar, cálculo mental y mapamundi: se trabajan muchas habilidades.</p></div>
-        <div class="card"><div class="card-cover">🛡️</div><h3>Contenido seguro</h3><p>Todo pasa por el Filtro: calidad, corrección y adecuación a la edad. Los autores son mayores de 18 y firmados.</p></div>
+    <section class="info-section alt">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Aprender jugando, de verdad</h2>
+          <p>Game-based learning: retos cortos, feedback inmediato y refuerzo positivo.</p>
+        </div>
+        <div class="grid">
+          <div class="card accent-purple"><div class="ico">🧠</div><h3>Aprender haciendo</h3><p>Responder, arrastrar, ordenar y localizar: el niño es el protagonista.</p></div>
+          <div class="card accent-green"><div class="ico">✅</div><h3>Feedback inmediato</h3><p>Cada respuesta se corrige al momento, con sonido y color.</p></div>
+          <div class="card accent-yellow"><div class="ico">🎮</div><h3>Refuerzo positivo</h3><p>Puntos por aciertos y celebración al terminar: motivación constante.</p></div>
+          <div class="card accent-blue"><div class="ico">👧</div><h3>A su ritmo</h3><p>Actividades por edad y dificultad; cada uno avanza a lo suyo.</p></div>
+          <div class="card accent-orange"><div class="ico">🧩</div><h3>Formatos variados</h3><p>Muchos tipos de ejercicio para trabajar distintas habilidades.</p></div>
+          <div class="card accent-red"><div class="ico">🛡️</div><h3>Contenido seguro</h3><p>Todo pasa por el Filtro: calidad, corrección y edad adecuada.</p></div>
+        </div>
       </div>
     </section>
 
-    <!-- Continuar con PDF -->
-    <section class="section">
-      <h2>📄 Continuar fuera de la pantalla con los PDF</h2>
-      <p>
-        Cada actividad tiene un botón <strong>“Descargar PDF”</strong>. Genera una <strong>ficha en A4</strong> con el
-        <strong>logo de Placeta Junior</strong>, la <strong>portada 16:9</strong>, las <strong>imágenes</strong> y todos los
-        ejercicios (preguntas, sopas de letras, relacionar, ordenar, completar, cálculo…) adaptados al papel.
-      </p>
-      <p>
-        Así se puede <strong>seguir aprendiendo sin pantalla</strong>: imprime la ficha para llevarla a clase, usarla como
-        deberes, repasarla en casa o trabajar en grupo. Lo que se aprende en papel también suma en la Academia.
-      </p>
+    <!-- Filtro -->
+    <section class="info-section tint">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>🔍 El Filtro de Placeta Junior</h2>
+          <p>Nada se publica sin superar la revisión. El Filtro valida la calidad, la corrección, la adecuación a la edad, el diseño y la normativa, y fija el precio y la recompensa definitivos.</p>
+        </div>
+      </div>
     </section>
 
-    <!-- Gamificación desde la app -->
-    <section class="section">
-      <h2>📱 Gamificación desde la app, gracias a Grupo de La Placeta</h2>
-      <p>
-        La web es la puerta de entrada; el programa completo vive en la app <strong>Placeta Junior</strong>, hecha para
-        Android y gratuita. Es una experiencia <strong>gamificada</strong> donde cada junior tiene su perfil y:
-      </p>
-      <div class="grid">
-        <div class="card"><div class="card-cover">🟢</div><h3>Puntos verdes y rojos</h3><p>Los aciertos suman puntos verdes y los fallos puntos rojos. Los verdes se canjean por Placetas.</p></div>
-        <div class="card"><div class="card-cover">🎖️</div><h3>Placetas (moneda)</h3><p>Completa actividades para ganar Placetas y desbloquear niveles y contenido de pago.</p></div>
-        <div class="card"><div class="card-cover">🏆</div><h3>Diplomas</h3><p>Aprueba un examen (70% o más) y obtén tu diploma oficial de la Academia.</p></div>
-        <div class="card"><div class="card-cover">👫</div><h3>Amigos y retos</h3><p>Comparte tu progreso con amigos y propón retos dentro de la app.</p></div>
+    <!-- CTA final -->
+    <section class="info-section">
+      <div class="wrap">
+        <div class="cta-band">
+          <h2>Empieza hoy, es gratis</h2>
+          <p>Juega desde la web, descarga fichas en PDF o crea tus propias actividades. Y cuando quieras el programa completo, está en la app.</p>
+          <div class="hero-cta" style="margin-top:6px;">
+            <a class="btn-primary" href="/"><span class="material-symbols-rounded">play_arrow</span> Jugar ahora</a>
+            <a class="btn-ghost" href="/studio"><span class="material-symbols-rounded">brush</span> Crear</a>
+          </div>
+        </div>
       </div>
-      <p>
-        Todo esto es posible <strong>gracias a Grupo de La Placeta</strong>, la asociación sin ánimo de lucro que impulsa
-        el proyecto, garantiza su carácter educativo y público, y revisa que todo el contenido sea seguro y de calidad.
-      </p>
     </section>
   </main>
 
@@ -241,6 +210,6 @@
     </div>
     <p>© 2026 Placeta Junior · Grupo de La Placeta · <a href="https://laplaceta.org" target="_blank" rel="noopener">laplaceta.org</a></p>
   </footer>
-  <script src="js/sonidos.js"></script>
+  <script src="js/sonidos.js?v=20260825"></script>
 </body>
 </html>
