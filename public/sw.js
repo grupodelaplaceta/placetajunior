@@ -5,7 +5,7 @@
    la API + sus imágenes para poder jugar sin conexión.
    Solo funciona en https (o localhost); en file:// no se registra.
    ═══════════════════════════════════════════════════════════════════ */
-const CACHE = 'placetajunior-v1';
+const CACHE = 'placetajunior-v2';
 
 const SHELL = [
   '/',
@@ -73,6 +73,21 @@ self.addEventListener('fetch', function (e) {
       fetch(req).then(function (res) {
         const copy = res.clone();
         caches.open(CACHE).then(function (c) { c.put(req, copy); });
+        return res;
+      }).catch(function () { return caches.match(req); })
+    );
+    return;
+  }
+
+  // Página (navegación): red primero, para ver los despliegues nuevos sin
+  // tener que vaciar la caché; si no hay red, se sirve la página cacheada.
+  if (url.origin === self.location.origin && req.mode === 'navigate') {
+    e.respondWith(
+      fetch(req).then(function (res) {
+        if (res && res.ok) {
+          const copy = res.clone();
+          caches.open(CACHE).then(function (c) { c.put(req, copy); });
+        }
         return res;
       }).catch(function () { return caches.match(req); })
     );
