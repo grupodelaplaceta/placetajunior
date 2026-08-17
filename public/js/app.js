@@ -516,7 +516,7 @@ async function descargarPdf(id) {
     ${portada}
     <div class="ws-meta">Nombre: _______________&nbsp;&nbsp; Fecha: _______________&nbsp;&nbsp; Puntos: ________</div>
     ${cuerpo}
-    <div class="ws-foot">Generado por Placeta Junior · junta@laplaceta.org</div>`;
+    <div class="ws-foot">© Placeta Junior 2026 · junior.laplaceta.org · Prohibida su comercialización · Solo para uso personal y docente.</div>`;
   // Dibuja el mapamundi (world-atlas) en los bloques de mapa_mundi
   const mapaEls = ws.querySelectorAll('[data-mapa="1"]');
   for (const el of mapaEls) {
@@ -527,6 +527,15 @@ async function descargarPdf(id) {
       ? '<img src="' + url + '" alt="Mapamundi">'
       : '<div class="ws-msg">Mapamundi no disponible.</div>';
   }
+  // Asegurar que las tipografías nuevas (Fredoka One / Outfit) estén cargadas para imprimir
+  try {
+    if (document.fonts && document.fonts.load) {
+      await Promise.all([
+        document.fonts.load('800 20px "Fredoka One"'),
+        document.fonts.load('400 14px "Outfit"')
+      ]);
+    }
+  } catch (e) { /* sin tipografías web */ }
   window.print();
 }
 

@@ -173,6 +173,14 @@ body.pj-home {
   gap: 20px;
 }
 .pj-home .hero-logo { width: min(430px, 84vw); height: auto; margin-bottom: 6px; }
+.pj-home .hero-banner {
+  width: min(680px, 92vw);
+  height: auto;
+  display: block;
+  border-radius: 26px;
+  border: 4px solid #fff;
+  box-shadow: none;
+}
 .pj-home .wordmark {
   font-family: var(--font-head);
   text-transform: uppercase;
@@ -619,20 +627,20 @@ body.pj-home.mostrando-detalle .detail-page { display: block; }
 
 /* Worksheet imprimible en PDF A4 (compacto para aprovechar las páginas) */
 .print-worksheet { display: none; }
-.print-worksheet .ws-head { text-align: center; border-bottom: 3px solid #4E3B70; padding-bottom: 8px; margin-bottom: 10px; page-break-inside: avoid; break-inside: avoid; }
+.print-worksheet .ws-head { text-align: center; border-bottom: 3px solid #3F00D8; padding-bottom: 8px; margin-bottom: 10px; page-break-inside: avoid; break-inside: avoid; }
 .print-worksheet .ws-brand { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 4px; }
 .print-worksheet .ws-logo { height: 42px; }
-.print-worksheet .ws-brand-name { font-family: 'HandlyCasual', sans-serif; font-size: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #4E3B70; }
-.print-worksheet .ws-head h1 { font-family: 'HandlyCasual', sans-serif; font-size: 22px; text-transform: uppercase; letter-spacing: 1px; margin: 4px 0 2px; color: #4E3B70; }
+.print-worksheet .ws-brand-name { font-family: 'Fredoka One', 'Outfit', sans-serif; font-size: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #3F00D8; }
+.print-worksheet .ws-head h1 { font-family: 'Fredoka One', 'Outfit', sans-serif; font-size: 22px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin: 4px 0 2px; color: #3F00D8; }
 .print-worksheet .ws-head p { margin: 0; font-size: 11px; color: #6B7280; }
 .print-worksheet .ws-meta { border: 1px solid #d1d5db; border-radius: 8px; padding: 5px 10px; margin-bottom: 10px; font-size: 12px; page-break-inside: avoid; break-inside: avoid; }
 .print-worksheet .ws-sec { margin-bottom: 10px; }
-.print-worksheet .ws-sec h4 { font-family: 'HandlyCasual', sans-serif; font-size: 15px; text-transform: uppercase; color: #3A00E1; border-bottom: 2px solid #e5e7eb; padding-bottom: 3px; margin: 0 0 6px; }
+.print-worksheet .ws-sec h4 { font-family: 'Fredoka One', 'Outfit', sans-serif; font-size: 15px; font-weight: 800; text-transform: uppercase; color: #2979FF; border-bottom: 2px solid #e5e7eb; padding-bottom: 3px; margin: 0 0 6px; }
 .print-worksheet .ws-q, .print-worksheet .ws-line { margin-bottom: 6px; font-size: 13px; line-height: 1.4; page-break-inside: avoid; break-inside: avoid; }
-.print-worksheet .ws-n { font-weight: 800; color: #4E3B70; }
+.print-worksheet .ws-n { font-weight: 800; color: #3F00D8; }
 .print-worksheet .ws-opts { margin: 3px 0 0 16px; font-size: 12px; color: #374151; }
 .print-worksheet .ws-opt { display: inline-block; margin-right: 10px; }
-.print-worksheet .ws-foot { margin-top: 12px; padding-top: 6px; border-top: 2px solid #e5e7eb; font-size: 11px; color: #9CA3AF; text-align: center; }
+.print-worksheet .ws-foot { margin-top: 12px; padding-top: 6px; border-top: 2px solid #e5e7eb; font-size: 11px; color: #6B7280; text-align: center; }
 .print-worksheet .ws-words { font-size: 11px; color: #374151; margin: 3px 0 5px; text-align: center; }
 .print-worksheet .ws-hint { font-size: 10px; color: #9CA3AF; text-align: center; margin: 3px 0 0; }
 /* Secciones cohesionadas que no deben partirse entre páginas */
@@ -643,10 +651,10 @@ body.pj-home.mostrando-detalle .detail-page { display: block; }
 .print-worksheet .ws-map-wrap { page-break-inside: avoid; break-inside: avoid; }
 .print-worksheet .ws-sopa { text-align: center; }
 .print-worksheet .ws-grid { border-collapse: collapse; }
-.print-worksheet .ws-grid td { font-family: 'Plus Jakarta Sans', sans-serif; }
+.print-worksheet .ws-grid td { font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif; }
 .print-worksheet .ws-code { page-break-inside: avoid; break-inside: avoid; }
 .print-worksheet .ws-code-ej { page-break-inside: avoid; break-inside: avoid; margin-bottom: 12px; }
-.print-worksheet .ws-code-ej h5 { font-family: 'HandlyCasual', sans-serif; font-size: 13px; text-transform: uppercase; color: #FF6600; margin: 8px 0 4px; }
+.print-worksheet .ws-code-ej h5 { font-family: 'Fredoka One', 'Outfit', sans-serif; font-size: 13px; font-weight: 800; text-transform: uppercase; color: #FF6D00; margin: 8px 0 4px; }
 .print-worksheet .ws-code-grid { border-collapse: collapse; }
 .print-worksheet .ws-code-grid td { font-size: 16px; font-weight: 700; }
 .print-worksheet .ws-code-lineas { margin-top: 6px; }

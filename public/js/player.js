@@ -101,6 +101,7 @@ function abrirJuego(act) {
   const tit = act.titulo || 'Mi actividad';
   const desc = act.descripcion || '';
   const cat = act.categoria || 'General';
+  if (window.PJMusic) window.PJMusic.actividad(cat); // música según la asignatura
   const edad = act.edad_recomendada || '6-12';
   const dif = act.dificultad || 'media';
   const tiempo = act.tiempo_estimado || 10;
@@ -1623,6 +1624,7 @@ function guardarPartidaLocal() {
 // Cierra el reproductor (el progreso se guarda localmente, se puede retomar)
 function cerrarPlayer() {
   if (window.pjSonido) pjSonido.clic();
+  if (window.PJMusic) window.PJMusic.menu(); // volver a la música del menú (día/noche)
   const cerrar = () => {
     ocultarFeedback();
     document.body.classList.remove('mostrando-juego');
