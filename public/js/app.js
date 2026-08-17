@@ -56,7 +56,7 @@ const colorMaterial = (cat = '') => {
 };
 
 // ── Portada de la actividad (carátula generada automáticamente) ────
-function coverHTML(a) {
+function coverHTML(a, badgeProg = '') {
   const bloqueada = esBloqueada(a);
   const badge = a.es_examen
     ? '<span class="badge-tag badge-examen"><span class="material-symbols-rounded b-ico">school</span>Examen</span>'
@@ -77,6 +77,7 @@ function coverHTML(a) {
     <div class="card-cover" ${estilo}>
       ${!a.portada_url && icono ? `<span class="cover-emoji material-symbols-rounded" style="color:${colorMaterial(a.categoria)}">${icono}</span>` : ''}
       ${badge}
+      ${badgeProg}
       ${lock}
       <button class="info-btn" onclick="event.stopPropagation();verInfo('${a.id}')" title="Ver información"><span class="material-symbols-rounded">info</span></button>
     </div>`;
@@ -216,12 +217,11 @@ function cardActividad(a) {
   const enCurso = window.PJPartidas ? PJPartidas.estaEnCurso(a.id) : false;
   const completada = window.PJPartidas ? PJPartidas.estaCompletada(a.id) : false;
   const badgeProg = completada
-    ? '<span class="badge-tag badge-free"><span class="material-symbols-rounded b-ico">task_alt</span>Hecha</span>'
-    : (enCurso ? '<span class="badge-tag badge-pend"><span class="material-symbols-rounded b-ico">play_circle</span>En curso</span>' : '');
+    ? '<span class="badge-tag badge-free badge-prog"><span class="material-symbols-rounded b-ico">task_alt</span>Hecha</span>'
+    : (enCurso ? '<span class="badge-tag badge-pend badge-prog"><span class="material-symbols-rounded b-ico">play_circle</span>En curso</span>' : '');
   return `
     <div class="card" data-color="${color}" onclick="abrirActividad('${a.id}', ${bloqueada})">
-      ${coverHTML(a)}
-      ${badgeProg}
+      ${coverHTML(a, badgeProg)}
       <h3>${escapeHtml(a.titulo)}</h3>
       <div class="card-foot">
         <span class="chip" data-color="${color}">${escapeHtml(a.categoria)}</span>

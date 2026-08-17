@@ -435,6 +435,8 @@ h1, h2, h3, .font-casual {
 .badge-premium { background: var(--pj-purple); }
 .badge-examen { background: var(--pj-orange); }
 .badge-pend { background: var(--pj-blue); }
+/* Insignia de progreso (En curso / Hecha): abajo, para no pisar la de tipo */
+.badge-tag.badge-prog { top: auto; bottom: 8px; left: 6px; }
 /* Botón de información en la esquina de la portada */
 .info-btn {
   position: absolute; top: 8px; right: 8px; z-index: 3;
@@ -1037,9 +1039,10 @@ footer a { color: var(--pj-yellow); text-decoration: none; }
   padding: 8px 10px; font-size: 12px; font-weight: 700; cursor: pointer; text-align: left; color: #374151;
 }
 #juniorAccPanel .acc-toggle.on { background: #22c55e; color: #fff; border-color: #22c55e; }
-body.acces-mayusculas .hero, body.acces-mayusculas .section, body.acces-mayusculas .studio,
-body.acces-mayusculas .kp-stage, body.acces-mayusculas .modal, body.acces-mayusculas .card { text-transform: uppercase; }
-body.acces-mayusculas input, body.acces-mayusculas textarea, body.acces-mayusculas select { text-transform: none; }
+/* MAYÚSCULAS: TODO el contenido en mayúsculas (respuestas, popups, menús…).
+   Se excluyen los campos de texto para no alterar lo que se escribe. */
+body.acces-mayusculas, body.acces-mayusculas * { text-transform: uppercase !important; }
+body.acces-mayusculas input, body.acces-mayusculas textarea, body.acces-mayusculas select { text-transform: none !important; }
 
 /* ═══════════════════════════════════════════════════════════════════
    ESTILO "JUGÓN" (tipo Roblox) — mantiene la imagen de marca PJ
@@ -1618,3 +1621,122 @@ h1, h2, h3, h4, h5,
 }
 .card, .h-row .card, .cat-section, .pj-home .card { animation: pj-pop-in .45s ease both; }
 .card:hover, .pj-home .card:hover { transform: translateY(-6px); }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   POPUPS + ACCESIBILIDAD + FINAL — calidad 2026 (Fredoka + animación)
+   ═══════════════════════════════════════════════════════════════════ */
+.pj-home .modal, .modal { animation: pj-pop-in .35s ease both; }
+.modal h3 { font-family: var(--font-head); letter-spacing: -0.02em; }
+.info-title { letter-spacing: -0.02em; }
+.kp-title { color: var(--pj-purple); }
+/* Botón y panel de accesibilidad */
+#juniorAccBtn { box-shadow: 0 6px 18px rgba(63, 0, 216, .4); animation: pj-float 4s ease-in-out infinite; }
+#juniorAccPanel .acc-head { font-family: var(--font-head); letter-spacing: .02em; text-transform: uppercase; color: var(--pj-purple); }
+#juniorAccPanel .acc-toggle { border-radius: 999px; font-family: var(--font-body); font-weight: 700; text-transform: uppercase; letter-spacing: .02em; }
+#juniorAccPanel .acc-toggle:hover { transform: translateX(3px); }
+#juniorAccPanel .acc-toggle.on { background: var(--pj-purple); border-color: var(--pj-purple); }
+/* Pantalla final "¡Lo has conseguido!" */
+.kp-celebra { animation: pj-celebra 1.3s ease-in-out .2s 2; }
+@keyframes pj-celebra {
+  0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
+  25% { transform: translateY(-12px) scale(1.08) rotate(-5deg); }
+  50% { transform: translateY(0) scale(1.04) rotate(0deg); }
+  75% { transform: translateY(-6px) scale(1.02) rotate(4deg); }
+}
+.kp-score { animation: pj-pop-in .4s ease .1s both; }
+.kp-save { animation: pj-pop-in .4s ease .25s both; }
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   STUDIO 2026 — tipografías Fredoka/Outfit + editor visual de Code
+   ═══════════════════════════════════════════════════════════════════ */
+.studio-toolbar .studio-title,
+.studio-palette h3,
+.studio-palette .hint,
+.block-header .b-name,
+.studio .canvas-empty,
+#preview-modal .modal h3,
+#meta-modal .modal h3,
+#img-modal .modal h3 {
+  font-family: var(--font-head);
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  font-weight: 800;
+}
+.block-btn .b-name { font-family: var(--font-head); font-weight: 800; }
+.palette-steps span, .palette-steps b { font-family: var(--font-body); font-weight: 700; }
+.block-body label, .q-item label, .modal label { font-family: var(--font-head); font-weight: 800; text-transform: uppercase; font-size: 12px; letter-spacing: .02em; color: var(--pj-purple); }
+.form-note { font-family: var(--font-body); }
+
+/* Editor visual del tablero de Code */
+.code-tools { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.code-tool {
+  border: 2px solid var(--pj-gray-200);
+  background: var(--pj-white);
+  color: var(--pj-gray-700);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: .02em;
+  cursor: pointer;
+  transition: transform .12s, border-color .12s, background .12s, color .12s;
+}
+.code-tool:hover { transform: translateY(-2px); border-color: var(--pj-purple); }
+.code-tool.active { background: var(--pj-purple); border-color: var(--pj-purple); color: #fff; }
+.code-grid {
+  display: grid;
+  gap: 3px;
+  max-width: 380px;
+  margin: 0 auto;
+  padding: 10px;
+  background: var(--pj-purple-light);
+  border: 2px solid var(--pj-purple);
+  border-radius: 16px;
+  touch-action: manipulation;
+}
+.code-cell {
+  aspect-ratio: 1 / 1;
+  border: none;
+  border-radius: 8px;
+  background: var(--pj-white);
+  font-size: clamp(15px, 2.4vw, 24px);
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform .1s, background .1s, box-shadow .1s;
+}
+.code-cell:hover { transform: scale(1.1); z-index: 1; }
+.code-cell-inicio { background: var(--pj-blue); box-shadow: 0 0 0 2px #fff inset, 0 0 0 3px var(--pj-blue); }
+.code-cell-estrella { background: var(--pj-yellow); box-shadow: 0 0 0 2px #fff inset, 0 0 0 3px var(--pj-yellow); }
+.code-cell-obst { background: #4a1a1a; color: #fff; }
+.code-cell-moned { background: var(--pj-yellow-light); }
+.code-cell-ghost { opacity: .22; background: var(--pj-gray-100); }
+.code-cell-borrar { background: var(--pj-red-light); color: var(--pj-red); }
+.code-grid-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--pj-gray-600);
+}
+.code-avanzado summary {
+  cursor: pointer;
+  font-family: var(--font-head);
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 13px;
+  letter-spacing: .02em;
+  color: var(--pj-gray-600);
+}
+.code-avanzado summary:hover { color: var(--pj-purple); }

@@ -365,6 +365,8 @@ body.pj-home {
 .pj-home .badge-premium { background: var(--pj-purple); }
 .pj-home .badge-examen { background: var(--pj-orange); }
 .pj-home .badge-tag .b-ico { font-size: 14px; }
+/* Insignia de progreso (En curso / Hecha): abajo, para no pisar la de tipo */
+.pj-home .badge-tag.badge-prog { top: auto; bottom: 10px; left: 10px; }
 .pj-home .cover-lock { position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: rgba(17, 24, 39, .45); color: #fff; }
 .pj-home .lock-ico { font-size: 40px; }
 .pj-home .lock-txt { font-family: var(--font-head); font-size: 13px; }
