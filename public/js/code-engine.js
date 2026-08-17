@@ -14,8 +14,9 @@ window.PJCode = (function () {
     retroceder: { cat: 'movimiento', nombre: 'RETROCEDER', params: [], desc: 'Retrocede una casilla' },
     girar:      { cat: 'movimiento', nombre: 'GIRAR', params: ['dir'], desc: 'Gira a la derecha o izquierda' },
     saltar:     { cat: 'movimiento', nombre: 'SALTAR', params: [], desc: 'Salta a la siguiente casilla' },
-    repetir:    { cat: 'control', nombre: 'REPETIR', params: ['veces'], bloques: true, desc: 'Repite un bloque N veces' },
+    repetir:    { cat: 'control', nombre: 'BUCLE', params: ['veces'], bloques: true, desc: 'Bucle: repite los pasos dentro N veces' },
     si:         { cat: 'control', nombre: 'SI', params: ['condicion'], bloques: true, desc: 'Si la condición se cumple, ejecuta' },
+    sonido:     { cat: 'efectos', nombre: 'SONIDO', params: ['sonido'], desc: 'Reproduce un sonido divertido' },
   };
 
   // Direcciones: 0=derecha, 1=abajo, 2=izquierda, 3=arriba (sentido horario)
@@ -147,6 +148,10 @@ window.PJCode = (function () {
           else if (cond.includes('moneda')) cumple = monedas.has(`${nx},${ny}`);
           else if (cond.includes('libre') || cond.includes('vacio')) cumple = dentro(nx, ny) && !hayObstaculo(nx, ny);
           if (cumple) for (const sub of (b.bloques || [])) ejecutarBloque(sub, profundidad + 1);
+          break;
+        }
+        case 'sonido': {
+          registrar('sonido', { s: String(b.sonido || 'pop') });
           break;
         }
         default: break;

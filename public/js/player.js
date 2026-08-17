@@ -1054,8 +1054,9 @@ const CODE_BLOQUES_INFO = {
   retroceder: { cat: 'mov', nombre: 'RETROCEDER', clase: 'b-move', color: '#4c8dff', params: [], desc: 'Retrocede 1 casilla', icono: 'flecha-izquierda' },
   girar:      { cat: 'mov', nombre: 'GIRAR', clase: 'b-move', color: '#4c8dff', params: [{ k: 'dir', o: ['derecha', 'izquierda'] }], desc: 'Gira', icono: 'flecha-curva' },
   saltar:     { cat: 'mov', nombre: 'SALTAR', clase: 'b-move', color: '#4c8dff', params: [], desc: 'Salta 2 casillas', icono: 'flecha-salto' },
-  repetir:    { cat: 'ctrl', nombre: 'REPETIR', clase: 'b-control', color: '#ff9f1c', params: [{ k: 'veces', n: 1 }], anida: true, desc: 'Repite N veces', icono: 'bucle' },
+  repetir:    { cat: 'ctrl', nombre: 'BUCLE', clase: 'b-control', color: '#ff9f1c', params: [{ k: 'veces', n: 1 }], anida: true, desc: 'Bucle: repite los pasos dentro N veces', icono: 'bucle' },
   si:         { cat: 'ctrl', nombre: 'SI', clase: 'b-control', color: '#ff9f1c', params: [{ k: 'condicion', o: ['obstáculo', 'moneda', 'libre'] }], anida: true, desc: 'Si se cumple…', icono: 'diamante' },
+  sonido:     { cat: 'efe', nombre: 'SONIDO', clase: 'b-sound', color: '#e8618c', params: [{ k: 'sonido', o: ['pop', 'clic', 'exito', 'moneda', 'aplauso'] }], desc: 'Reproduce un sonido', icono: 'altavoz' },
 };
 
 // Iconos SVG 100% descriptivos (16x16, trazo blanco) para los bloques
@@ -1067,6 +1068,7 @@ const CODE_ICONOS_SVG = {
   'flecha-curva-izq': '<path d="M8 2v5a3 3 0 0 1-3 3H2M4 7L2 10l2 3" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
   'flecha-salto': '<path d="M3 12c1-4 2-6 5-7M8 2l3 3-3 3M13 13c0-2 0-3-1-5" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
   'bucle': '<path d="M5 4h6a3 3 0 0 1 0 6H7M7 7l-3 3 3 3" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+  'altavoz': '<path d="M2 6v4h3l4 3V3L5 6H2z" fill="currentColor"/><path d="M11 5c1.3 1.3 1.3 4.7 0 6M13.5 3.5c2 2.3 2 6.7 0 9" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/>',
   'diamante': '<path d="M8 2l6 6-6 6-6-6 6-6z" fill="currentColor"/><text x="8" y="10" text-anchor="middle" font-size="9" font-weight="800" fill="#ffffff">?</text>',
 };
 
@@ -1074,6 +1076,19 @@ function codeIconoSVG(icono, extra) {
   const s = extra || '';
   const d = CODE_ICONOS_SVG[icono] || CODE_ICONOS_SVG['flecha-derecha'];
   return `<svg class="blk-icono" width="20" height="20" viewBox="0 0 16 16" aria-hidden="true" ${s}>${d}</svg>`;
+}
+
+// Reproduce un sonido elegido en el bloque SONIDO (o al probar el bloque).
+function pjSonidoReproducir(nombre) {
+  if (!window.pjSonido) return;
+  const n = String(nombre || '').toLowerCase();
+  try {
+    if (n === 'clic') pjSonido.clic();
+    else if (n === 'exito') pjSonido.exito();
+    else if (n === 'moneda') pjSonido.moneda();
+    else if (n === 'aplauso' || n === 'victoria') pjSonido.victoria();
+    else pjSonido.pop();
+  } catch (e) { /* sin sonido */ }
 }
 
 // Pantalla de explicación de la actividad de código (tutorial de uso)
@@ -1259,13 +1274,20 @@ function kpCodePintarPrograma() {
       veces.type = 'number'; veces.min = 1; veces.max = 50;
       veces.value = item.veces != null ? item.veces : 1;
       veces.style.width = '42px';
-      veces.title = '¿Cuántas veces repetimos?';
+      veces.title = '¿Cuántas veces repetimos el bucle?';
       veces.onchange = () => { item.veces = parseInt(veces.value, 10) || 1; kpCodeGuardarPrograma(); kpCodePintarPrograma(); };
       chip.appendChild(veces);
       const vecesLbl = document.createElement('span');
       vecesLbl.className = 'cute-chip-explica';
       vecesLbl.textContent = 'veces';
       chip.appendChild(vecesLbl);
+    } else if (b.op === 'sonido') {
+      const sel = document.createElement('select');
+      ['pop', 'clic', 'exito', 'moneda', 'aplauso'].forEach(o => { const op = document.createElement('option'); op.value = o; op.textContent = o === 'aplauso' ? '👏 aplausos' : '🔊 ' + o; sel.appendChild(op); });
+      sel.value = item.sonido != null ? item.sonido : 'pop';
+      sel.onchange = () => { item.sonido = sel.value; kpCodeGuardarPrograma(); kpCodePintarPrograma(); if (window.pjSonido) pjSonidoReproducir(item.sonido); };
+      sel.onclick = () => { if (window.pjSonido) pjSonidoReproducir(item.sonido || sel.value); };
+      chip.appendChild(sel);
     } else if (b.op === 'si') {
       const sel = document.createElement('select');
       ['obstáculo', 'moneda', 'libre'].forEach(o => { const op = document.createElement('option'); op.value = o; op.textContent = o; sel.appendChild(op); });
@@ -1477,6 +1499,7 @@ async function kpCodeEjecutar() {
       if (t.accion === 'girar') pjSonido.girar();
       else if (t.accion === 'saltar') pjSonido.saltar();
       else if (t.accion === 'error') pjSonido.golpe();
+      else if (t.accion === 'sonido') pjSonidoReproducir(t.s || 'pop');
       else if (t.moneda) pjSonido.moneda();
       else pjSonido.paso();
     }
