@@ -16,6 +16,7 @@ const TIPOS = {
   ordenar:       { ico: 'format_list_numbered', nombre: 'Ordenar' },
   completar:     { ico: 'edit_note', nombre: 'Completar' },
   calculo_mental: { ico: 'calculate', nombre: 'Cálculo mental' },
+  problemas:      { ico: 'functions', nombre: 'Problemas' },
   mapa_mundi:    { ico: 'public', nombre: 'Mapamundi' },
   code_blocks:   { ico: 'code', nombre: 'Placeta Junior Code' }
 };
@@ -265,7 +266,8 @@ function nuevoBloque(tipo) {
   if (tipo === 'relacionar') b.pares = [{ izq: '', der: '', izq_img: null, izq_alt: null, izq_fuente: null }];
   if (tipo === 'ordenar') b.items = ['', '', ''];
   if (tipo === 'completar') b.frases = [{ texto: '', respuesta: '', opciones: ['', ''] }];
-  if (tipo === 'calculo_mental') { b.sumas = [{ a: '', b: '' }]; b.segundos = 10; b.modo = 'opciones'; }
+  if (tipo === 'calculo_mental') { b.sumas = [{ a: '', b: '', op: 'suma' }]; b.operacion = 'suma'; b.segundos = 10; b.modo = 'opciones'; b.vertical = false; b.llevadas = true; }
+  if (tipo === 'problemas') { b.problemas = [{ enunciado: '', frase: 'Al final tiene ___', respuesta: '', operaciones: [] }]; b.modo = 'escribir'; }
   if (tipo === 'mapa_mundi') { b.paises = ['España', 'Francia']; b.preguntas = []; }
   if (tipo === 'code_blocks') {
     b.explicacion = '';
@@ -328,6 +330,7 @@ function renderBloque(b, i) {
   else if (b.tipo === 'ordenar') cuerpo = renderOrdenar(b, i);
   else if (b.tipo === 'completar') cuerpo = renderCompletar(b, i);
   else if (b.tipo === 'calculo_mental') cuerpo = renderCalculo(b, i);
+  else if (b.tipo === 'problemas') cuerpo = renderProblemas(b, i);
   else if (b.tipo === 'mapa_mundi') cuerpo = renderMapa(b, i);
   else if (b.tipo === 'code_blocks') cuerpo = renderCode(b, i);
 
@@ -552,20 +555,28 @@ function renderCompletar(b, i) {
 
 // ── Cálculo mental ─────────────────────────────────────────────────
 function renderCalculo(b, i) {
-  const filas = (b.sumas || []).map((s, j) => `
+  const opcionesOp = ['suma', 'resta', 'multiplicacion', 'division'];
+  const nombreOp = { suma: 'Suma (+)', resta: 'Resta (−)', multiplicacion: 'Multiplicación (×)', division: 'División (÷)' };
+  const filas = (b.sumas || []).map((s, j) => {
+    const op = s.op || b.operacion || 'suma';
+    return `
     <div class="q-item">
-      <div class="q-head"><span class="q-num">Suma ${j + 1}</span>
+      <div class="q-head"><span class="q-num">Operación ${j + 1}</span>
         <div class="q-tools"><button class="b-btn del" onclick="borrarItem(${i},'sumas',${j})"><span class="material-symbols-rounded">delete</span></button></div>
       </div>
       <div class="row2">
         <input type="number" inputmode="numeric" placeholder="Número A" value="${esc(s.a)}" oninput="setSuma(${i},${j},'a',this.value)" />
         <input type="number" inputmode="numeric" placeholder="Número B" value="${esc(s.b)}" oninput="setSuma(${i},${j},'b',this.value)" />
       </div>
-      <p class="form-note" style="margin-top:6px;"><span class="material-symbols-rounded q-ico">calculate</span> ${(Number(s.a) || 0)} + ${(Number(s.b) || 0)} = ${(Number(s.a) || 0) + (Number(s.b) || 0)}</p>
-    </div>`).join('');
+      <select style="margin-top:6px;" onchange="setSuma(${i},${j},'op',this.value)">
+        ${opcionesOp.map(o => `<option value="${o}" ${op === o ? 'selected' : ''}>${nombreOp[o]}</option>`).join('')}
+      </select>
+      <p class="form-note" style="margin-top:6px;"><span class="material-symbols-rounded q-ico">calculate</span> ${(Number(s.a) || 0)} ${opSimbolo(op)} ${(Number(s.b) || 0)} = ${calcularResultado(Number(s.a) || 0, Number(s.b) || 0, op)}</p>
+    </div>`;
+  }).join('');
   return `
     <div class="row2">
-      <div><label><span class="material-symbols-rounded q-ico">timer</span> Segundos por suma</label><input type="number" min="3" max="60" value="${b.segundos || 10}" oninput="setCampo(${i},'segundos',this.value)" /></div>
+      <div><label><span class="material-symbols-rounded q-ico">timer</span> Segundos por operación</label><input type="number" min="3" max="60" value="${b.segundos || 10}" oninput="setCampo(${i},'segundos',this.value)" /></div>
       <div><label>Cómo responden</label>
         <select onchange="setCampo(${i},'modo',this.value)">
           <option value="opciones" ${b.modo !== 'escribir' ? 'selected' : ''}>3 opciones</option>
@@ -573,12 +584,80 @@ function renderCalculo(b, i) {
         </select>
       </div>
     </div>
+    <div class="row2" style="margin-top:8px;">
+      <div><label>Operación por defecto</label>
+        <select onchange="setCampo(${i},'operacion',this.value)">
+          ${opcionesOp.map(o => `<option value="${o}" ${(b.operacion || 'suma') === o ? 'selected' : ''}>${nombreOp[o]}</option>`).join('')}
+        </select>
+      </div>
+      <div><label>Formato</label>
+        <div class="seg">
+          <button type="button" class="chip-cat ${!b.vertical ? 'active' : ''}" onclick="setCampo(${i},'vertical',false);render();">Horizontal</button>
+          <button type="button" class="chip-cat ${b.vertical ? 'active' : ''}" onclick="setCampo(${i},'vertical',true);render();">Vertical</button>
+        </div>
+      </div>
+    </div>
+    ${b.vertical ? `<div class="row2" style="margin-top:8px;"><label class="check" style="display:flex;align-items:center;gap:6px;"><input type="checkbox" ${b.llevadas !== false ? 'checked' : ''} onchange="setCampo(${i},'llevadas',this.checked)" /> ✏️ Mostrar llevadas (sumas en vertical)</label></div>` : ''}
     ${filas}
-    <button class="btn btn-outline" type="button" style="margin-top:12px;" onclick="anadirSuma(${i})"><span class="material-symbols-rounded seg-ico">add</span> Añadir suma</button>`;
+    <button class="btn btn-outline" type="button" style="margin-top:12px;" onclick="anadirSuma(${i})"><span class="material-symbols-rounded seg-ico">add</span> Añadir operación</button>
+    <p class="form-note" style="margin-top:6px;"><span class="material-symbols-rounded q-ico">lightbulb</span> En vertical, las sumas muestran las llevadas encima de cada columna.</p>`;
 }
 
 function setSuma(i, j, lado, valor) { bloques[i].sumas[j][lado] = valor; }
-function anadirSuma(i) { bloques[i].sumas.push({ a: '', b: '' }); render(); }
+function anadirSuma(i) { bloques[i].sumas.push({ a: '', b: '', op: bloques[i].operacion || 'suma' }); render(); }
+
+// ── Problemas matemáticos ──────────────────────────────────────────
+function renderProblemas(b, i) {
+  const modo = b.modo || 'escribir';
+  const togg = `
+    <div class="row2" style="margin-bottom:14px;">
+      <div>
+        <label>Cómo responden</label>
+        <div class="seg">
+          <button type="button" class="chip-cat ${modo === 'escribir' ? 'active' : ''}" onclick="setModoProblemas(${i},'escribir')"><span class="material-symbols-rounded seg-ico">edit_note</span> Escriben el resultado</button>
+          <button type="button" class="chip-cat ${modo === 'opciones' ? 'active' : ''}" onclick="setModoProblemas(${i},'opciones')"><span class="material-symbols-rounded seg-ico">radio_button_checked</span> Elegir opción</button>
+        </div>
+      </div>
+      <p class="form-note" style="align-self:center;margin:0;">El niño lee el problema (puede tener varias operaciones) y completa la frase final con el resultado.</p>
+    </div>`;
+  const filas = (b.problemas || []).map((p, j) => {
+    const operaciones = (p.operaciones || []).map((o, oi) => `
+      <div class="row2" style="margin-top:6px;align-items:center;">
+        <input type="number" inputmode="numeric" placeholder="A" value="${esc(o.a)}" style="max-width:96px;" oninput="setOperacion(${i},${j},${oi},'a',this.value)" />
+        <select style="max-width:130px;" onchange="setOperacion(${i},${j},${oi},'op',this.value)">
+          <option value="suma" ${(o.op || 'suma') === 'suma' ? 'selected' : ''}>+ suma</option>
+          <option value="resta" ${(o.op || 'suma') === 'resta' ? 'selected' : ''}>− resta</option>
+          <option value="multiplicacion" ${(o.op || 'suma') === 'multiplicacion' ? 'selected' : ''}>× multiplicación</option>
+          <option value="division" ${(o.op || 'suma') === 'division' ? 'selected' : ''}>÷ división</option>
+        </select>
+        <input type="number" inputmode="numeric" placeholder="B" value="${esc(o.b)}" style="max-width:96px;" oninput="setOperacion(${i},${j},${oi},'b',this.value)" />
+        <button class="b-btn del" type="button" onclick="borrarOperacion(${i},${j},${oi})"><span class="material-symbols-rounded">delete</span></button>
+      </div>`).join('');
+    return `
+    <div class="q-item">
+      <div class="q-head"><span class="q-num">Problema ${j + 1}</span>
+        <div class="q-tools"><button class="b-btn del" onclick="borrarItem(${i},'problemas',${j})"><span class="material-symbols-rounded">delete</span></button></div>
+      </div>
+      <label>Enunciado (historia, puede incluir varias operaciones)</label>
+      <textarea rows="3" placeholder="Ej: María tiene 5 manzanas, compra 3 más y regala 2." oninput="setProblema(${i},${j},'enunciado',this.value)">${esc(p.enunciado || '')}</textarea>
+      <label style="margin-top:8px;">Frase a completar (usa ___)</label>
+      <input placeholder="Ej: Al final le quedan ___ manzanas." value="${esc(p.frase || '')}" oninput="setProblema(${i},${j},'frase',this.value)" />
+      <label style="margin-top:8px;">Resultado correcto</label>
+      <input type="number" inputmode="numeric" placeholder="Ej: 6" value="${esc(p.respuesta)}" oninput="setProblema(${i},${j},'respuesta',this.value)" />
+      <label style="margin-top:8px;">Operaciones en vertical (opcional)</label>
+      ${operaciones}
+      <button class="btn btn-outline" type="button" style="margin-top:8px;" onclick="anadirOperacion(${i},${j})"><span class="material-symbols-rounded seg-ico">add</span> Añadir operación</button>
+    </div>`;
+  }).join('');
+  return togg + filas +
+    `<button class="btn btn-outline" type="button" style="margin-top:12px;" onclick="anadirProblema(${i})"><span class="material-symbols-rounded seg-ico">add</span> Añadir problema</button>`;
+}
+function setProblema(i, j, campo, valor) { bloques[i].problemas[j][campo] = valor; }
+function anadirProblema(i) { bloques[i].problemas.push({ enunciado: '', frase: 'Al final tiene ___', respuesta: '', operaciones: [] }); render(); }
+function setModoProblemas(i, modo) { bloques[i].modo = modo; render(); }
+function setOperacion(i, j, oi, campo, valor) { bloques[i].problemas[j].operaciones[oi][campo] = valor; }
+function anadirOperacion(i, j) { const p = bloques[i].problemas[j]; if (!p.operaciones) p.operaciones = []; p.operaciones.push({ a: '', b: '', op: 'suma' }); render(); }
+function borrarOperacion(i, j, oi) { bloques[i].problemas[j].operaciones.splice(oi, 1); render(); }
 
 // ── Placeta Junior Code ─────────────────────────────────────────────
 const CODE_BLOQUES_EDITOR = [
@@ -608,25 +687,13 @@ function renderCode(b, i) {
 function renderCodeEjercicio(b, i, ej, j) {
   const permitidos = ej.permitidos || [];
   const escen = ej.escenario || {};
-  const obst = (escen.obstaculos || []).map((o, k) =>
-    `<div class="row2" style="align-items:center;gap:8px;">
-      <input type="number" min="0" placeholder="X" value="${o.x}" style="flex:1;" oninput="setObstaculo(${i},${j},${k},'x',this.value)" />
-      <input type="number" min="0" placeholder="Y" value="${o.y}" style="flex:1;" oninput="setObstaculo(${i},${j},${k},'y',this.value)" />
-      <button class="b-btn del" type="button" onclick="borrarObstaculo(${i},${j},${k})"><span class="material-symbols-rounded">delete</span></button>
-    </div>`).join('');
-  const monedas = (escen.monedas || []).map((m, k) =>
-    `<div class="row2" style="align-items:center;gap:8px;">
-      <input type="number" min="0" placeholder="X" value="${m.x}" style="flex:1;" oninput="setMoneda(${i},${j},${k},'x',this.value)" />
-      <input type="number" min="0" placeholder="Y" value="${m.y}" style="flex:1;" oninput="setMoneda(${i},${j},${k},'y',this.value)" />
-      <button class="b-btn del" type="button" onclick="borrarMoneda(${i},${j},${k})"><span class="material-symbols-rounded">delete</span></button>
-    </div>`).join('');
   const pistas = (ej.pistas || []).map((p, k) =>
     `<div class="row2" style="align-items:center;gap:8px;">
       <input placeholder="Pista ${k + 1}" value="${esc(p)}" style="flex:1;" oninput="setPista(${i},${j},${k},this.value)" />
       <button class="b-btn del" type="button" onclick="borrarPista(${i},${j},${k})"><span class="material-symbols-rounded">delete</span></button>
     </div>`).join('');
   return `
-  <div class="q-item" style="border-left:4px solid var(--pj-purple,#4E3B70);">
+  <div class="q-item code-ejercicio" style="border-left:4px solid var(--pj-purple,#4E3B70);">
     <div class="q-head">
       <span class="q-num"><span class="material-symbols-rounded q-ico">code</span> Ejercicio ${j + 1}</span>
       <div class="q-tools">
@@ -636,31 +703,19 @@ function renderCodeEjercicio(b, i, ej, j) {
       </div>
     </div>
     <input placeholder="Título del ejercicio (ej: Avanza 1 casilla)" value="${esc(ej.titulo || '')}" oninput="setEjercicio(${i},${j},'titulo',this.value)" />
-    <input placeholder="Objetivo para el niño (ej: Lleva a Candela a la estrella (1,0))" value="${esc(ej.objetivo_texto || '')}" style="margin-top:6px;" oninput="setEjercicio(${i},${j},'objetivo_texto',this.value)" />
+    <input placeholder="Objetivo para el niño (ej: Lleva a Candela hasta la estrella)" value="${esc(ej.objetivo_texto || '')}" style="margin-top:6px;" oninput="setEjercicio(${i},${j},'objetivo_texto',this.value)" />
     <textarea rows="2" placeholder="Explicación extra del ejercicio (opcional)" style="width:100%;margin-top:6px;" oninput="setEjercicio(${i},${j},'explicacion',this.value)">${esc(ej.explicacion || '')}</textarea>
+
+    ${renderCodeTablero(b, i, ej, j)}
+
     <div class="row2" style="grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px;">
-      <div><label>Ancho (columnas)</label><input type="number" min="3" max="12" value="${escen.ancho || 6}" oninput="setEscenario(${i},${j},'ancho',this.value)" /></div>
-      <div><label>Alto (filas)</label><input type="number" min="3" max="12" value="${escen.alto || 6}" oninput="setEscenario(${i},${j},'alto',this.value)" /></div>
+      <div><label>Columnas</label><input type="number" min="3" max="12" value="${escen.ancho || 6}" oninput="setEscenario(${i},${j},'ancho',this.value)" /></div>
+      <div><label>Filas</label><input type="number" min="3" max="12" value="${escen.alto || 6}" oninput="setEscenario(${i},${j},'alto',this.value)" /></div>
       <div><label>Máx. pasos</label><input type="number" min="1" max="40" value="${ej.objetivo ? (ej.objetivo.max_pasos || 5) : 5}" oninput="setObjetivo(${i},${j},'max_pasos',this.value)" /></div>
     </div>
-    <div class="row2" style="grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
-      <div>
-        <label>Inicio de Candela (x,y)</label>
-        <div class="row2" style="gap:8px;">
-          <input type="number" min="0" placeholder="X" value="${ej.inicio ? ej.inicio.x : 0}" oninput="setInicio(${i},${j},'x',this.value)" />
-          <input type="number" min="0" placeholder="Y" value="${ej.inicio ? ej.inicio.y : 0}" oninput="setInicio(${i},${j},'y',this.value)" />
-        </div>
-      </div>
-      <div>
-        <label>Estrella (x,y)</label>
-        <div class="row2" style="gap:8px;">
-          <input type="number" min="0" placeholder="X" value="${ej.objetivo && ej.objetivo.posicion ? ej.objetivo.posicion.x : 0}" oninput="setObjetivoPos(${i},${j},'x',this.value)" />
-          <input type="number" min="0" placeholder="Y" value="${ej.objetivo && ej.objetivo.posicion ? ej.objetivo.posicion.y : 0}" oninput="setObjetivoPos(${i},${j},'y',this.value)" />
-        </div>
-      </div>
-    </div>
+
     <div style="margin-top:8px;">
-      <label>Bloques permitidos</label>
+      <label>Bloques que puede usar el niño</label>
       <div class="seg" style="flex-wrap:wrap;gap:6px;">
         ${CODE_BLOQUES_EDITOR.map(cb => `
           <button type="button" class="chip-cat ${permitidos.includes(cb.op === 'girar_izq' ? 'girar' : cb.op) ? 'active' : ''}"
@@ -668,28 +723,103 @@ function renderCodeEjercicio(b, i, ej, j) {
             ${studioIconoSVG(cb.icono)} ${esc(cb.nombre)}
           </button>`).join('')}
       </div>
+      <p class="form-note" style="margin:4px 0 0;"><span class="material-symbols-rounded q-ico">lightbulb</span> Solo aparecerán en el juego los bloques que marques aquí.</p>
     </div>
-    <div style="margin-top:10px;">
-      <label>Obstáculos 🚧 (x,y)</label>
-      ${obst || '<p class="form-note" style="margin:2px 0;">Sin obstáculos.</p>'}
-      <button class="b-btn" type="button" onclick="anadirObstaculo(${i},${j})"><span class="material-symbols-rounded seg-ico">add</span> Obstáculo</button>
-    </div>
-    <div style="margin-top:10px;">
-      <label>Monedas 🪙 (x,y) — dan puntos verdes</label>
-      ${monedas || '<p class="form-note" style="margin:2px 0;">Sin monedas.</p>'}
-      <button class="b-btn" type="button" onclick="anadirMoneda(${i},${j})"><span class="material-symbols-rounded seg-ico">add</span> Moneda</button>
-    </div>
-    <div style="margin-top:10px;">
-      <label>Pistas 💡 (opcional)</label>
-      ${pistas || ''}
-      <button class="b-btn" type="button" onclick="anadirPista(${i},${j})"><span class="material-symbols-rounded seg-ico">add</span> Pista</button>
-    </div>
-    <div style="margin-top:10px;">
-      <label>Programa solución (opcional) — se imprime en la ficha PDF</label>
-      <input placeholder="Ej: avanzar, avanzar, girar izquierda, avanzar" value="${esc(ej.programa_solucion_texto || '')}" style="width:100%;margin-top:4px;" oninput="setProgramaSolucion(${i},${j},this.value)" />
-      <p class="form-note" style="margin:2px 0;">Escribe los bloques separados por comas (avanzar, retroceder, girar derecha/izquierda, saltar). Si lo dejas vacío, la ficha PDF lo calcula solo.</p>
-    </div>
+
+    <details class="code-avanzado" style="margin-top:10px;">
+      <summary><span class="material-symbols-rounded q-ico">tune</span> Opciones avanzadas (pistas y solución PDF)</summary>
+      <div style="margin-top:8px;">
+        <label>Pistas 💡 (opcional)</label>
+        ${pistas || ''}
+        <button class="b-btn" type="button" onclick="anadirPista(${i},${j})"><span class="material-symbols-rounded seg-ico">add</span> Pista</button>
+      </div>
+      <div style="margin-top:10px;">
+        <label>Programa solución (opcional) — se imprime en la ficha PDF</label>
+        <input placeholder="Ej: avanzar, avanzar, girar izquierda, avanzar" value="${esc(ej.programa_solucion_texto || '')}" style="width:100%;margin-top:4px;" oninput="setProgramaSolucion(${i},${j},this.value)" />
+        <p class="form-note" style="margin:2px 0;">Bloques separados por comas (avanzar, retroceder, girar derecha/izquierda, saltar). Si lo dejas vacío, la ficha PDF lo calcula solo.</p>
+      </div>
+    </details>
   </div>`;
+}
+
+// ── Editor visual del tablero (tocar casillas, sin coordenadas) ──────
+function renderCodeTablero(b, i, ej, j) {
+  const escen = ej.escenario || {};
+  const ancho = Math.max(3, Math.min(12, Number(escen.ancho) || 6));
+  const alto = Math.max(3, Math.min(12, Number(escen.alto) || 6));
+  const ini = ej.inicio || { x: 0, y: 0 };
+  const obj = (ej.objetivo && ej.objetivo.posicion) || { x: 1, y: 0 };
+  const herr = ej.herramienta || 'inicio';
+  const herrInfo = {
+    inicio: '👧 Inicio', estrella: '⭐ Estrella',
+    obstaculo: '🚧 Obstáculo', moneda: '🪙 Moneda', borrar: '🧹 Quitar'
+  };
+  let celdas = '';
+  for (let y = 0; y < alto; y++) {
+    for (let x = 0; x < ancho; x++) {
+      let cls = 'code-cell', emoji = '';
+      if (Number(ini.x) === x && Number(ini.y) === y) { cls += ' code-cell-inicio'; emoji = '👧'; }
+      else if (Number(obj.x) === x && Number(obj.y) === y) { cls += ' code-cell-estrella'; emoji = '⭐'; }
+      else if (codeEn(escen.obstaculos, x, y)) { cls += ' code-cell-obst'; emoji = '🚧'; }
+      else if (codeEn(escen.monedas, x, y)) { cls += ' code-cell-moned'; emoji = '🪙'; }
+      else if (herr === 'borrar') { cls += ' code-cell-borrar'; }
+      else { cls += ' code-cell-ghost'; emoji = { inicio: '👧', estrella: '⭐', obstaculo: '🚧', moneda: '🪙' }[herr] || ''; }
+      celdas += `<button type="button" class="${cls}" data-x="${x}" data-y="${y}" onclick="codeCelda(${i},${j},${x},${y})">${emoji}</button>`;
+    }
+  }
+  const toolsHtml = Object.keys(herrInfo).map(t =>
+    `<button type="button" class="code-tool ${herr === t ? 'active' : ''}" onclick="codeHerramienta(${i},${j},'${t}')">${herrInfo[t]}</button>`).join('');
+  const nObs = (escen.obstaculos || []).length;
+  const nMon = (escen.monedas || []).length;
+  return `
+    <div style="margin-top:10px;">
+      <label>Dibuja el tablero</label>
+      <p class="form-note" style="margin:2px 0 6px;"><span class="material-symbols-rounded q-ico">edit</span> Elige una herramienta y toca las casillas para colocar cada cosa.</p>
+      <div class="code-tools">${toolsHtml}</div>
+      <div class="code-grid" style="grid-template-columns:repeat(${ancho}, 1fr);">${celdas}</div>
+      <div class="code-grid-info">
+        <span>👧 ${ini.x},${ini.y}</span><span>⭐ ${obj.x},${obj.y}</span><span>🚧 ${nObs}</span><span>🪙 ${nMon}</span>
+        <button type="button" class="b-btn" onclick="codeLimpiar(${i},${j})"><span class="material-symbols-rounded seg-ico">delete_sweep</span> Quitar todo</button>
+      </div>
+    </div>`;
+}
+function codeEn(lista, x, y) { return (lista || []).some(e => Number(e.x) === x && Number(e.y) === y); }
+function codeHerramienta(i, j, herr) { bloques[i].ejercicios[j].herramienta = herr; render(); }
+function codeCelda(i, j, x, y) {
+  const ej = bloques[i].ejercicios[j];
+  const herr = ej.herramienta || 'inicio';
+  const escen = ej.escenario = ej.escenario || {};
+  escen.obstaculos = escen.obstaculos || [];
+  escen.monedas = escen.monedas || [];
+  const quita = (lista) => { for (let k = lista.length - 1; k >= 0; k--) if (Number(lista[k].x) === x && Number(lista[k].y) === y) lista.splice(k, 1); };
+  const ini = ej.inicio = ej.inicio || { x: 0, y: 0 };
+  if (herr === 'inicio') { ini.x = x; ini.y = y; quita(escen.obstaculos); quita(escen.monedas); }
+  else if (herr === 'estrella') {
+    ej.objetivo = ej.objetivo || {};
+    ej.objetivo.posicion = ej.objetivo.posicion || {};
+    ej.objetivo.posicion.x = x; ej.objetivo.posicion.y = y;
+    quita(escen.obstaculos); quita(escen.monedas);
+    // Autoajustar pasos máximos a la distancia (con margen)
+    const dist = Math.abs(x - ini.x) + Math.abs(y - ini.y);
+    const actual = Number(ej.objetivo.max_pasos) || 5;
+    if (dist >= actual) ej.objetivo.max_pasos = dist + 2;
+  }
+  else if (herr === 'obstaculo') {
+    if (codeEn(escen.obstaculos, x, y)) quita(escen.obstaculos);
+    else { quita(escen.monedas); escen.obstaculos.push({ x, y }); }
+  }
+  else if (herr === 'moneda') {
+    if (codeEn(escen.monedas, x, y)) quita(escen.monedas);
+    else { quita(escen.obstaculos); escen.monedas.push({ x, y }); }
+  }
+  else if (herr === 'borrar') { quita(escen.obstaculos); quita(escen.monedas); }
+  render();
+}
+function codeLimpiar(i, j) {
+  const ej = bloques[i].ejercicios[j];
+  ej.escenario = ej.escenario || {};
+  ej.escenario.obstaculos = []; ej.escenario.monedas = [];
+  render();
 }
 
 // Mutaciones de code_blocks (globales para los onclick)
@@ -952,9 +1082,18 @@ function verPreview() {
     } else if (b.tipo === 'calculo_mental') {
       (b.sumas || []).forEach((s, si) => {
         const a = Number(s.a) || 0, bb = Number(s.b) || 0;
-        const correcta = a + bb;
+        const op = operacionDe(s, b);
+        const correcta = calcularResultado(a, bb, op);
         const opciones = b.modo === 'opciones' ? generarOpcionesCalculo(correcta) : [];
-        pantallas.push({ tipo: 'calculo', bi, si, n: (b.sumas || []).length });
+        pantallas.push({ tipo: 'calculo', bi, si, n: (b.sumas || []).length, op, vertical: !!b.vertical, llevadas: b.llevadas !== false });
+        kpEstado.push({ respondida: false, sel: null, acierto: null, opciones, correcta });
+      });
+    } else if (b.tipo === 'problemas') {
+      const probs = (b.problemas || []).filter(p => String(p.enunciado || '').trim() || String(p.frase || '').trim());
+      probs.forEach((p, pi) => {
+        const correcta = Number(p.respuesta) || 0;
+        const opciones = b.modo === 'opciones' ? generarOpcionesCalculo(correcta) : [];
+        pantallas.push({ tipo: 'problema', bi, pi, n: probs.length });
         kpEstado.push({ respondida: false, sel: null, acierto: null, opciones, correcta });
       });
     } else if (b.tipo === 'mapa_mundi') {
@@ -1015,6 +1154,50 @@ function generarOpcionesCalculo(correcta) {
   return shuffleArr(arr);
 }
 
+// ── Operaciones matemáticas (suma, resta, multiplicación, división) ─
+function opSimbolo(op) { return ({ suma: '+', resta: '−', multiplicacion: '×', division: '÷' })[op] || '+'; }
+function operacionDe(s, b) { return (s && s.op) || (b && b.operacion) || 'suma'; }
+function calcularResultado(a, b, op) {
+  a = Number(a) || 0; b = Number(b) || 0;
+  if (op === 'resta') return a - b;
+  if (op === 'multiplicacion') return a * b;
+  if (op === 'division') return b === 0 ? 0 : a / b;
+  return a + b;
+}
+function verticalOperacionHTML(a, b, op, conLlevadas) {
+  const nA = Number(a), nB = Number(b);
+  if (isNaN(nA) || isNaN(nB) || nA < 0 || nB < 0 || !Number.isInteger(nA) || !Number.isInteger(nB)) return null;
+  const signo = opSimbolo(op);
+  const A = String(nA).split(''), B = String(nB).split('');
+  const maxLen = Math.max(A.length, B.length);
+  const total = maxLen + 1;
+  const pad = (arr) => { const out = []; for (let i = 0; i < total - arr.length; i++) out.push(''); return out.concat(arr); };
+  const cA = pad(A);
+  const cB = pad(B);
+  cB[total - 1 - B.length] = signo;
+  const cCarry = new Array(total).fill('');
+  if (op === 'suma' && conLlevadas) {
+    let carry = 0;
+    for (let k = 0; k < maxLen; k++) {
+      const ia = A.length - 1 - k, ib = B.length - 1 - k;
+      const va = ia >= 0 ? Number(A[ia]) : 0, vb = ib >= 0 ? Number(B[ib]) : 0;
+      const sum = va + vb + carry;
+      carry = Math.floor(sum / 10);
+      if (carry > 0 && k + 1 < maxLen) cCarry[total - 2 - k] = String(carry);
+    }
+  }
+  const fila = (cells, cls) => `<div class="kp-vrow ${cls || ''}">${cells.map(c => `<span class="kp-vcell ${cls || ''}">${c === '' ? '' : c}</span>`).join('')}</div>`;
+  let html = '<div class="kp-vertical">';
+  if (cCarry.some(c => c !== '')) html += fila(cCarry, 'kp-vcarry');
+  html += fila(cA, '');
+  html += fila(cB, '');
+  let line = '<div class="kp-vrow">';
+  for (let i = 0; i < total; i++) line += `<span class="kp-vcell ${i === 0 ? 'kp-vblank' : 'kp-vline'}"></span>`;
+  line += '</div>';
+  html += line + '</div>';
+  return html;
+}
+
 function renderPantalla() {
   const s = pantallas[pantallaIdx];
   const est = kpEstado[pantallaIdx] || {};
@@ -1027,6 +1210,7 @@ function renderPantalla() {
   else if (s.tipo === 'ordenar') cuerpo = screenOrdenar(s, est);
   else if (s.tipo === 'completar') cuerpo = screenCompletar(s, est);
   else if (s.tipo === 'calculo') cuerpo = screenCalculo(s, est);
+  else if (s.tipo === 'problema') cuerpo = screenProblema(s, est);
   else if (s.tipo === 'mapa') cuerpo = screenMapa(s, est);
   else if (s.tipo === 'code') cuerpo = screenCodePreview(s, est);
   else if (s.tipo === 'code_explica') cuerpo = screenCodeExplicaPreview(s);
@@ -1052,12 +1236,15 @@ function screenCalculo(s, est) {
   const b = bloques[s.bi];
   const suma = (b.sumas || [])[s.si] || { a: 0, b: 0 };
   const a = Number(suma.a) || 0, bb = Number(suma.b) || 0;
+  const op = operacionDe(suma, b);
   const totalSeg = Math.max(1, Number(b.segundos) || 10);
+  const vertical = (s.vertical && (op === 'suma' || op === 'resta')) ? verticalOperacionHTML(a, bb, op, s.llevadas !== false) : null;
+  const calcCuerpo = vertical || `<div class="kp-calc">${numTile(a)} <span class="kp-calc-op">${opSimbolo(op)}</span> ${numTile(bb)} <span class="kp-calc-op">=</span> <span class="kp-calc-q">?</span></div>`;
   let html = `<div class="kp-screen kp-calc-screen">
     <div class="kp-qt">🧮 Cálculo mental · ${s.si + 1} / ${s.n || 1}</div>
     <div class="kp-calc-timer"><span class="kp-timer" data-timer="${totalSeg}">⏱️ ${totalSeg}s</span>
       <div class="kp-timer-track"><div class="kp-timer-bar" style="width:100%"></div></div></div>
-    <div class="kp-calc">${numTile(a)} <span class="kp-calc-op">+</span> ${numTile(bb)} <span class="kp-calc-op">=</span> <span class="kp-calc-q">?</span></div>`;
+    ${calcCuerpo}`;
   if (est.respondida) {
     html += `<div class="kp-msg ${est.acierto ? 'ok' : 'bad'}">${est.acierto ? '¡Muy bien! 🎉' : 'La respuesta era: ' + est.correcta + ' 💪'}</div>`;
   } else if (b.modo === 'escribir') {
@@ -1116,6 +1303,59 @@ function kpTimeoutCalculo(idx) {
     if (window.pjSonido) pjSonido.error();
     renderPantalla();
   }
+}
+function screenProblema(s, est) {
+  const b = bloques[s.bi];
+  const p = (b.problemas || [])[s.pi] || {};
+  const enunciado = String(p.enunciado || '').trim();
+  const frase = String(p.frase || p.pregunta || '').trim();
+  const fraseHtml = frase
+    ? `<div class="kp-problema-pregunta">${esc(frase).replace(/___/g, '<span class="kp-hueco">___</span>')}</div>`
+    : `<div class="kp-problema-pregunta">¿Cuánto es?</div>`;
+  let html = `<div class="kp-screen">
+    <div class="kp-qt">📝 Problemas · ${s.pi + 1} / ${s.n || 1}</div>
+    <div class="kp-problema-card">
+      <div class="kp-problema-texto">${esc(enunciado)}</div>
+      ${fraseHtml}
+    </div>`;
+  const ops = (p.operaciones || []).filter(o => o && (o.a != null || o.b != null));
+  if (ops.length) {
+    html += `<div class="kp-operaciones"><div class="kp-operaciones-titulo">✏️ Resuelve en vertical</div>`;
+    ops.forEach(o => {
+      const v = verticalOperacionHTML(o.a, o.b, o.op || 'suma', true);
+      if (v) html += v;
+    });
+    html += `</div>`;
+  }
+  if (est.respondida) {
+    html += `<div class="kp-msg ${est.acierto ? 'ok' : 'bad'}">${est.acierto ? '¡Muy bien! 🎉' : 'La respuesta era: ' + est.correcta + ' 💪'}</div>`;
+  } else if (b.modo === 'opciones') {
+    html += `<div class="kp-opts">${(est.opciones || []).map((o, k) => `
+      <div class="kp-opt" onclick="kpResponderProblema(${pantallaIdx},${k})"><span class="kp-letra">${'ABC'[k]}</span>${o}</div>`).join('')}</div>`;
+  } else {
+    html += `<div class="kp-input-row">
+      <input id="kp-problema-input" type="number" inputmode="numeric" placeholder="Tu respuesta"
+        onkeydown="if(event.key==='Enter')kpResponderProblema(${pantallaIdx})" />
+      <button class="kp-btn" onclick="kpResponderProblema(${pantallaIdx})">Comprobar</button>
+    </div>`;
+  }
+  html += `<div class="kp-hint">📖 Lee con calma, calcula y completa la frase con el resultado.</div></div>`;
+  return html;
+}
+function kpResponderProblema(idx, k) {
+  const s = pantallas[idx], est = kpEstado[idx];
+  if (!est || est.respondida) return;
+  let ok;
+  if ((bloques[s.bi] || {}).modo === 'opciones') {
+    ok = (est.opciones || [])[k] === est.correcta;
+  } else {
+    const v = parseFloat(document.getElementById('kp-problema-input')?.value);
+    if (isNaN(v)) return;
+    ok = Math.abs(v - est.correcta) < 0.001;
+  }
+  est.respondida = true; est.acierto = ok;
+  if (ok) kpScore.verdes++; else kpScore.rojos++;
+  renderPantalla();
 }
 
 function screenTexto(s, est) {
@@ -1906,6 +2146,7 @@ function contarPreguntas() {
     else if (b.tipo === 'ordenar') n += b.items.filter(Boolean).length;
     else if (b.tipo === 'completar') n += b.frases.filter(f => f.texto && f.respuesta).length;
     else if (b.tipo === 'calculo_mental') n += b.sumas.filter(s => s.a !== '' && s.b !== '').length;
+    else if (b.tipo === 'problemas') n += (b.problemas || []).filter(p => p.enunciado && p.respuesta !== '' && p.respuesta != null).length;
     else if (b.tipo === 'mapa_mundi') n += (b.paises || []).filter(p => p && window.MAPA_MUNDI && MAPA_MUNDI.paises[p]).length;
     else if (b.tipo === 'code_blocks') n += (b.ejercicios || []).filter(e => e.objetivo && e.objetivo.posicion).length;
   }

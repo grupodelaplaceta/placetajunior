@@ -493,7 +493,12 @@ async function descargarPdf(id) {
       cuerpo += '</div>';
     } else if (b.tipo === 'calculo_mental' && b.sumas && b.sumas.length) {
       cuerpo += '<div class="ws-sec"><h4>Cálculo mental</h4>' + wsImg(b.imagen_url, b.fuente);
-      b.sumas.forEach((s2, k) => { cuerpo += '<div class="ws-line"><span class="ws-n">' + (k + 1) + '.</span> ' + (Number(s2.a) || 0) + ' + ' + (Number(s2.b) || 0) + ' = ______</div>'; });
+      const ops = { suma: '+', resta: '−', multiplicacion: '×', division: '÷' };
+      b.sumas.forEach((s2, k) => { const op = ops[s2.op || b.operacion || 'suma'] || '+'; cuerpo += '<div class="ws-line"><span class="ws-n">' + (k + 1) + '.</span> ' + (Number(s2.a) || 0) + ' ' + op + ' ' + (Number(s2.b) || 0) + ' = ______</div>'; });
+      cuerpo += '</div>';
+    } else if (b.tipo === 'problemas' && b.problemas && b.problemas.length) {
+      cuerpo += '<div class="ws-sec"><h4>Problemas</h4>' + wsImg(b.imagen_url, b.fuente);
+      b.problemas.forEach((p, k) => { cuerpo += '<div class="ws-line"><span class="ws-n">' + (k + 1) + '.</span> ' + esc(p.enunciado || '') + '</div><div class="ws-line" style="margin-left:12px;">' + esc((p.frase || 'Resultado: ___').replace(/___/g, '______')) + '</div>'; });
       cuerpo += '</div>';
     } else if (b.tipo === 'mapa_mundi' && b.paises && b.paises.length) {
       const recon = (b.paises || []).map(p => String(p).trim()).filter(Boolean).filter(p => window.MAPA_MUNDI && MAPA_MUNDI.paises[p]);

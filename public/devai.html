@@ -98,7 +98,8 @@
       { "tipo": "ordenar", "items": ["Paso 1","Paso 2","Paso 3"] },
       { "tipo": "completar", "modo": "opciones", "frases": [ { "texto": "La frase con ___", "respuesta": "perro", "opciones": ["gato","pájaro"] } ] },
       { "tipo": "completar", "modo": "escribir", "frases": [ { "texto": "La frase con ___", "respuesta": "palabra" } ] },
-      { "tipo": "calculo_mental", "sumas": [ { "a": 3, "b": 5 } ], "segundos": 10, "modo": "opciones" },
+      { "tipo": "calculo_mental", "operacion": "suma", "vertical": false, "llevadas": true, "sumas": [ { "a": 3, "b": 5, "op": "suma" } ], "segundos": 10, "modo": "opciones" },
+      { "tipo": "problemas", "modo": "escribir", "problemas": [ { "enunciado": "María tiene 5 manzanas, compra 3 más y regala 2.", "frase": "Al final le quedan ___ manzanas.", "respuesta": 6, "operaciones": [ { "a": 5, "b": 3, "op": "suma" }, { "a": 8, "b": 2, "op": "resta" } ] } ] },
       { "tipo": "mapa_mundi", "paises": ["España", "Francia", "Italia", "Portugal"] },
       { "tipo": "code_blocks", "titulo": "Haz llegar a Candela a la estrella", "lenguaje": "placeta_blocks", "objetivo_texto": "Programa a Candela para llegar a la estrella", "ejercicios": [ { "titulo": "Avanza 1 casilla", "explicacion": "Pulsa el bloque AVANZAR una vez.", "objetivo_texto": "Lleva a Candela hasta la estrella (1,0).", "bloques_permitidos": ["avanzar"], "escenario": { "tipo": "cuadricula", "ancho": 6, "alto": 6, "obstaculos": [], "monedas": [] }, "inicio": { "x": 0, "y": 0, "direccion": "derecha" }, "objetivo": { "posicion": { "x": 1, "y": 0 }, "max_pasos": 4 }, "pistas": ["Añade 1 bloque AVANZAR."] }, { "titulo": "Esquiva la roca", "explicacion": "Ahora hay una roca. Usa GIRAR para esquivarla.", "objetivo_texto": "Lleva a Candela hasta la estrella (3,1).", "bloques_permitidos": ["avanzar", "girar"], "escenario": { "tipo": "cuadricula", "ancho": 6, "alto": 6, "obstaculos": [{"x": 2, "y": 0}], "monedas": [] }, "inicio": { "x": 0, "y": 0, "direccion": "derecha" }, "objetivo": { "posicion": { "x": 3, "y": 1 }, "max_pasos": 10 }, "pistas": ["Avanza, gira, pasa y vuelve."] } ] }
     ]
@@ -115,6 +116,8 @@ Reglas:
 - CODE_BLOCKS (Placeta Junior Code): crea una lista `ejercicios` con 3-5 retos progresivos (del más fácil al más difícil). Cada ejercicio tiene: `titulo`, `explicacion` (frase corta explicando qué hacer), `objetivo_texto`, `bloques_permitidos` (solo los necesarios para ese ejercicio: avanzar, retroceder, girar, saltar, repetir, si), `escenario` de cuadrícula (ancho/alto, obstáculos y monedas), `inicio` (x,y,direccion de Candela) y `objetivo` (posicion x,y, opcionalmente monedas/max_pasos/debe_usar) y `pistas`. El objetivo siempre es llevar a Candela (👧) a la estrella (⭐) sin chocar. Empieza con ejercicios muy sencillos (solo AVANZAR) y añade GIRAR, luego obstáculos, REPETIR y SI poco a poco.
 - En completar, usa palabras en SINGULAR y, en modo opciones, escribe "opciones" (distractores).
 - En mapa_mundi, usa solo países conocidos (España, Francia, Italia, Portugal, Reino Unido, Alemania, Egipto, Brasil, México, Estados Unidos, Canadá, China, India, Japón, Australia…).
+- En calculo_mental, "operacion" puede ser "suma", "resta", "multiplicacion" o "division" (cada "suma" puede sobrescribirla con su propio "op"). "vertical": true muestra la cuenta en vertical (suma/resta) y, en las sumas, "llevadas": true pinta las llevadas encima de cada columna.
+- En problemas, el "enunciado" puede describir varias operaciones seguidas (varios pasos); "frase" es la frase final con ___ que el niño completa con el resultado numérico de "respuesta". Opcionalmente, en "operaciones" lista cada paso como { "a": número, "b": número, "op": "suma|resta|multiplicacion|division" } para que el niño las vea y resuelva EN VERTICAL.
 - Escribe en español, adáptalo a la edad indicada y numera bien los bloques.
 - IMPORTANTE: devuelve solo el JSON, sin texto ni comillas de código.</textarea>
       <div class="row" style="margin-top:10px;">
@@ -194,6 +197,7 @@ Reglas:
       const paresEmp = [];
       const paresEsc = [];
       const frases = [];
+      const problemas = [];
       let explicaciones = [];
       let enExplicacion = false;
       let relTipo = null;
@@ -201,7 +205,7 @@ Reglas:
       for (const l of lineas) {
         const lower = l.toLowerCase();
         // Saltar encabezados de sección ("Preguntas:", "Relaciona:", "Ordena:"...)
-        const encabezados = ['preguntas', 'pregunta', 'relaciona', 'relacionar', 'relaciones', 'completa', 'completar', 'ordena', 'ordenar', 'parejas', 'pareja', 'escribe', 'escribir', 'calcula', 'calculo', 'cálculo', 'reto', 'retos', 'palabras', 'pistas'];
+        const encabezados = ['preguntas', 'pregunta', 'relaciona', 'relacionar', 'relaciones', 'completa', 'completar', 'ordena', 'ordenar', 'parejas', 'pareja', 'escribe', 'escribir', 'calcula', 'calculo', 'cálculo', 'reto', 'retos', 'palabras', 'pistas', 'problemas', 'problema'];
         if (encabezados.includes(lower.replace(/[:.]+$/, '').trim()) || (l.endsWith(':') && l.length < 30)) continue;
         if (lower.startsWith('actividad') || lower.startsWith('título') || lower.startsWith('titulo')) {
           const t = l.split(/[:–-]/).slice(1).join(':').trim();
@@ -227,6 +231,12 @@ Reglas:
           const textoF = partes[0] || l;
           const resp = partes[1] || '';
           if (resp) frases.push({ texto: textoF, respuesta: resp });
+          continue;
+        }
+        // Problema matemático: "enunciado => resultado" (la historia puede tener varios pasos)
+        if (l.includes('=>')) {
+          const [a, b] = l.split('=>').map(s => s.trim());
+          if (a && b !== '' && !isNaN(Number(b))) { problemas.push({ enunciado: a, frase: '', respuesta: Number(b) }); }
           continue;
         }
         // Relacionar: con -> o → o =
@@ -261,6 +271,7 @@ Reglas:
       if (paresEmp.length) bloques.push({ tipo: 'relacionar', titulo: 'Relaciona', modo: 'emparejar', pares: paresEmp });
       if (paresEsc.length) bloques.push({ tipo: 'relacionar', titulo: 'Escribe la palabra', modo: 'escribir', pares: paresEsc });
       if (frases.length) bloques.push({ tipo: 'completar', titulo: 'Completa', frases });
+      if (problemas.length) bloques.push({ tipo: 'problemas', titulo: 'Problemas', modo: 'escribir', problemas });
 
       if (!bloques.length) { aviso('No pude detectar bloques. Usa preguntas con "?" o parejas con "->".', true); return; }
 
@@ -318,7 +329,14 @@ Reglas:
         } else if (b.tipo === 'completar' && Array.isArray(b.frases)) {
           b.frases.forEach(f => { html += '<div style="margin-left:8px;">✏️ ' + esc(f.texto) + ' <b>[' + esc(f.respuesta) + ']</b></div>'; });
         } else if (b.tipo === 'calculo_mental' && Array.isArray(b.sumas)) {
-          b.sumas.forEach(s => { html += '<div style="margin-left:8px;">🧮 ' + esc(s.a) + ' + ' + esc(s.b) + ' = ?</div>'; });
+          const ops = { suma: '+', resta: '−', multiplicacion: '×', division: '÷' };
+          b.sumas.forEach(s => { const op = ops[s.op || b.operacion || 'suma'] || '+'; html += '<div style="margin-left:8px;">🧮 ' + esc(s.a) + ' ' + op + ' ' + esc(s.b) + ' = ?' + (b.vertical ? ' · vertical' : '') + '</div>'; });
+        } else if (b.tipo === 'problemas' && Array.isArray(b.problemas)) {
+          const opsSym = { suma: '+', resta: '−', multiplicacion: '×', division: '÷' };
+          b.problemas.forEach(p => {
+            html += '<div style="margin-left:8px;">📝 ' + esc(p.enunciado) + '</div><div style="margin-left:14px;color:var(--pj-purple);"><b>' + esc(p.frase || 'Resultado: ___') + '</b> → ' + esc(p.respuesta) + '</div>';
+            (p.operaciones || []).forEach(o => { html += '<div style="margin-left:22px;color:var(--pj-gray-500);">▸ ' + esc(o.a) + ' ' + (opsSym[o.op] || '+') + ' ' + esc(o.b) + ' (vertical)</div>'; });
+          });
         } else if (b.tipo === 'mapa_mundi' && Array.isArray(b.paises)) {
           html += '<div style="margin-left:8px;">🌍 Localiza en el mapamundi: ' + b.paises.map(esc).join(', ') + '</div>';
         } else {
@@ -340,6 +358,7 @@ Reglas:
         else if (b.tipo === 'ordenar') n += (b.items || []).filter(Boolean).length;
         else if (b.tipo === 'completar') n += (b.frases || []).filter(f => f.texto && f.respuesta).length;
         else if (b.tipo === 'calculo_mental') n += (b.sumas || []).filter(s => s.a !== '' && s.b !== '').length;
+        else if (b.tipo === 'problemas') n += (b.problemas || []).filter(p => p.enunciado && p.respuesta !== '' && p.respuesta != null).length;
         else if (b.tipo === 'mapa_mundi') n += (b.paises || []).filter(p => p && window.MAPA_MUNDI && MAPA_MUNDI.paises[p]).length;
         else if (b.tipo === 'code_blocks') n += ((b.ejercicios && b.ejercicios.length) || (b.objetivo && b.objetivo.posicion ? 1 : 0));
       }

@@ -1740,3 +1740,55 @@ h1, h2, h3, h4, h5,
   color: var(--pj-gray-600);
 }
 .code-avanzado summary:hover { color: var(--pj-purple); }
+
+/* ═══ Matemáticas: operaciones en vertical con llevadas + problemas ═══ */
+.kp-vertical {
+  display: inline-flex;
+  flex-direction: column;
+  margin: 10px auto 12px;
+  background: #fff;
+  border: 3px solid var(--pj-purple, #3F00D8);
+  border-radius: 20px;
+  padding: 14px 18px;
+  box-shadow: 0 10px 22px rgba(63, 0, 216, .14);
+}
+.kp-vrow { display: flex; justify-content: flex-end; }
+.kp-vcell {
+  width: 46px; height: 56px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: 'HandlyCasual', 'Comic Sans MS', cursive;
+  font-size: 40px; font-weight: 800; color: var(--pj-purple, #3F00D8);
+  line-height: 1;
+}
+.kp-vcell.kp-vcarry { height: 30px; font-size: 22px; color: var(--pj-red, #FF1744); }
+.kp-vcell.kp-vline { border-top: 3px solid var(--pj-purple, #3F00D8); border-radius: 0; }
+.kp-vcell.kp-vblank { border-top: none; }
+.kp-problema-card {
+  max-width: 520px; margin: 4px auto 10px;
+  background: #fff; border: 3px solid var(--pj-purple, #3F00D8);
+  border-radius: 20px; padding: 18px 20px; text-align: left;
+  box-shadow: 0 10px 22px rgba(63, 0, 216, .12);
+}
+.kp-problema-texto {
+  font-family: 'HandlyCasual', 'Comic Sans MS', cursive;
+  font-size: 22px; font-weight: 800; color: #27272a; line-height: 1.35;
+}
+.kp-problema-pregunta {
+  font-family: 'HandlyCasual', 'Comic Sans MS', cursive;
+  font-size: 21px; color: var(--pj-purple, #3F00D8); font-weight: 800; margin-top: 8px;
+}
+.kp-hueco {
+  display: inline-block; min-width: 46px; margin: 0 2px;
+  border-bottom: 3px dashed var(--pj-orange, #FF6D00);
+  color: var(--pj-orange, #FF6D00);
+  font-weight: 800; text-align: center;
+}
+.kp-operaciones { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 12px auto 2px; max-width: 560px; }
+.kp-operaciones-titulo { flex-basis: 100%; font-family: 'HandlyCasual', 'Comic Sans MS', cursive; font-size: 15px; font-weight: 800; color: #6B7280; text-align: center; }
+@media (max-width: 480px) {
+  .kp-vcell { width: 34px; height: 46px; font-size: 30px; }
+  .kp-vcell.kp-vcarry { height: 24px; font-size: 18px; }
+  .kp-vertical { padding: 10px 12px; }
+  .kp-problema-texto { font-size: 19px; }
+  .kp-problema-pregunta { font-size: 18px; }
+}

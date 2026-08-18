@@ -174,9 +174,18 @@ function abrirJuego(act) {
       } else if (b.tipo === 'calculo_mental') {
         (b.sumas || []).forEach((s, si) => {
           const a = Number(s.a) || 0, bb = Number(s.b) || 0;
-          const correcta = a + bb;
+          const op = operacionDe(s, b);
+          const correcta = calcularResultado(a, bb, op);
           const opciones = b.modo === 'opciones' ? generarOpcionesCalculo(correcta) : [];
-          pantallas.push({ tipo: 'calculo', bi, si, n: (b.sumas || []).length });
+          pantallas.push({ tipo: 'calculo', bi, si, n: (b.sumas || []).length, op, vertical: !!b.vertical, llevadas: b.llevadas !== false });
+          kpEstado.push({ respondida: false, sel: null, acierto: null, opciones, correcta });
+        });
+      } else if (b.tipo === 'problemas') {
+        const probs = (b.problemas || []).filter(p => String(p.enunciado || '').trim() || String(p.frase || '').trim());
+        probs.forEach((p, pi) => {
+          const correcta = Number(p.respuesta) || 0;
+          const opciones = b.modo === 'opciones' ? generarOpcionesCalculo(correcta) : [];
+          pantallas.push({ tipo: 'problema', bi, pi, n: probs.length });
           kpEstado.push({ respondida: false, sel: null, acierto: null, opciones, correcta });
         });
       } else if (b.tipo === 'mapa_mundi') {
@@ -237,6 +246,51 @@ function generarOpcionesCalculo(correcta) {
   return shuffleArr(arr);
 }
 
+// ── Operaciones matemáticas (suma, resta, multiplicación, división) ─
+function opSimbolo(op) { return ({ suma: '+', resta: '−', multiplicacion: '×', division: '÷' })[op] || '+'; }
+function operacionDe(s, b) { return (s && s.op) || (b && b.operacion) || 'suma'; }
+function calcularResultado(a, b, op) {
+  a = Number(a) || 0; b = Number(b) || 0;
+  if (op === 'resta') return a - b;
+  if (op === 'multiplicacion') return a * b;
+  if (op === 'division') return b === 0 ? 0 : a / b;
+  return a + b;
+}
+// Coloca una suma o resta en vertical, con las llevadas pintadas encima (solo suma)
+function verticalOperacionHTML(a, b, op, conLlevadas) {
+  const nA = Number(a), nB = Number(b);
+  if (isNaN(nA) || isNaN(nB) || nA < 0 || nB < 0 || !Number.isInteger(nA) || !Number.isInteger(nB)) return null;
+  const signo = opSimbolo(op);
+  const A = String(nA).split(''), B = String(nB).split('');
+  const maxLen = Math.max(A.length, B.length);
+  const total = maxLen + 1;
+  const pad = (arr) => { const out = []; for (let i = 0; i < total - arr.length; i++) out.push(''); return out.concat(arr); };
+  const cA = pad(A);
+  const cB = pad(B);
+  cB[total - 1 - B.length] = signo;
+  const cCarry = new Array(total).fill('');
+  if (op === 'suma' && conLlevadas) {
+    let carry = 0;
+    for (let k = 0; k < maxLen; k++) {
+      const ia = A.length - 1 - k, ib = B.length - 1 - k;
+      const va = ia >= 0 ? Number(A[ia]) : 0, vb = ib >= 0 ? Number(B[ib]) : 0;
+      const sum = va + vb + carry;
+      carry = Math.floor(sum / 10);
+      if (carry > 0 && k + 1 < maxLen) cCarry[total - 2 - k] = String(carry);
+    }
+  }
+  const fila = (cells, cls) => `<div class="kp-vrow ${cls || ''}">${cells.map(c => `<span class="kp-vcell ${cls || ''}">${c === '' ? '' : c}</span>`).join('')}</div>`;
+  let html = '<div class="kp-vertical">';
+  if (cCarry.some(c => c !== '')) html += fila(cCarry, 'kp-vcarry');
+  html += fila(cA, '');
+  html += fila(cB, '');
+  let line = '<div class="kp-vrow">';
+  for (let i = 0; i < total; i++) line += `<span class="kp-vcell ${i === 0 ? 'kp-vblank' : 'kp-vline'}"></span>`;
+  line += '</div>';
+  html += line + '</div>';
+  return html;
+}
+
 function renderPantalla() {
   const s = pantallas[pantallaIdx];
   const est = kpEstado[pantallaIdx] || {};
@@ -250,6 +304,7 @@ function renderPantalla() {
   else if (s.tipo === 'ordenar') cuerpo = screenOrdenar(s, est);
   else if (s.tipo === 'completar') cuerpo = screenCompletar(s, est);
   else if (s.tipo === 'calculo') cuerpo = screenCalculo(s, est);
+  else if (s.tipo === 'problema') cuerpo = screenProblema(s, est);
   else if (s.tipo === 'mapa') cuerpo = screenMapa(s, est);
   else if (s.tipo === 'code') cuerpo = screenCode(s, est);
   else if (s.tipo === 'code_explica') cuerpo = screenCodeExplica(s);
@@ -263,6 +318,7 @@ function renderPantalla() {
   let etiqueta;
   if (s.tipo === 'test') etiqueta = 'Pregunta ' + (s.pi + 1) + ' de ' + s.nPreg;
   else if (s.tipo === 'calculo') etiqueta = 'Cálculo ' + (s.si + 1) + ' de ' + s.n;
+  else if (s.tipo === 'problema') etiqueta = 'Problema ' + (s.pi + 1) + ' de ' + s.n;
   else if (s.tipo === 'code') etiqueta = 'Ejercicio ' + (s.ejercicio + 1) + ' de ' + s.total_ejercicios;
   else if (s.tipo === 'code_explica') etiqueta = '¿Cómo se juega?';
   else if (s.tipo === 'final') etiqueta = '¡Resultado!';
@@ -350,7 +406,8 @@ function textoPantallaWeb(s) {
   if (s.tipo === 'relacionar') return 'Relaciona las parejas';
   if (s.tipo === 'ordenar') return 'Ordena los elementos';
   if (s.tipo === 'completar') return 'Completa las frases';
-  if (s.tipo === 'calculo') return 'Calcula';
+  if (s.tipo === 'calculo') { const b = bloquesJuego[s.bi]; const su = (b.sumas || [])[s.si] || {}; return 'Calcula: ' + (Number(su.a) || 0) + ' ' + opSimbolo(operacionDe(su, b)) + ' ' + (Number(su.b) || 0); }
+  if (s.tipo === 'problema') { const b = bloquesJuego[s.bi]; const p = (b.problemas || [])[s.pi] || {}; return 'Problema. ' + (p.enunciado || '') + ' ' + (p.frase || p.pregunta || '¿Cuánto es?'); }
   if (s.tipo === 'mapa') return 'Localiza en el mapamundi: ' + (s.pide || '');
   if (s.tipo === 'code') return 'Placeta Junior Code. Ejercicio ' + ((s.ejercicio || 0) + 1) + '. ' + (s.objetivo_texto || 'Lleva a Candela hasta la estrella.');
   if (s.tipo === 'code_explica') return 'Placeta Junior Code. ' + (s.explicacion || 'Pulsa los bloques para programar a Candela.');
@@ -372,12 +429,15 @@ function screenCalculo(s, est) {
   const b = bloquesJuego[s.bi];
   const suma = (b.sumas || [])[s.si] || { a: 0, b: 0 };
   const a = Number(suma.a) || 0, bb = Number(suma.b) || 0;
+  const op = operacionDe(suma, b);
   const totalSeg = Math.max(1, Number(b.segundos) || 10);
+  const vertical = (s.vertical && (op === 'suma' || op === 'resta')) ? verticalOperacionHTML(a, bb, op, s.llevadas !== false) : null;
+  const calcCuerpo = vertical || `<div class="kp-calc">${numTile(a)} <span class="kp-calc-op">${opSimbolo(op)}</span> ${numTile(bb)} <span class="kp-calc-op">=</span> <span class="kp-calc-q">?</span></div>`;
   let html = `<div class="kp-screen kp-calc-screen">
     <div class="kp-qt">🧮 Cálculo mental · ${s.si + 1} / ${s.n || 1}</div>
     <div class="kp-calc-timer"><span class="kp-timer" data-timer="${totalSeg}">⏱️ ${totalSeg}s</span>
       <div class="kp-timer-track"><div class="kp-timer-bar" style="width:100%"></div></div></div>
-    <div class="kp-calc">${numTile(a)} <span class="kp-calc-op">+</span> ${numTile(bb)} <span class="kp-calc-op">=</span> <span class="kp-calc-q">?</span></div>`;
+    ${calcCuerpo}`;
   if (est.respondida) {
     html += `<div class="kp-msg ${est.acierto ? 'ok' : 'bad'}">${est.acierto ? '¡Muy bien! 🎉' : 'La respuesta era: ' + est.correcta + ' 💪'}</div>`;
   } else if (b.modo === 'escribir') {
@@ -417,9 +477,9 @@ function kpResponderCalculo(idx, k) {
   if (!est || est.respondida) return;
   let ok;
   if ((bloquesJuego[s.bi] || {}).modo === 'escribir') {
-    const v = parseInt(document.getElementById('kp-calc-input')?.value, 10);
+    const v = parseFloat(document.getElementById('kp-calc-input')?.value);
     if (isNaN(v)) return;
-    ok = v === est.correcta;
+    ok = Math.abs(v - est.correcta) < 0.001;
   } else {
     ok = (est.opciones || [])[k] === est.correcta;
   }
@@ -431,6 +491,64 @@ function kpResponderCalculo(idx, k) {
   mostrarFeedback(ok, 'La respuesta era ' + est.correcta, avanzarCalculo);
   clearTimeout(calcAutoTimer);
   calcAutoTimer = setTimeout(avanzarCalculo, 1400);
+}
+function screenProblema(s, est) {
+  const b = bloquesJuego[s.bi];
+  const p = (b.problemas || [])[s.pi] || {};
+  const enunciado = String(p.enunciado || '').trim();
+  const frase = String(p.frase || p.pregunta || '').trim();
+  const fraseHtml = frase
+    ? `<div class="kp-problema-pregunta">${esc(frase).replace(/___/g, '<span class="kp-hueco">___</span>')}</div>`
+    : `<div class="kp-problema-pregunta">¿Cuánto es?</div>`;
+  let html = `<div class="kp-screen">
+    <div class="kp-qt">📝 Problemas · ${s.pi + 1} / ${s.n || 1}</div>
+    <div class="kp-problema-card">
+      <div class="kp-problema-texto">${esc(enunciado)}</div>
+      ${fraseHtml}
+    </div>`;
+  const ops = (p.operaciones || []).filter(o => o && (o.a != null || o.b != null));
+  if (ops.length) {
+    html += `<div class="kp-operaciones"><div class="kp-operaciones-titulo">✏️ Resuelve en vertical</div>`;
+    ops.forEach(o => {
+      const v = verticalOperacionHTML(o.a, o.b, o.op || 'suma', true);
+      if (v) html += v;
+    });
+    html += `</div>`;
+  }
+  if (est.respondida) {
+    html += `<div class="kp-msg ${est.acierto ? 'ok' : 'bad'}">${est.acierto ? '¡Muy bien! 🎉' : 'La respuesta era: ' + est.correcta + ' 💪'}</div>`;
+  } else if (b.modo === 'opciones') {
+    html += `<div class="kp-opts">${(est.opciones || []).map((o, k) => `
+      <div class="kp-opt" onclick="kpResponderProblema(${pantallaIdx},${k})"><span class="kp-letra">${'ABC'[k]}</span>${o}</div>`).join('')}</div>`;
+  } else {
+    html += `<div class="kp-input-row">
+      <input id="kp-problema-input" type="number" inputmode="numeric" placeholder="Tu respuesta"
+        onkeydown="if(event.key==='Enter')kpResponderProblema(${pantallaIdx})" />
+      <button class="kp-btn" onclick="kpResponderProblema(${pantallaIdx})">Comprobar</button>
+    </div>`;
+  }
+  html += `<div class="kp-hint">📖 Lee con calma, calcula y completa la frase con el resultado.</div></div>`;
+  return html;
+}
+function kpResponderProblema(idx, k) {
+  const s = pantallas[idx], est = kpEstado[idx];
+  if (!est || est.respondida) return;
+  let ok;
+  if ((bloquesJuego[s.bi] || {}).modo === 'opciones') {
+    ok = (est.opciones || [])[k] === est.correcta;
+  } else {
+    const v = parseFloat(document.getElementById('kp-problema-input')?.value);
+    if (isNaN(v)) return;
+    ok = Math.abs(v - est.correcta) < 0.001;
+  }
+  est.respondida = true; est.acierto = ok;
+  if (ok) { kpScore.verdes++; if (window.pjSonido) pjSonido.exito(); }
+  else { kpScore.rojos++; if (window.pjSonido) pjSonido.error(); }
+  renderPantalla();
+  mostrarFeedback(ok, 'La respuesta era ' + est.correcta, function () {
+    if (pantallaIdx < pantallas.length - 1) pantallaIdx++;
+    renderPantalla();
+  });
 }
 function kpTimeoutCalculo(idx) {
   const est = kpEstado[idx];
