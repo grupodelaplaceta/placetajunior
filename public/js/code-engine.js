@@ -15,7 +15,7 @@ window.PJCode = (function () {
     girar:      { cat: 'movimiento', nombre: 'GIRAR', params: ['dir'], desc: 'Gira a la derecha o izquierda' },
     saltar:     { cat: 'movimiento', nombre: 'SALTAR', params: [], desc: 'Salta a la siguiente casilla' },
     repetir:    { cat: 'control', nombre: 'BUCLE', params: ['veces'], bloques: true, desc: 'Bucle: repite los pasos dentro N veces' },
-    si:         { cat: 'control', nombre: 'SI', params: ['condicion'], bloques: true, desc: 'Si la condición se cumple, ejecuta' },
+    si:         { cat: 'control', nombre: 'SI', params: ['condicion', 'hacia', 'negado'], bloques: true, desc: 'Si la condición se cumple, ejecuta (admite "si no" y negación)' },
     sonido:     { cat: 'efectos', nombre: 'SONIDO', params: ['sonido'], desc: 'Reproduce un sonido divertido' },
   };
 
@@ -44,7 +44,10 @@ window.PJCode = (function () {
           veces: b.veces != null ? Number(b.veces) : 1,
           dir: b.dir || b.direccion || 'derecha',
           condicion: b.condicion || b.si || 'obstaculo',
+          hacia: b.hacia || 'delante',
+          negado: !!b.negado,
           bloques: normalizarPrograma(b.bloques || b.bloques_ok || []),
+          bloques_no: normalizarPrograma(b.bloques_no || b.bloques_else || b.sino || []),
         };
       }
       return { op: 'avanzar', bloques: [] };
@@ -63,6 +66,9 @@ window.PJCode = (function () {
     const obstaculos = new Set((escenario?.obstaculos || []).map(o => `${o.x},${o.y}`));
     const monedas = new Set((escenario?.monedas || []).map(o => `${o.x},${o.y}`));
     const monedasRecogidas = [];
+    const meta = new Set();
+    const metaObj = escenario?.meta || escenario?.estrella || escenario?.objetivo?.posicion;
+    if (metaObj) meta.add(`${metaObj.x},${metaObj.y}`);
 
     const visitadas = new Set([`${x},${y}`]);
     let pasos = 0;
@@ -75,6 +81,35 @@ window.PJCode = (function () {
 
     const dentro = (cx, cy) => cx >= 0 && cx < ancho && cy >= 0 && cy < alto;
     const hayObstaculo = (cx, cy) => obstaculos.has(`${cx},${cy}`);
+
+    const celdaHacia = (hacia) => {
+      const map = { derecha: 1, der: 1, izquierda: 3, izq: 3, detras: 2, atras: 2, 'detrás': 2, 'atrás': 2 };
+      const off = map[String(hacia || 'delante').toLowerCase()] ?? 0;
+      const d = (dir + off) % 4;
+      return { x: x + DELTAS[d].x, y: y + DELTAS[d].y };
+    };
+    const adyacentes = () => [
+      { x: x + DELTAS[dir].x, y: y + DELTAS[dir].y },
+      { x: x + DELTAS[(dir + 1) % 4].x, y: y + DELTAS[(dir + 1) % 4].y },
+      { x: x + DELTAS[(dir + 3) % 4].x, y: y + DELTAS[(dir + 3) % 4].y },
+    ];
+    function evaluarCondicion(condRaw, negado, hacia) {
+      const c = String(condRaw || 'obstaculo').toLowerCase();
+      const neg = !!negado || /^(no_|sin_)/.test(c);
+      const base = c.replace(/^(no_|sin_)/, '');
+      const p = celdaHacia(hacia);
+      const dentroC = dentro(p.x, p.y);
+      let cumple = false;
+      if (/obstac|bloqueo/.test(base)) cumple = !dentroC || hayObstaculo(p.x, p.y);
+      else if (/borde|limite|fuera/.test(base)) cumple = !dentroC;
+      else if (/meta|estrella|objetivo|llegada/.test(base)) {
+        cumple = base.includes('cerca') ? adyacentes().some(c => meta.has(`${c.x},${c.y}`)) : meta.has(`${p.x},${p.y}`);
+      } else if (base.includes('moneda')) {
+        cumple = base.includes('cerca') ? adyacentes().some(c => monedas.has(`${c.x},${c.y}`)) : monedas.has(`${p.x},${p.y}`);
+      } else if (/libre|vacio|despej/.test(base)) cumple = dentroC && !hayObstaculo(p.x, p.y);
+      else cumple = !dentroC || hayObstaculo(p.x, p.y); // defecto: obstáculo
+      return neg ? !cumple : cumple;
+    }
 
     function registrar(accion, extra) {
       trazado.push({ accion, x, y, dir, ...(extra || {}) });
@@ -140,14 +175,9 @@ window.PJCode = (function () {
           break;
         }
         case 'si': {
-          const cond = String(b.condicion || 'obstaculo').toLowerCase();
-          const nx = x + DELTAS[dir].x;
-          const ny = y + DELTAS[dir].y;
-          let cumple = false;
-          if (cond.includes('obstac') || cond.includes('bloqueo')) cumple = !dentro(nx, ny) || hayObstaculo(nx, ny);
-          else if (cond.includes('moneda')) cumple = monedas.has(`${nx},${ny}`);
-          else if (cond.includes('libre') || cond.includes('vacio')) cumple = dentro(nx, ny) && !hayObstaculo(nx, ny);
+          const cumple = evaluarCondicion(b.condicion || 'obstaculo', !!b.negado, b.hacia || 'delante');
           if (cumple) for (const sub of (b.bloques || [])) ejecutarBloque(sub, profundidad + 1);
+          else for (const sub of (b.bloques_no || [])) ejecutarBloque(sub, profundidad + 1);
           break;
         }
         case 'sonido': {
@@ -196,7 +226,7 @@ window.PJCode = (function () {
     if (objetivos.debe_usar && Array.isArray(objetivos.debe_usar)) {
       const usados = new Set();
       (function recorrer(prog) {
-        (prog || []).forEach(b => { usados.add(b.op); if (b.bloques) recorrer(b.bloques); });
+        (prog || []).forEach(b => { usados.add(b.op); if (b.bloques) recorrer(b.bloques); if (b.bloques_no) recorrer(b.bloques_no); });
       })(normalizarPrograma(programa));
       for (const op of objetivos.debe_usar) {
         if (!usados.has(op)) fallos.push(`Debes usar el bloque ${BLOQUES_CODE[op]?.nombre || op}.`);
