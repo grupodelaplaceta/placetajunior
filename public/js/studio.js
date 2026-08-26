@@ -1198,6 +1198,86 @@ function verticalOperacionHTML(a, b, op, conLlevadas) {
   return html;
 }
 
+function verticalDatosEsperados(a, b, op, llevadas) {
+  const nA = Number(a) || 0, nB = Number(b) || 0;
+  const resultado = Math.abs(calcularResultado(nA, nB, op));
+  const A = String(nA).split(''), B = String(nB).split('');
+  const maxLen = Math.max(A.length, B.length);
+  const resLen = Math.max(maxLen, String(resultado).length);
+  const total = resLen + 1;
+  const res = new Array(total).fill('');
+  const resDig = String(resultado).split('');
+  for (let k = 0; k < resDig.length; k++) res[total - 1 - k] = resDig[resDig.length - 1 - k];
+  const carries = new Array(total).fill('');
+  if (op === 'suma' && llevadas) {
+    let carry = 0;
+    for (let k = 0; k < resLen; k++) {
+      const ia = A.length - 1 - k, ib = B.length - 1 - k;
+      const va = ia >= 0 ? Number(A[ia]) : 0, vb = ib >= 0 ? Number(B[ib]) : 0;
+      const sum = va + vb + carry;
+      carry = Math.floor(sum / 10);
+      const col = total - 2 - k;
+      if (col >= 1) carries[col] = carry > 0 ? String(carry) : '';
+    }
+  }
+  return { carries, res, total };
+}
+function verticalOperacionInputHTML(a, b, op, conLlevadas, prefix) {
+  const nA = Number(a), nB = Number(b);
+  if (isNaN(nA) || isNaN(nB) || nA < 0 || nB < 0 || !Number.isInteger(nA) || !Number.isInteger(nB)) return null;
+  if (!Number.isInteger(calcularResultado(nA, nB, op))) return null;
+  if (op === 'resta' && nA < nB) return null;
+  const signo = opSimbolo(op);
+  const datos = verticalDatosEsperados(nA, nB, op, conLlevadas);
+  const total = datos.total;
+  const A = String(nA).split(''), B = String(nB).split('');
+  const pad = (arr) => { const out = []; for (let i = 0; i < total - arr.length; i++) out.push(''); return out.concat(arr); };
+  const cA = pad(A);
+  const cB = pad(B);
+  cB[total - 1 - B.length] = signo;
+  const cell = (c) => `<span class="kp-vcell">${c === '' ? '' : c}</span>`;
+  const inp = (kind, col) => `<input class="kp-vinput-cell kp-vinput-${kind}" data-kind="${kind}" data-col="${col}" data-prefix="${prefix}" type="text" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="${kind === 'carry' ? 'Llevada' : 'Dígito del resultado'} ${col}" />`;
+  let html = `<div class="kp-vertical kp-vertical-input" data-a="${nA}" data-b="${nB}" data-op="${op}" data-llevadas="${conLlevadas ? '1' : '0'}">`;
+  if (op === 'suma' && conLlevadas) {
+    html += '<div class="kp-vrow">';
+    for (let i = 0; i < total; i++) {
+      if (i === 0 || i === total - 1) html += '<span class="kp-vcell kp-vblank"></span>';
+      else html += inp('carry', i);
+    }
+    html += '</div>';
+  }
+  html += `<div class="kp-vrow">${cA.map(cell).join('')}</div>`;
+  html += `<div class="kp-vrow">${cB.map(cell).join('')}</div>`;
+  html += '<div class="kp-vrow">';
+  for (let i = 0; i < total; i++) html += `<span class="kp-vcell ${i === 0 ? 'kp-vblank' : 'kp-vline'}"></span>`;
+  html += '</div>';
+  html += '<div class="kp-vrow">';
+  for (let i = 0; i < total; i++) {
+    if (i === 0) html += '<span class="kp-vcell kp-vblank"></span>';
+    else html += inp('res', i);
+  }
+  html += '</div>';
+  html += '</div>';
+  return html;
+}
+function verificarVerticales(root) {
+  const grids = (root || document).querySelectorAll('.kp-vertical-input');
+  let allOk = true;
+  grids.forEach(g => {
+    const datos = verticalDatosEsperados(Number(g.dataset.a), Number(g.dataset.b), g.dataset.op || 'suma', g.dataset.llevadas === '1');
+    g.querySelectorAll('.kp-vinput-cell').forEach(inp => {
+      const kind = inp.dataset.kind, col = Number(inp.dataset.col);
+      const val = inp.value.trim();
+      const expected = kind === 'carry' ? datos.carries[col] : datos.res[col];
+      const ok = (expected === '') ? (val === '' || val === '0') : (val === expected);
+      inp.classList.toggle('ok', ok);
+      inp.classList.toggle('bad', !ok);
+      if (!ok) allOk = false;
+    });
+  });
+  return allOk;
+}
+
 function renderPantalla() {
   const s = pantallas[pantallaIdx];
   const est = kpEstado[pantallaIdx] || {};
@@ -1238,8 +1318,8 @@ function screenCalculo(s, est) {
   const a = Number(suma.a) || 0, bb = Number(suma.b) || 0;
   const op = operacionDe(suma, b);
   const totalSeg = Math.max(1, Number(b.segundos) || 10);
-  const vertical = (s.vertical && (op === 'suma' || op === 'resta')) ? verticalOperacionHTML(a, bb, op, s.llevadas !== false) : null;
-  const calcCuerpo = vertical || `<div class="kp-calc">${numTile(a)} <span class="kp-calc-op">${opSimbolo(op)}</span> ${numTile(bb)} <span class="kp-calc-op">=</span> <span class="kp-calc-q">?</span></div>`;
+  const gridVertical = s.vertical ? verticalOperacionInputHTML(a, bb, op, s.llevadas !== false, 'c' + pantallaIdx) : null;
+  const calcCuerpo = gridVertical || `<div class="kp-calc">${numTile(a)} <span class="kp-calc-op">${opSimbolo(op)}</span> ${numTile(bb)} <span class="kp-calc-op">=</span> <span class="kp-calc-q">?</span></div>`;
   let html = `<div class="kp-screen kp-calc-screen">
     <div class="kp-qt">🧮 Cálculo mental · ${s.si + 1} / ${s.n || 1}</div>
     <div class="kp-calc-timer"><span class="kp-timer" data-timer="${totalSeg}">⏱️ ${totalSeg}s</span>
@@ -1247,6 +1327,10 @@ function screenCalculo(s, est) {
     ${calcCuerpo}`;
   if (est.respondida) {
     html += `<div class="kp-msg ${est.acierto ? 'ok' : 'bad'}">${est.acierto ? '¡Muy bien! 🎉' : 'La respuesta era: ' + est.correcta + ' 💪'}</div>`;
+  } else if (gridVertical) {
+    html += `<div class="kp-input-row">
+      <button class="kp-btn" onclick="kpResponderCalculoVertical(${pantallaIdx})">Comprobar</button>
+    </div>`;
   } else if (b.modo === 'escribir') {
     html += `<div class="kp-input-row">
       <input id="kp-calc-input" type="number" inputmode="numeric" placeholder="Tu respuesta"
@@ -1257,7 +1341,7 @@ function screenCalculo(s, est) {
     html += `<div class="kp-opts">${(est.opciones || []).map((o, k) => `
       <div class="kp-opt" onclick="kpResponderCalculo(${pantallaIdx},${k})"><span class="kp-letra">${'ABC'[k]}</span>${o}</div>`).join('')}</div>`;
   }
-  html += `<div class="kp-hint">⚡ Responde antes de que acabe el tiempo.</div></div>`;
+  html += `<div class="kp-hint">${gridVertical ? '✍️ Escribe cada dígito en su casilla y, si hay llevada, escríbela encima.' : '⚡ Responde antes de que acabe el tiempo.'}</div></div>`;
   return html;
 }
 function iniciarTimerCalculo() {
@@ -1296,6 +1380,15 @@ function kpResponderCalculo(idx, k) {
   clearInterval(calcTimer); calcTimer = null;
   renderPantalla();
 }
+function kpResponderCalculoVertical(idx) {
+  const est = kpEstado[idx];
+  if (!est || est.respondida) return;
+  const ok = verificarVerticales(document);
+  est.respondida = true; est.acierto = ok;
+  if (ok) { kpScore.verdes++; if (window.pjSonido) pjSonido.exito(); }
+  else { kpScore.rojos++; if (window.pjSonido) pjSonido.error(); }
+  renderPantalla();
+}
 function kpTimeoutCalculo(idx) {
   const est = kpEstado[idx];
   if (est && !est.respondida) {
@@ -1320,9 +1413,12 @@ function screenProblema(s, est) {
     </div>`;
   const ops = (p.operaciones || []).filter(o => o && (o.a != null || o.b != null));
   if (ops.length) {
+    const esEscribir = b.modo !== 'opciones';
     html += `<div class="kp-operaciones"><div class="kp-operaciones-titulo">✏️ Resuelve en vertical</div>`;
-    ops.forEach(o => {
-      const v = verticalOperacionHTML(o.a, o.b, o.op || 'suma', true);
+    ops.forEach((o, oi) => {
+      const v = esEscribir
+        ? verticalOperacionInputHTML(o.a, o.b, o.op || 'suma', true, 'p' + pantallaIdx + '-' + oi)
+        : verticalOperacionHTML(o.a, o.b, o.op || 'suma', true);
       if (v) html += v;
     });
     html += `</div>`;
@@ -1351,7 +1447,8 @@ function kpResponderProblema(idx, k) {
   } else {
     const v = parseFloat(document.getElementById('kp-problema-input')?.value);
     if (isNaN(v)) return;
-    ok = Math.abs(v - est.correcta) < 0.001;
+    const verticalesOk = verificarVerticales(document);
+    ok = Math.abs(v - est.correcta) < 0.001 && verticalesOk;
   }
   est.respondida = true; est.acierto = ok;
   if (ok) kpScore.verdes++; else kpScore.rojos++;
@@ -2027,7 +2124,9 @@ function iniciarMapa(idx) {
       const layer = L.geoJSON(geo, {
         style: MAP_STYLE,
         onEachFeature: (feat, lyr) => {
-          lyr.on('click', () => kpMapa(idx, (feat.properties && feat.properties.name) || ''));
+          const en = (feat.properties && feat.properties.name) || '';
+          lyr.bindTooltip(MAPA_MUNDI.esDe(en), { sticky: true, direction: 'top', opacity: 0.92 });
+          lyr.on('click', () => kpMapa(idx, en));
           lyr.on('mouseover', () => { if (!(kpEstado[idx] && kpEstado[idx].respondida)) lyr.setStyle({ fillColor: '#a5c8f0', color: '#64748b', weight: 1 }); });
           lyr.on('mouseout', () => { if (!(kpEstado[idx] && kpEstado[idx].respondida)) lyr.setStyle(MAP_STYLE); });
         }
