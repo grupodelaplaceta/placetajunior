@@ -181,6 +181,15 @@ body.pj-home {
   border: 4px solid #fff;
   box-shadow: none;
 }
+.pj-home .hero-carousel { width: min(680px, 92vw); position: relative; }
+.pj-home .hero-carousel-track { width: 100%; aspect-ratio: 16 / 7; overflow: hidden; border-radius: 26px; border: 4px solid #fff; background: var(--pj-purple); box-shadow: 0 18px 38px rgba(63,0,216,.12); }
+.pj-home .hero-slide { display: none; width: 100%; height: 100%; margin: 0; }
+.pj-home .hero-slide.is-active { display: block; animation: pj-slide-in .45s ease both; }
+.pj-home .hero-slide img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.pj-home .hero-carousel-dots { display: flex; justify-content: center; gap: 7px; margin-top: 10px; }
+.pj-home .hero-carousel-dots span { width: 8px; height: 8px; border-radius: 50%; background: #d1cde0; }
+.pj-home .hero-carousel-dots span.is-active { width: 22px; border-radius: 99px; background: var(--pj-purple); }
+@keyframes pj-slide-in { from { opacity: .35; transform: scale(1.015); } to { opacity: 1; transform: scale(1); } }
 .pj-home .wordmark {
   font-family: var(--font-head);
   text-transform: uppercase;
@@ -258,7 +267,7 @@ body.pj-home {
 .pj-home .h-row {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: minmax(210px, 260px);
+  grid-auto-columns: 250px;
   gap: 14px;
   overflow-x: auto;
   align-items: start;
@@ -267,7 +276,7 @@ body.pj-home {
   -webkit-overflow-scrolling: touch;
 }
 @media (max-width: 430px) {
-  .pj-home .h-row { grid-auto-columns: minmax(190px, 235px); gap: 12px; }
+  .pj-home .h-row { grid-auto-columns: 220px; gap: 12px; }
   .pj-home .card { padding: 10px; }
 }
 .pj-home .h-row::-webkit-scrollbar { height: 10px; }
@@ -288,6 +297,7 @@ body.pj-home {
   cursor: pointer;
   scroll-snap-align: start;
   transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  height: 326px;
 }
 .pj-home .card:hover { transform: translateY(-5px); box-shadow: 0 12px 26px rgba(17, 24, 39, .10); border-color: var(--accent); }
 .pj-home .card[data-color="blue"] { --accent: var(--pj-blue); }
@@ -300,9 +310,9 @@ body.pj-home {
 .pj-home .card-cover {
   position: relative;
   width: 100%;
-  height: auto;
+  height: 142px;
   flex: 0 0 auto;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: auto;
   border-radius: var(--r-sm);
   overflow: hidden;
   background: var(--accent);
@@ -321,12 +331,14 @@ body.pj-home {
   color: var(--pj-ink);
   margin: 2px 4px 0;
   min-height: 38px;
+  max-height: 38px;
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
 }
 .pj-home .card .meta { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 4px 2px; }
+.pj-home .card-foot { margin-top: auto; }
 
 .pj-home .chip {
   display: inline-flex;

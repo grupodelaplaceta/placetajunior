@@ -54,7 +54,13 @@
     </div>
     <div class="hero-inner">
       <h1 class="sr-only">Placeta Junior</h1>
-      <img class="hero-banner" src="img/bannerpj.jpg" alt="Placeta Junior" />
+      <div class="hero-carousel" data-carousel aria-label="Galería de Placeta Junior">
+        <div class="hero-carousel-track">
+          <figure class="hero-slide is-active"><img src="img/bannerpj.jpg" alt="Placeta Junior" /></figure>
+          <!-- Próximas imágenes: añadir otro .hero-slide dentro del track. -->
+        </div>
+        <div class="hero-carousel-dots" aria-hidden="true"><span class="is-active"></span></div>
+      </div>
       <div class="cta-row">
         <a class="btn btn-primary" href="#actividades"><span class="material-symbols-rounded">play_arrow</span> Jugar</a>
       </div>
@@ -122,6 +128,28 @@
   <script src="js/player.js?v=20260822"></script>
   <script src="js/accesibilidad.js?v=20260811c"></script>
   <script>
+    // Carrusel preparado para incorporar nuevas fotos en .hero-carousel-track.
+    (function () {
+      const carousel = document.querySelector('[data-carousel]');
+      if (!carousel) return;
+      const slides = [...carousel.querySelectorAll('.hero-slide')];
+      const dots = carousel.querySelector('.hero-carousel-dots');
+      if (slides.length < 2) return;
+      dots.innerHTML = slides.map((_, i) => `<span class="${i === 0 ? 'is-active' : ''}" aria-hidden="true"></span>`).join('');
+      let current = 0;
+      let timer;
+      const show = (next) => {
+        slides[current].classList.remove('is-active');
+        current = (next + slides.length) % slides.length;
+        slides[current].classList.add('is-active');
+        [...dots.children].forEach((dot, i) => dot.classList.toggle('is-active', i === current));
+      };
+      const start = () => { timer = window.setInterval(() => show(current + 1), 5000); };
+      carousel.addEventListener('mouseenter', () => window.clearInterval(timer));
+      carousel.addEventListener('mouseleave', start);
+      start();
+    }());
+
     // Modo offline (como la app): service worker que cachea la web y las actividades
     if ('serviceWorker' in navigator && location.protocol !== 'file:') {
       window.addEventListener('load', function () {
