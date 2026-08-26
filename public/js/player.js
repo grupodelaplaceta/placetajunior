@@ -1709,7 +1709,9 @@ async function kpCodeEjecutar() {
   const programa = est.programa || [];
   if (!programa.length) return;
   const run = document.getElementById('kp-code-run');
+  if (run && run.disabled) return; // evita doble ejecución (dobles toques)
   if (run) run.disabled = true;
+  const idxInicial = pantallaIdx; // no avanzar si el usuario navegó durante la animación
   if (!window.PJCode) { kpCodeMostrarMsg('El motor de código no está cargado.', false); if (run) run.disabled = false; return; }
 
   // 1) Evaluación LOCAL (funciona sin red ni DIP)
@@ -1762,7 +1764,7 @@ async function kpCodeEjecutar() {
     }
     // Guardar también en el servidor si hay DIP (best effort, no bloquea)
     guardarCodeEnServidor(s, programa, evalRes).catch(() => {});
-    setTimeout(() => { if (pantallaIdx < pantallas.length - 1) { pantallaIdx++; renderPantalla(); } }, 1200);
+    setTimeout(() => { if (pantallaIdx === idxInicial && pantallaIdx < pantallas.length - 1) { pantallaIdx++; renderPantalla(); } }, 1200);
   } else {
     kpScore.rojos++;
     if (window.pjSonido) pjSonido.error();
