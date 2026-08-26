@@ -933,7 +933,11 @@ function moverBloque(i, dir) {
   [bloques[i], bloques[j]] = [bloques[j], bloques[i]];
   render();
 }
-function borrarBloque(i) { bloques.splice(i, 1); render(); }
+function borrarBloque(i) {
+  if (i < 0 || i >= bloques.length) return;
+  bloques.splice(i, 1);
+  render();
+}
 
 // ── Imágenes ─────────────────────────────────────────────────────────
 function abrirImagen(donde, i, j) {
