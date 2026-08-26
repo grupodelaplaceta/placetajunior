@@ -1470,7 +1470,8 @@ function kpCodePintarPrograma() {
   if (!programa.length) {
     cont.innerHTML = '<div class="code-vacio">👉 Toca las flechas para montar tu programa</div>';
   }
-  function dibujarBloque(item, idx, profundidad, esContenedorAbierto, destino) {
+  function dibujarBloque(item, idx, profundidad, esContenedorAbierto, destino, arr) {
+    const lista = arr || programa;
     const b = CODE_BLOQUES_INFO[item.op] || { nombre: item.op, clase: 'b-move', color: '#4c8dff', params: [], flecha: '➡️' };
     const color = b.color || '#4c8dff';
     const chip = document.createElement('span');
@@ -1567,9 +1568,12 @@ function kpCodePintarPrograma() {
     const del = document.createElement('button');
     del.className = 'cute-del'; del.textContent = '✕';
     del.onclick = () => {
-      programa.splice(idx, 1);
-      if (est.contenedorAbierto === idx) est.contenedorAbierto = null;
-      else if (est.contenedorAbierto !== null && est.contenedorAbierto > idx) est.contenedorAbierto--;
+      lista.splice(idx, 1);
+      // Solo se reajusta el contenedor abierto si se borró del nivel raíz.
+      if (lista === programa) {
+        if (est.contenedorAbierto === idx) est.contenedorAbierto = null;
+        else if (est.contenedorAbierto !== null && est.contenedorAbierto > idx) est.contenedorAbierto--;
+      }
       if (window.pjSonido) pjSonido.quitarBloque();
       kpCodeGuardarPrograma(); kpCodePintarPrograma(); kpCodeDibujarEscenario();
     };
@@ -1578,7 +1582,7 @@ function kpCodePintarPrograma() {
     if (item.bloques !== undefined) {
       const sub = document.createElement('span');
       sub.className = 'cute-sub';
-      (item.bloques || []).forEach((sb, si) => dibujarBloque(sb, si, profundidad + 1, false, sub));
+      (item.bloques || []).forEach((sb, si) => dibujarBloque(sb, si, profundidad + 1, false, sub, item.bloques));
       chip.appendChild(sub);
     }
     (destino || cont).appendChild(chip);
