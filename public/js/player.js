@@ -752,7 +752,8 @@ function cargarPortadaImg(idx) {
     const em = el.querySelector('.kp-cover-emoji');
     if (em) em.remove();
   };
-  if (a && a.portada_url) fill(a.portada_url);
+  const portada = a && (a.portada_url || a.portadaUrl || a.contenido?.__rspPortadaUrl || a.contenido?.__rsp_portada_url);
+  if (portada) fill(portada);
   else if (typeof generarCaratula === 'function') {
     generarCaratula({ cat: s.cat, tit: s.tit, tipo: a ? a.tipo : '' }).then(fill);
   }

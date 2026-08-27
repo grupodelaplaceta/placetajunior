@@ -58,6 +58,7 @@ const colorMaterial = (cat = '') => {
 // ── Portada de la actividad (carátula generada automáticamente) ────
 function coverHTML(a, badgeProg = '') {
   const bloqueada = esBloqueada(a);
+  const portada = a.portada_url || a.portadaUrl || a.contenido?.__rspPortadaUrl || a.contenido?.__rsp_portada_url || '';
   const badge = a.es_examen
     ? '<span class="badge-tag badge-examen"><span class="material-symbols-rounded b-ico">school</span>Examen</span>'
     : (bloqueada
@@ -69,13 +70,13 @@ function coverHTML(a, badgeProg = '') {
     ? '<div class="cover-lock"><span class="material-symbols-rounded lock-ico">lock</span><span class="lock-txt">De pago</span></div>'
     : '';
   // Si hay portada real la usamos; si no, se genera una imagen (miniaturas reales con canvas)
-  const estilo = a.portada_url
-    ? `style="background-image:url('${a.portada_url}');background-size:cover;background-position:center;"`
+  const estilo = portada
+    ? `style="background-image:url('${String(portada).replace(/'/g, '%27')}');background-size:cover;background-position:center;"`
     : `data-gen="1" data-cat="${escapeHtml(a.categoria || '')}" data-tipo="${escapeHtml(a.tipo || '')}"`;
   const icono = iconoMaterial(a);
   return `
     <div class="card-cover" ${estilo}>
-      ${!a.portada_url && icono ? `<span class="cover-emoji material-symbols-rounded" style="color:${colorMaterial(a.categoria)}">${icono}</span>` : ''}
+      ${!portada && icono ? `<span class="cover-emoji material-symbols-rounded" style="color:${colorMaterial(a.categoria)}">${icono}</span>` : ''}
       ${badge}
       ${badgeProg}
       ${lock}
