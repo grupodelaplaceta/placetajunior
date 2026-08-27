@@ -381,11 +381,11 @@ h1, h2, h3, .font-casual {
   background: var(--pj-white);
   border: 2px solid var(--pj-gray-100);
   border-radius: var(--radius-md);
-  padding: 16px;
+  padding: 10px;
   box-shadow: var(--shadow);
   transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
   cursor: pointer;
-  display: flex; flex-direction: column; gap: 10px;
+  display: flex; flex-direction: column; gap: 6px;
 }
 .card:hover { transform: translateY(-5px) rotate(-0.5deg); box-shadow: var(--shadow-lg); border-color: var(--pj-purple-light); }
 /* Bordes de color por categoría (igual que la app) */
@@ -425,7 +425,7 @@ h1, h2, h3, .font-casual {
 .chip.purple { background: var(--pj-purple-light); color: var(--pj-purple); }
 .chip.yellow { background: var(--pj-yellow-light); color: #6b6420; }
 .badge-tag {
-  position: absolute; top: 6px; left: 6px;
+  position: absolute; top: auto; bottom: 6px; left: 6px;
   font-size: 9px; font-weight: 800;
   padding: 2px 7px; border-radius: 999px;
   color: white; box-shadow: var(--shadow);
@@ -436,7 +436,7 @@ h1, h2, h3, .font-casual {
 .badge-examen { background: var(--pj-orange); }
 .badge-pend { background: var(--pj-blue); }
 /* Insignia de progreso (En curso / Hecha): abajo, para no pisar la de tipo */
-.badge-tag.badge-prog { top: auto; bottom: 8px; left: 6px; }
+.badge-tag.badge-prog { top: auto; bottom: 6px; left: 6px; }
 /* Botón de información en la esquina de la portada */
 .info-btn {
   position: absolute; top: 8px; right: 8px; z-index: 3;

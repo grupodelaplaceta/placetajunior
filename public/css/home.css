@@ -290,14 +290,14 @@ body.pj-home {
   background: #fff;
   border: 2px solid var(--pj-line);
   border-radius: var(--r);
-  padding: 12px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
   cursor: pointer;
   scroll-snap-align: start;
   transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
-  height: 352px;
+  height: 320px;
 }
 .pj-home .card:hover { transform: translateY(-5px); box-shadow: 0 12px 26px rgba(17, 24, 39, .10); border-color: var(--accent); }
 .pj-home .card[data-color="blue"] { --accent: var(--pj-blue); }
@@ -330,8 +330,8 @@ body.pj-home {
   text-transform: uppercase;
   color: var(--pj-ink);
   margin: 2px 4px 0;
-  min-height: 38px;
-  max-height: 38px;
+  min-height: 32px;
+  max-height: 32px;
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -361,7 +361,8 @@ body.pj-home {
 /* Insignias y botones sobre la carátula */
 .pj-home .badge-tag {
   position: absolute;
-  top: 10px;
+  top: auto;
+  bottom: 10px;
   left: 10px;
   z-index: 3;
   display: inline-flex;
@@ -378,6 +379,7 @@ body.pj-home {
 .pj-home .badge-examen { background: var(--pj-orange); }
 .pj-home .badge-tag .b-ico { font-size: 14px; }
 /* Insignia de progreso (En curso / Hecha): abajo, para no pisar la de tipo */
+.pj-home .card-cover:has(.badge-prog) .badge-tag:not(.badge-prog) { bottom: 42px; }
 .pj-home .badge-tag.badge-prog { top: auto; bottom: 10px; left: 10px; }
 .pj-home .cover-lock { position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: rgba(17, 24, 39, .45); color: #fff; }
 .pj-home .lock-ico { font-size: 40px; }
@@ -646,19 +648,25 @@ body.pj-home.mostrando-detalle .detail-page { display: block; }
 .pj-home .detail-actions { display: flex; flex-wrap: wrap; gap: 12px; }
 .pj-home .btn-lg { padding: 15px 28px; font-size: 18px; }
 
-/* Worksheet imprimible en PDF A4 (compacto para aprovechar las páginas) */
-.print-worksheet { display: none; }
-.print-worksheet .ws-head { text-align: center; border-bottom: 3px solid #3F00D8; padding-bottom: 8px; margin-bottom: 10px; page-break-inside: avoid; break-inside: avoid; }
+/* Worksheet imprimible en PDF A4, con color temático de la asignatura. */
+.print-worksheet { display: none; --ws-theme: #3F00D8; --ws-soft: #ede9fe; }
+.print-worksheet[data-color="blue"] { --ws-theme: #3A00E1; --ws-soft: #e9e7ff; }
+.print-worksheet[data-color="red"] { --ws-theme: #E53935; --ws-soft: #ffebeb; }
+.print-worksheet[data-color="green"] { --ws-theme: #336E45; --ws-soft: #e7f4eb; }
+.print-worksheet[data-color="orange"] { --ws-theme: #FF6600; --ws-soft: #fff0e6; }
+.print-worksheet[data-color="yellow"] { --ws-theme: #9a8d12; --ws-soft: #fffde1; }
+.print-worksheet[data-color="pink"] { --ws-theme: #E6007E; --ws-soft: #ffe6f2; }
+.print-worksheet .ws-head { text-align: center; border-bottom: 3px solid var(--ws-theme); padding-bottom: 8px; margin-bottom: 10px; page-break-inside: avoid; break-inside: avoid; }
 .print-worksheet .ws-brand { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 4px; }
 .print-worksheet .ws-logo { height: 42px; }
-.print-worksheet .ws-brand-name { font-family: 'Fredoka One', 'Outfit', sans-serif; font-size: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #3F00D8; }
-.print-worksheet .ws-head h1 { font-family: 'Fredoka One', 'Outfit', sans-serif; font-size: 22px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin: 4px 0 2px; color: #3F00D8; }
+.print-worksheet .ws-brand-name { font-family: 'Fredoka One', 'Outfit', sans-serif; font-size: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: var(--ws-theme); }
+.print-worksheet .ws-head h1 { font-family: 'Fredoka One', 'Outfit', sans-serif; font-size: 22px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin: 4px 0 2px; color: var(--ws-theme); }
 .print-worksheet .ws-head p { margin: 0; font-size: 11px; color: #6B7280; }
 .print-worksheet .ws-meta { border: 1px solid #d1d5db; border-radius: 8px; padding: 5px 10px; margin-bottom: 10px; font-size: 12px; page-break-inside: avoid; break-inside: avoid; }
 .print-worksheet .ws-sec { margin-bottom: 10px; }
-.print-worksheet .ws-sec h4 { font-family: 'Fredoka One', 'Outfit', sans-serif; font-size: 15px; font-weight: 800; text-transform: uppercase; color: #2979FF; border-bottom: 2px solid #e5e7eb; padding-bottom: 3px; margin: 0 0 6px; }
+.print-worksheet .ws-sec h4 { font-family: 'Fredoka One', 'Outfit', sans-serif; font-size: 15px; font-weight: 800; text-transform: uppercase; color: var(--ws-theme); border-bottom: 2px solid var(--ws-soft); padding-bottom: 3px; margin: 0 0 6px; }
 .print-worksheet .ws-q, .print-worksheet .ws-line { margin-bottom: 6px; font-size: 13px; line-height: 1.4; page-break-inside: avoid; break-inside: avoid; }
-.print-worksheet .ws-n { font-weight: 800; color: #3F00D8; }
+.print-worksheet .ws-n { font-weight: 800; color: var(--ws-theme); }
 .print-worksheet .ws-opts { margin: 3px 0 0 16px; font-size: 12px; color: #374151; }
 .print-worksheet .ws-opt { display: inline-block; margin-right: 10px; }
 .print-worksheet .ws-foot { margin-top: 12px; padding-top: 6px; border-top: 2px solid #e5e7eb; font-size: 11px; color: #6B7280; text-align: center; }
@@ -680,7 +688,7 @@ body.pj-home.mostrando-detalle .detail-page { display: block; }
 .print-worksheet .ws-code-grid td { font-size: 16px; font-weight: 700; }
 .print-worksheet .ws-code-lineas { margin-top: 6px; }
 .print-worksheet .ws-guia-bloques { margin: 6px 0 4px; font-size: 11px; color: #374151; text-align: center; line-height: 1.6; }
-.print-worksheet .ws-bloque { display: inline-block; background: #f3f4f6; border: 1px solid #d1d5db; border-radius: 8px; padding: 2px 7px; margin: 2px; font-size: 10px; }
+.print-worksheet .ws-bloque { display: inline-block; background: var(--ws-soft); border: 1px solid var(--ws-theme); border-radius: 8px; padding: 2px 7px; margin: 2px; font-size: 10px; }
 .print-worksheet .ws-programa { margin-top: 6px; }
 .print-worksheet .ws-rel h4 { text-align: left; }
 .print-worksheet .ws-cols { display: flex; gap: 24mm; justify-content: space-around; }

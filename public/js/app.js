@@ -8,6 +8,7 @@ const API_BASE = 'https://admin-placeta.vercel.app/api/junior';
 // ── Helpers ──────────────────────────────────────────────────────────
 async function apiGet(path) {
   const res = await fetch(`${API_BASE}${path}`, {
+    cache: 'no-store',
     headers: { 'Accept': 'application/json' }
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -275,8 +276,9 @@ function verInfo(id) {
   try { if (!location.search.includes('id=')) history.pushState(null, '', '/?id=' + encodeURIComponent(a.id)); } catch (e) { /* sin historial */ }
   window.scrollTo(0, 0);
   const coverEl = document.getElementById('detail-cover');
-  if (a.portada_url) {
-    coverEl.style.backgroundImage = `url('${a.portada_url}')`;
+  const portadaDetalle = a.portada_url || a.portadaUrl || a.contenido?.__rspPortadaUrl || a.contenido?.__rsp_portada_url || '';
+  if (portadaDetalle) {
+    coverEl.style.backgroundImage = `url('${String(portadaDetalle).replace(/'/g, '%27')}')`;
   } else {
     generarCaratula({ cat: a.categoria, tit: a.titulo, tipo: a.tipo }).then(url => {
       if (url) coverEl.style.backgroundImage = `url('${url}')`;
@@ -505,12 +507,15 @@ async function descargarPdf(id) {
   });
   // Portada de la actividad (16:9) en el worksheet
   let portada = '';
-  if (a.portada_url) portada = `<div class="ws-cover"><img src="${esc(a.portada_url)}" alt="${esc(a.titulo)}"></div>`;
+  const portadaPdf = a.portada_url || a.portadaUrl || a.contenido?.__rspPortadaUrl || a.contenido?.__rsp_portada_url || '';
+  if (portadaPdf) portada = `<div class="ws-cover"><img src="${esc(portadaPdf)}" alt="${esc(a.titulo)}"></div>`;
   else {
     const url = await generarCaratula({ cat: a.categoria, tit: a.titulo, tipo: a.tipo });
     if (url) portada = `<div class="ws-cover"><img src="${url}" alt="${esc(a.titulo)}"></div>`;
   }
   const ws = document.getElementById('print-worksheet');
+  // El color de la asignatura acompaña a toda la ficha imprimible.
+  ws.dataset.color = categoriaColor(a.categoria || '');
   ws.innerHTML = `
     <div class="ws-head">
       <div class="ws-brand"><img class="ws-logo" src="img/PJ-COLOR-LOGO.png" alt="Placeta Junior" /></div>
