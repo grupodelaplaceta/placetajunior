@@ -238,7 +238,9 @@ function verInfo(id) {
   if (window.pjSonido) pjSonido.abrir();
   const bloqueada = esBloqueada(a);
   const color = categoriaColor(a.categoria);
-  const nBloques = (a.contenido && a.contenido.bloques) ? a.contenido.bloques.length : (a.num_fases || 0);
+  const nBloques = Array.isArray(a.subapartados) && a.subapartados.length
+    ? a.subapartados.length
+    : ((a.contenido && a.contenido.bloques) ? a.contenido.bloques.length : (a.num_fases || 0));
   const nPreg = a.num_preguntas || 0;
   document.getElementById('detail-page').innerHTML = `
     <a class="detail-back" href="javascript:cerrarDetalle()"><span class="material-symbols-rounded">arrow_back</span> Volver a Actividades</a>
@@ -254,7 +256,7 @@ function verInfo(id) {
         <div class="dstat"><span class="material-symbols-rounded">child_care</span><span class="dstat-lbl">Edad</span><span class="dstat-val">${escapeHtml(a.edad_recomendada || '6-12')}</span></div>
         <div class="dstat"><span class="material-symbols-rounded">trending_up</span><span class="dstat-lbl">Dificultad</span><span class="dstat-val">${escapeHtml(a.dificultad || 'media')}</span></div>
         <div class="dstat"><span class="material-symbols-rounded">quiz</span><span class="dstat-lbl">Preguntas</span><span class="dstat-val">${nPreg}</span></div>
-        <div class="dstat"><span class="material-symbols-rounded">flag</span><span class="dstat-lbl">Fases</span><span class="dstat-val">${nBloques}</span></div>
+        <div class="dstat"><span class="material-symbols-rounded">flag</span><span class="dstat-lbl">Niveles</span><span class="dstat-val">${nBloques}</span></div>
       </div>
       <div class="detail-card">
         <h2>¿De qué trata esta actividad?</h2>
@@ -585,6 +587,24 @@ async function generarMapaPdf(paises, W) {
 }
 
 let TODAS = []; // todas las actividades públicas
+
+function abrirCodigoActividad() { const m = document.getElementById('codigo-actividad-modal'); if (m) { m.hidden = false; document.getElementById('codigo-actividad-input')?.focus(); } }
+function cerrarCodigoActividad() { const m = document.getElementById('codigo-actividad-modal'); if (m) m.hidden = true; }
+async function usarCodigoActividad() {
+  const input = document.getElementById('codigo-actividad-input'); const error = document.getElementById('codigo-actividad-error');
+  const codigo = String(input?.value || '').trim().toUpperCase(); if (!codigo) return;
+  if (sessionStorage.getItem('pj-used-code-' + codigo)) { if (error) { error.textContent = 'Este código ya se ha usado en esta sesión.'; error.classList.remove('hidden'); } return; }
+  try {
+    const r = await fetch(`${API_BASE}/codigos/canjear`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ codigo, origen: 'web' }) });
+    const data = await r.json(); if (!r.ok || !data.success) throw new Error(data.error || 'Código no válido');
+    cerrarCodigoActividad();
+    const id = data.actividadIds?.[0]; if (!id) throw new Error('El código no contiene actividades');
+    // La autorización vive solo en esta sesión del navegador y caduca al salir.
+    sessionStorage.setItem('pj-used-code-' + codigo, '1');
+    sessionStorage.setItem('pj-code-' + id, codigo);
+    await abrirActividad(id, false);
+  } catch (e) { if (error) { error.textContent = e.message || 'Código no válido'; error.classList.remove('hidden'); } }
+}
 
 // ── Clasificar / filtrar por edad ──────────────────────────────────
 let filtroEdad = 'todas'; // 'todas' | '0-5' | '6-8' | '9-12' | '13+'

@@ -40,6 +40,7 @@
       </nav>
       <div class="nav-cta">
         <a class="btn btn-primary" href="#actividades"><span class="material-symbols-rounded">play_arrow</span> Jugar</a>
+        <button class="btn btn-secondary" type="button" onclick="abrirCodigoActividad()"><span class="material-symbols-rounded">key</span> Código</button>
       </div>
     </div>
   </header>
@@ -97,6 +98,15 @@
 
   <!-- Página de juego (a pantalla completa, no popup) -->
   <div id="game-page" class="game-page" aria-live="polite"></div>
+
+  <div id="codigo-actividad-modal" class="pj-modal" hidden>
+    <div class="pj-modal-card"><button type="button" class="pj-modal-close" onclick="cerrarCodigoActividad()" aria-label="Cerrar">×</button>
+      <h2>Usar código de actividad</h2><p>Introduce un código no asignado para jugar una vez. El código seguirá disponible.</p>
+      <input id="codigo-actividad-input" autocomplete="off" placeholder="GDLP-XXXX-0000" />
+      <button class="btn btn-primary" type="button" onclick="usarCodigoActividad()">Desbloquear y jugar</button>
+      <p id="codigo-actividad-error" class="error-banner hidden"></p>
+    </div>
+  </div>
 
   <footer class="footer">
     <div class="footer-inner">

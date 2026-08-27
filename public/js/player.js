@@ -95,6 +95,21 @@ function abrirJuego(act) {
   if (window.pjSonido) pjSonido.abrir();
   const esCode = act && (String(act.tipo || '').startsWith('code') || (act.contenido && act.contenido.tipo === 'code_blocks'));
   bloquesJuego = (act && act.contenido && act.contenido.bloques) ? act.contenido.bloques : [];
+  // RSP puede organizar una actividad en niveles/diapositivas. Se
+  // convierten en una secuencia única para reutilizar todos los juegos del
+  // reproductor y conservar el avance pantalla a pantalla.
+  const niveles = (act && (act.subapartados || act.niveles)) || [];
+  if (!esCode && niveles.length) {
+    bloquesJuego = niveles.slice().sort((a, b) => Number(a.orden || 0) - Number(b.orden || 0)).flatMap((n, i) => {
+      const contenido = n.contenido || {};
+      const encabezado = { tipo: 'texto', nivelIndex: i, titulo: `Nivel ${i + 1}: ${n.titulo || 'Siguiente reto'}`, contenido: n.descripcion || `Completa este nivel para desbloquear el siguiente. Recompensa: ${Number(n.recompensa || 0)} Pz` };
+      return [encabezado, ...(Array.isArray(contenido.bloques) ? contenido.bloques.map(b => ({ ...b, nivelIndex: i })) : [])];
+    });
+  }
+
+  // Cada pantalla conoce el nivel al que pertenece. Así los controles no
+  // permiten saltar a un nivel posterior sin completar el actual.
+  pantallas.forEach((s) => { if (s.nivelIndex == null && s.bi != null && bloquesJuego[s.bi]) s.nivelIndex = bloquesJuego[s.bi].nivelIndex; });
   if (!esCode && !bloquesJuego.length) { juniorAviso('Esta actividad aún no tiene contenido jugable.', 'error'); return; }
   pantallas = [];
   kpEstado = [];
@@ -1821,7 +1836,26 @@ async function guardarCodeEnServidor(s, programa, evalRes) {
   } catch (e) { /* silencioso: el progreso ya quedó en local */ }
 }
 
-function pantallaNext() { if (pantallaIdx < pantallas.length - 1) { pantallaIdx++; if (window.pjSonido) pjSonido.hoja(); renderPantalla(); } }
+function nivelCompletado(nivel) {
+  const indices = pantallas.map((s, i) => s.nivelIndex === nivel ? i : -1).filter(i => i >= 0);
+  return indices.length === 0 || indices.every((i) => {
+    const s = pantallas[i], e = kpEstado[i] || {};
+    if (s.tipo === 'texto') return true;
+    if (s.tipo === 'code') return e.superado === true;
+    if (s.tipo === 'test' || s.tipo === 'calculo' || s.tipo === 'problema') return e.respondida === true;
+    if (s.tipo === 'relacionar') return Object.keys(e.hechas || {}).length >= (bloquesJuego[s.bi]?.pares || []).length;
+    if (s.tipo === 'ordenar') return Number(e.hechas || 0) > 0;
+    return e.completado === true || e.respondida === true;
+  });
+}
+function pantallaNext() {
+  if (pantallaIdx >= pantallas.length - 1) return;
+  const actual = pantallas[pantallaIdx], siguiente = pantallas[pantallaIdx + 1];
+  if (actual.nivelIndex != null && siguiente.nivelIndex !== actual.nivelIndex && !nivelCompletado(actual.nivelIndex)) {
+    juniorAviso('🔒 Completa este nivel para desbloquear el siguiente.', 'error'); return;
+  }
+  pantallaIdx++; if (window.pjSonido) pjSonido.hoja(); renderPantalla();
+}
 function pantallaPrev() { if (pantallaIdx > 0 && pantallas[pantallaIdx]?.tipo !== 'final') { pantallaIdx--; if (window.pjSonido) pjSonido.hoja(); renderPantalla(); } }
 
 // Guarda la partida actual en localStorage (para retomarla después)

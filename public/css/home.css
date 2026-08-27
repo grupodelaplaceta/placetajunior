@@ -611,6 +611,13 @@ body.pj-home {
 .pj-home .detail-page { display: none; max-width: 1080px; margin: 0 auto; padding: 24px 20px 60px; }
 body.pj-home.mostrando-detalle .hero,
 body.pj-home.mostrando-detalle .section#actividades { display: none; }
+
+/* Desbloqueo puntual por código no asignado */
+.pj-modal { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 1rem; background: rgba(22, 18, 40, .55); }
+.pj-modal[hidden] { display: none; }
+.pj-modal-card { position: relative; width: min(420px, 100%); display: grid; gap: .8rem; padding: 1.5rem; border-radius: 1.2rem; background: #fff; box-shadow: 0 1rem 3rem rgba(0,0,0,.2); }
+.pj-modal-card input { width: 100%; box-sizing: border-box; padding: .8rem; border: 1px solid #d8d2e6; border-radius: .6rem; text-transform: uppercase; }
+.pj-modal-close { position: absolute; top: .5rem; right: .7rem; border: 0; background: transparent; font-size: 1.5rem; cursor: pointer; }
 body.pj-home.mostrando-detalle .detail-page { display: block; }
 .pj-home .detail-back { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-body); font-weight: 700; color: var(--pj-muted); text-decoration: none; margin-bottom: 16px; }
 .pj-home .detail-back:hover { color: var(--pj-purple); }
