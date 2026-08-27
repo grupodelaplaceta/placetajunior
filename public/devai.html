@@ -295,13 +295,24 @@ Reglas:
       let obj;
       try { obj = JSON.parse($('codigo').value); }
       catch (e) { aviso('❌ El código no es JSON válido: ' + e.message, true); return; }
-      const bloques = (obj.contenido && obj.contenido.bloques) || [];
-      if (!Array.isArray(bloques)) { aviso('❌ Falta contenido.bloques en el JSON.', true); return; }
+      const contenido = (obj.contenido && typeof obj.contenido === 'object') ? obj.contenido : obj;
+      const niveles = Array.isArray(contenido.niveles) ? contenido.niveles : (Array.isArray(contenido.diapositivas) ? contenido.diapositivas : []);
+      const bloquesRaiz = Array.isArray(contenido.bloques) ? contenido.bloques : [];
+      if (!bloquesRaiz.length && !niveles.length) { aviso('❌ Falta contenido.bloques o contenido.niveles en el JSON.', true); return; }
+      // El preview usa la misma secuencia que el reproductor: portada,
+      // diapositivas ordenadas y sus bloques, para detectar errores antes de publicar.
+      const bloques = niveles.length
+        ? niveles.slice().sort((a, b) => Number(a.orden || 0) - Number(b.orden || 0)).flatMap((n, i) => [
+            { tipo: 'texto', titulo: `Diapositiva ${i + 1}: ${n.titulo || 'Sin título'}`, contenido: n.descripcion || '' },
+            ...(Array.isArray(n.bloques) ? n.bloques : (Array.isArray(n.contenido?.bloques) ? n.contenido.bloques : []))
+          ])
+        : bloquesRaiz;
       // Ruta base para editar el alt según dónde vivan los bloques en el JSON
       const pathBase = (obj.contenido && Array.isArray(obj.contenido.bloques)) ? 'contenido.bloques' : 'bloques';
       const tit = obj.titulo || $('titulo').value || 'Actividad';
       let html = '<h3>' + esc(tit) + '</h3>';
       if (obj.descripcion) html += '<p style="font-size:13px;color:var(--pj-gray-500);margin:0 0 10px;">' + esc(obj.descripcion) + '</p>';
+      if (niveles.length) html += '<div class="badge">' + niveles.length + ' diapositiva' + (niveles.length === 1 ? '' : 's') + '</div>';
 
       // Panel de precios / recompensa editable (sincroniza el JSON)
       html += '<div class="bloque-prev prev-economia">'
@@ -383,8 +394,9 @@ Reglas:
        if (Array.isArray(contenido.niveles)) {
          contenido.niveles = contenido.niveles.map((n, i) => ({ ...n, orden: Number(n.orden || i + 1), bloques: Array.isArray(n.bloques) ? n.bloques : (n.contenido?.bloques || []) }));
        }
+      const nivelesPublicar = Array.isArray(contenido.niveles) ? contenido.niveles : [];
       const bloques = contenido.bloques || [];
-      if (!bloques.length) { aviso('❌ No hay bloques para publicar.', true); return; }
+      if (!bloques.length && !nivelesPublicar.length) { aviso('❌ No hay bloques ni diapositivas para publicar.', true); return; }
       const titulo = (obj.titulo || $('titulo').value || '').trim();
       const descripcion = (obj.descripcion || $('descripcion').value || '').trim();
       if (!titulo || !descripcion) { aviso('❌ Faltan título y descripción.', true); return; }
@@ -400,8 +412,8 @@ Reglas:
         precio_intento: parseInt(obj.precio_intento ?? $('precio-intento').value, 10) || 0,
         recompensa: parseInt(obj.recompensa ?? $('recompensa').value, 10) || 0,
         subvencionada: (obj.subvencionada ?? $('subvencionada').checked) === true,
-        num_preguntas: contarPreguntas(bloques),
-        num_fases: bloques.length,
+        num_preguntas: contarPreguntas(bloques.length ? bloques : nivelesPublicar.flatMap(n => n.bloques || [])),
+        num_fases: nivelesPublicar.length || bloques.length,
         contenido
       };
       m.textContent = '⏳ Enviando…'; m.className = '';
