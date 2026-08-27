@@ -172,6 +172,9 @@ function abrirJuego(act) {
       } else if (b.tipo === 'texto') {
         pantallas.push({ tipo: 'texto', bi });
         kpEstado.push({});
+      } else if (b.tipo === 'esquema') {
+        pantallas.push({ tipo: 'esquema', bi });
+        kpEstado.push({});
       } else if (b.tipo === 'sopa_letras') {
         const { grid, size } = generarSopa(b.palabras, b.tamano);
         pantallas.push({ tipo: 'sopa', bi, grid, size });
@@ -398,6 +401,7 @@ function renderPantalla() {
   let cuerpo = '';
   if (s.tipo === 'portada') cuerpo = screenPortada(s);
   else if (s.tipo === 'texto') cuerpo = screenTexto(s, est);
+  else if (s.tipo === 'esquema') cuerpo = screenEsquema(s, est);
   else if (s.tipo === 'test') cuerpo = screenTest(s, est);
   else if (s.tipo === 'sopa') cuerpo = screenSopa(s, est);
   else if (s.tipo === 'relacionar') cuerpo = screenRelacionar(s, est);
@@ -501,6 +505,7 @@ function ocultarFeedback() {
 function textoPantallaWeb(s) {
   if (s.tipo === 'portada') return 'Actividad ' + (s.tit || '') + '. ' + (s.desc || '');
   if (s.tipo === 'texto') { const b = bloquesJuego[s.bi]; return 'Explicación. ' + (b.contenido || ''); }
+  if (s.tipo === 'esquema') { const b = bloquesJuego[s.bi]; return String(b.aria_label || b.titulo || 'Esquema interactivo'); }
   if (s.tipo === 'test') { const p = bloquesJuego[s.bi].preguntas[s.pi]; return p ? (p.pregunta || '') : ''; }
   if (s.tipo === 'sopa') return 'Encuentra las palabras';
   if (s.tipo === 'relacionar') return 'Relaciona las parejas';
@@ -681,6 +686,39 @@ function kpTimeoutCalculo(idx) {
     clearTimeout(calcAutoTimer);
     calcAutoTimer = setTimeout(avanzarCalculo, 1600);
   }
+}
+
+// Escena declarativa segura: no acepta HTML/SVG crudo. Solo pinta primitivas
+// conocidas y acciones popup declaradas por la plataforma.
+function screenEsquema(s, est) {
+  const b = bloquesJuego[s.bi] || {};
+  const sc = b.esquema || b.escena || b;
+  const w = Math.max(100, Math.min(1200, Number(sc.ancho) || 800));
+  const h = Math.max(80, Math.min(900, Number(sc.alto) || 450));
+  const color = v => /^#[0-9a-f]{6}$/i.test(String(v || '')) ? v : '#ffffff';
+  const num = (v, d = 0) => Number.isFinite(Number(v)) ? Number(v) : d;
+  let body = '';
+  (Array.isArray(sc.elementos) ? sc.elementos : []).forEach((e, i) => {
+    const x = num(e.x), y = num(e.y), ew = num(e.ancho, 100), eh = num(e.alto, 50);
+    const fill = color(e.color || e.relleno), stroke = color(e.borde || '#000000');
+    const label = esc(e.aria_label || e.texto || 'Elemento del esquema');
+    if (e.tipo === 'rectangulo') body += `<rect x="${x}" y="${y}" width="${ew}" height="${eh}" rx="${Math.max(0, num(e.radio, 0))}" fill="${fill}" stroke="${stroke}"/>`;
+    else if (e.tipo === 'circulo') body += `<circle cx="${x}" cy="${y}" r="${Math.max(1, num(e.radio, 20))}" fill="${fill}" stroke="${stroke}"/>`;
+    else if (e.tipo === 'linea') body += `<line x1="${x}" y1="${y}" x2="${num(e.x2)}" y2="${num(e.y2)}" stroke="${stroke}" stroke-width="${Math.max(1, num(e.grosor, 2))}"/>`;
+    else if (e.tipo === 'texto') body += `<text x="${x}" y="${y + Math.max(16, eh / 2)}" fill="${color(e.color || '#111111')}" font-family="inherit" font-size="${Math.max(10, Math.min(64, num(e.tamano, 20)))}" font-weight="${e.negrita ? '700' : '400'}" aria-label="${label}">${esc(e.texto || '')}</text>`;
+    if (e.accion?.tipo === 'popup') body += `<g class="pj-schema-action" tabindex="0" role="button" aria-label="${label}" onclick="abrirEsquemaPopup(${s.bi},${i})" onkeydown="if(event.key==='Enter'||event.key===' ')abrirEsquemaPopup(${s.bi},${i})">${e.tipo === 'texto' ? '' : `<rect x="${x}" y="${y}" width="${ew}" height="${eh}" fill="transparent"/>`}</g>`;
+  });
+  return `<div class="kp-screen"><div class="kp-qt">🧩 ${esc(b.titulo || 'Esquema')}</div><div class="pj-esquema" role="img" aria-label="${esc(b.aria_label || b.titulo || 'Esquema visual')}"><svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">${body}</svg></div><div class="kp-hint">👆 Pulsa los elementos destacados para ver más información</div><div style="text-align:center;margin-top:14px;"><button class="kp-check" onclick="pantallaNext()">Continuar →</button></div></div>`;
+}
+
+function abrirEsquemaPopup(bi, ei) {
+  const b = bloquesJuego[bi] || {}, sc = b.esquema || b.escena || b, e = (sc.elementos || [])[ei];
+  const p = e && e.accion && e.accion.tipo === 'popup' ? e.accion : null;
+  if (!p) return;
+  const old = document.getElementById('pj-schema-popup'); if (old) old.remove();
+  const box = document.createElement('div'); box.id = 'pj-schema-popup'; box.className = 'pj-schema-popup'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true');
+  box.innerHTML = `<div class="pj-schema-popup-card"><h3>${esc(p.titulo || 'Información')}</h3><p>${esc(p.contenido || '')}</p><button class="kp-btn" type="button">Cerrar</button></div>`;
+  box.querySelector('button').onclick = () => box.remove(); document.body.appendChild(box); box.querySelector('button').focus();
 }
 
 function screenTexto(s, est) {

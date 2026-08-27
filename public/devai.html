@@ -95,6 +95,7 @@
     ],
     "bloques": [
       { "tipo": "texto", "titulo": "Aprende", "contenido": "Explicación en una o varias líneas\nSegundo párrafo.", "imagen_url": "", "imagen_alt": "", "fuente": "" },
+      { "tipo": "esquema", "titulo": "Partes de una planta", "aria_label": "Esquema de una planta", "esquema": { "ancho": 800, "alto": 450, "elementos": [ { "tipo": "circulo", "x": 400, "y": 180, "radio": 80, "color": "#86efac", "aria_label": "Copa de la planta" }, { "tipo": "texto", "x": 330, "y": 300, "texto": "Raíz", "tamano": 24, "negrita": true }, { "tipo": "rectangulo", "x": 600, "y": 80, "ancho": 150, "alto": 70, "color": "#fef3c7", "accion": { "tipo": "popup", "titulo": "La raíz", "contenido": "Sujeta la planta y absorbe agua." }, "aria_label": "Ver información sobre la raíz" } ] } ,
       { "tipo": "test", "preguntas": [ { "pregunta": "¿...?", "opciones": ["A","B","C","D"], "correcta": 0 } ] },
       { "tipo": "sopa_letras", "palabras": ["SOL","LUNA"], "pistas": ["Estrella central","Satélite"], "tamano": 10 },
       { "tipo": "relacionar", "modo": "escribir", "pares": [ { "izq": "pista que ve el niño", "der": "palabra correcta", "izq_img": "", "izq_alt": "", "izq_fuente": "" } ] },
@@ -120,6 +121,7 @@ Reglas:
 - CODE_BLOCKS (Placeta Junior Code): crea una lista `ejercicios` con 3-5 retos progresivos (del más fácil al más difícil). Cada ejercicio tiene: `titulo`, `explicacion` (frase corta explicando qué hacer), `objetivo_texto`, `bloques_permitidos` (solo los necesarios para ese ejercicio: avanzar, retroceder, girar, saltar, repetir, si), `escenario` de cuadrícula (ancho/alto, obstáculos y monedas), `inicio` (x,y,direccion de Candela) y `objetivo` (posicion x,y, opcionalmente monedas/max_pasos/debe_usar) y `pistas`. El objetivo siempre es llevar a Candela (👧) a la estrella (⭐) sin chocar. Empieza con ejercicios muy sencillos (solo AVANZAR) y añade GIRAR, luego obstáculos, REPETIR y SI poco a poco.
 - En completar, usa palabras en SINGULAR y, en modo opciones, escribe "opciones" (distractores).
 - En mapa_mundi, usa solo países conocidos (España, Francia, Italia, Portugal, Reino Unido, Alemania, Egipto, Brasil, México, Estados Unidos, Canadá, China, India, Japón, Australia…).
+- ESQUEMAS SEGUROS: para sustituir imágenes usa un bloque `esquema` con `esquema.elementos`. Solo puedes usar `texto`, `rectangulo`, `circulo` y `linea`, con colores hexadecimales y medidas numéricas. No escribas HTML, SVG, JavaScript, CSS, URLs, imágenes, iframes ni fuentes externas. Para información al pulsar, añade únicamente `accion: {"tipo":"popup", "titulo":"...", "contenido":"..."}` al elemento: la plataforma crea el popup y aplica accesibilidad y tipografías propias.
 - En calculo_mental, "operacion" puede ser "suma", "resta", "multiplicacion" o "division" (cada "suma" puede sobrescribirla con su propio "op"). "vertical": true muestra la cuenta en vertical (suma/resta) y, en las sumas, "llevadas": true pinta las llevadas encima de cada columna.
 - En problemas, el "enunciado" puede describir varias operaciones seguidas (varios pasos); "frase" es la frase final con ___ que el niño completa con el resultado numérico de "respuesta". Opcionalmente, en "operaciones" lista cada paso como { "a": número, "b": número, "op": "suma|resta|multiplicacion|division" } para que el niño las vea y resuelva EN VERTICAL.
 - Escribe en español, adáptalo a la edad indicada y numera bien los bloques.
@@ -355,6 +357,12 @@ Reglas:
           });
         } else if (b.tipo === 'mapa_mundi' && Array.isArray(b.paises)) {
           html += '<div style="margin-left:8px;">🌍 Localiza en el mapamundi: ' + b.paises.map(esc).join(', ') + '</div>';
+        } else if (b.tipo === 'esquema') {
+          const sc = b.esquema || b.escena || b;
+          const elementos = Array.isArray(sc.elementos) ? sc.elementos : [];
+          const popups = elementos.filter(e => e.accion && e.accion.tipo === 'popup').length;
+          html += '<div style="margin-left:8px;">🧩 Esquema seguro · ' + elementos.length + ' elemento(s)' + (popups ? ' · ' + popups + ' popup(s) interactivo(s)' : '') + '</div>';
+          html += '<div style="margin-left:8px;color:var(--pj-gray-500);">Solo primitivas SVG declarativas, sin HTML ni código ejecutable.</div>';
         } else {
           html += '<div style="margin-left:8px;color:var(--pj-gray-500);">(bloque sin contenido detectado)</div>';
         }
