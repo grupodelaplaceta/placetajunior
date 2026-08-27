@@ -89,6 +89,10 @@
   "subvencionada": false,
   "contenido": {
     "version": 2,
+    "niveles": [
+      { "orden": 1, "titulo": "Descubrimos", "descripcion": "Aprende lo básico", "recompensa": 0, "bloques": [ { "tipo": "texto", "titulo": "Explicación", "contenido": "Contenido de la diapositiva." } ] },
+      { "orden": 2, "titulo": "Practicamos", "descripcion": "Demuestra lo aprendido", "recompensa": 0, "bloques": [ { "tipo": "test", "preguntas": [ { "pregunta": "¿... ?", "opciones": ["A", "B", "C"], "correcta": 0 } ] } ] }
+    ],
     "bloques": [
       { "tipo": "texto", "titulo": "Aprende", "contenido": "Explicación en una o varias líneas\nSegundo párrafo.", "imagen_url": "", "imagen_alt": "", "fuente": "" },
       { "tipo": "test", "preguntas": [ { "pregunta": "¿...?", "opciones": ["A","B","C","D"], "correcta": 0 } ] },
@@ -119,6 +123,7 @@ Reglas:
 - En calculo_mental, "operacion" puede ser "suma", "resta", "multiplicacion" o "division" (cada "suma" puede sobrescribirla con su propio "op"). "vertical": true muestra la cuenta en vertical (suma/resta) y, en las sumas, "llevadas": true pinta las llevadas encima de cada columna.
 - En problemas, el "enunciado" puede describir varias operaciones seguidas (varios pasos); "frase" es la frase final con ___ que el niño completa con el resultado numérico de "respuesta". Opcionalmente, en "operaciones" lista cada paso como { "a": número, "b": número, "op": "suma|resta|multiplicacion|division" } para que el niño las vea y resuelva EN VERTICAL.
 - Escribe en español, adáptalo a la edad indicada y numera bien los bloques.
+- DIAPOSITIVAS/NIVELES: si la actividad tiene varias partes, usa `contenido.niveles` (también llamado `diapositivas`) con 2-6 objetos ordenados. Cada objeto debe tener `orden`, `titulo`, `descripcion`, `recompensa` y `bloques`. La primera diapositiva debe explicar y las siguientes practicar. Si usas niveles, deja también `contenido.bloques` como resumen o vacío.
 - IMPORTANTE: devuelve solo el JSON, sin texto ni comillas de código.</textarea>
       <div class="row" style="margin-top:10px;">
         <button class="btn btn-purple" onclick="copiar('prompt')">📋 Copiar prompt</button>
@@ -371,7 +376,13 @@ Reglas:
       let obj;
       try { obj = JSON.parse($('codigo').value); }
       catch (e) { aviso('❌ El código no es JSON válido: ' + e.message, true); return; }
-      const contenido = (obj.contenido && obj.contenido.bloques) ? obj.contenido : { version: 2, bloques: obj.bloques || [] };
+       const contenido = (obj.contenido && typeof obj.contenido === 'object') ? obj.contenido : { version: 2, bloques: obj.bloques || [] };
+       // Acepta tanto el nombre que usa DevAI como el histórico del Studio.
+       if (!Array.isArray(contenido.niveles) && Array.isArray(contenido.diapositivas)) contenido.niveles = contenido.diapositivas;
+       if (!Array.isArray(contenido.bloques)) contenido.bloques = [];
+       if (Array.isArray(contenido.niveles)) {
+         contenido.niveles = contenido.niveles.map((n, i) => ({ ...n, orden: Number(n.orden || i + 1), bloques: Array.isArray(n.bloques) ? n.bloques : (n.contenido?.bloques || []) }));
+       }
       const bloques = contenido.bloques || [];
       if (!bloques.length) { aviso('❌ No hay bloques para publicar.', true); return; }
       const titulo = (obj.titulo || $('titulo').value || '').trim();

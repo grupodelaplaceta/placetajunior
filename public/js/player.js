@@ -98,10 +98,11 @@ function abrirJuego(act) {
   // RSP puede organizar una actividad en niveles/diapositivas. Se
   // convierten en una secuencia única para reutilizar todos los juegos del
   // reproductor y conservar el avance pantalla a pantalla.
-  const niveles = (act && (act.subapartados || act.niveles)) || [];
+  const contenidoNiveles = act && act.contenido && (act.contenido.niveles || act.contenido.diapositivas);
+  const niveles = (act && (act.subapartados || act.niveles || contenidoNiveles)) || [];
   if (!esCode && niveles.length) {
     bloquesJuego = niveles.slice().sort((a, b) => Number(a.orden || 0) - Number(b.orden || 0)).flatMap((n, i) => {
-      const contenido = n.contenido || {};
+      const contenido = n.contenido || n;
       const encabezado = { tipo: 'texto', nivelIndex: i, titulo: `Nivel ${i + 1}: ${n.titulo || 'Siguiente reto'}`, contenido: n.descripcion || `Completa este nivel para desbloquear el siguiente. Recompensa: ${Number(n.recompensa || 0)} Pz` };
       return [encabezado, ...(Array.isArray(contenido.bloques) ? contenido.bloques.map(b => ({ ...b, nivelIndex: i })) : [])];
     });
