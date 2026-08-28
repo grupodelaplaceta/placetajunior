@@ -104,7 +104,11 @@
       { "tipo": "completar", "modo": "opciones", "frases": [ { "texto": "La frase con ___", "respuesta": "perro", "opciones": ["gato","pájaro"] } ] },
       { "tipo": "completar", "modo": "escribir", "frases": [ { "texto": "La frase con ___", "respuesta": "palabra" } ] },
       { "tipo": "calculo_mental", "operacion": "suma", "vertical": false, "llevadas": true, "sumas": [ { "a": 3, "b": 5, "op": "suma" } ], "segundos": 10, "modo": "opciones" },
-      { "tipo": "problemas", "modo": "escribir", "problemas": [ { "enunciado": "María tiene 5 manzanas, compra 3 más y regala 2.", "frase": "Al final le quedan ___ manzanas.", "respuesta": 6, "operaciones": [ { "a": 5, "b": 3, "op": "suma" }, { "a": 8, "b": 2, "op": "resta" } ] } ] },
+      { "tipo": "construir_frase", "palabras": ["come", "El", "gato", "pescado"], "respuesta": "El gato come pescado" },
+      { "tipo": "clasificar_palabras", "categorias": ["Sustantivo", "Verbo", "Adjetivo"], "elementos": [ { "texto": "perro", "categoria": "Sustantivo" }, { "texto": "correr", "categoria": "Verbo" }, { "texto": "azul", "categoria": "Adjetivo" } ] },
+      { "tipo": "completar_palabra", "modo": "opciones", "ejercicios": [ { "texto": "El ca__o corre por el parque.", "respuesta": "rr", "opciones": ["r", "rr", "rrr"] } ] },
+      { "tipo": "cazador_errores", "texto": "Ayer fuimos al parque y vimos un pajaro.", "errores": [ { "incorrecto": "pajaro", "correcto": "pájaro" } ] },
+      { "tipo": "lectura_interactiva", "escenas": [ { "texto": "Candela encuentra una caja misteriosa.", "opciones": [ { "texto": "Abrir la caja", "siguiente": 1 }, { "texto": "Buscar ayuda", "siguiente": 1 } ] }, { "texto": "¡Dentro hay una sorpresa!", "opciones": [] } ] },
       { "tipo": "mapa_mundi", "paises": ["España", "Francia", "Italia", "Portugal"] },
       { "tipo": "arrastrar", "titulo": "Recicla con Candela", "instrucciones": "Coloca cada objeto en su contenedor.", "datos": { "elementos": ["🍌|Cáscara|orgánico"], "zonas": ["orgánico","papel"], "respuestas": { "Cáscara": "orgánico" } } },
       { "tipo": "buscar", "titulo": "Busca y encuentra", "instrucciones": "Encuentra los objetos.", "datos": { "objetos": ["💡|Lámpara|1","🪑|Silla|0"], "objetivo": 1 } },
@@ -136,7 +140,8 @@ Reglas:
 - En mapa_mundi, usa solo países conocidos (España, Francia, Italia, Portugal, Reino Unido, Alemania, Egipto, Brasil, México, Estados Unidos, Canadá, China, India, Japón, Australia…).
 - ESQUEMAS SEGUROS: para sustituir imágenes usa un bloque `esquema` con `esquema.elementos`. Solo puedes usar `texto`, `rectangulo`, `circulo` y `linea`, con colores hexadecimales y medidas numéricas. No escribas HTML, SVG, JavaScript, CSS, URLs, imágenes, iframes ni fuentes externas. Para información al pulsar, añade únicamente `accion: {"tipo":"popup", "titulo":"...", "contenido":"..."}` al elemento: la plataforma crea el popup y aplica accesibilidad y tipografías propias.
 - En calculo_mental, "operacion" puede ser "suma", "resta", "multiplicacion" o "division" (cada "suma" puede sobrescribirla con su propio "op"). "vertical": true muestra la cuenta en vertical (suma/resta) y, en las sumas, "llevadas": true pinta las llevadas encima de cada columna.
-- En problemas, el "enunciado" puede describir varias operaciones seguidas (varios pasos); "frase" es la frase final con ___ que el niño completa con el resultado numérico de "respuesta". Opcionalmente, en "operaciones" lista cada paso como { "a": número, "b": número, "op": "suma|resta|multiplicacion|division" } para que el niño las vea y resuelva EN VERTICAL.
+- No generes bloques de tipo "problemas" temporalmente. El formato "calculo_mental" sí está permitido.
+- Para lenguaje usa "construir_frase", "clasificar_palabras", "completar_palabra", "cazador_errores" y "lectura_interactiva" con sus estructuras de ejemplo.
 - Escribe en español, adáptalo a la edad indicada y numera bien los bloques.
 - DIAPOSITIVAS/NIVELES: si la actividad tiene varias partes, usa `contenido.niveles` (también llamado `diapositivas`) con 2-6 objetos ordenados. Cada objeto debe tener `orden`, `titulo`, `descripcion`, `recompensa` y `bloques`. La primera diapositiva debe explicar y las siguientes practicar. Si usas niveles, deja también `contenido.bloques` como resumen o vacío.
 - IMPORTANTE: devuelve solo el JSON, sin texto ni comillas de código.</textarea>
@@ -291,7 +296,7 @@ Reglas:
       if (paresEmp.length) bloques.push({ tipo: 'relacionar', titulo: 'Relaciona', modo: 'emparejar', pares: paresEmp });
       if (paresEsc.length) bloques.push({ tipo: 'relacionar', titulo: 'Escribe la palabra', modo: 'escribir', pares: paresEsc });
       if (frases.length) bloques.push({ tipo: 'completar', titulo: 'Completa', frases });
-      if (problemas.length) bloques.push({ tipo: 'problemas', titulo: 'Problemas', modo: 'escribir', problemas });
+      // Problemas matemáticos desactivados temporalmente; cálculo mental sigue disponible.
 
       if (!bloques.length) { aviso('No pude detectar bloques. Usa preguntas con "?" o parejas con "->".', true); return; }
 

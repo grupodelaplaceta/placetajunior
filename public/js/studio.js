@@ -16,7 +16,6 @@ const TIPOS = {
   ordenar:       { ico: 'format_list_numbered', nombre: 'Ordenar' },
   completar:     { ico: 'edit_note', nombre: 'Completar' },
   calculo_mental: { ico: 'calculate', nombre: 'Cálculo mental' },
-  problemas:      { ico: 'functions', nombre: 'Problemas' },
   mapa_mundi:    { ico: 'public', nombre: 'Mapamundi' },
   code_blocks:   { ico: 'code', nombre: 'Placeta Junior Code' },
   arrastrar:     { ico: 'open_with', nombre: 'Arrastrar y colocar' },
@@ -26,6 +25,11 @@ const TIPOS = {
   construccion:  { ico: 'build', nombre: 'Construye' },
   presupuesto:   { ico: 'shopping_cart', nombre: 'Tienda de Candela' },
   dinero_euro:   { ico: 'euro', nombre: 'Billetes y monedas de euro' },
+  construir_frase: { ico: 'format_quote', nombre: 'Constructor de frases' },
+  clasificar_palabras: { ico: 'category', nombre: 'Clasificador de palabras' },
+  completar_palabra: { ico: 'spellcheck', nombre: 'Completa la palabra' },
+  cazador_errores: { ico: 'search_check', nombre: 'Cazador de errores' },
+  lectura_interactiva: { ico: 'menu_book', nombre: 'Lectura interactiva' },
   exploracion:   { ico: 'explore', nombre: 'Exploración' },
   simulacion:    { ico: 'casino', nombre: 'Simulador' },
   historia_interactiva: { ico: 'auto_stories', nombre: 'Historia interactiva' }
@@ -319,7 +323,7 @@ function nuevoBloque(tipo) {
       pistas: []
     }];
   }
-  if (['arrastrar','buscar','detective','laboratorio','construccion','presupuesto','dinero_euro','exploracion','simulacion','historia_interactiva','memoria','sonido','codigo_secreto','escape_room'].includes(tipo)) {
+  if (['arrastrar','buscar','detective','laboratorio','construccion','presupuesto','dinero_euro','construir_frase','clasificar_palabras','completar_palabra','cazador_errores','lectura_interactiva','exploracion','simulacion','historia_interactiva','memoria','sonido','codigo_secreto','escape_room'].includes(tipo)) {
     b.instrucciones = tipo === 'arrastrar' ? 'Coloca cada elemento en su lugar.' : '¡Completa este reto!';
     b.datos = tipo === 'arrastrar'
       ? { elementos: ['🍌|Cáscara de plátano|orgánico','📰|Periódico|papel','🍾|Botella|vidrio'], zonas: ['orgánico','papel','vidrio'], respuestas: { 'Cáscara de plátano':'orgánico','Periódico':'papel','Botella':'vidrio' } }
@@ -329,6 +333,11 @@ function nuevoBloque(tipo) {
       : tipo === 'construccion' ? { piezas: ['🔋 Batería','💡 Bombilla','🔌 Cables','⏻ Interruptor'], solucion: ['Batería','Cables','Interruptor','Bombilla'] }
       : tipo === 'presupuesto' ? { presupuesto: 20, productos: ['🍎|Manzana|2','🥛|Leche|1.5','🍞|Pan|1.2','🍝|Pasta|2.3'] }
       : tipo === 'dinero_euro' ? { objetivo: 7.35, monedas: [0.01,0.02,0.05,0.10,0.20,0.50,1,2], billetes: [5,10,20] }
+      : tipo === 'construir_frase' ? { palabras: ['El','gato','come','pescado'], respuesta: 'El gato come pescado' }
+      : tipo === 'clasificar_palabras' ? { categorias: ['Sustantivo','Verbo','Adjetivo'], elementos: [{texto:'perro',categoria:'Sustantivo'},{texto:'correr',categoria:'Verbo'},{texto:'azul',categoria:'Adjetivo'}] }
+      : tipo === 'completar_palabra' ? { modo:'opciones', ejercicios:[{texto:'El ca__o corre por el parque.',respuesta:'rr',opciones:['r','rr','rrr']}] }
+      : tipo === 'cazador_errores' ? { texto:'Ayer fuimos al parque y vimos un pajaro.', errores:[{incorrecto:'pajaro',correcto:'pájaro'}] }
+      : tipo === 'lectura_interactiva' ? { escenas:[{texto:'Candela encuentra una caja misteriosa.',opciones:[{texto:'Abrir la caja',siguiente:1},{texto:'Buscar ayuda',siguiente:1}]},{texto:'¡Dentro hay una sorpresa! Fin.',opciones:[]}] }
       : tipo === 'exploracion' ? { lugares: ['📍 Tarragona|Capital romana|tarragona','📍 Barcelona|Ciudad modernista|barcelona','📍 Madrid|Capital de España|madrid'], pregunta: '¿Qué ciudad quieres visitar primero?', correcta: 'barcelona' }
       : tipo === 'simulacion' ? { caras: 6, pregunta: 'Lanza el dado y observa los resultados.' }
       : tipo === 'memoria' ? { tarjetas: ['☀️','🌙','🌈','⭐','☀️','🌙','🌈','⭐'] }
@@ -370,7 +379,7 @@ function render() {
   if (bloques.length === 0) {
     canvas.innerHTML = '<div id="canvas-empty" class="canvas-empty">Arrastra bloques aquí 👇</div>';
   } else {
-    canvas.innerHTML = bloques.map((b, i) => renderBloque(b, i)).join('');
+    canvas.innerHTML = bloques.filter(b => b.tipo !== 'problemas').map((b, i) => renderBloque(b, i)).join('');
   }
   guardar();
 }

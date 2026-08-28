@@ -8,7 +8,7 @@ let pantallaIdx = 0;
 let kpEstado = [];
 let bloquesJuego = [];
 function adaptarInteractivo(b) {
-  if (!b || b.datos || !['arrastrar','buscar','detective','laboratorio','construccion','presupuesto','dinero_euro','exploracion','simulacion','memoria','sonido','codigo_secreto','escape_room'].includes(b.tipo)) return b;
+  if (!b || b.datos || !['arrastrar','buscar','detective','laboratorio','construccion','presupuesto','dinero_euro','construir_frase','clasificar_palabras','completar_palabra','cazador_errores','lectura_interactiva','exploracion','simulacion','memoria','sonido','codigo_secreto','escape_room'].includes(b.tipo)) return b;
   const d={...b}; if(Array.isArray(d.destinos)&&!d.zonas)d.zonas=d.destinos.map(x=>x.id||x.texto); if(d.instruccion&&!d.instrucciones)d.instrucciones=d.instruccion; if(Array.isArray(d.elementos)&&b.tipo==='buscar')d.objetos=d.elementos.map(x=>`${x.texto||x.nombre||''}|${x.texto||x.nombre||''}|${x.correcto?'1':'0'}`); b.datos=d; return b;
 }
 let kpScore = { verdes: 0, rojos: 0 };
@@ -204,6 +204,9 @@ function abrirJuego(act) {
           kpEstado.push({ respondida: false, sel: null, acierto: null, opciones, correcta });
         });
       } else if (b.tipo === 'problemas') {
+        // Formato retirado temporalmente: no crea pantallas para estos ejercicios.
+        return;
+      } else if (b.tipo === 'problemas_legacy_disabled') {
         const probs = (b.problemas || []).filter(p => String(p.enunciado || '').trim() || String(p.frase || '').trim());
         probs.forEach((p, pi) => {
           const correcta = Number(p.respuesta) || 0;
@@ -220,7 +223,7 @@ function abrirJuego(act) {
           pantallas.push({ tipo: 'mapa', bi, qi, n: (preg || []).length, paises, pide: q.pide || ('Haz clic en ' + corr), correcta: corr, correctaEn: MAPA_MUNDI.paises[corr] });
           kpEstado.push({ respondida: false, acierto: null, sel: null });
         });
-      } else if (['arrastrar','buscar','detective','laboratorio','construccion','presupuesto','dinero_euro','exploracion','simulacion','historia_interactiva','memoria','sonido','codigo_secreto','escape_room'].includes(b.tipo) && b.datos) {
+      } else if (['arrastrar','buscar','detective','laboratorio','construccion','presupuesto','dinero_euro','construir_frase','clasificar_palabras','completar_palabra','cazador_errores','lectura_interactiva','exploracion','simulacion','historia_interactiva','memoria','sonido','codigo_secreto','escape_room'].includes(b.tipo) && (b.datos || b.palabras || b.texto || b.escenas)) {
         pantallas.push({ tipo: 'interactivo', bi });
         kpEstado.push({ respondida: false, seleccion: [], lanzamientos: [], gastado: 0 });
       }
@@ -734,6 +737,7 @@ function screenInteractive(s, est) {
   else if(tipo==='escape_room') body+=`${(d.pruebas||[]).map((p,i)=>`<p>${esc(p.pregunta||'')}</p><div class="kp-opts">${(p.opciones||[]).map((o,k)=>`<button class="kp-opt" onclick="kpEscapeJuego(${s.bi},${i},${k})">${esc(o)}</button>`).join('')}</div>`).join('')}`;
   else if(tipo==='presupuesto') body += screenPresupuesto(s, est);
   else if(tipo==='dinero_euro') body += screenDineroEuro(s, est);
+  else if(['construir_frase','clasificar_palabras','completar_palabra','cazador_errores','lectura_interactiva'].includes(tipo)) body += screenLengua(s, est);
   else if(tipo==='arrastrar') body+=`<p>Elige una categoría para colocar los elementos:</p><div class="kp-drop-zones">${(d.zonas||[]).map(z=>`<button class="kp-zone" onclick="kpResponderInteractivo(${s.bi},'${esc(z)}')">${esc(z)}</button>`).join('')}</div>`;
   else body+=`${(d.pistas||[]).map((p,i)=>`<div class="kp-hint">Pista ${i+1}: ${esc(p)}</div>`).join('')}<div class="kp-opts">${opts.map((o,i)=>`<button class="kp-opt" onclick="kpResponderInteractivo(${s.bi},'${esc(o)}',${i})">${esc(o)}</button>`).join('')}</div>`;
   return body+((est.respondida)?`<div class="kp-msg ${est.acierto?'ok':'bad'}">${est.acierto?'¡Muy bien! 🎉':'Prueba otra vez 💪'}</div>`:'')+'</div>';
@@ -750,6 +754,8 @@ function screenDineroEuro(s, est) {
   return `<div class="pj-money-board"><div class="pj-money-target">🎯 Forma <strong>${objetivo.toFixed(2)} €</strong></div><div class="pj-money-total">Tu hucha: <strong>${total.toFixed(2)} €</strong><small>${total===objetivo?'¡Exacto! 🎉':total>objetivo?'Te has pasado':'Añade monedas o billetes'}</small></div><h4>🪙 Monedas</h4><div class="pj-money-grid">${monedas.map(pieza).join('')}</div><h4>💶 Billetes</h4><div class="pj-money-grid">${billetes.map(pieza).join('')}</div><div class="pj-money-chosen">${elegido.length?elegido.map(n=>`<span>${Number(n)>=5?'💶':'🪙'} ${Number(n).toFixed(2)} €</span>`).join(''):'Todavía no has elegido nada'}</div><button class="kp-btn" ${total!==objetivo?'disabled':''} onclick="kpTerminarInteractivo()">${total===objetivo?'✅ Comprobar cantidad':'Completa la cantidad exacta'}</button></div>`;
 }
 function kpDineroEuro(bi, n) { const e=kpEstado[pantallaIdx], d=bloquesJuego[bi].datos||{}, objetivo=Number(d.objetivo||d.cantidad||5), total=(e.euroElegido||[]).reduce((a,v)=>a+Number(v),0); if(total+Number(n)<=objetivo){e.euroElegido=[...(e.euroElegido||[]),Number(n)]; if(window.pjSonido)window.pjSonido.clic?.(); renderPantalla();} }
+function screenLengua(s,e){const b=bloquesJuego[s.bi],d=b.datos||b,t=s.tipo;if(t==='construir_frase')return `<div class="pj-language-card"><div class="pj-language-goal">🧩 Ordena las palabras</div><p class="pj-spelling">${(d.palabras||[]).map((w,i)=>`<button class="pj-word" onclick="kpLengua(${s.bi},${i})">${esc(w)}</button>`).join(' ')}</p><p>Construcción: ${esc((e.palabras||[]).join(' '))}</p><button class="kp-btn" onclick="kpLenguaCheck(${s.bi})">Comprobar</button></div>`;if(t==='completar_palabra')return `<div class="pj-language-card"><div class="pj-language-goal">✏️ Completa la palabra</div><p class="pj-spelling">${esc((d.ejercicios||[d])[0].texto||'')}</p><div class="pj-word-bank">${((d.ejercicios||[d])[0].opciones||[]).map(o=>`<button class="pj-word" onclick="kpLenguaValue(${s.bi},'${esc(o)}')">${esc(o)}</button>`).join('')}</div></div>`;if(t==='cazador_errores')return `<div class="pj-language-card"><div class="pj-language-goal">🔎 Encuentra el error</div><p class="pj-error-sentence">${String(d.texto||'').split(/(\s+)/).map(x=>/\w/.test(x)?`<button class="pj-error-word" onclick="kpLenguaValue(${s.bi},'${esc(x)}')">${esc(x)}</button>`:x).join('')}</p></div>`;if(t==='lectura_interactiva'){const sc=(d.escenas||[])[e.escena||0]||d;return `<div class="pj-language-card pj-reading"><div class="pj-language-goal">📖 ${esc(sc.titulo||'Historia')}</div><p>${esc(sc.texto||'')}</p><div class="kp-opts">${(sc.opciones||[]).map((o,i)=>`<button class="kp-opt" onclick="kpLectura(${s.bi},${i})">${esc(o.texto||o)}</button>`).join('')}</div></div>`;}return `<div class="pj-language-card"><div class="pj-language-goal">🔤 Clasifica las palabras</div><p>${(d.elementos||[]).map((x,i)=>`<button class="pj-word" onclick="kpLenguaValue(${s.bi},'${esc(x.categoria)}')">${esc(x.texto)}</button>`).join(' ')}</p><small>Después de cada palabra, elige su categoría.</small></div>`;}
+function kpLengua(bi,i){const e=kpEstado[pantallaIdx],d=bloquesJuego[bi].datos||bloquesJuego[bi];e.palabras=e.palabras||[];if(!e.palabras.includes(d.palabras[i]))e.palabras.push(d.palabras[i]);renderPantalla();}function kpLenguaValue(bi,v){const e=kpEstado[pantallaIdx];e.valor=v;renderPantalla();}function kpLenguaCheck(bi){const d=bloquesJuego[bi].datos||bloquesJuego[bi],e=kpEstado[pantallaIdx];e.respondida=true;e.acierto=(e.palabras||[]).join(' ')===d.respuesta;if(e.acierto)kpScore.verdes++;else kpScore.rojos++;renderPantalla();}function kpLectura(bi,i){const d=bloquesJuego[bi].datos||bloquesJuego[bi],e=kpEstado[pantallaIdx],sc=(d.escenas||[])[e.escena||0]||{},o=(sc.opciones||[])[i]||{};if(o.siguiente!=null){e.escena=Number(o.siguiente);renderPantalla();}else{e.respondida=true;e.acierto=true;kpScore.verdes++;renderPantalla();}}
 function kpTerminarInteractivo(){const e=kpEstado[pantallaIdx];e.respondida=true;e.acierto=true;kpScore.verdes++;renderPantalla();}
 function kpMemoriaJuego(bi,i){const e=kpEstado[pantallaIdx],cards=bloquesJuego[bi].datos?.tarjetas||[];e.reveladas=e.reveladas||[];if(!e.reveladas.includes(i))e.reveladas.push(i);if(e.reveladas.length>=2){const a=e.reveladas.slice(-2);e.respondida=true;e.acierto=cards[a[0]]===cards[a[1]];if(e.acierto)kpScore.verdes++;else kpScore.rojos++;}renderPantalla();}
 function kpSecretoJuego(bi){const e=kpEstado[pantallaIdx],v=document.getElementById('kp-secret')?.value.trim();if(!v)return;e.respondida=true;e.acierto=v.toLowerCase()===String(bloquesJuego[bi].datos?.contraseña||'').toLowerCase();if(e.acierto)kpScore.verdes++;else kpScore.rojos++;renderPantalla();}
