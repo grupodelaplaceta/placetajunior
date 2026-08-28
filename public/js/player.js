@@ -7,6 +7,10 @@ let pantallas = [];
 let pantallaIdx = 0;
 let kpEstado = [];
 let bloquesJuego = [];
+function adaptarInteractivo(b) {
+  if (!b || b.datos || !['arrastrar','buscar','detective','laboratorio','construccion','presupuesto','exploracion','simulacion','memoria','sonido','codigo_secreto','escape_room'].includes(b.tipo)) return b;
+  const d={...b}; if(Array.isArray(d.destinos)&&!d.zonas)d.zonas=d.destinos.map(x=>x.id||x.texto); if(d.instruccion&&!d.instrucciones)d.instrucciones=d.instruccion; if(Array.isArray(d.elementos)&&b.tipo==='buscar')d.objetos=d.elementos.map(x=>`${x.texto||x.nombre||''}|${x.texto||x.nombre||''}|${x.correcto?'1':'0'}`); b.datos=d; return b;
+}
 let kpScore = { verdes: 0, rojos: 0 };
 let kpCelebrado = false;
 let actividadActual = null;   // actividad que se está jugando (para guardar progreso)
@@ -163,7 +167,7 @@ function abrirJuego(act) {
       kpEstado[pantallaIdx].programa = guardada.code.programa || [];
     }
   } else {
-    bloquesJuego.forEach((b, bi) => {
+    bloquesJuego.forEach((raw, bi) => { const b=adaptarInteractivo(raw);
       if (b.tipo === 'test') {
         (b.preguntas || []).forEach((p, pi) => {
           pantallas.push({ tipo: 'test', bi, pi, nPreg: b.preguntas.length });

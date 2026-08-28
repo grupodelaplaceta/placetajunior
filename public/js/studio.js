@@ -113,6 +113,8 @@ let galeriaActual = [];
 let galeriaArasaac = [];          // resultados ARASAAC del último término
 let galeriaArasaacQ = '';
 let galeriaArasaacCargando = false;
+let unsplashBusqueda = '';
+let unsplashCargando = false;
 
 function renderGaleria() {
   const q = galeriaBusqueda.trim().toLowerCase();
@@ -156,6 +158,7 @@ function renderGaleria() {
     }
   }
   galeriaActual = lista.slice(0, 120);
+  if (q && q !== unsplashBusqueda && !unsplashCargando && localStorage.getItem('pj-unsplash-key')) buscarUnsplash(q);
   const cont = $('stock-thumbs');
   if (galeriaActual.length === 0) {
     cont.innerHTML = '<div class="g-empty">Sin resultados. Prueba otra búsqueda o pega tu propia URL.</div>';
@@ -402,6 +405,12 @@ function renderBloque(b, i) {
       ${renderImagenBloque(b, i)}
     </div>
   </div>`;
+}
+
+async function buscarUnsplash(q) {
+  const key=localStorage.getItem('pj-unsplash-key'); if(!key)return; unsplashCargando=true;unsplashBusqueda=q;
+  const status=$('unsplash-status');if(status)status.textContent='Buscando imágenes en Unsplash…';
+  try { const u=new URL('https://api.unsplash.com/search/photos');u.searchParams.set('query',q);u.searchParams.set('per_page','30');u.searchParams.set('content_filter','high');const r=await fetch(u,{headers:{Authorization:'Client-ID '+key}});if(!r.ok)throw new Error();const j=await r.json();const api=(j.results||[]).map(x=>({url:x.urls?.regular||x.urls?.small,thumb:x.urls?.small,fuente:`Foto: Unsplash · ${x.user?.name||x.user?.username||'autor'} · https://unsplash.com/@${x.user?.username||''}`,prov:'unsplash-api',tema:q,autor:x.user?.name||x.user?.username||''}));const existentes=new Set(GALERIA.map(x=>x.url));galeriaArasaac=[];galeriaActual=[...api.filter(x=>x.url&&!existentes.has(x.url)),...galeriaActual].slice(0,120);const c=$('stock-thumbs');if(c)c.innerHTML=galeriaActual.map((g,idx)=>`<div class="g-item" style="background-image:url('${esc(g.thumb||g.url)}')" data-i="${idx}" onclick="elegirGaleria(${idx})"><span class="g-tag">${esc(g.autor||g.tema||g.prov)}</span></div>`).join('');if(status)status.innerHTML='Resultados de Unsplash. La atribución del fotógrafo se guardará con la imagen.';}catch(e){if(status)status.textContent='No se pudo conectar con Unsplash. Comprueba tu Access Key.';}finally{unsplashCargando=false;}
 }
 
 function renderInteractivo(b, i) {
@@ -2514,6 +2523,8 @@ function aviso(msg, esError) {
 // ── Init ─────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   $('sound-close')?.addEventListener('click', () => $('sound-modal').classList.add('hidden'));
+  $('unsplash-key')?.setAttribute('value', localStorage.getItem('pj-unsplash-key') || '');
+  $('unsplash-key-save')?.addEventListener('click', () => { const v=$('unsplash-key').value.trim(); if(v)localStorage.setItem('pj-unsplash-key',v); $('unsplash-status').textContent='Access Key guardada solo en este navegador.'; if($('img-search').value.trim()) { unsplashBusqueda=''; renderGaleria(); } });
   $('freesound-token')?.setAttribute('value', localStorage.getItem('pj-freesound-token') || '');
   $('freesound-token-save')?.addEventListener('click', () => { const v=$('freesound-token').value.trim(); if(v)localStorage.setItem('pj-freesound-token',v); $('freesound-status').textContent='Token guardado solo en este navegador.'; });
   $('freesound-search')?.addEventListener('click', buscarFreesound);
