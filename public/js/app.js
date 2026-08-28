@@ -242,8 +242,8 @@ function verInfo(id) {
   const bloqueada = esBloqueada(a);
   const color = categoriaColor(a.categoria);
   const unidades = obtenerUnidadesActividad(a);
-  const nBloques = Array.isArray(a.subapartados) && a.subapartados.length
-    ? a.subapartados.length
+  const nBloques = unidades.length
+    ? unidades.length
     : ((a.contenido && a.contenido.bloques) ? a.contenido.bloques.length : (a.num_fases || 0));
   const nPreg = a.num_preguntas || 0;
   const unidadesHtml = unidades.length ? `<div class="detail-card detail-unidades"><h2>Unidades</h2>${unidades.map((n, i) => {
@@ -462,6 +462,7 @@ async function descargarPdf(id) {
     cuerpo = generarPdfCode(a);
   }
   const imprimirBloque = (b) => {
+    b = { ...b, imagen_url: b.imagen_url || b.imagenUrl || b.imagen || b.image_url || b.imageUrl || '' };
     if (b.tipo === 'test' && b.preguntas && b.preguntas.length) {
       cuerpo += '<div class="ws-sec ws-test"><h4>Preguntas</h4>';
       b.preguntas.forEach((p, k) => {
