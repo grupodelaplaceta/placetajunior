@@ -664,6 +664,21 @@ body.pj-home.mostrando-detalle .detail-page { display: block; }
 .print-worksheet .ws-head p { margin: 0; font-size: 11px; color: #6B7280; }
 .print-worksheet .ws-meta { border: 1px solid #d1d5db; border-radius: 8px; padding: 5px 10px; margin-bottom: 10px; font-size: 12px; page-break-inside: avoid; break-inside: avoid; }
 .print-worksheet .ws-sec { margin-bottom: 10px; }
+.detail-unit { display:flex; gap:12px; align-items:center; justify-content:space-between; padding:12px 0; border-top:1px solid var(--pj-gray-200,#e5e7eb); }
+.detail-unit div { display:flex; flex-direction:column; gap:3px; }
+.detail-unit strong { color:var(--pj-purple,#4e3b70); }
+.detail-unit small { color:var(--pj-gray-500,#6b7280); }
+.detail-unit b { color:var(--pj-orange,#ff6600); white-space:nowrap; }
+.print-worksheet .ws-unit { margin: 18px 0 24px; break-inside: avoid; }
+.print-worksheet .ws-unit h3 { color: var(--ws-theme); border-bottom: 3px solid var(--ws-soft); padding-bottom: 5px; }
+.print-worksheet .ws-richtext p { margin: .35rem 0; line-height: 1.45; }
+.print-worksheet .ws-richtext ul, .print-worksheet .ws-richtext ol { margin: .35rem 0 .35rem 1.2rem; }
+.print-worksheet .ws-reward { color: var(--ws-theme); font-weight: 700; }
+.print-worksheet .ws-unit { margin: 18px 0 24px; break-inside: avoid; }
+.print-worksheet .ws-unit h3 { color: var(--ws-theme); border-bottom: 3px solid var(--ws-soft); padding-bottom: 5px; }
+.print-worksheet .ws-richtext p { margin: .35rem 0; line-height: 1.45; }
+.print-worksheet .ws-richtext ul, .print-worksheet .ws-richtext ol { margin: .35rem 0 .35rem 1.2rem; }
+.print-worksheet .ws-reward { color: var(--ws-theme); font-weight: 700; }
 .print-worksheet .ws-sec h4 { font-family: 'Fredoka One', 'Outfit', sans-serif; font-size: 15px; font-weight: 800; text-transform: uppercase; color: var(--ws-theme); border-bottom: 2px solid var(--ws-soft); padding-bottom: 3px; margin: 0 0 6px; }
 .print-worksheet .ws-q, .print-worksheet .ws-line { margin-bottom: 6px; font-size: 13px; line-height: 1.4; page-break-inside: avoid; break-inside: avoid; }
 .print-worksheet .ws-n { font-weight: 800; color: var(--ws-theme); }

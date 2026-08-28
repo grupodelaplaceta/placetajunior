@@ -1837,3 +1837,5 @@ h1, h2, h3, h4, h5,
 .kp-explicacion blockquote { margin:.75rem 0; padding:.7rem 1rem; border-left:4px solid var(--pj-orange,#ff6600); background:#fff8ed; font-style:italic; }
 .pj-formatted-list { margin:.4rem 0; padding-left:1rem; line-height:1.55; }
 .kp-explicacion code { padding:.12rem .35rem; border-radius:4px; background:#eeeaf8; font-family:monospace; }
+.kp-reward { margin: .9rem auto; padding: .8rem 1rem; max-width: 34rem; border-radius: 14px; background: #fff8d8; color: #4e3b00; text-align: center; }
+.kp-reward strong { color: var(--pj-purple,#4e3b70); font-size: 1.15rem; }

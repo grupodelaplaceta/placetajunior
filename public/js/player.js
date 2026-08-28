@@ -768,7 +768,7 @@ function screenDineroEuro(s, est) {
 function kpDineroEuro(bi, n) { const e=kpEstado[pantallaIdx], d=bloquesJuego[bi].datos||{}, objetivo=Number(d.objetivo||d.cantidad||5), total=(e.euroElegido||[]).reduce((a,v)=>a+Number(v),0); if(total+Number(n)<=objetivo){e.euroElegido=[...(e.euroElegido||[]),Number(n)]; if(window.pjSonido)window.pjSonido.clic?.(); renderPantalla();} }
 function datosClasificar(d){const mapa=d.respuestas&&typeof d.respuestas==='object'&&!Array.isArray(d.respuestas)?d.respuestas:{};const raw=Array.isArray(d.elementos)?d.elementos:(Array.isArray(d.palabras)?d.palabras:Object.keys(mapa).map(texto=>({texto,categoria:mapa[texto]})));const items=raw.map(x=>{if(typeof x==='string'){const p=x.split('|');return {texto:p[0]||'',categoria:p[1]||p[2]||mapa[p[0]]||''};}const texto=x.texto??x.palabra??x.nombre??'';return {texto,categoria:x.categoria??x.categoriaCorrecta??x.tipo??mapa[texto]??''};}).filter(x=>String(x.texto).trim());const cats=(Array.isArray(d.categorias)?d.categorias:[]).map(x=>typeof x==='string'?x:(x.nombre??x.titulo??x.texto??'')).filter(Boolean);return {items,cats:[...new Set(cats.length?cats:items.map(x=>x.categoria).filter(Boolean))]};}
 function screenLengua(s,e){const b=bloquesJuego[s.bi],d=b.datos||b,t=s.tipo;if(t==='construir_frase')return `<div class="pj-language-card"><div class="pj-language-goal">🧩 Ordena las palabras</div><p class="pj-spelling">${(d.palabras||[]).map((w,i)=>`<button class="pj-word" onclick="kpLengua(${s.bi},${i})">${esc(w)}</button>`).join(' ')}</p><p>Construcción: ${esc((e.palabras||[]).join(' '))}</p><button class="kp-btn" onclick="kpLenguaCheck(${s.bi})">Comprobar</button></div>`;if(t==='completar_palabra')return `<div class="pj-language-card"><div class="pj-language-goal">✏️ Completa la palabra</div><p class="pj-spelling">${esc((d.ejercicios||[d])[0].texto||'')}</p><div class="pj-word-bank">${((d.ejercicios||[d])[0].opciones||[]).map(o=>`<button class="pj-word" onclick="kpLenguaValue(${s.bi},'${esc(o)}')">${esc(o)}</button>`).join('')}</div></div>`;if(t==='cazador_errores')return `<div class="pj-language-card"><div class="pj-language-goal">🔎 Encuentra el error</div><p class="pj-error-sentence">${String(d.texto||'').split(/(\s+)/).map(x=>/\w/.test(x)?`<button class="pj-error-word" onclick="kpLenguaValue(${s.bi},'${esc(x)}')">${esc(x)}</button>`:x).join('')}</p></div>`;if(t==='lectura_interactiva'){const sc=(d.escenas||[])[e.escena||0]||d;return `<div class="pj-language-card pj-reading"><div class="pj-language-goal">📖 ${esc(sc.titulo||'Historia')}</div><p>${esc(sc.texto||'')}</p><div class="kp-opts">${(sc.opciones||[]).map((o,i)=>`<button class="kp-opt" onclick="kpLectura(${s.bi},${i})">${esc(o.texto||o)}</button>`).join('')}</div></div>`;}if(t==='clasificar_palabras'){const c=datosClasificar(d),i=Math.min(e.clasificarIndice||0,Math.max(0,c.items.length-1)),item=c.items[i];return `<div class="pj-language-card pj-classify"><div class="pj-language-goal">🔤 Clasifica las palabras</div><p>Palabra <strong>${c.items.length?i+1:0}</strong> de ${c.items.length}</p><div class="pj-classify-word">${esc(item?.texto||'No hay palabras configuradas')}</div><p class="pj-classify-label">Elige su categoría:</p><div class="pj-classify-categories">${c.cats.map(x=>`<button class="kp-opt" onclick="kpClasificar(${s.bi},'${esc(x)}')">${esc(x)}</button>`).join('')}</div>${e.error?`<div class="kp-msg bad">${esc(e.error)}</div>`:''}${e.respondida?`<div class="kp-msg ok">¡Has clasificado todas las palabras! 🎉</div>`:''}</div>`;}return `<div class="pj-language-card"><div class="pj-language-goal">🎯 Completa este reto</div></div>`;}
-function kpLengua(bi,i){const e=kpEstado[pantallaIdx],d=bloquesJuego[bi].datos||bloquesJuego[bi];e.palabras=e.palabras||[];if(!e.palabras.includes(d.palabras[i]))e.palabras.push(d.palabras[i]);renderPantalla();}function kpLenguaValue(bi,v){const e=kpEstado[pantallaIdx];e.valor=v;renderPantalla();}function kpLenguaCheck(bi){const d=bloquesJuego[bi].datos||bloquesJuego[bi],e=kpEstado[pantallaIdx];e.respondida=true;e.acierto=(e.palabras||[]).join(' ')===d.respuesta;if(e.acierto)kpScore.verdes++;else kpScore.rojos++;renderPantalla();}function kpClasificar(bi,categoria){const d=bloquesJuego[bi].datos||bloquesJuego[bi],e=kpEstado[pantallaIdx],c=datosClasificar(d),i=Number(e.clasificarIndice||0),item=c.items[i];if(e.respondida||!item)return;if(String(item.categoria).trim().toLowerCase()!==String(categoria).trim().toLowerCase()){e.error='Esa no es la categoría. ¡Prueba otra vez!';renderPantalla();return;}e.error='';e.clasificarRespuestas=e.clasificarRespuestas||{};e.clasificarRespuestas[i]=categoria;if(i+1>=c.items.length){e.respondida=true;e.acierto=true;kpScore.verdes++;}else{e.clasificarIndice=i+1;}renderPantalla();}function kpLectura(bi,i){const d=bloquesJuego[bi].datos||bloquesJuego[bi],e=kpEstado[pantallaIdx],sc=(d.escenas||[])[e.escena||0]||{},o=(sc.opciones||[])[i]||{};if(o.siguiente!=null){e.escena=Number(o.siguiente);renderPantalla();}else{e.respondida=true;e.acierto=true;kpScore.verdes++;renderPantalla();}}
+function kpLengua(bi,i){const e=kpEstado[pantallaIdx],d=bloquesJuego[bi].datos||bloquesJuego[bi];e.palabras=e.palabras||[];if(!e.palabras.includes(d.palabras[i]))e.palabras.push(d.palabras[i]);renderPantalla();}function kpLenguaValue(bi,v){const e=kpEstado[pantallaIdx];e.valor=v;renderPantalla();}function kpLenguaCheck(bi){const d=bloquesJuego[bi].datos||bloquesJuego[bi],e=kpEstado[pantallaIdx];e.respondida=true;e.acierto=(e.palabras||[]).join(' ')===d.respuesta;if(e.acierto)kpScore.verdes++;else kpScore.rojos++;renderPantalla();}function kpClasificar(bi,categoria){const d=bloquesJuego[bi].datos||bloquesJuego[bi],e=kpEstado[pantallaIdx],c=datosClasificar(d),i=Number(e.clasificarIndice||0),item=c.items[i];if(e.respondida||!item)return;if(String(item.categoria).trim().toLowerCase()!==String(categoria).trim().toLowerCase()){e.error='Esa no es la categoría. ¡Prueba otra vez!';kpScore.rojos++;renderPantalla();return;}e.error='';e.clasificarRespuestas=e.clasificarRespuestas||{};e.clasificarRespuestas[i]=categoria;kpScore.verdes++;if(i+1>=c.items.length){e.respondida=true;e.acierto=true;}else{e.clasificarIndice=i+1;}renderPantalla();}function kpLectura(bi,i){const d=bloquesJuego[bi].datos||bloquesJuego[bi],e=kpEstado[pantallaIdx],sc=(d.escenas||[])[e.escena||0]||{},o=(sc.opciones||[])[i]||{};if(o.siguiente!=null){e.escena=Number(o.siguiente);renderPantalla();}else{e.respondida=true;e.acierto=true;kpScore.verdes++;renderPantalla();}}
 function kpTerminarInteractivo(){const e=kpEstado[pantallaIdx];if(e.respondida||e.autoAvanzando)return;e.respondida=true;e.acierto=true;kpScore.verdes++;const bi=pantallas[pantallaIdx]?.bi;renderPantalla();if(['presupuesto','dinero_euro'].includes(bloquesJuego[bi]?.tipo)){e.autoAvanzando=true;setTimeout(()=>{if(pantallas[pantallaIdx]?.bi===bi)pantallaNext();},900);}}
 function kpMemoriaJuego(bi,i){const e=kpEstado[pantallaIdx],cards=bloquesJuego[bi].datos?.tarjetas||[];e.reveladas=e.reveladas||[];if(!e.reveladas.includes(i))e.reveladas.push(i);if(e.reveladas.length>=2){const a=e.reveladas.slice(-2);e.respondida=true;e.acierto=cards[a[0]]===cards[a[1]];if(e.acierto)kpScore.verdes++;else kpScore.rojos++;}renderPantalla();}
 function kpSecretoJuego(bi){const e=kpEstado[pantallaIdx],v=document.getElementById('kp-secret')?.value.trim();if(!v)return;e.respondida=true;e.acierto=v.toLowerCase()===String(bloquesJuego[bi].datos?.contraseña||'').toLowerCase();if(e.acierto)kpScore.verdes++;else kpScore.rojos++;renderPantalla();}
@@ -789,7 +789,7 @@ function screenTexto(s, est) {
   let html = `<div class="kp-screen">
     <div class="kp-qt">📖 ${esc(b.titulo || 'Aprende')}</div>`;
   if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente, b.imagen_alt);
-  html += `<div class="kp-explicacion">${formatearTextoJugador(b.contenido || '')}`;
+  html += `<div class="kp-explicacion">${formatearTextoJugador(obtenerContenidoTextoPJ(b))}`;
   html += `</div>`;
   html += `<div style="text-align:center;margin-top:14px;"><button class="kp-check" onclick="pantallaNext()">Continuar →</button></div>`;
   html += `<div class="kp-hint">📖 Lee y luego pulsa Continuar para responder</div></div>`;
@@ -1057,6 +1057,14 @@ function pintarSel(idx) {
 }
 function screenFinal(s) {
   const prog = (window.PJProgreso && PJProgreso.estado()) || { nivel: 1, enNivel: 0, verdes: 0, pct: 0 };
+  const maxPuntos = pantallas.reduce((total, x) => {
+    if (['portada', 'texto', 'final'].includes(x.tipo)) return total;
+    const b = x.bi != null ? bloquesJuego[x.bi] : null;
+    if (b?.tipo === 'clasificar_palabras') return total + datosClasificar(b.datos || b).items.length;
+    return total + 1;
+  }, 0);
+  const recompensaMax = Number(actividadActual?.recompensa || actividadActual?.contenido?.recompensa || Math.floor(maxPuntos / 10)) || 0;
+  const recompensa = Math.min(recompensaMax, Math.floor(kpScore.verdes / 10));
   const nivelHtml = `
     <div class="kp-level">
       <div class="kp-level-head"><span class="material-symbols-rounded">emoji_events</span> Nivel ${prog.nivel}</div>
@@ -1072,10 +1080,11 @@ function screenFinal(s) {
         <div class="kp-score-item verdes"><span class="kp-score-num">🟢</span>${kpScore.verdes} <small>puntos verdes</small></div>
         <div class="kp-score-item rojos"><span class="kp-score-num">🔴</span>${kpScore.rojos} <small>puntos rojos</small></div>
       </div>
+      <div class="kp-reward"><strong>🎁 ${recompensa} Pz</strong> de ${recompensaMax} Pz máximas<br><small>En la app, o con un DIP, estos puntos pueden convertirse en Placetas.</small></div>
       ${nivelHtml}
       <div class="kp-save">
         <h4>💾 Guardar mi progreso</h4>
-        <p class="kp-save-sub">Pon tu DIP de Placeta Junior para sumar tus puntos verdes y rojos.</p>
+        <p class="kp-save-sub">En la web el progreso es local. Guarda con tu DIP para sumar los puntos y recibir ${recompensa} Pz.</p>
         <div class="kp-save-row">
           <input id="kp-dip" type="text" inputmode="text" autocomplete="off"
             placeholder="Tu DIP (ej: 11111111D)" value="${esc(dipGuardado)}" maxlength="20">
@@ -1109,7 +1118,7 @@ async function guardarProgreso() {
     if (res.ok && data.success) {
       dipGuardado = dip;
       try { localStorage.setItem('pj-dip', dip); } catch (e) { /* sin almacenamiento */ }
-      const extra = data.recompensa ? ` · +${data.recompensa} Pz` : '';
+      const extra = data.recompensa !== undefined ? ` · +${data.recompensa} Pz` : '';
       msgGuardar = `✅ ¡Guardado! ${kpScore.verdes} verdes y ${kpScore.rojos} rojos sumados${extra}.`;
     } else {
       msgGuardar = `❌ ${data.error || 'No se pudo guardar. Comprueba tu DIP.'}`;
@@ -1947,8 +1956,16 @@ function nivelCompletado(nivel) {
   });
 }
 
+function obtenerContenidoTextoPJ(b) {
+  if (!b) return '';
+  if (typeof b.contenido === 'string') return b.contenido;
+  if (b.contenido && typeof b.contenido === 'object') return b.contenido.html || b.contenido.markdown || b.contenido.texto || b.contenido.contenido || '';
+  return b.html || b.markdown || b.texto || '';
+}
+
 // Markdown sencillo y seguro para los textos creados en Studio.
 function formatearTextoJugador(texto) {
+  if (/<(?:p|br|strong|b|em|i|h[1-6]|ul|ol|li|blockquote|code|mark)\b/i.test(String(texto || ''))) return sanearRichTextJugador(texto);
   return String(texto || '').split(/\r?\n/).map(linea => {
     const t = esc(linea.trim()); if (!t) return '';
     if (/^### /.test(t)) return `<h5>${formatoInlineJugador(t.slice(4))}</h5>`;
@@ -1960,6 +1977,17 @@ function formatearTextoJugador(texto) {
   }).join('');
 }
 function formatoInlineJugador(t) { return t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/__([^_]+)__/g, '<strong>$1</strong>').replace(/\*([^*]+)\*/g, '<em>$1</em>').replace(/`([^`]+)`/g, '<code>$1</code>'); }
+function sanearRichTextJugador(html) {
+  const plantilla = document.createElement('template'); plantilla.innerHTML = String(html || '');
+  const permitidas = new Set(['P','BR','STRONG','B','EM','I','H1','H2','H3','H4','H5','H6','UL','OL','LI','BLOCKQUOTE','CODE','MARK','SPAN','DIV']);
+  const limpiar = nodo => Array.from(nodo.childNodes).forEach(hijo => {
+    if (hijo.nodeType !== 1) return;
+    if (!permitidas.has(hijo.tagName)) { const texto = document.createTextNode(hijo.textContent || ''); hijo.replaceWith(texto); return; }
+    Array.from(hijo.attributes).forEach(a => { if (!['class','title','aria-label','data-popup'].includes(a.name.toLowerCase())) hijo.removeAttribute(a.name); });
+    limpiar(hijo);
+  });
+  limpiar(plantilla.content); return plantilla.innerHTML;
+}
 function pantallaNext() {
   if (pantallaIdx >= pantallas.length - 1) return;
   const actual = pantallas[pantallaIdx], siguiente = pantallas[pantallaIdx + 1];

@@ -215,6 +215,7 @@ function generarCaratulasEn(cont) {
 
 function cardActividad(a) {
   const bloqueada = esBloqueada(a);
+  const tieneUnidades = obtenerUnidadesActividad(a).length > 0;
   const color = categoriaColor(a.categoria);
   const enCurso = window.PJPartidas ? PJPartidas.estaEnCurso(a.id) : false;
   const completada = window.PJPartidas ? PJPartidas.estaCompletada(a.id) : false;
@@ -223,12 +224,12 @@ function cardActividad(a) {
     ? '<span class="badge-tag badge-free badge-prog"><span class="material-symbols-rounded b-ico">task_alt</span>Hecha</span>'
     : '';
   return `
-    <div class="card" data-color="${color}" onclick="abrirActividad('${a.id}', ${bloqueada})">
+    <div class="card" data-color="${color}" onclick="${tieneUnidades ? `verInfo('${a.id}')` : `abrirActividad('${a.id}', ${bloqueada})`}">
       ${coverHTML(a, badgeProg)}
       <h3>${escapeHtml(a.titulo)}</h3>
       <div class="card-foot">
         <span class="chip" data-color="${color}">${escapeHtml(a.categoria)}</span>
-        ${!bloqueada ? `<button type="button" class="cover-play" onclick="event.stopPropagation();abrirActividad('${a.id}', false)" title="${enCurso ? 'Continuar' : 'Jugar'}"><span class="material-symbols-rounded">${enCurso ? 'play_arrow' : 'play_arrow'}</span> ${enCurso ? 'Continuar' : 'Jugar'}</button>` : ''}
+        ${!bloqueada ? `<button type="button" class="cover-play" onclick="event.stopPropagation();${tieneUnidades ? `verInfo('${a.id}')` : `abrirActividad('${a.id}', false)`}" title="${tieneUnidades ? 'Ver unidades' : (enCurso ? 'Continuar' : 'Jugar')}"><span class="material-symbols-rounded">${tieneUnidades ? 'list' : 'play_arrow'}</span> ${tieneUnidades ? 'Ver unidades' : (enCurso ? 'Continuar' : 'Jugar')}</button>` : ''}
       </div>
     </div>`;
 }
@@ -240,10 +241,16 @@ function verInfo(id) {
   if (window.pjSonido) pjSonido.abrir();
   const bloqueada = esBloqueada(a);
   const color = categoriaColor(a.categoria);
+  const unidades = obtenerUnidadesActividad(a);
   const nBloques = Array.isArray(a.subapartados) && a.subapartados.length
     ? a.subapartados.length
     : ((a.contenido && a.contenido.bloques) ? a.contenido.bloques.length : (a.num_fases || 0));
   const nPreg = a.num_preguntas || 0;
+  const unidadesHtml = unidades.length ? `<div class="detail-card detail-unidades"><h2>Unidades</h2>${unidades.map((n, i) => {
+    const recompensa = Number(n.recompensa || 0);
+    const desc = typeof n.descripcion === 'string' ? n.descripcion : '';
+    return `<div class="detail-unit"><div><strong>Unidad ${i + 1}</strong><span>${escapeHtml(n.titulo || 'Siguiente unidad')}</span>${desc ? `<small>${escapeHtml(desc)}</small>` : ''}</div><b>${recompensa ? `+${recompensa} Pz` : 'Sin recompensa'}</b></div>`;
+  }).join('')}</div>` : '';
   document.getElementById('detail-page').innerHTML = `
     <a class="detail-back" href="javascript:cerrarDetalle()"><span class="material-symbols-rounded">arrow_back</span> Volver a Actividades</a>
     <div class="detail-hero">
@@ -265,6 +272,7 @@ function verInfo(id) {
         <p>${escapeHtml(a.descripcion || '')}</p>
         ${a.recompensa ? `<div class="detail-reward"><span class="material-symbols-rounded">military_tech</span><div><span class="reward-lbl">Recompensa</span><span class="reward-val">+${a.recompensa} Pz</span></div></div>` : ''}
       </div>
+      ${unidadesHtml}
       <div class="detail-actions">
         ${bloqueada
           ? '<span class="chip red">🔒 De pago (no subvencionada)</span>'
@@ -445,6 +453,7 @@ async function descargarPdf(id) {
   if (window.pjSonido) pjSonido.clic();
   const esCode = a.tipo === 'code_blocks' || (a.contenido && a.contenido.tipo === 'code_blocks');
   const bloques = (a.contenido && a.contenido.bloques) || [];
+  const unidadesPdf = obtenerUnidadesActividad(a);
   const wsImg = (url, fuente) => url
     ? `<div class="ws-img"><img src="${esc(url)}" alt=""><span class="ws-fuente">${esc(fuente || 'Imagen')}</span></div>`
     : '';
@@ -452,7 +461,7 @@ async function descargarPdf(id) {
   if (esCode) {
     cuerpo = generarPdfCode(a);
   }
-  bloques.forEach((b) => {
+  const imprimirBloque = (b) => {
     if (b.tipo === 'test' && b.preguntas && b.preguntas.length) {
       cuerpo += '<div class="ws-sec ws-test"><h4>Preguntas</h4>';
       b.preguntas.forEach((p, k) => {
@@ -461,7 +470,7 @@ async function descargarPdf(id) {
       });
       cuerpo += '</div>';
     } else if (b.tipo === 'texto' && (((b.contenido || '').trim()) || b.imagen_url)) {
-      cuerpo += '<div class="ws-sec"><h4>' + esc(b.titulo || 'Aprende') + '</h4>' + wsImg(b.imagen_url, b.fuente) + '<p>' + esc((b.contenido || '').replace(/\s*\n+\s*/g, ' ')) + '</p></div>';
+      cuerpo += '<div class="ws-sec"><h4>' + esc(b.titulo || 'Aprende') + '</h4>' + wsImg(b.imagen_url, b.fuente) + '<div class="ws-richtext">' + formatearTextoJugador(obtenerContenidoTextoPJ(b)) + '</div></div>';
     } else if (b.tipo === 'sopa_letras' && b.palabras && b.palabras.length) {
       let gridHtml = '';
       if (typeof generarSopa === 'function') {
@@ -503,8 +512,26 @@ async function descargarPdf(id) {
     } else if (b.tipo === 'mapa_mundi' && b.paises && b.paises.length) {
       const recon = (b.paises || []).map(p => String(p).trim()).filter(Boolean).filter(p => window.MAPA_MUNDI && MAPA_MUNDI.paises[p]);
       cuerpo += '<div class="ws-sec ws-mapa"><h4>Localiza en el mapamundi</h4>' + wsImg(b.imagen_url, b.fuente) + '<div class="ws-map-wrap" data-mapa="1" data-paises="' + esc(JSON.stringify(recon)) + '"></div><p class="ws-words">' + recon.map(esc).join(' · ') + '</p><p class="ws-hint">Busca cada país en el mapamundi y señálalo.</p></div>';
+    } else if (b.tipo) {
+      const titulo = b.titulo || b.nombre || String(b.tipo).replace(/_/g, ' ');
+      const instrucciones = b.instrucciones || b.descripcion || b.texto || '';
+      cuerpo += '<div class="ws-sec"><h4>' + esc(titulo) + '</h4>' + (instrucciones ? '<div class="ws-richtext">' + formatearTextoJugador(instrucciones) + '</div>' : '') + '<p class="ws-hint">Actividad interactiva: ' + esc(titulo) + '</p><div class="ws-answer-line">Respuesta: ______________________________________________</div></div>';
     }
-  });
+  };
+  if (unidadesPdf.length) {
+    unidadesPdf.forEach((n, i) => {
+      cuerpo += '<div class="ws-unit"><h3>Unidad ' + (i + 1) + (n.titulo ? ' — ' + esc(n.titulo) : '') + '</h3>';
+      const desc = obtenerContenidoTextoPJ(n);
+      if (desc) cuerpo += '<div class="ws-richtext ws-unit-desc">' + formatearTextoJugador(desc) + '</div>';
+      let nb = Array.isArray(n.bloques) ? n.bloques : (n.contenido && Array.isArray(n.contenido.bloques) ? n.contenido.bloques : []);
+      if (!nb.length && n.contenido && n.contenido.tipo) nb = [n.contenido];
+      nb.forEach(imprimirBloque);
+      if (Number(n.recompensa || 0)) cuerpo += '<p class="ws-reward">Recompensa de la unidad: +' + Number(n.recompensa) + ' Pz</p>';
+      cuerpo += '</div>';
+    });
+  } else {
+    bloques.forEach(imprimirBloque);
+  }
   // Portada de la actividad (16:9) en el worksheet
   let portada = '';
   const portadaPdf = a.portada_url || a.portadaUrl || a.contenido?.__rspPortadaUrl || a.contenido?.__rsp_portada_url || '';
@@ -610,6 +637,12 @@ async function usarCodigoActividad() {
     sessionStorage.setItem('pj-code-' + id, codigo);
     await abrirActividad(id, false);
   } catch (e) { if (error) { error.textContent = e.message || 'Código no válido'; error.classList.remove('hidden'); } }
+}
+
+function obtenerUnidadesActividad(a) {
+  const c = a && a.contenido;
+  const raw = (a && (a.subapartados || a.niveles)) || (c && (c.niveles || c.diapositivas)) || [];
+  return Array.isArray(raw) ? raw.slice().sort((x, y) => Number(x.orden || 0) - Number(y.orden || 0)) : [];
 }
 
 // ── Clasificar / filtrar por edad ──────────────────────────────────
