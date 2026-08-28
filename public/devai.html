@@ -106,6 +106,19 @@
       { "tipo": "calculo_mental", "operacion": "suma", "vertical": false, "llevadas": true, "sumas": [ { "a": 3, "b": 5, "op": "suma" } ], "segundos": 10, "modo": "opciones" },
       { "tipo": "problemas", "modo": "escribir", "problemas": [ { "enunciado": "María tiene 5 manzanas, compra 3 más y regala 2.", "frase": "Al final le quedan ___ manzanas.", "respuesta": 6, "operaciones": [ { "a": 5, "b": 3, "op": "suma" }, { "a": 8, "b": 2, "op": "resta" } ] } ] },
       { "tipo": "mapa_mundi", "paises": ["España", "Francia", "Italia", "Portugal"] },
+      { "tipo": "arrastrar", "titulo": "Recicla con Candela", "instrucciones": "Coloca cada objeto en su contenedor.", "datos": { "elementos": ["🍌|Cáscara|orgánico"], "zonas": ["orgánico","papel"], "respuestas": { "Cáscara": "orgánico" } } },
+      { "tipo": "buscar", "titulo": "Busca y encuentra", "instrucciones": "Encuentra los objetos.", "datos": { "objetos": ["💡|Lámpara|1","🪑|Silla|0"], "objetivo": 1 } },
+      { "tipo": "detective", "datos": { "pistas": ["Estuvo en la cocina."], "opciones": ["Candela","El gato"], "correcta": 0 } },
+      { "tipo": "laboratorio", "datos": { "opciones": ["☀️|Luz|1","❄️|Hielo|0"], "resultado": "La planta crece." } },
+      { "tipo": "construccion", "datos": { "piezas": ["🔋 Batería","💡 Bombilla","🔌 Cables"] } },
+      { "tipo": "presupuesto", "datos": { "presupuesto": 20, "productos": ["🍎|Manzana|2"] } },
+      { "tipo": "exploracion", "datos": { "lugares": ["📍 Tarragona|Ciudad romana|tarragona"] } },
+      { "tipo": "simulacion", "datos": { "caras": 6, "pregunta": "Lanza el dado 20 veces." } },
+      { "tipo": "historia_interactiva", "datos": { "escenas": [ { "texto": "Hay una puerta.", "opciones": ["Abrirla","Pedir ayuda"], "siguiente": [1,1] } ] } },
+      { "tipo": "memoria", "datos": { "tarjetas": ["☀️","🌙","☀️","🌙"] } },
+      { "tipo": "sonido", "datos": { "audio_url": "", "opciones": ["perro","gato"], "respuesta": "perro" } },
+      { "tipo": "codigo_secreto", "datos": { "pistas": ["La primera cifra es 4."], "contraseña": "46" } },
+      { "tipo": "escape_room", "datos": { "pruebas": [ { "pregunta": "¿Cuánto es 2 + 2?", "opciones": ["3","4"], "correcta": 1 } ], "contraseña": "SALIDA" } },
       { "tipo": "code_blocks", "titulo": "Haz llegar a Candela a la estrella", "lenguaje": "placeta_blocks", "objetivo_texto": "Programa a Candela para llegar a la estrella", "ejercicios": [ { "titulo": "Avanza 1 casilla", "explicacion": "Pulsa el bloque AVANZAR una vez.", "objetivo_texto": "Lleva a Candela hasta la estrella (1,0).", "bloques_permitidos": ["avanzar"], "escenario": { "tipo": "cuadricula", "ancho": 6, "alto": 6, "obstaculos": [], "monedas": [] }, "inicio": { "x": 0, "y": 0, "direccion": "derecha" }, "objetivo": { "posicion": { "x": 1, "y": 0 }, "max_pasos": 4 }, "pistas": ["Añade 1 bloque AVANZAR."] }, { "titulo": "Esquiva la roca", "explicacion": "Ahora hay una roca. Usa GIRAR para esquivarla.", "objetivo_texto": "Lleva a Candela hasta la estrella (3,1).", "bloques_permitidos": ["avanzar", "girar"], "escenario": { "tipo": "cuadricula", "ancho": 6, "alto": 6, "obstaculos": [{"x": 2, "y": 0}], "monedas": [] }, "inicio": { "x": 0, "y": 0, "direccion": "derecha" }, "objetivo": { "posicion": { "x": 3, "y": 1 }, "max_pasos": 10 }, "pistas": ["Avanza, gira, pasa y vuelve."] } ] }
     ]
   }

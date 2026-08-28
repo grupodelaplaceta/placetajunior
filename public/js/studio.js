@@ -28,6 +28,10 @@ const TIPOS = {
   exploracion:   { ico: 'explore', nombre: 'Exploración' },
   simulacion:    { ico: 'casino', nombre: 'Simulador' },
   historia_interactiva: { ico: 'auto_stories', nombre: 'Historia interactiva' }
+  ,memoria:       { ico: 'memory', nombre: 'Memoria' }
+  ,sonido:        { ico: 'hearing', nombre: 'Sonido' }
+  ,codigo_secreto:{ ico: 'lock', nombre: 'Código secreto' }
+  ,escape_room:   { ico: 'vpn_key', nombre: 'Escape room' }
 };
 
 // Iconos SVG 100% descriptivos para los bloques del Studio (en vez de emojis)
@@ -292,7 +296,7 @@ function nuevoBloque(tipo) {
       pistas: []
     }];
   }
-  if (['arrastrar','buscar','detective','laboratorio','construccion','presupuesto','exploracion','simulacion','historia_interactiva'].includes(tipo)) {
+  if (['arrastrar','buscar','detective','laboratorio','construccion','presupuesto','exploracion','simulacion','historia_interactiva','memoria','sonido','codigo_secreto','escape_room'].includes(tipo)) {
     b.instrucciones = tipo === 'arrastrar' ? 'Coloca cada elemento en su lugar.' : '¡Completa este reto!';
     b.datos = tipo === 'arrastrar'
       ? { elementos: ['🍌|Cáscara de plátano|orgánico','📰|Periódico|papel','🍾|Botella|vidrio'], zonas: ['orgánico','papel','vidrio'], respuestas: { 'Cáscara de plátano':'orgánico','Periódico':'papel','Botella':'vidrio' } }
@@ -303,6 +307,10 @@ function nuevoBloque(tipo) {
       : tipo === 'presupuesto' ? { presupuesto: 20, productos: ['🍎|Manzana|2','🥛|Leche|1.5','🍞|Pan|1.2','🍝|Pasta|2.3'] }
       : tipo === 'exploracion' ? { lugares: ['📍 Tarragona|Capital romana|tarragona','📍 Barcelona|Ciudad modernista|barcelona','📍 Madrid|Capital de España|madrid'], pregunta: '¿Qué ciudad quieres visitar primero?', correcta: 'barcelona' }
       : tipo === 'simulacion' ? { caras: 6, pregunta: 'Lanza el dado y observa los resultados.' }
+      : tipo === 'memoria' ? { tarjetas: ['☀️','🌙','🌈','⭐','☀️','🌙','🌈','⭐'] }
+      : tipo === 'sonido' ? { audio_url: '', respuesta: 'perro', opciones: ['perro','gato','pájaro'] }
+      : tipo === 'codigo_secreto' ? { pistas: ['La primera cifra es 4.','La segunda es el doble de 3.'], contraseña: '46', intentos: 3 }
+      : tipo === 'escape_room' ? { pruebas: [{ pregunta: '¿Cuánto es 2 + 2?', opciones: ['3','4','5'], correcta: 1 }], contraseña: 'SALIDA' }
       : { escenas: [{ texto: 'Candela encuentra una puerta misteriosa.', opciones: ['Abrirla','Buscar una llave','Pedir ayuda'], siguiente: [1,2,2] }, { texto: 'Dentro hay una sorpresa.', opciones: [], siguiente: [] }] };
   }
   return b;
@@ -378,18 +386,27 @@ function renderBloque(b, i) {
 }
 
 function renderInteractivo(b, i) {
-  const tipo = b.tipo, d = b.datos || {};
-  const ejemplo = JSON.stringify(d, null, 2);
-  return `<div class="interactive-editor">
-    <div class="interactive-callout"><strong>${esc(TIPOS[tipo].nombre)}</strong><br><span>Diseña una experiencia: el niño hace algo, recibe feedback y aprende.</span></div>
-    <label>Instrucciones para el niño</label>
-    <textarea rows="2" oninput="setCampo(${i},'instrucciones',this.value)">${esc(b.instrucciones || '')}</textarea>
-    <label>Contenido del reto</label>
-    <textarea rows="11" class="json-editor" aria-label="Configuración del reto" oninput="setDatosJSON(${i},this.value)">${esc(ejemplo)}</textarea>
-    <p class="form-note">Puedes editar los datos como JSON. El ejemplo inicial ya es jugable y sirve de plantilla. Guarda y usa Vista previa para probarlo.</p>
-  </div>`;
+  const tipo=b.tipo,d=b.datos||{};
+  const field=(key,label,ph='')=>`<label>${label}<input value="${esc(d[key]??'')}" placeholder="${esc(ph)}" oninput="setDatoCampo(${i},'${key}',this.value)"></label>`;
+  const list=(key,label,ph)=>`<label>${label}<span class="field-help">Una línea por elemento · emoji|texto|correcto (1/0) cuando aplique</span><textarea rows="4" placeholder="${esc(ph)}" oninput="setDatoLista(${i},'${key}',this.value)">${esc((d[key]||[]).join('\n'))}</textarea></label>`;
+  let specific='';
+  if(tipo==='arrastrar') specific=list('zonas','Contenedores / categorías','orgánico\npapel\nvidrio')+list('elementos','Elementos arrastrables','🍌|Cáscara|orgánico\n📰|Periódico|papel');
+  else if(tipo==='buscar') specific=field('objetivo','Número de objetos correctos','8')+list('objetos','Objetos de la escena','💡|Lámpara|1\n🪑|Silla|0');
+  else if(tipo==='detective') specific=list('pistas','Pistas','Estuvo en la cocina.')+list('opciones','Sospechosos / respuestas','Candela\nEl gato')+field('correcta','Índice de la respuesta correcta','0');
+  else if(tipo==='laboratorio') specific=field('resultado','Consecuencia al experimentar','La planta crece fuerte.')+list('opciones','Elementos para probar','☀️|Luz|1\n❄️|Hielo|0');
+  else if(tipo==='construccion') specific=list('piezas','Piezas disponibles','🔋 Batería\n🔌 Cables\n💡 Bombilla')+list('solucion','Orden / solución','Batería\nCables\nBombilla');
+  else if(tipo==='presupuesto') specific=field('presupuesto','Presupuesto (Pz)','20')+list('productos','Productos','🍎|Manzana|2\n🥛|Leche|1.5');
+  else if(tipo==='exploracion') specific=field('pregunta','Pregunta del mapa','¿Qué lugar quieres visitar?')+list('lugares','Lugares / paradas','📍 Tarragona|Ciudad romana|tarragona');
+  else if(tipo==='simulacion') specific=field('caras','Caras / resultados posibles','6')+field('pregunta','Pregunta para reflexionar','¿Qué número ha salido más veces?');
+  else if(tipo==='memoria') specific=list('tarjetas','Tarjetas (cada pareja debe repetirse)','☀️\n🌙\n☀️\n🌙');
+  else if(tipo==='sonido') specific=field('audio_url','URL de audio','https://…')+list('opciones','Respuestas posibles','perro\ngato\npájaro')+field('respuesta','Respuesta correcta','perro');
+  else if(tipo==='codigo_secreto') specific=list('pistas','Pistas','La primera cifra es 4.')+field('contraseña','Contraseña de salida','46');
+  else if(tipo==='escape_room') specific=field('contraseña','Contraseña final','SALIDA')+list('pruebas','Pruebas · pregunta|opciones separadas por /|índice correcto','¿Cuánto es 2+2?|3/4/5|1');
+  return `<div class="interactive-editor"><div class="interactive-callout"><strong>${esc(TIPOS[tipo].nombre)}</strong><br><span>Diseña una experiencia en 3 capas: objetivo → acción → feedback.</span></div>${field('instrucciones','Instrucciones para el niño','Haz algo y descubre qué ocurre…')}${specific}<details class="advanced-json"><summary>Opciones avanzadas · importar/exportar</summary><textarea rows="8" class="json-editor" oninput="setDatosJSON(${i},this.value)">${esc(JSON.stringify(d,null,2))}</textarea></details></div>`;
 }
 function setDatosJSON(i, value) { try { bloques[i].datos = JSON.parse(value); } catch (e) {} }
+function setDatoCampo(i,k,v){bloques[i].datos=bloques[i].datos||{};bloques[i].datos[k]=(['objetivo','caras','correcta'].includes(k)?(Number(v)||0):v);guardarProyecto(proyectoActual);}
+function setDatoLista(i,k,v){bloques[i].datos=bloques[i].datos||{};bloques[i].datos[k]=v.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);guardarProyecto(proyectoActual);}
 
 function renderImagenBloque(b, i) {
   const prev = b.imagen_url
@@ -1358,19 +1375,28 @@ function screenInteractivo(s, est) {
   const b = bloques[s.bi], d = b.datos || {}, tipo = b.tipo;
   if (tipo === 'arrastrar') {
     const els = d.elementos || [], zonas = d.zonas || [];
-    return `<div class="kp-screen kp-interactive"><div class="kp-qt">🧲 ${esc(b.titulo)}</div><p>${esc(b.instrucciones || '')}</p><div class="kp-interactive-items">${els.map((x,i)=>{const a=String(x).split('|');return `<button class="kp-chip" onclick="kpInteractivo(${pantallaIdx},'${esc(a[2]||'')}')">${esc(a[0])} ${esc(a[1])}</button>`}).join('')}</div><div class="kp-drop-zones">${zonas.map(z=>`<button class="kp-zone" onclick="kpInteractivo(${pantallaIdx},'${esc(z)}')">${esc(z)}</button>`).join('')}</div>${feedbackInteractivo(est)}</div>`;
+    return `<div class="kp-screen kp-interactive"><div class="kp-qt">🧲 ${esc(b.titulo)}</div><p>${esc(b.instrucciones || '')}</p><div class="kp-interactive-items">${els.map((x,i)=>{const a=String(x).split('|');return `<div class="kp-chip" draggable="true" ondragstart="kpDragItem='${esc(a[1]||a[0])}'">${esc(a[0])} ${esc(a[1])}</div>`}).join('')}</div><div class="kp-drop-zones">${zonas.map(z=>`<button class="kp-zone" ondragover="event.preventDefault()" ondrop="kpDropItem(${s.bi},'${esc(z)}')">${esc(z)}</button>`).join('')}</div>${feedbackInteractivo(est)}</div>`;
   }
   if (tipo === 'buscar') return `<div class="kp-screen kp-interactive"><div class="kp-qt">🔎 ${esc(b.titulo)}</div><p>${esc(b.instrucciones || 'Encuentra los objetos.')}</p><div class="kp-scene">${(d.objetos||[]).map((x,i)=>{const a=String(x).split('|');return `<button class="kp-scene-object ${est.seleccion?.includes(i)?'selected':''}" onclick="kpBuscar(${s.bi},${i})">${esc(a[0])}<small>${esc(a[1])}</small></button>`}).join('')}</div>${feedbackInteractivo(est)}</div>`;
   if (tipo === 'simulacion') return `<div class="kp-screen kp-interactive"><div class="kp-qt">🎲 ${esc(b.titulo)}</div><p>${esc(d.pregunta || b.instrucciones || '')}</p><button class="kp-btn" onclick="kpLanzar(${s.bi})">Lanzar dado</button><div class="kp-results">${(est.lanzamientos||[]).map((n,i)=>`<span>${i+1}: ${n}</span>`).join(' ')}</div></div>`;
+  if (tipo === 'memoria') return `<div class="kp-screen kp-interactive"><div class="kp-qt">🧠 ${esc(b.titulo)}</div><p>Memoriza las parejas y encuentra dos iguales.</p><div class="kp-memory">${(d.tarjetas||[]).map((x,i)=>`<button class="kp-memory-card" onclick="kpMemoria(${s.bi},${i})">${est.reveladas?.includes(i)?esc(x):'?'}</button>`).join('')}</div>${feedbackInteractivo(est)}</div>`;
+  if (tipo === 'sonido') return `<div class="kp-screen kp-interactive"><div class="kp-qt">👂 ${esc(b.titulo)}</div>${d.audio_url?`<audio controls src="${esc(d.audio_url)}"></audio>`:''}<p>Escucha y elige la respuesta:</p><div class="kp-opts">${(d.opciones||[]).map((x,i)=>`<button class="kp-opt" onclick="kpInteractivo(${pantallaIdx},'${esc(x)}',${i})">${esc(x)}</button>`).join('')}</div>${feedbackInteractivo(est)}</div>`;
+  if (tipo === 'codigo_secreto') return `<div class="kp-screen kp-interactive"><div class="kp-qt">🔐 ${esc(b.titulo)}</div>${(d.pistas||[]).map((p,i)=>`<div class="kp-hint">Pista ${i+1}: ${esc(p)}</div>`).join('')}<input id="kp-secret" class="kp-input" placeholder="Contraseña"/><button class="kp-btn" onclick="kpSecreto(${s.bi})">Desbloquear</button>${feedbackInteractivo(est)}</div>`;
+  if (tipo === 'escape_room') return `<div class="kp-screen kp-interactive"><div class="kp-qt">🚪 ${esc(b.titulo)}</div>${(d.pruebas||[]).map((p,i)=>`<p>${esc(p.pregunta||'')}</p><div class="kp-opts">${(p.opciones||[]).map((o,k)=>`<button class="kp-opt" onclick="kpEscape(${s.bi},${i},${k})">${esc(o)}</button>`).join('')}</div>`).join('')}${feedbackInteractivo(est)}</div>`;
   if (tipo === 'presupuesto') return `<div class="kp-screen kp-interactive"><div class="kp-qt">🛒 ${esc(b.titulo)}</div><p>Presupuesto: <strong>${Number(d.presupuesto||0).toFixed(2)} Pz</strong></p><div class="kp-shop">${(d.productos||[]).map((x,i)=>{const a=String(x).split('|');return `<button class="kp-chip" onclick="kpComprar(${s.bi},${Number(a[2])||0})">${esc(a[0])} ${esc(a[1])} · ${Number(a[2]||0).toFixed(2)} Pz</button>`}).join('')}</div><p class="kp-msg ok">Gastado: ${(est.gastado||0).toFixed(2)} Pz · Te quedan: ${(Number(d.presupuesto||0)-(est.gastado||0)).toFixed(2)} Pz</p></div>`;
   const opciones = d.opciones || d.piezas || (d.lugares || []).map(x=>String(x).split('|')[0]);
   return `<div class="kp-screen kp-interactive"><div class="kp-qt">${tipo==='detective'?'🕵️':tipo==='laboratorio'?'🧪':tipo==='construccion'?'🏗️':tipo==='exploracion'?'🗺️':'📖'} ${esc(b.titulo)}</div><p>${esc(b.instrucciones || d.pregunta || '')}</p>${(d.pistas||[]).map((p,i)=>`<div class="kp-hint">Pista ${i+1}: ${esc(p)}</div>`).join('')}<div class="kp-opts">${opciones.map((x,i)=>{const a=String(x).split('|');return `<button class="kp-opt" onclick="kpInteractivo(${pantallaIdx},'${esc(a[2]||a[1]||a[0])}',${i})">${esc(a[0])} ${esc(a[1]||'')}</button>`}).join('')}</div>${d.resultado?`<p class="kp-hint">${esc(d.resultado)}</p>`:''}${feedbackInteractivo(est)}</div>`;
 }
 function feedbackInteractivo(est) { return est.respondida ? `<div class="kp-msg ${est.acierto?'ok':'bad'}">${est.acierto?'¡Muy bien! 🎉':'Prueba otra vez 💪'}</div>` : ''; }
-function kpInteractivo(idx, valor, pos) { const s=pantallas[idx], b=bloques[s.bi], d=b.datos||{}, e=kpEstado[idx]; if(e.respondida)return; const good=d.correcta!==undefined ? String(valor).toLowerCase()===String(d.correcta).toLowerCase() : d.respuestas ? Object.values(d.respuestas).includes(valor) : (d.correctas||[]).includes(valor) || (d.solucion||[]).join('|') === (d.seleccion||[]).join('|'); e.respondida=true;e.acierto=good; if(good)kpScore.verdes++;else kpScore.rojos++;renderPantalla(); }
+function kpInteractivo(idx, valor, pos) { const s=pantallas[idx], b=bloques[s.bi], d=b.datos||{}, e=kpEstado[idx]; if(e.respondida)return; if(d.solucion){e.seleccion=e.seleccion||[];e.seleccion.push(valor);if(e.seleccion.length<d.solucion.length){renderPantalla();return;}} const good=d.correcta!==undefined ? (pos!==undefined ? Number(pos)===Number(d.correcta) : String(valor).toLowerCase()===String(d.correcta).toLowerCase()) : d.respuesta ? String(valor).toLowerCase()===String(d.respuesta).toLowerCase() : d.respuestas ? Object.values(d.respuestas).includes(valor) : (d.correctas||[]).includes(valor) || (d.solucion||[]).join('|') === (e.seleccion||[]).join('|'); e.respondida=true;e.acierto=good; if(good)kpScore.verdes++;else kpScore.rojos++;renderPantalla(); }
+let kpDragItem='';
+function kpDropItem(bi,zona){const e=kpEstado[pantallaIdx],d=bloques[bi].datos||{};if(!kpDragItem||e.respondida)return;e.colocadas=e.colocadas||{};e.colocadas[kpDragItem]=zona;const total=(d.elementos||[]).length;if(Object.keys(e.colocadas).length>=total){e.respondida=true;e.acierto=Object.keys(e.colocadas).every(k=>String(d.respuestas?.[k]||'').toLowerCase()===String(e.colocadas[k]).toLowerCase());if(e.acierto)kpScore.verdes++;else kpScore.rojos;}kpDragItem='';renderPantalla();}
 function kpBuscar(bi,i){const e=kpEstado[pantallaIdx], d=bloques[bi].datos||{}, x=String((d.objetos||[])[i]||'').split('|');if(!e.seleccion)e.seleccion=[];if(!e.seleccion.includes(i))e.seleccion.push(i);if(e.seleccion.length >= Number(d.objetivo||1)){e.respondida=true;e.acierto=e.seleccion.filter(k=>String((d.objetos||[])[k]||'').split('|')[2]==='1').length>=Number(d.objetivo||1);if(e.acierto)kpScore.verdes++;else kpScore.rojos++;}renderPantalla();}
 function kpLanzar(bi){const e=kpEstado[pantallaIdx];e.lanzamientos.push(1+Math.floor(Math.random()*Number(bloques[bi].datos?.caras||6)));renderPantalla();}
 function kpComprar(bi,n){const e=kpEstado[pantallaIdx];const max=Number(bloques[bi].datos?.presupuesto||0);if((e.gastado||0)+n<=max)e.gastado=(e.gastado||0)+n;renderPantalla();}
+function kpMemoria(bi,i){const e=kpEstado[pantallaIdx], cards=bloques[bi].datos?.tarjetas||[];e.reveladas=e.reveladas||[];if(!e.reveladas.includes(i))e.reveladas.push(i);if(e.reveladas.length>=2){const a=e.reveladas.slice(-2);e.respondida=true;e.acierto=cards[a[0]]===cards[a[1]];if(e.acierto)kpScore.verdes++;else kpScore.rojos++;}renderPantalla();}
+function kpSecreto(bi){const e=kpEstado[pantallaIdx], v=document.getElementById('kp-secret')?.value.trim();if(!v)return;e.respondida=true;e.acierto=v.toLowerCase()===String(bloques[bi].datos?.contraseña||'').toLowerCase();if(e.acierto)kpScore.verdes++;else kpScore.rojos++;renderPantalla();}
+function kpEscape(bi,pi,oi){const e=kpEstado[pantallaIdx], p=(bloques[bi].datos?.pruebas||[])[pi]||{};e.respondida=true;e.acierto=oi===Number(p.correcta);if(e.acierto)kpScore.verdes++;else kpScore.rojos++;renderPantalla();}
 
 // ── Cálculo mental (vista previa) ─────────────────────────────────────
 let calcTimer = null;
