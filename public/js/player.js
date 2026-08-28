@@ -216,6 +216,9 @@ function abrirJuego(act) {
           pantallas.push({ tipo: 'mapa', bi, qi, n: (preg || []).length, paises, pide: q.pide || ('Haz clic en ' + corr), correcta: corr, correctaEn: MAPA_MUNDI.paises[corr] });
           kpEstado.push({ respondida: false, acierto: null, sel: null });
         });
+      } else if (['arrastrar','buscar','detective','laboratorio','construccion','presupuesto','exploracion','simulacion','historia_interactiva'].includes(b.tipo) && b.datos) {
+        pantallas.push({ tipo: 'interactivo', bi });
+        kpEstado.push({ respondida: false, seleccion: [], lanzamientos: [], gastado: 0 });
       }
     });
   }
@@ -412,6 +415,7 @@ function renderPantalla() {
   else if (s.tipo === 'mapa') cuerpo = screenMapa(s, est);
   else if (s.tipo === 'code') cuerpo = screenCode(s, est);
   else if (s.tipo === 'code_explica') cuerpo = screenCodeExplica(s);
+  else if (s.tipo === 'interactivo') cuerpo = screenInteractive(s, est);
   else if (s.tipo === 'final') { cuerpo = screenFinal(s); if (!kpCelebrado) { kpCelebrado = true; if (window.PJProgreso) { PJProgreso.sumar(kpScore.verdes, kpScore.rojos); try { window.dispatchEvent(new CustomEvent('pj:progreso')); } catch (e) { /* ok */ } } lluviaConfetti(); if (window.pjSonido) pjSonido.victoria(); } }
   ocultarFeedback();
   destruirMapas();
@@ -713,6 +717,23 @@ function screenEsquema(s, est) {
   });
   return `<div class="kp-screen"><div class="kp-qt">🧩 ${esc(b.titulo || 'Esquema')}</div><div class="pj-esquema" role="img" aria-label="${esc(b.aria_label || b.titulo || 'Esquema visual')}"><svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">${body}</svg></div><div class="kp-hint">👆 Pulsa los elementos destacados para ver más información</div><div style="text-align:center;margin-top:14px;"><button class="kp-check" onclick="pantallaNext()">Continuar →</button></div></div>`;
 }
+
+function screenInteractive(s, est) {
+  const b=bloquesJuego[s.bi], d=b.datos||{}, tipo=b.tipo;
+  const opts = tipo==='detective' ? d.opciones||[] : tipo==='laboratorio' ? (d.opciones||[]).map(x=>String(x).split('|')[0]) : tipo==='construccion' ? d.piezas||[] : tipo==='exploracion' ? (d.lugares||[]).map(x=>String(x).split('|')[0]) : tipo==='historia_interactiva' ? ((d.escenas||[])[0]?.opciones||[]) : [];
+  let body=`<div class="kp-screen kp-interactive"><div class="kp-qt">${tipo==='arrastrar'?'🧲':tipo==='buscar'?'🔎':tipo==='detective'?'🕵️':tipo==='laboratorio'?'🧪':tipo==='construccion'?'🏗️':tipo==='presupuesto'?'🛒':tipo==='exploracion'?'🗺️':tipo==='simulacion'?'🎲':'📖'} ${esc(b.titulo||tipo)}</div><p>${esc(b.instrucciones||'Completa este reto.')}</p>`;
+  if(tipo==='buscar') body+=`<div class="kp-scene">${(d.objetos||[]).map((x,i)=>{const a=String(x).split('|');return `<button class="kp-scene-object ${est.seleccion?.includes(i)?'selected':''}" onclick="kpBuscarObjeto(${s.bi},${i})">${esc(a[0])}<small>${esc(a[1]||'')}</small></button>`}).join('')}</div>`;
+  else if(tipo==='simulacion') body+=`<p>${esc(d.pregunta||'Lanza el dado y observa los resultados.')}</p><button class="kp-btn" onclick="kpLanzarDado(${s.bi})">🎲 LANZAR DADO</button><div class="kp-results">${(est.lanzamientos||[]).join(' · ')}</div>`;
+  else if(tipo==='presupuesto') body+=`<p>Presupuesto: <strong>${Number(d.presupuesto||0).toFixed(2)} Pz</strong></p><div class="kp-shop">${(d.productos||[]).map(x=>{const a=String(x).split('|');return `<button class="kp-chip" onclick="kpComprarProducto(${s.bi},${Number(a[2])||0})">${esc(a[0])} ${esc(a[1]||'')} · ${Number(a[2]||0).toFixed(2)} Pz</button>`}).join('')}</div><p>Gastado: ${(est.gastado||0).toFixed(2)} Pz · Te quedan: ${(Number(d.presupuesto||0)-(est.gastado||0)).toFixed(2)} Pz</p><button class="kp-btn" onclick="kpTerminarInteractivo()">Terminar compra</button>`;
+  else if(tipo==='arrastrar') body+=`<p>Elige una categoría para colocar los elementos:</p><div class="kp-drop-zones">${(d.zonas||[]).map(z=>`<button class="kp-zone" onclick="kpResponderInteractivo(${s.bi},'${esc(z)}')">${esc(z)}</button>`).join('')}</div>`;
+  else body+=`${(d.pistas||[]).map((p,i)=>`<div class="kp-hint">Pista ${i+1}: ${esc(p)}</div>`).join('')}<div class="kp-opts">${opts.map((o,i)=>`<button class="kp-opt" onclick="kpResponderInteractivo(${s.bi},'${esc(o)}',${i})">${esc(o)}</button>`).join('')}</div>`;
+  return body+((est.respondida)?`<div class="kp-msg ${est.acierto?'ok':'bad'}">${est.acierto?'¡Muy bien! 🎉':'Prueba otra vez 💪'}</div>`:'')+'</div>';
+}
+function kpResponderInteractivo(bi,val,pos){const e=kpEstado[pantallaIdx],d=bloquesJuego[bi].datos||{};if(e.respondida)return;const good=d.correcta!==undefined?String(val).toLowerCase()===String(d.correcta).toLowerCase():d.respuestas?Object.values(d.respuestas).includes(val):(d.correctas||[]).includes(val)||((d.opciones||[])[pos]||'').split('|')[2]==='1';e.respondida=true;e.acierto=good;if(good)kpScore.verdes++;else kpScore.rojos++;renderPantalla();}
+function kpBuscarObjeto(bi,i){const e=kpEstado[pantallaIdx],d=bloquesJuego[bi].datos||{};e.seleccion=e.seleccion||[];if(!e.seleccion.includes(i))e.seleccion.push(i);if(e.seleccion.length>=Number(d.objetivo||1)){e.respondida=true;e.acierto=e.seleccion.filter(k=>String((d.objetos||[])[k]).split('|')[2]==='1').length>=Number(d.objetivo||1);if(e.acierto)kpScore.verdes++;else kpScore.rojos++;}renderPantalla();}
+function kpLanzarDado(bi){const e=kpEstado[pantallaIdx];e.lanzamientos.push(1+Math.floor(Math.random()*Number(bloquesJuego[bi].datos?.caras||6)));renderPantalla();}
+function kpComprarProducto(bi,n){const e=kpEstado[pantallaIdx],max=Number(bloquesJuego[bi].datos?.presupuesto||0);if((e.gastado||0)+n<=max)e.gastado=(e.gastado||0)+n;renderPantalla();}
+function kpTerminarInteractivo(){const e=kpEstado[pantallaIdx];e.respondida=true;e.acierto=true;kpScore.verdes++;renderPantalla();}
 
 function abrirEsquemaPopup(bi, ei) {
   const b = bloquesJuego[bi] || {}, sc = b.esquema || b.escena || b, e = (sc.elementos || [])[ei];
