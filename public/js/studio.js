@@ -428,6 +428,7 @@ function renderInteractivo(b, i) {
   const tipo=b.tipo,d=b.datos||{};
   const field=(key,label,ph='')=>`<label>${label}<input value="${esc(d[key]??'')}" placeholder="${esc(ph)}" oninput="setDatoCampo(${i},'${key}',this.value)"></label>`;
   const list=(key,label,ph)=>`<label>${label}<span class="field-help">Una línea por elemento · emoji|texto|correcto (1/0) cuando aplique</span><textarea rows="4" placeholder="${esc(ph)}" oninput="setDatoLista(${i},'${key}',this.value)">${esc((d[key]||[]).join('\n'))}</textarea></label>`;
+  const json=(label, value)=>`<label>${label}<span class="field-help">Formato JSON del ejercicio</span><textarea rows="6" class="json-editor" oninput="setDatosJSON(${i},this.value)">${esc(JSON.stringify(value,null,2))}</textarea></label>`;
   let specific='';
   if(tipo==='arrastrar') specific=list('zonas','Contenedores / categorías','orgánico\npapel\nvidrio')+list('elementos','Elementos arrastrables','🍌|Cáscara|orgánico\n📰|Periódico|papel');
   else if(tipo==='buscar') specific=field('objetivo','Número de objetos correctos','8')+list('objetos','Objetos de la escena','💡|Lámpara|1\n🪑|Silla|0');
@@ -435,6 +436,12 @@ function renderInteractivo(b, i) {
   else if(tipo==='laboratorio') specific=field('resultado','Consecuencia al experimentar','La planta crece fuerte.')+list('opciones','Elementos para probar','☀️|Luz|1\n❄️|Hielo|0');
   else if(tipo==='construccion') specific=list('piezas','Piezas disponibles','🔋 Batería\n🔌 Cables\n💡 Bombilla')+list('solucion','Orden / solución','Batería\nCables\nBombilla');
   else if(tipo==='presupuesto') specific=field('presupuesto','Presupuesto (Pz)','20')+list('productos','Productos','🍎|Manzana|2\n🥛|Leche|1.5');
+  else if(tipo==='dinero_euro') specific=field('objetivo','Cantidad objetivo (€)','7.35')+list('monedas','Monedas (€)','0.01\n0.10\n0.50\n1\n2')+list('billetes','Billetes (€)','5\n10\n20');
+  else if(tipo==='construir_frase') specific=json('Frase y palabras',{palabras:d.palabras||['El','gato','come','pescado'],respuesta:d.respuesta||'El gato come pescado'});
+  else if(tipo==='clasificar_palabras') specific=json('Categorías y palabras',{categorias:d.categorias||['Sustantivo','Verbo','Adjetivo'],elementos:d.elementos||[]});
+  else if(tipo==='completar_palabra') specific=json('Ejercicios de ortografía',{modo:'opciones',ejercicios:d.ejercicios||[]});
+  else if(tipo==='cazador_errores') specific=json('Frase y errores',{texto:d.texto||'',errores:d.errores||[]});
+  else if(tipo==='lectura_interactiva') specific=json('Escenas y decisiones',{escenas:d.escenas||[]});
   else if(tipo==='exploracion') specific=field('pregunta','Pregunta del mapa','¿Qué lugar quieres visitar?')+list('lugares','Lugares / paradas','📍 Tarragona|Ciudad romana|tarragona');
   else if(tipo==='simulacion') specific=field('caras','Caras / resultados posibles','6')+field('pregunta','Pregunta para reflexionar','¿Qué número ha salido más veces?');
   else if(tipo==='memoria') specific=list('tarjetas','Tarjetas (cada pareja debe repetirse)','☀️\n🌙\n☀️\n🌙');
