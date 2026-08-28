@@ -9,6 +9,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const raw = sessionStorage.getItem('pj-preview-activity') || localStorage.getItem('pj-preview-activity');
     const activity = raw ? JSON.parse(raw) : null;
     if (!activity) throw new Error('No hay actividad para previsualizar.');
+    // En preview se pueden recorrer todas las diapositivas sin superar los
+    // ejercicios; la aplicación publicada mantiene el desbloqueo progresivo.
+    activity._preview = true;
     if (typeof abrirJuego !== 'function') throw new Error('No se pudo cargar el reproductor.');
     abrirJuego(activity);
   } catch (error) {

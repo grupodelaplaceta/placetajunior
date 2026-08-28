@@ -1252,7 +1252,7 @@ function verPreview() {
 
 function verPreviewMotor() {
   if (!bloques.length) { aviso('Añade al menos un bloque para ver la vista previa.', true); return; }
-  const activity = { id: 'preview-' + Date.now(), titulo: ($('m-titulo')?.value || meta.titulo || 'Mi actividad').trim(), descripcion: ($('m-descripcion')?.value || meta.descripcion || '').trim(), categoria: $('m-categoria')?.value || meta.categoria || 'General', edad_recomendada: $('m-edad')?.value || meta.edad || '6-12', dificultad: $('m-dificultad')?.value || meta.dificultad || 'media', contenido: { version: 2, bloques: JSON.parse(JSON.stringify(bloques)) } };
+  const activity = { id: 'preview-' + Date.now(), _preview: true, titulo: ($('m-titulo')?.value || meta.titulo || 'Mi actividad').trim(), descripcion: ($('m-descripcion')?.value || meta.descripcion || '').trim(), categoria: $('m-categoria')?.value || meta.categoria || 'General', edad_recomendada: $('m-edad')?.value || meta.edad || '6-12', dificultad: $('m-dificultad')?.value || meta.dificultad || 'media', contenido: { version: 2, bloques: JSON.parse(JSON.stringify(bloques)) } };
   const previewJson = JSON.stringify(activity);
   sessionStorage.setItem('pj-preview-activity', previewJson);
   localStorage.setItem('pj-preview-activity', previewJson);
