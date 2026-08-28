@@ -150,6 +150,19 @@ Reglas:
       </div>
     </div>
 
+    <div class="card devai-formatos">
+      <h2>🎮 Formatos nuevos listos para usar</h2>
+      <p class="sub">Elige una plantilla, edítala y pulsa <strong>Previsualizar</strong> para abrir el reproductor real.</p>
+      <div class="row">
+        <button class="btn btn-outline" onclick="plantilla('construir_frase')">📝 Frases</button>
+        <button class="btn btn-outline" onclick="plantilla('clasificar_palabras')">🔤 Clasificar</button>
+        <button class="btn btn-outline" onclick="plantilla('completar_palabra')">✏️ Ortografía</button>
+        <button class="btn btn-outline" onclick="plantilla('cazador_errores')">🔎 Errores</button>
+        <button class="btn btn-outline" onclick="plantilla('lectura_interactiva')">📖 Lectura</button>
+        <button class="btn btn-outline" onclick="plantilla('dinero_euro')">💶 Euros</button>
+      </div>
+    </div>
+
     <div class="grid2">
       <div class="card">
         <h2>2️⃣ Generador de formato (texto → código)</h2>
@@ -202,6 +215,10 @@ Reglas:
   <script>
     const API_BASE = 'https://admin-placeta.vercel.app/api/junior';
     function $(id) { return document.getElementById(id); }
+    function plantilla(tipo) {
+      const p = { construir_frase: { tipo, titulo:'Constructor de frases', instrucciones:'Ordena las palabras para formar una frase.', palabras:['come','El','gato','pescado'], respuesta:'El gato come pescado' }, clasificar_palabras: { tipo, titulo:'Clasificador de palabras', instrucciones:'Clasifica cada palabra.', categorias:['Sustantivo','Verbo','Adjetivo'], elementos:[{texto:'perro',categoria:'Sustantivo'},{texto:'correr',categoria:'Verbo'},{texto:'azul',categoria:'Adjetivo'}] }, completar_palabra: { tipo, titulo:'Completa la palabra', modo:'opciones', ejercicios:[{texto:'El ca__o corre por el parque.',respuesta:'rr',opciones:['r','rr','rrr']}] }, cazador_errores: { tipo, titulo:'Cazador de errores', instrucciones:'Encuentra la palabra incorrecta.', texto:'Ayer fuimos al parque y vimos un pajaro.', errores:[{incorrecto:'pajaro',correcto:'pájaro'}] }, lectura_interactiva: { tipo, titulo:'Lectura interactiva', escenas:[{texto:'Candela encuentra una caja misteriosa.',opciones:[{texto:'Abrir la caja',siguiente:1},{texto:'Buscar ayuda',siguiente:1}]},{texto:'Dentro hay una sorpresa. ¡Fin!',opciones:[]}] }, dinero_euro: { tipo, titulo:'Billetes y monedas de euro', instrucciones:'Forma la cantidad exacta.', objetivo:7.35, monedas:[.01,.02,.05,.10,.20,.50,1,2], billetes:[5,10,20] } }[tipo];
+      $('codigo').value = JSON.stringify({ titulo: p.titulo, descripcion: 'Actividad educativa Placeta Junior', contenido: { version: 2, bloques: [p] } }, null, 2); $('titulo').value=p.titulo; $('descripcion').value='Actividad educativa Placeta Junior'; $('codigo').focus();
+    }
     function copiar(id) {
       const el = $(id); el.select();
       navigator.clipboard.writeText(el.value).then(() => {
@@ -398,7 +415,9 @@ Reglas:
       try { obj = JSON.parse($('codigo').value); } catch (e) { aviso('❌ El código no es JSON válido: ' + e.message, true); return true; }
       const contenido = obj.contenido && typeof obj.contenido === 'object' ? obj.contenido : { version: 2, bloques: obj.bloques || [] };
       const activity = { id: 'preview-' + Date.now(), titulo: obj.titulo || 'Mi actividad', descripcion: obj.descripcion || '', categoria: obj.categoria || 'General', edad_recomendada: obj.edad_recomendada || '6-12', dificultad: obj.dificultad || 'media', contenido };
-      sessionStorage.setItem('pj-preview-activity', JSON.stringify(activity));
+      const previewJson = JSON.stringify(activity);
+      sessionStorage.setItem('pj-preview-activity', previewJson);
+      localStorage.setItem('pj-preview-activity', previewJson);
       window.open('/preview.html', '_blank', 'noopener');
       return true;
     }

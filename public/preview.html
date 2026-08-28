@@ -6,7 +6,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   try {
-    const raw = sessionStorage.getItem('pj-preview-activity');
+    const raw = sessionStorage.getItem('pj-preview-activity') || localStorage.getItem('pj-preview-activity');
     const activity = raw ? JSON.parse(raw) : null;
     if (!activity) throw new Error('No hay actividad para previsualizar.');
     if (typeof abrirJuego !== 'function') throw new Error('No se pudo cargar el reproductor.');
