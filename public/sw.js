@@ -12,6 +12,7 @@ const CACHE = 'placetajunior-v5-schema2';
 const SHELL = [
   '/',
   '/index.html',
+  '/preview.html',
   '/css/styles.css',
   '/css/home.css',
   '/css/leaflet.css',
