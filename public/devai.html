@@ -310,6 +310,7 @@ Reglas:
 
     // ── Previsualizar ────────────────────────────────────────────────
     function previsualizar() {
+      if (previsualizarMotor()) return;
       detectarCampos();
       const m = $('mensaje'); m.textContent = ''; m.className = '';
       let obj;
@@ -388,6 +389,18 @@ Reglas:
       });
       $('preview').innerHTML = html;
       aviso('👁️ Previsualización lista.', false);
+    }
+
+    // Preview compartido con la web pública: mismo player.js, mismos estados
+    // y mismas animaciones que verá el alumno.
+    function previsualizarMotor() {
+      let obj;
+      try { obj = JSON.parse($('codigo').value); } catch (e) { aviso('❌ El código no es JSON válido: ' + e.message, true); return true; }
+      const contenido = obj.contenido && typeof obj.contenido === 'object' ? obj.contenido : { version: 2, bloques: obj.bloques || [] };
+      const activity = { id: 'preview-' + Date.now(), titulo: obj.titulo || 'Mi actividad', descripcion: obj.descripcion || '', categoria: obj.categoria || 'General', edad_recomendada: obj.edad_recomendada || '6-12', dificultad: obj.dificultad || 'media', contenido };
+      sessionStorage.setItem('pj-preview-activity', JSON.stringify(activity));
+      window.open('/preview.html', '_blank', 'noopener');
+      return true;
     }
 
     // ── Publicar ─────────────────────────────────────────────────────
