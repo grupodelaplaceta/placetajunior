@@ -25,6 +25,7 @@ const TIPOS = {
   laboratorio:   { ico: 'science', nombre: 'Laboratorio' },
   construccion:  { ico: 'build', nombre: 'Construye' },
   presupuesto:   { ico: 'shopping_cart', nombre: 'Tienda de Candela' },
+  dinero_euro:   { ico: 'euro', nombre: 'Billetes y monedas de euro' },
   exploracion:   { ico: 'explore', nombre: 'Exploración' },
   simulacion:    { ico: 'casino', nombre: 'Simulador' },
   historia_interactiva: { ico: 'auto_stories', nombre: 'Historia interactiva' }
@@ -318,7 +319,7 @@ function nuevoBloque(tipo) {
       pistas: []
     }];
   }
-  if (['arrastrar','buscar','detective','laboratorio','construccion','presupuesto','exploracion','simulacion','historia_interactiva','memoria','sonido','codigo_secreto','escape_room'].includes(tipo)) {
+  if (['arrastrar','buscar','detective','laboratorio','construccion','presupuesto','dinero_euro','exploracion','simulacion','historia_interactiva','memoria','sonido','codigo_secreto','escape_room'].includes(tipo)) {
     b.instrucciones = tipo === 'arrastrar' ? 'Coloca cada elemento en su lugar.' : '¡Completa este reto!';
     b.datos = tipo === 'arrastrar'
       ? { elementos: ['🍌|Cáscara de plátano|orgánico','📰|Periódico|papel','🍾|Botella|vidrio'], zonas: ['orgánico','papel','vidrio'], respuestas: { 'Cáscara de plátano':'orgánico','Periódico':'papel','Botella':'vidrio' } }
@@ -327,6 +328,7 @@ function nuevoBloque(tipo) {
       : tipo === 'laboratorio' ? { opciones: ['☀️|Luz|1','💧|Agua|1','❄️|Hielo|0','🍬|Azúcar|0'], resultado: 'La planta crece fuerte.' }
       : tipo === 'construccion' ? { piezas: ['🔋 Batería','💡 Bombilla','🔌 Cables','⏻ Interruptor'], solucion: ['Batería','Cables','Interruptor','Bombilla'] }
       : tipo === 'presupuesto' ? { presupuesto: 20, productos: ['🍎|Manzana|2','🥛|Leche|1.5','🍞|Pan|1.2','🍝|Pasta|2.3'] }
+      : tipo === 'dinero_euro' ? { objetivo: 7.35, monedas: [0.01,0.02,0.05,0.10,0.20,0.50,1,2], billetes: [5,10,20] }
       : tipo === 'exploracion' ? { lugares: ['📍 Tarragona|Capital romana|tarragona','📍 Barcelona|Ciudad modernista|barcelona','📍 Madrid|Capital de España|madrid'], pregunta: '¿Qué ciudad quieres visitar primero?', correcta: 'barcelona' }
       : tipo === 'simulacion' ? { caras: 6, pregunta: 'Lanza el dado y observa los resultados.' }
       : tipo === 'memoria' ? { tarjetas: ['☀️','🌙','🌈','⭐','☀️','🌙','🌈','⭐'] }
