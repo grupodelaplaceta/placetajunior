@@ -181,7 +181,15 @@
       const slides = data?.slides || [];
       const track = document.getElementById('hero-carousel-track');
       if (!track || !slides.length) return;
-      track.innerHTML = slides.map(s => `<figure class="hero-slide"><img src="${String(s.image || '').replace(/"/g, '&quot;')}" alt="${String(s.alt || '').replace(/"/g, '&quot;')}" /></figure>`).join('');
+      const safeUrl = value => { try { const u = new URL(String(value || ''), location.href); return /^https?:$/.test(u.protocol) ? u.href : ''; } catch (_) { return ''; } };
+      const safeAttr = value => String(value || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+      track.innerHTML = slides.map(s => {
+        const image = safeAttr(s.image);
+        const alt = safeAttr(s.alt || 'Placeta Junior');
+        const href = safeUrl(s.link);
+        const content = `<img src="${image}" alt="${alt}" />`;
+        return `<figure class="hero-slide">${href ? `<a href="${safeAttr(href)}" target="_blank" rel="noopener noreferrer" aria-label="${alt}">${content}</a>` : content}</figure>`;
+      }).join('');
       track.firstElementChild?.classList.add('is-active');
       document.querySelector('[data-carousel]')?.dispatchEvent(new Event('carousel:reload'));
     }).catch(() => {});

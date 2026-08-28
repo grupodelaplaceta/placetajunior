@@ -1,5 +1,6 @@
 {
   "slides": [
-    { "image": "https://junior.laplaceta.org/img/bannerpj.jpg", "alt": "Placeta Junior" }
+    { "image": "https://junior.laplaceta.org/img/bannerpj.jpg", "alt": "Placeta Junior web", "link": "https://junior.laplaceta.org/" },
+    { "image": "https://junior.laplaceta.org/img/bannerpj.jpg", "alt": "Descarga Placeta Junior para Android", "link": "https://play.google.com/store/apps/details?id=org.laplaceta.placetajunior" }
   ]
 }
