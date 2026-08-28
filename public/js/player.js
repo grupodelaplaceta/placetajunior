@@ -228,7 +228,7 @@ function abrirJuego(act) {
           pantallas.push({ tipo: 'mapa', bi, qi, n: (preg || []).length, paises, pide: q.pide || ('Haz clic en ' + corr), correcta: corr, correctaEn: MAPA_MUNDI.paises[corr] });
           kpEstado.push({ respondida: false, acierto: null, sel: null });
         });
-      } else if (['arrastrar','buscar','detective','laboratorio','construccion','presupuesto','dinero_euro','construir_frase','clasificar_palabras','completar_palabra','cazador_errores','lectura_interactiva','exploracion','simulacion','historia_interactiva','memoria','sonido','codigo_secreto','escape_room'].includes(b.tipo) && (b.datos || b.palabras || b.texto || b.escenas)) {
+      } else if (['arrastrar','buscar','detective','laboratorio','construccion','presupuesto','dinero_euro','construir_frase','clasificar_palabras','completar_palabra','cazador_errores','lectura_interactiva','exploracion','simulacion','historia_interactiva','memoria','sonido','codigo_secreto','escape_room'].includes(b.tipo) && (b.datos || b.palabras || b.texto || b.escenas || b.elementos || b.categorias)) {
         pantallas.push({ tipo: 'interactivo', bi, nivelIndex: b.nivelIndex });
         kpEstado.push({ respondida: false, seleccion: [], lanzamientos: [], gastado: 0, clasificarIndice: 0, clasificarRespuestas: {} });
       }
@@ -1959,7 +1959,7 @@ function formatearTextoJugador(texto) {
     return `<p>${formatoInlineJugador(t)}</p>`;
   }).join('');
 }
-function formatoInlineJugador(t) { return t.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>').replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/__([^_]+)__/g, '<strong>$1</strong>').replace(/\*([^*]+)\*/g, '<em>$1</em>').replace(/`([^`]+)`/g, '<code>$1</code>'); }
+function formatoInlineJugador(t) { return t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/__([^_]+)__/g, '<strong>$1</strong>').replace(/\*([^*]+)\*/g, '<em>$1</em>').replace(/`([^`]+)`/g, '<code>$1</code>'); }
 function pantallaNext() {
   if (pantallaIdx >= pantallas.length - 1) return;
   const actual = pantallas[pantallaIdx], siguiente = pantallas[pantallaIdx + 1];

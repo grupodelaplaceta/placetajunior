@@ -477,7 +477,7 @@ function insertarFormatoTexto(i, prefijo, sufijo) {
   area.setSelectionRange(inicio + prefijo.length, fin + prefijo.length);
 }
 function formatearTextoPJ(texto) { return String(texto || '').split(/\r?\n/).map(linea => { const t=esc(linea.trim()); if(!t)return ''; if(/^### /.test(t))return `<h5>${formatoInlinePJ(t.slice(4))}</h5>`; if(/^## /.test(t))return `<h4>${formatoInlinePJ(t.slice(3))}</h4>`; if(/^# /.test(t))return `<h3>${formatoInlinePJ(t.slice(2))}</h3>`; if(/^> /.test(t))return `<blockquote>${formatoInlinePJ(t.slice(2))}</blockquote>`; if(/^(?:- |• )/.test(t))return `<div class="pj-formatted-list">• ${formatoInlinePJ(t.slice(2))}</div>`; return `<p>${formatoInlinePJ(t)}</p>`; }).join(''); }
-function formatoInlinePJ(t) { return t.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>').replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/__([^_]+)__/g, '<strong>$1</strong>').replace(/\*([^*]+)\*/g, '<em>$1</em>').replace(/`([^`]+)`/g, '<code>$1</code>'); }
+function formatoInlinePJ(t) { return t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/__([^_]+)__/g, '<strong>$1</strong>').replace(/\*([^*]+)\*/g, '<em>$1</em>').replace(/`([^`]+)`/g, '<code>$1</code>'); }
 function renderTexto(b, i) {
   return `
     <div class="q-item">
@@ -492,8 +492,8 @@ function renderTexto(b, i) {
         <button class="img-remove" onclick="quitarImagenBloque(${i})">✕</button>
       </div>` : ''}
       <div class="pj-text-toolbar" role="toolbar" aria-label="Formato del texto"><button type="button" onclick="insertarFormatoTexto(${i},'**','**')"><strong>N</strong></button><button type="button" onclick="insertarFormatoTexto(${i},'*','*')"><em>C</em></button><button type="button" onclick="insertarFormatoTexto(${i},'# ','')">Título</button><button type="button" onclick="insertarFormatoTexto(${i},'- ','')">Lista</button><button type="button" onclick="insertarFormatoTexto(${i},'> ','')">Cita</button><button type="button" onclick="insertarFormatoTexto(${i},'&#96;','&#96;')">Código</button></div>
-      <textarea id="texto-${i}" rows="8" placeholder="# Título\nEscribe **negrita**, *cursiva* o una lista:\n- Primer punto\n- Segundo punto\n\nEnlace: [La Placeta](https://laplaceta.org)" style="width:100%;margin-top:8px;" oninput="setCampo(${i},'contenido',this.value)">${esc(b.contenido || '')}</textarea>
-      <p class="form-note" style="margin-top:6px;"><span class="material-symbols-rounded q-ico">lightbulb</span> Formato: # títulos · **negrita** · *cursiva* · - listas · &gt; citas · [enlaces](https://…).</p>
+      <textarea id="texto-${i}" rows="8" placeholder="# Título\nEscribe **negrita**, *cursiva* o una lista:\n- Primer punto\n- Segundo punto" style="width:100%;margin-top:8px;" oninput="setCampo(${i},'contenido',this.value)">${esc(b.contenido || '')}</textarea>
+      <p class="form-note" style="margin-top:6px;"><span class="material-symbols-rounded q-ico">lightbulb</span> Formato: # títulos · **negrita** · *cursiva* · - listas · &gt; citas. Las interacciones se configuran como popups.</p>
     </div>`;
 }
 
