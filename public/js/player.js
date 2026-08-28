@@ -631,12 +631,15 @@ function screenProblema(s, est) {
   const ops = (p.operaciones || []).filter(o => o && (o.a != null || o.b != null));
   if (ops.length) {
     const esEscribir = b.modo !== 'opciones';
-    html += `<div class="kp-operaciones"><div class="kp-operaciones-titulo">✏️ Resuelve en vertical</div>`;
+    html += `<div class="kp-operaciones"><div class="kp-operaciones-titulo">✏️ Resuelve paso a paso</div>
+      <div class="kp-hint">Haz cada operación como en papel. Comprueba un paso antes de pasar al siguiente.</div>`;
     ops.forEach((o, oi) => {
+      html += `<div class="kp-paso-operacion"><strong>Paso ${oi + 1}</strong>`;
       const v = esEscribir
         ? verticalOperacionInputHTML(o.a, o.b, o.op || 'suma', true, 'p' + pantallaIdx + '-' + oi)
         : verticalOperacionHTML(o.a, o.b, o.op || 'suma', true);
       if (v) html += v;
+      html += `</div>`;
     });
     html += `</div>`;
   }

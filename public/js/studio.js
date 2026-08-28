@@ -2299,6 +2299,11 @@ async function publicar() {
   const recompensa = parseInt($('m-recompensa')?.value, 10) || 0;
   const subvencionada = !!($('m-subvencionada')?.checked);
   const destacada = !!($('m-destacada')?.checked);
+  const es_reto_semanal = !!($('m-reto-semanal')?.checked);
+  const fecha_fin_reto = ($('m-fecha-fin-reto')?.value || '').trim();
+  const video_url_horizontal = ($('m-video-horizontal')?.value || '').trim();
+  const video_url_vertical = ($('m-video-vertical')?.value || '').trim();
+  const video_popup_activo = !!($('m-video-activo')?.checked);
 
   let dip = '';
   let eip = '';
@@ -2316,7 +2321,7 @@ async function publicar() {
   const num_preguntas = contarPreguntas();
   if (num_preguntas === 0) { aviso('Añade contenido real en los bloques (preguntas, palabras, parejas…).', true); return; }
 
-  meta = { titulo, descripcion, categoria, tipo, edad: edad_recomendada, dificultad, tiempo: tiempo_estimado, titular, dip, eip, entidad, autor, pictograma, precio_licencia, precio_intento, recompensa, subvencionada, destacada };
+  meta = { titulo, descripcion, categoria, tipo, edad: edad_recomendada, dificultad, tiempo: tiempo_estimado, titular, dip, eip, entidad, autor, pictograma, precio_licencia, precio_intento, recompensa, subvencionada, destacada, es_reto_semanal, fecha_fin_reto, video_url_horizontal, video_url_vertical, video_popup_activo };
   guardar();
 
   // Construye el contenido según los tipos de bloque presentes.
@@ -2348,7 +2353,7 @@ async function publicar() {
       explicacion: (bloquesCode[0].explicacion || 'Programa a Candela 👧 para que llegue a la estrella ⭐. Cada ejercicio es un poco más difícil.'),
       ...(pictograma ? { pictograma } : {}) };
   } else {
-    contenido = { version: 2, bloques, ...(pictograma ? { pictograma } : {}) };
+    contenido = { version: 2, bloques, ...(pictograma ? { pictograma } : {}), es_reto_semanal, fecha_fin_reto, video_url_horizontal, video_url_vertical, video_popup_activo };
   }
 
   const body = {
@@ -2358,6 +2363,7 @@ async function publicar() {
     num_preguntas,
     num_fases: bloques.length,
     precio_licencia, precio_intento, recompensa, subvencionada, destacada,
+    es_reto_semanal, fecha_fin_reto, video_url_horizontal, video_url_vertical, video_popup_activo,
     contenido
   };
 

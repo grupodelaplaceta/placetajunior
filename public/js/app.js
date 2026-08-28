@@ -717,6 +717,7 @@ async function abrirActividad(id, bloqueada) {
     } catch (e) { /* sin almacenamiento */ }
     const data = await apiGet(url);
     if (data.actividad) {
+      mostrarAnuncioActividad(data.actividad);
       // El player maneja todos los tipos (incluido Placeta Junior Code)
       if (typeof abrirJuego === 'function') abrirJuego(data.actividad);
       else juniorAviso('No se pudo iniciar el juego.', 'error');
@@ -726,6 +727,37 @@ async function abrirActividad(id, bloqueada) {
   } catch (e) {
     juniorAviso('No se pudo cargar la actividad. Inténtalo de nuevo.', 'error');
   }
+}
+
+function cerrarAnuncioActividad() {
+  const modal = document.getElementById('actividad-anuncio-modal');
+  if (modal) modal.hidden = true;
+}
+
+// Anuncio común para vídeos y retos semanales. Se aceptan tanto columnas
+// nuevas como metadatos dentro de contenido para convivir con el esquema
+// actual de Supabase.
+function mostrarAnuncioActividad(a) {
+  const c = a?.contenido || {};
+  const activo = a?.video_popup_activo ?? c.video_popup_activo;
+  const semanal = a?.es_reto_semanal ?? c.es_reto_semanal;
+  const fin = a?.fecha_fin_reto ?? c.fecha_fin_reto;
+  const ahora = Date.now();
+  const finMs = fin ? Date.parse(fin) : NaN;
+  const retoVisible = semanal && (!Number.isFinite(finMs) || finMs >= ahora);
+  const horizontal = window.matchMedia?.('(orientation: landscape)').matches;
+  const video = horizontal
+    ? (a?.video_url_horizontal || c.video_url_horizontal)
+    : (a?.video_url_vertical || c.video_url_vertical);
+  if (!((activo && video) || retoVisible)) return;
+  const modal = document.getElementById('actividad-anuncio-modal');
+  const out = document.getElementById('actividad-anuncio-contenido');
+  if (!modal || !out) return;
+  const fecha = fin && Number.isFinite(finMs) ? new Date(finMs).toLocaleString('es-ES') : '';
+  out.innerHTML = video && activo
+    ? `<h2>🎬 ${escapeHtml(a.titulo || 'Vídeo')}</h2><video class="pj-anuncio-video" src="${escapeHtml(video)}" controls playsinline></video>${retoVisible ? `<p class="pj-reto-aviso">🏆 Reto semanal activo${fecha ? ` hasta el ${escapeHtml(fecha)}` : ''}. ¡Tu resultado contará para el reto!</p>` : ''}`
+    : `<h2>🏆 Reto de la semana</h2><p>${escapeHtml(a.titulo || 'Hay un nuevo reto disponible')}</p><p class="pj-reto-aviso">Puedes clasificar hasta ${escapeHtml(fecha || 'la fecha indicada en la actividad')}. Después la clasificación queda cerrada.</p>`;
+  modal.hidden = false;
 }
 
 // ═══════════════════════════════════════════════════════════════════

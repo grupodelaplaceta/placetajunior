@@ -37,6 +37,8 @@
         <a href="/" class="active">Inicio</a>
         <a href="#actividades">Actividades</a>
         <a href="/info">Info</a>
+        <a href="/terminos.html">Términos</a>
+        <a href="/privacidad.html">Privacidad</a>
       </nav>
       <div class="nav-cta">
         <a class="btn btn-primary" href="#actividades"><span class="material-symbols-rounded">play_arrow</span> Jugar</a>
@@ -56,7 +58,7 @@
     <div class="hero-inner">
       <h1 class="sr-only">Placeta Junior</h1>
       <div class="hero-carousel" data-carousel aria-label="Galería de Placeta Junior">
-        <div class="hero-carousel-track">
+        <div class="hero-carousel-track" id="hero-carousel-track">
           <figure class="hero-slide is-active"><img src="img/bannerpj.jpg" alt="Placeta Junior" /></figure>
           <!-- Próximas imágenes: añadir otro .hero-slide dentro del track. -->
         </div>
@@ -108,6 +110,13 @@
     </div>
   </div>
 
+  <div id="actividad-anuncio-modal" class="pj-modal" hidden aria-live="polite">
+    <div class="pj-modal-card pj-anuncio-card">
+      <button type="button" class="pj-modal-close" onclick="cerrarAnuncioActividad()" aria-label="Cerrar">×</button>
+      <div id="actividad-anuncio-contenido"></div>
+    </div>
+  </div>
+
   <footer class="footer">
     <div class="footer-inner">
       <img class="footer-logo" src="img/PJ-BLANCO-LOGO.png" alt="Placeta Junior" />
@@ -142,23 +151,40 @@
     (function () {
       const carousel = document.querySelector('[data-carousel]');
       if (!carousel) return;
-      const slides = [...carousel.querySelectorAll('.hero-slide')];
       const dots = carousel.querySelector('.hero-carousel-dots');
-      if (slides.length < 2) return;
-      dots.innerHTML = slides.map((_, i) => `<span class="${i === 0 ? 'is-active' : ''}" aria-hidden="true"></span>`).join('');
+      let slides = [];
       let current = 0;
       let timer;
       const show = (next) => {
+        if (!slides.length) return;
         slides[current].classList.remove('is-active');
         current = (next + slides.length) % slides.length;
         slides[current].classList.add('is-active');
         [...dots.children].forEach((dot, i) => dot.classList.toggle('is-active', i === current));
       };
-      const start = () => { timer = window.setInterval(() => show(current + 1), 5000); };
+      const start = () => { window.clearInterval(timer); if (slides.length > 1) timer = window.setInterval(() => show(current + 1), 5000); };
+      const iniciar = () => {
+        slides = [...carousel.querySelectorAll('.hero-slide')];
+        current = 0;
+        dots.innerHTML = slides.map((_, i) => `<span class="${i === 0 ? 'is-active' : ''}" aria-hidden="true"></span>`).join('');
+        start();
+      };
       carousel.addEventListener('mouseenter', () => window.clearInterval(timer));
       carousel.addEventListener('mouseleave', start);
-      start();
+      carousel.addEventListener('carousel:reload', iniciar);
+      iniciar();
     }());
+
+    // La app consume este mismo fichero, así que el carrusel se mantiene
+    // sincronizado sin tener que publicar una APK por cada cambio.
+    fetch('/carousel.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).then(data => {
+      const slides = data?.slides || [];
+      const track = document.getElementById('hero-carousel-track');
+      if (!track || !slides.length) return;
+      track.innerHTML = slides.map(s => `<figure class="hero-slide"><img src="${String(s.image || '').replace(/"/g, '&quot;')}" alt="${String(s.alt || '').replace(/"/g, '&quot;')}" /></figure>`).join('');
+      track.firstElementChild?.classList.add('is-active');
+      document.querySelector('[data-carousel]')?.dispatchEvent(new Event('carousel:reload'));
+    }).catch(() => {});
 
     // Modo offline (como la app): service worker que cachea la web y las actividades
     if ('serviceWorker' in navigator && location.protocol !== 'file:') {

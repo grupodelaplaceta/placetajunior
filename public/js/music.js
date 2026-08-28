@@ -140,6 +140,12 @@
     window.addEventListener(ev, primeraInteraccion, { once: false, passive: true })
   );
 
+  // Nunca mantener audio reproduciéndose fuera de la web visible.
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible') detener();
+  });
+  window.addEventListener('pagehide', detener);
+
   window.PJMusic = {
     menu, actividad, detener, setSonido, esDeDia,
     cancionParaCategoria
