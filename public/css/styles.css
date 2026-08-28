@@ -1771,8 +1771,8 @@ h1, h2, h3, h4, h5,
   color: var(--pj-gray-600);
 }
 .code-avanzado summary:hover { color: var(--pj-purple); }
- .pj-esquema { width: 100%; max-width: 800px; margin: 12px auto; overflow: hidden; border-radius: 16px; background: var(--pj-gray-50, #f8fafc); }
- .pj-esquema svg { display: block; width: 100%; height: auto; font-family: inherit; }
+ .pj-esquema { width: 100%; max-width: 900px; aspect-ratio: 16 / 9; min-height: 190px; margin: 12px auto; overflow: hidden; border: 1px solid var(--pj-gray-200,#e5e7eb); border-radius: 16px; background: linear-gradient(135deg,#f8fafc,#eef2ff); box-shadow: 0 8px 24px rgba(30,41,59,.08); }
+ .pj-esquema svg { display: block; width: 100%; height: 100%; font-family: inherit; overflow: visible; touch-action: manipulation; }
  .pj-schema-action { cursor: pointer; outline: none; }
  .pj-schema-action:focus rect, .pj-schema-action:hover rect { stroke: #7c3aed; stroke-width: 3; }
  .pj-schema-popup { position: fixed; inset: 0; z-index: 10000; display: grid; place-items: center; padding: 20px; background: rgba(15, 23, 42, .55); }
