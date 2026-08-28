@@ -18,7 +18,16 @@ const TIPOS = {
   calculo_mental: { ico: 'calculate', nombre: 'Cálculo mental' },
   problemas:      { ico: 'functions', nombre: 'Problemas' },
   mapa_mundi:    { ico: 'public', nombre: 'Mapamundi' },
-  code_blocks:   { ico: 'code', nombre: 'Placeta Junior Code' }
+  code_blocks:   { ico: 'code', nombre: 'Placeta Junior Code' },
+  arrastrar:     { ico: 'open_with', nombre: 'Arrastrar y colocar' },
+  buscar:        { ico: 'search', nombre: 'Busca y encuentra' },
+  detective:     { ico: 'manage_search', nombre: 'Candela Detective' },
+  laboratorio:   { ico: 'science', nombre: 'Laboratorio' },
+  construccion:  { ico: 'build', nombre: 'Construye' },
+  presupuesto:   { ico: 'shopping_cart', nombre: 'Tienda de Candela' },
+  exploracion:   { ico: 'explore', nombre: 'Exploración' },
+  simulacion:    { ico: 'casino', nombre: 'Simulador' },
+  historia_interactiva: { ico: 'auto_stories', nombre: 'Historia interactiva' }
 };
 
 // Iconos SVG 100% descriptivos para los bloques del Studio (en vez de emojis)
@@ -283,6 +292,19 @@ function nuevoBloque(tipo) {
       pistas: []
     }];
   }
+  if (['arrastrar','buscar','detective','laboratorio','construccion','presupuesto','exploracion','simulacion','historia_interactiva'].includes(tipo)) {
+    b.instrucciones = tipo === 'arrastrar' ? 'Coloca cada elemento en su lugar.' : '¡Completa este reto!';
+    b.datos = tipo === 'arrastrar'
+      ? { elementos: ['🍌|Cáscara de plátano|orgánico','📰|Periódico|papel','🍾|Botella|vidrio'], zonas: ['orgánico','papel','vidrio'], respuestas: { 'Cáscara de plátano':'orgánico','Periódico':'papel','Botella':'vidrio' } }
+      : tipo === 'buscar' ? { objetos: ['💡|Lámpara|1','📱|Móvil|1','🪑|Silla|0'], objetivo: 2 }
+      : tipo === 'detective' ? { pistas: ['Estuvo en la cocina.','Tenía las manos llenas de harina.','Hay migas cerca del horno.'], opciones: ['Candela','El gato','La abuela'], correcta: 0 }
+      : tipo === 'laboratorio' ? { opciones: ['☀️|Luz|1','💧|Agua|1','❄️|Hielo|0','🍬|Azúcar|0'], resultado: 'La planta crece fuerte.' }
+      : tipo === 'construccion' ? { piezas: ['🔋 Batería','💡 Bombilla','🔌 Cables','⏻ Interruptor'], solucion: ['Batería','Cables','Interruptor','Bombilla'] }
+      : tipo === 'presupuesto' ? { presupuesto: 20, productos: ['🍎|Manzana|2','🥛|Leche|1.5','🍞|Pan|1.2','🍝|Pasta|2.3'] }
+      : tipo === 'exploracion' ? { lugares: ['📍 Tarragona|Capital romana|tarragona','📍 Barcelona|Ciudad modernista|barcelona','📍 Madrid|Capital de España|madrid'], pregunta: '¿Qué ciudad quieres visitar primero?', correcta: 'barcelona' }
+      : tipo === 'simulacion' ? { caras: 6, pregunta: 'Lanza el dado y observa los resultados.' }
+      : { escenas: [{ texto: 'Candela encuentra una puerta misteriosa.', opciones: ['Abrirla','Buscar una llave','Pedir ayuda'], siguiente: [1,2,2] }, { texto: 'Dentro hay una sorpresa.', opciones: [], siguiente: [] }] };
+  }
   return b;
 }
 
@@ -333,6 +355,7 @@ function renderBloque(b, i) {
   else if (b.tipo === 'problemas') cuerpo = renderProblemas(b, i);
   else if (b.tipo === 'mapa_mundi') cuerpo = renderMapa(b, i);
   else if (b.tipo === 'code_blocks') cuerpo = renderCode(b, i);
+  else if (TIPOS[b.tipo] && b.datos) cuerpo = renderInteractivo(b, i);
 
   return `
   <div class="block" id="bloque-${i}">
@@ -353,6 +376,20 @@ function renderBloque(b, i) {
     </div>
   </div>`;
 }
+
+function renderInteractivo(b, i) {
+  const tipo = b.tipo, d = b.datos || {};
+  const ejemplo = JSON.stringify(d, null, 2);
+  return `<div class="interactive-editor">
+    <div class="interactive-callout"><strong>${esc(TIPOS[tipo].nombre)}</strong><br><span>Diseña una experiencia: el niño hace algo, recibe feedback y aprende.</span></div>
+    <label>Instrucciones para el niño</label>
+    <textarea rows="2" oninput="setCampo(${i},'instrucciones',this.value)">${esc(b.instrucciones || '')}</textarea>
+    <label>Contenido del reto</label>
+    <textarea rows="11" class="json-editor" aria-label="Configuración del reto" oninput="setDatosJSON(${i},this.value)">${esc(ejemplo)}</textarea>
+    <p class="form-note">Puedes editar los datos como JSON. El ejemplo inicial ya es jugable y sirve de plantilla. Guarda y usa Vista previa para probarlo.</p>
+  </div>`;
+}
+function setDatosJSON(i, value) { try { bloques[i].datos = JSON.parse(value); } catch (e) {} }
 
 function renderImagenBloque(b, i) {
   const prev = b.imagen_url
@@ -1132,6 +1169,9 @@ function verPreview() {
         });
         kpEstado.push({ programa: [], superado: false, resultado: null, contenedorAbierto: null });
       });
+    } else if (b.datos && TIPOS[b.tipo]) {
+      pantallas.push({ tipo: 'interactivo', bi });
+      kpEstado.push({ respondida: false, seleccion: [], lanzamientos: [] });
     }
   });
 
@@ -1298,6 +1338,7 @@ function renderPantalla() {
   else if (s.tipo === 'mapa') cuerpo = screenMapa(s, est);
   else if (s.tipo === 'code') cuerpo = screenCodePreview(s, est);
   else if (s.tipo === 'code_explica') cuerpo = screenCodeExplicaPreview(s);
+  else if (s.tipo === 'interactivo') cuerpo = screenInteractivo(s, est);
   else if (s.tipo === 'final') { cuerpo = screenFinal(s); if (!kpCelebrado) { kpCelebrado = true; lluviaConfetti(); } }
   destruirMapas();
   $('preview-content').innerHTML = `
@@ -1312,6 +1353,24 @@ function renderPantalla() {
   if (s.tipo === 'mapa') iniciarMapa(pantallaIdx);
   if (s.tipo === 'code') { kpPrevPintar(); kpPrevDibujar(); }
 }
+
+function screenInteractivo(s, est) {
+  const b = bloques[s.bi], d = b.datos || {}, tipo = b.tipo;
+  if (tipo === 'arrastrar') {
+    const els = d.elementos || [], zonas = d.zonas || [];
+    return `<div class="kp-screen kp-interactive"><div class="kp-qt">🧲 ${esc(b.titulo)}</div><p>${esc(b.instrucciones || '')}</p><div class="kp-interactive-items">${els.map((x,i)=>{const a=String(x).split('|');return `<button class="kp-chip" onclick="kpInteractivo(${pantallaIdx},'${esc(a[2]||'')}')">${esc(a[0])} ${esc(a[1])}</button>`}).join('')}</div><div class="kp-drop-zones">${zonas.map(z=>`<button class="kp-zone" onclick="kpInteractivo(${pantallaIdx},'${esc(z)}')">${esc(z)}</button>`).join('')}</div>${feedbackInteractivo(est)}</div>`;
+  }
+  if (tipo === 'buscar') return `<div class="kp-screen kp-interactive"><div class="kp-qt">🔎 ${esc(b.titulo)}</div><p>${esc(b.instrucciones || 'Encuentra los objetos.')}</p><div class="kp-scene">${(d.objetos||[]).map((x,i)=>{const a=String(x).split('|');return `<button class="kp-scene-object ${est.seleccion?.includes(i)?'selected':''}" onclick="kpBuscar(${s.bi},${i})">${esc(a[0])}<small>${esc(a[1])}</small></button>`}).join('')}</div>${feedbackInteractivo(est)}</div>`;
+  if (tipo === 'simulacion') return `<div class="kp-screen kp-interactive"><div class="kp-qt">🎲 ${esc(b.titulo)}</div><p>${esc(d.pregunta || b.instrucciones || '')}</p><button class="kp-btn" onclick="kpLanzar(${s.bi})">Lanzar dado</button><div class="kp-results">${(est.lanzamientos||[]).map((n,i)=>`<span>${i+1}: ${n}</span>`).join(' ')}</div></div>`;
+  if (tipo === 'presupuesto') return `<div class="kp-screen kp-interactive"><div class="kp-qt">🛒 ${esc(b.titulo)}</div><p>Presupuesto: <strong>${Number(d.presupuesto||0).toFixed(2)} Pz</strong></p><div class="kp-shop">${(d.productos||[]).map((x,i)=>{const a=String(x).split('|');return `<button class="kp-chip" onclick="kpComprar(${s.bi},${Number(a[2])||0})">${esc(a[0])} ${esc(a[1])} · ${Number(a[2]||0).toFixed(2)} Pz</button>`}).join('')}</div><p class="kp-msg ok">Gastado: ${(est.gastado||0).toFixed(2)} Pz · Te quedan: ${(Number(d.presupuesto||0)-(est.gastado||0)).toFixed(2)} Pz</p></div>`;
+  const opciones = d.opciones || d.piezas || (d.lugares || []).map(x=>String(x).split('|')[0]);
+  return `<div class="kp-screen kp-interactive"><div class="kp-qt">${tipo==='detective'?'🕵️':tipo==='laboratorio'?'🧪':tipo==='construccion'?'🏗️':tipo==='exploracion'?'🗺️':'📖'} ${esc(b.titulo)}</div><p>${esc(b.instrucciones || d.pregunta || '')}</p>${(d.pistas||[]).map((p,i)=>`<div class="kp-hint">Pista ${i+1}: ${esc(p)}</div>`).join('')}<div class="kp-opts">${opciones.map((x,i)=>{const a=String(x).split('|');return `<button class="kp-opt" onclick="kpInteractivo(${pantallaIdx},'${esc(a[2]||a[1]||a[0])}',${i})">${esc(a[0])} ${esc(a[1]||'')}</button>`}).join('')}</div>${d.resultado?`<p class="kp-hint">${esc(d.resultado)}</p>`:''}${feedbackInteractivo(est)}</div>`;
+}
+function feedbackInteractivo(est) { return est.respondida ? `<div class="kp-msg ${est.acierto?'ok':'bad'}">${est.acierto?'¡Muy bien! 🎉':'Prueba otra vez 💪'}</div>` : ''; }
+function kpInteractivo(idx, valor, pos) { const s=pantallas[idx], b=bloques[s.bi], d=b.datos||{}, e=kpEstado[idx]; if(e.respondida)return; const good=d.correcta!==undefined ? String(valor).toLowerCase()===String(d.correcta).toLowerCase() : d.respuestas ? Object.values(d.respuestas).includes(valor) : (d.correctas||[]).includes(valor) || (d.solucion||[]).join('|') === (d.seleccion||[]).join('|'); e.respondida=true;e.acierto=good; if(good)kpScore.verdes++;else kpScore.rojos++;renderPantalla(); }
+function kpBuscar(bi,i){const e=kpEstado[pantallaIdx], d=bloques[bi].datos||{}, x=String((d.objetos||[])[i]||'').split('|');if(!e.seleccion)e.seleccion=[];if(!e.seleccion.includes(i))e.seleccion.push(i);if(e.seleccion.length >= Number(d.objetivo||1)){e.respondida=true;e.acierto=e.seleccion.filter(k=>String((d.objetos||[])[k]||'').split('|')[2]==='1').length>=Number(d.objetivo||1);if(e.acierto)kpScore.verdes++;else kpScore.rojos++;}renderPantalla();}
+function kpLanzar(bi){const e=kpEstado[pantallaIdx];e.lanzamientos.push(1+Math.floor(Math.random()*Number(bloques[bi].datos?.caras||6)));renderPantalla();}
+function kpComprar(bi,n){const e=kpEstado[pantallaIdx];const max=Number(bloques[bi].datos?.presupuesto||0);if((e.gastado||0)+n<=max)e.gastado=(e.gastado||0)+n;renderPantalla();}
 
 // ── Cálculo mental (vista previa) ─────────────────────────────────────
 let calcTimer = null;

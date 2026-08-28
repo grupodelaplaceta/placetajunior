@@ -585,6 +585,21 @@ footer a { color: var(--pj-yellow); text-decoration: none; }
 .block-btn[data-tipo="ordenar"]     { border-color: var(--pj-red-light); background: linear-gradient(90deg, var(--pj-red-light), var(--pj-white)); }
 .block-btn[data-tipo="completar"]   { border-color: var(--pj-purple-light); background: linear-gradient(90deg, var(--pj-purple-light), var(--pj-white)); }
 .block-btn[data-tipo="calculo_mental"] { border-color: var(--pj-yellow-light); background: linear-gradient(90deg, var(--pj-yellow-light), var(--pj-white)); }
+.palette-divider { margin: 16px 0 8px; padding-top: 12px; border-top: 1px solid var(--pj-gray-200); color: var(--pj-purple); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; }
+.block-btn-new { border-color: #c4b5fd; background: linear-gradient(90deg, #ede9fe, var(--pj-white)); }
+.interactive-editor { display: grid; gap: 8px; }
+.interactive-callout { padding: 12px; border-radius: 12px; background: linear-gradient(135deg,#eef2ff,#f5f3ff); color: var(--pj-purple); }
+.interactive-callout span { color: var(--pj-gray-600); font-size: 12px; }
+.json-editor { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 12px; line-height: 1.45; min-height: 180px; }
+.kp-interactive { text-align: center; }
+.kp-interactive-items, .kp-drop-zones, .kp-scene, .kp-shop { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 16px 0; }
+.kp-chip, .kp-zone, .kp-scene-object { border: 2px solid #ddd6fe; background: #fff; border-radius: 14px; padding: 12px 16px; cursor: pointer; font: inherit; }
+.kp-zone { border-style: dashed; background: #f5f3ff; color: var(--pj-purple); }
+.kp-scene-object { display: grid; min-width: 88px; font-size: 30px; }
+.kp-scene-object small { font-size: 12px; color: #64748b; }
+.kp-scene-object.selected { border-color: var(--pj-green); background: #ecfdf5; }
+.kp-results { margin-top: 18px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.kp-results span { padding: 7px 10px; border-radius: 8px; background: #eff6ff; font-weight: 700; }
 
 /* Lienzo */
 .studio-canvas {
