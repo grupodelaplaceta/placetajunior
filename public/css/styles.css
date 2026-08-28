@@ -597,6 +597,10 @@ footer a { color: var(--pj-yellow); text-decoration: none; }
 .kp-memory { display:grid; grid-template-columns:repeat(4,minmax(52px,76px)); gap:10px; justify-content:center; margin:18px auto; }
 .kp-memory-card { aspect-ratio:1; border:2px solid #c4b5fd; border-radius:14px; background:#f5f3ff; font-size:28px; font-weight:800; cursor:pointer; }
 .kp-memory-card:hover { transform:translateY(-2px); box-shadow:0 5px 12px #c4b5fd66; }
+.sound-choice { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; border:1px solid #e2e8f0; border-radius:12px; background:#f8fafc; font-size:12px; }
+.sound-library { display:grid; gap:8px; max-height:55vh; overflow:auto; }
+.sound-card { display:flex; align-items:center; gap:10px; padding:12px; border:1px solid #e2e8f0; border-radius:14px; background:#fff; }
+.sound-icon { font-size:25px; width:34px; text-align:center; }.sound-card div { flex:1; display:grid; gap:3px; }.sound-card small { color:#64748b; }.sound-card .btn { padding:7px 10px; font-size:12px; }.sound-play { min-width:38px; }
 .kp-interactive { text-align: center; }
 .kp-interactive-items, .kp-drop-zones, .kp-scene, .kp-shop { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 16px 0; }
 .kp-chip, .kp-zone, .kp-scene-object { border: 2px solid #ddd6fe; background: #fff; border-radius: 14px; padding: 12px 16px; cursor: pointer; font: inherit; }

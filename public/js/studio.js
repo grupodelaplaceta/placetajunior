@@ -34,6 +34,25 @@ const TIPOS = {
   ,escape_room:   { ico: 'vpn_key', nombre: 'Escape room' }
 };
 
+const BIBLIOTECA_SONIDOS = [
+  {id:'acierto',nombre:'Acierto',icono:'✨',descripcion:'Campanillas suaves'}, {id:'error',nombre:'Inténtalo otra vez',icono:'🫧',descripcion:'Aviso amable'},
+  {id:'clic',nombre:'Clic',icono:'🖱️',descripcion:'Interacción corta'}, {id:'moneda',nombre:'Moneda',icono:'🪙',descripcion:'Recompensa'},
+  {id:'puerta',nombre:'Puerta misteriosa',icono:'🚪',descripcion:'Escape room'}, {id:'explosion',nombre:'Sorpresa',icono:'🎉',descripcion:'Descubrimiento'},
+  {id:'naturaleza',nombre:'Naturaleza',icono:'🌿',descripcion:'Ambiente suave'}, {id:'dado',nombre:'Dado',icono:'🎲',descripcion:'Simulación'}
+];
+let audioContextPJ = null;
+function reproducirSonido(id) { try { audioContextPJ ||= new (window.AudioContext||window.webkitAudioContext)(); const c=audioContextPJ,n=c.currentTime,o=c.createOscillator(),g=c.createGain(),p={acierto:[523,659,784],error:[220,180],clic:[440],moneda:[880,1320],puerta:[130,196,260],explosion:[180,420,90],naturaleza:[392,494,587],dado:[260,330,390,520]},ns=p[id]||p.clic;o.type='triangle';g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(.16,n+.02);ns.forEach((f,i)=>o.frequency.setValueAtTime(f,n+i*.09));g.gain.exponentialRampToValueAtTime(.0001,n+Math.max(.3,ns.length*.1));o.connect(g).connect(c.destination);o.start(n);o.stop(n+Math.max(.35,ns.length*.1));}catch(e){} }
+function abrirBibliotecaSonidos(i) { sonidoTarget=i; const m=$('sound-modal'),c=$('sound-library'); if(!m||!c)return;c.innerHTML=BIBLIOTECA_SONIDOS.map(s=>`<div class="sound-card"><span class="sound-icon">${s.icono}</span><div><strong>${s.nombre}</strong><small>${s.descripcion}</small></div><button class="btn btn-outline sound-play" onclick="reproducirSonido('${s.id}')">▶</button><button class="btn btn-purple" onclick="seleccionarSonido(${i},'${s.id}')">Usar</button></div>`).join('');m.classList.remove('hidden'); }
+function seleccionarSonido(i,id) { bloques[i].datos=bloques[i].datos||{};bloques[i].datos.sonido=id;guardarProyecto(proyectoActual);$('sound-modal')?.classList.add('hidden');render(); }
+let sonidoTarget = null;
+async function buscarFreesound() {
+  const token=localStorage.getItem('pj-freesound-token')||$('freesound-token')?.value.trim(), q=$('freesound-query')?.value.trim()||'sound';
+  const status=$('freesound-status'); if(!token){if(status)status.textContent='Introduce tu token de Freesound API v2 para buscar.';return;}
+  if(status)status.textContent='Buscando sonidos…';
+  try { const u=new URL('https://freesound.org/apiv2/search/');u.searchParams.set('query',q);u.searchParams.set('page_size','24');u.searchParams.set('fields','id,name,username,license,previews,duration,url');const r=await fetch(u,{headers:{Authorization:'Token '+token}});if(!r.ok)throw new Error('Freesound respondió '+r.status);const j=await r.json();const c=$('sound-library');c.innerHTML=(j.results||[]).map(x=>`<div class="sound-card"><span class="sound-icon">🎧</span><div><strong>${esc(x.name)}</strong><small>${esc(x.username||'Autor desconocido')} · ${esc(x.license||'Licencia no indicada')} · ${Number(x.duration||0).toFixed(1)}s</small><a href="https://freesound.org${x.url||('/sounds/'+x.id+'/')}" target="_blank" rel="noopener">Ver fuente</a></div><audio controls preload="none" src="${esc(x.previews?.['preview-hq-mp3']||x.previews?.['preview-lq-mp3']||'')}"></audio><button class="btn btn-purple" onclick="usarFreesound(${x.id},'${esc(x.previews?.['preview-hq-mp3']||x.previews?.['preview-lq-mp3']||'')}','${esc(x.name)}','${esc(x.username||'')}','${esc(x.license||'')}','https://freesound.org${x.url||('/sounds/'+x.id+'/')}')">Usar</button></div>`).join('')||'<p class="form-note">No se encontraron sonidos.</p>';if(status)status.textContent=`${j.count||0} resultados · revisa la licencia antes de publicar.`; } catch(e) {if(status)status.textContent='No se pudo conectar con Freesound. Comprueba el token y la conexión.';}
+}
+function usarFreesound(id,url,nombre,usuario,licencia,fuente){if(sonidoTarget==null)return;const d=bloques[sonidoTarget].datos=bloques[sonidoTarget].datos||{};Object.assign(d,{audio_url:url,audio_id:id,audio_nombre:nombre,audio_usuario:usuario,audio_licencia:licencia,audio_fuente:fuente});guardarProyecto(proyectoActual);$('sound-modal')?.classList.add('hidden');render();}
+
 // Iconos SVG 100% descriptivos para los bloques del Studio (en vez de emojis)
 const STUDIO_ICONOS_SVG = {
   quiz: '<rect x="2" y="3" width="12" height="14" rx="2"/><path d="M5 7h6M5 10h6M5 13h4" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/>',
@@ -402,7 +421,7 @@ function renderInteractivo(b, i) {
   else if(tipo==='sonido') specific=field('audio_url','URL de audio','https://…')+list('opciones','Respuestas posibles','perro\ngato\npájaro')+field('respuesta','Respuesta correcta','perro');
   else if(tipo==='codigo_secreto') specific=list('pistas','Pistas','La primera cifra es 4.')+field('contraseña','Contraseña de salida','46');
   else if(tipo==='escape_room') specific=field('contraseña','Contraseña final','SALIDA')+list('pruebas','Pruebas · pregunta|opciones separadas por /|índice correcto','¿Cuánto es 2+2?|3/4/5|1');
-  return `<div class="interactive-editor"><div class="interactive-callout"><strong>${esc(TIPOS[tipo].nombre)}</strong><br><span>Diseña una experiencia en 3 capas: objetivo → acción → feedback.</span></div>${field('instrucciones','Instrucciones para el niño','Haz algo y descubre qué ocurre…')}${specific}<details class="advanced-json"><summary>Opciones avanzadas · importar/exportar</summary><textarea rows="8" class="json-editor" oninput="setDatosJSON(${i},this.value)">${esc(JSON.stringify(d,null,2))}</textarea></details></div>`;
+  return `<div class="interactive-editor"><div class="interactive-callout"><strong>${esc(TIPOS[tipo].nombre)}</strong><br><span>Diseña una experiencia en 3 capas: objetivo → acción → feedback.</span></div>${field('instrucciones','Instrucciones para el niño','Haz algo y descubre qué ocurre…')}${specific}<div class="sound-choice"><span>🔊 Sonido: <strong>${esc(d.sonido||'ninguno')}</strong></span><button class="btn btn-outline" onclick="abrirBibliotecaSonidos(${i})">Biblioteca libre</button></div><details class="advanced-json"><summary>Opciones avanzadas · importar/exportar</summary><textarea rows="8" class="json-editor" oninput="setDatosJSON(${i},this.value)">${esc(JSON.stringify(d,null,2))}</textarea></details></div>`;
 }
 function setDatosJSON(i, value) { try { bloques[i].datos = JSON.parse(value); } catch (e) {} }
 function setDatoCampo(i,k,v){bloques[i].datos=bloques[i].datos||{};bloques[i].datos[k]=(['objetivo','caras','correcta'].includes(k)?(Number(v)||0):v);guardarProyecto(proyectoActual);}
@@ -2494,6 +2513,11 @@ function aviso(msg, esError) {
 
 // ── Init ─────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  $('sound-close')?.addEventListener('click', () => $('sound-modal').classList.add('hidden'));
+  $('freesound-token')?.setAttribute('value', localStorage.getItem('pj-freesound-token') || '');
+  $('freesound-token-save')?.addEventListener('click', () => { const v=$('freesound-token').value.trim(); if(v)localStorage.setItem('pj-freesound-token',v); $('freesound-status').textContent='Token guardado solo en este navegador.'; });
+  $('freesound-search')?.addEventListener('click', buscarFreesound);
+  $('freesound-query')?.addEventListener('keydown', e => { if(e.key==='Enter')buscarFreesound(); });
   cargar();
   initDrag();
   render();

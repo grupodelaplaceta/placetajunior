@@ -137,6 +137,17 @@
       </div>
     </div>
   </div>
+  <div id="sound-modal" class="modal-overlay hidden">
+    <div class="modal sound-library-modal">
+      <h3>🔊 Biblioteca de sonidos libres</h3>
+      <p class="m-sub">Busca sonidos en Freesound API v2. Se mostrará siempre creador, licencia y enlace de origen.</p>
+      <div class="sound-api-config"><input id="freesound-token" type="password" placeholder="Token Freesound API v2"><button id="freesound-token-save" class="btn btn-outline">Guardar token local</button></div>
+      <div class="sound-search"><input id="freesound-query" placeholder="Ej.: campana, pasos, pájaro…"><button id="freesound-search" class="btn btn-purple">Buscar</button></div>
+      <p id="freesound-status" class="form-note">Necesitas un API token de Freesound. Se guarda solo en este navegador.</p>
+      <div id="sound-library" class="sound-library"></div>
+      <div class="m-actions"><button id="sound-close" class="btn btn-outline" type="button">Cerrar</button></div>
+    </div>
+  </div>
 
   <!-- Modal: datos de la actividad -->
   <div id="meta-modal" class="modal-overlay hidden">
