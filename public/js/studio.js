@@ -1145,6 +1145,9 @@ function generarSopa(palabras, tamano) {
 }
 
 function verPreview() {
+  // Preview real: abre el mismo motor público, con el borrador actual.
+  return verPreviewMotor();
+  /* Legacy preview kept below for reference during migration.
   if (bloques.length === 0) { aviso('Añade al menos un bloque para ver la vista previa.', true); return; }
   pantallas = [];
   kpEstado = [];
@@ -1244,7 +1247,14 @@ function verPreview() {
   kpCelebrado = false;
   pantallaIdx = 0;
   renderPantalla();
-  $('preview-modal').classList.remove('hidden');
+  $('preview-modal').classList.remove('hidden'); */
+}
+
+function verPreviewMotor() {
+  if (!bloques.length) { aviso('Añade al menos un bloque para ver la vista previa.', true); return; }
+  const activity = { id: 'preview-' + Date.now(), titulo: ($('m-titulo')?.value || meta.titulo || 'Mi actividad').trim(), descripcion: ($('m-descripcion')?.value || meta.descripcion || '').trim(), categoria: $('m-categoria')?.value || meta.categoria || 'General', edad_recomendada: $('m-edad')?.value || meta.edad || '6-12', dificultad: $('m-dificultad')?.value || meta.dificultad || 'media', contenido: { version: 2, bloques: JSON.parse(JSON.stringify(bloques)) } };
+  sessionStorage.setItem('pj-preview-activity', JSON.stringify(activity));
+  window.open('/preview.html', '_blank', 'noopener');
 }
 
 function generarOpcionesCalculo(correcta) {

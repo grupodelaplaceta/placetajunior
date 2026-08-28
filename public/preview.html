@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Preview · Placeta Junior</title>
+<link rel="stylesheet" href="css/styles.css?v=20260828-schema2"><link rel="icon" href="img/logo.png"></head>
+<body class="mostrando-juego"><div id="game-page"><div id="player-content"></div></div><div id="kp-feedback" class="kp-feedback hidden"></div>
+<script src="js/sonidos.js"></script><script src="js/mapa-mundi.js"></script><script src="js/progreso.js"></script><script src="js/code-engine.js"></script><script src="js/player.js?v=20260828-schema2"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  try {
+    const raw = sessionStorage.getItem('pj-preview-activity');
+    const activity = raw ? JSON.parse(raw) : null;
+    if (!activity) throw new Error('No hay actividad para previsualizar.');
+    if (typeof abrirJuego !== 'function') throw new Error('No se pudo cargar el reproductor.');
+    abrirJuego(activity);
+  } catch (error) {
+    document.getElementById('player-content').innerHTML = '<main style="max-width:720px;margin:12vh auto;padding:24px;text-align:center"><h1>⚠️ Preview no disponible</h1><p>' + String(error.message || error) + '</p></main>';
+  }
+});
+</script></body></html>
