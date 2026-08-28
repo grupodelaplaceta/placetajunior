@@ -5,7 +5,9 @@
    la API + sus imágenes para poder jugar sin conexión.
    Solo funciona en https (o localhost); en file:// no se registra.
    ═══════════════════════════════════════════════════════════════════ */
-const CACHE = 'placetajunior-v4';
+// Versionar la caché fuerza la actualización del reproductor y estilos en
+// dispositivos que ya visitaron la web.
+const CACHE = 'placetajunior-v5-schema2';
 
 const SHELL = [
   '/',
