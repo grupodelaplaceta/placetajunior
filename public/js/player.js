@@ -786,15 +786,10 @@ function abrirEsquemaPopup(bi, ei) {
 
 function screenTexto(s, est) {
   const b = bloquesJuego[s.bi];
-  const parrafos = (b.contenido || '').split(/\n+/).map(t => t.trim()).filter(Boolean);
   let html = `<div class="kp-screen">
     <div class="kp-qt">📖 ${esc(b.titulo || 'Aprende')}</div>`;
   if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente, b.imagen_alt);
-  html += `<div class="kp-explicacion">`;
-  parrafos.forEach(p => {
-    if (p.startsWith('- ') || p.startsWith('• ')) html += `<div class="kp-expl-item">• ${esc(p.slice(2))}</div>`;
-    else html += `<p>${esc(p)}</p>`;
-  });
+  html += `<div class="kp-explicacion">${formatearTextoJugador(b.contenido || '')}`;
   html += `</div>`;
   html += `<div style="text-align:center;margin-top:14px;"><button class="kp-check" onclick="pantallaNext()">Continuar →</button></div>`;
   html += `<div class="kp-hint">📖 Lee y luego pulsa Continuar para responder</div></div>`;
@@ -1951,6 +1946,20 @@ function nivelCompletado(nivel) {
     return e.completado === true || e.respondida === true;
   });
 }
+
+// Markdown sencillo y seguro para los textos creados en Studio.
+function formatearTextoJugador(texto) {
+  return String(texto || '').split(/\r?\n/).map(linea => {
+    const t = esc(linea.trim()); if (!t) return '';
+    if (/^### /.test(t)) return `<h5>${formatoInlineJugador(t.slice(4))}</h5>`;
+    if (/^## /.test(t)) return `<h4>${formatoInlineJugador(t.slice(3))}</h4>`;
+    if (/^# /.test(t)) return `<h3>${formatoInlineJugador(t.slice(2))}</h3>`;
+    if (/^> /.test(t)) return `<blockquote>${formatoInlineJugador(t.slice(2))}</blockquote>`;
+    if (/^(?:- |• )/.test(t)) return `<div class="pj-formatted-list">• ${formatoInlineJugador(t.slice(2))}</div>`;
+    return `<p>${formatoInlineJugador(t)}</p>`;
+  }).join('');
+}
+function formatoInlineJugador(t) { return t.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>').replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/__([^_]+)__/g, '<strong>$1</strong>').replace(/\*([^*]+)\*/g, '<em>$1</em>').replace(/`([^`]+)`/g, '<code>$1</code>'); }
 function pantallaNext() {
   if (pantallaIdx >= pantallas.length - 1) return;
   const actual = pantallas[pantallaIdx], siguiente = pantallas[pantallaIdx + 1];

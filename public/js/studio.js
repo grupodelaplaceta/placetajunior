@@ -469,6 +469,15 @@ function renderImagenBloque(b, i) {
 }
 
 // ── Texto explicativo ────────────────────────────────────────────────
+function insertarFormatoTexto(i, prefijo, sufijo) {
+  const area = document.getElementById(`texto-${i}`); if (!area) return;
+  const inicio = area.selectionStart, fin = area.selectionEnd, valor = area.value;
+  area.value = valor.slice(0, inicio) + prefijo + valor.slice(inicio, fin) + sufijo + valor.slice(fin);
+  setCampo(i, 'contenido', area.value); area.focus();
+  area.setSelectionRange(inicio + prefijo.length, fin + prefijo.length);
+}
+function formatearTextoPJ(texto) { return String(texto || '').split(/\r?\n/).map(linea => { const t=esc(linea.trim()); if(!t)return ''; if(/^### /.test(t))return `<h5>${formatoInlinePJ(t.slice(4))}</h5>`; if(/^## /.test(t))return `<h4>${formatoInlinePJ(t.slice(3))}</h4>`; if(/^# /.test(t))return `<h3>${formatoInlinePJ(t.slice(2))}</h3>`; if(/^> /.test(t))return `<blockquote>${formatoInlinePJ(t.slice(2))}</blockquote>`; if(/^(?:- |• )/.test(t))return `<div class="pj-formatted-list">• ${formatoInlinePJ(t.slice(2))}</div>`; return `<p>${formatoInlinePJ(t)}</p>`; }).join(''); }
+function formatoInlinePJ(t) { return t.replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>').replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/__([^_]+)__/g, '<strong>$1</strong>').replace(/\*([^*]+)\*/g, '<em>$1</em>').replace(/`([^`]+)`/g, '<code>$1</code>'); }
 function renderTexto(b, i) {
   return `
     <div class="q-item">
@@ -482,8 +491,9 @@ function renderTexto(b, i) {
         ${b.imagen_alt ? `<div class="img-alt-txt">♿ ${esc(b.imagen_alt)}</div>` : ''}
         <button class="img-remove" onclick="quitarImagenBloque(${i})">✕</button>
       </div>` : ''}
-      <textarea rows="5" placeholder="Explica el contenido antes de preguntar. Puedes usar saltos de línea y listas." style="width:100%;margin-top:8px;" oninput="setCampo(${i},'contenido',this.value)">${esc(b.contenido || '')}</textarea>
-      <p class="form-note" style="margin-top:6px;"><span class="material-symbols-rounded q-ico">lightbulb</span> Este bloque enseña: se muestra al niño y pulsa "Continuar" para pasar a las preguntas.</p>
+      <div class="pj-text-toolbar" role="toolbar" aria-label="Formato del texto"><button type="button" onclick="insertarFormatoTexto(${i},'**','**')"><strong>N</strong></button><button type="button" onclick="insertarFormatoTexto(${i},'*','*')"><em>C</em></button><button type="button" onclick="insertarFormatoTexto(${i},'# ','')">Título</button><button type="button" onclick="insertarFormatoTexto(${i},'- ','')">Lista</button><button type="button" onclick="insertarFormatoTexto(${i},'> ','')">Cita</button><button type="button" onclick="insertarFormatoTexto(${i},'&#96;','&#96;')">Código</button></div>
+      <textarea id="texto-${i}" rows="8" placeholder="# Título\nEscribe **negrita**, *cursiva* o una lista:\n- Primer punto\n- Segundo punto\n\nEnlace: [La Placeta](https://laplaceta.org)" style="width:100%;margin-top:8px;" oninput="setCampo(${i},'contenido',this.value)">${esc(b.contenido || '')}</textarea>
+      <p class="form-note" style="margin-top:6px;"><span class="material-symbols-rounded q-ico">lightbulb</span> Formato: # títulos · **negrita** · *cursiva* · - listas · &gt; citas · [enlaces](https://…).</p>
     </div>`;
 }
 
@@ -1609,10 +1619,7 @@ function screenTexto(s, est) {
     <div class="kp-qt">📖 ${esc(b.titulo || 'Aprende')}</div>`;
   if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente, b.imagen_alt);
   html += `<div class="kp-explicacion">`;
-  parrafos.forEach(p => {
-    if (p.startsWith('- ') || p.startsWith('• ')) html += `<div class="kp-expl-item">• ${esc(p.slice(2))}</div>`;
-    else html += `<p>${esc(p)}</p>`;
-  });
+  html += formatearTextoPJ(b.contenido || '');
   html += `</div>`;
   html += `<div style="text-align:center;margin-top:14px;"><button class="kp-check" onclick="pantallaNext()">Continuar →</button></div>`;
   html += `<div class="kp-hint">📖 Lee y luego pulsa Continuar para responder</div></div>`;

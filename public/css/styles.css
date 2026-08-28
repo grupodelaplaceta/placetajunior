@@ -1829,3 +1829,12 @@ h1, h2, h3, h4, h5,
   min-height: 3.4rem;
   cursor: pointer;
 }
+.pj-text-toolbar { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+.pj-text-toolbar button { border:1px solid var(--pj-gray-300,#d5d8df); border-radius:7px; background:#fff; padding:6px 10px; cursor:pointer; font:inherit; }
+.pj-text-toolbar button:hover { background:var(--pj-yellow-light,#fff6bf); }
+.kp-explicacion h3,.kp-explicacion h4,.kp-explicacion h5 { margin:1rem 0 .45rem; color:var(--pj-purple,#4e3b70); }
+.kp-explicacion p { margin:.55rem 0; line-height:1.6; }
+.kp-explicacion blockquote { margin:.75rem 0; padding:.7rem 1rem; border-left:4px solid var(--pj-orange,#ff6600); background:#fff8ed; font-style:italic; }
+.pj-formatted-list { margin:.4rem 0; padding-left:1rem; line-height:1.55; }
+.kp-explicacion a { color:var(--pj-blue,#3a00e1); text-decoration:underline; }
+.kp-explicacion code { padding:.12rem .35rem; border-radius:4px; background:#eeeaf8; font-family:monospace; }
