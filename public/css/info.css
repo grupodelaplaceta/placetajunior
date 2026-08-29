@@ -325,3 +325,29 @@
   .info-page .grid { grid-template-columns: 1fr; }
   .info-page .hero-cta .btn-primary, .info-page .hero-cta .btn-ghost { width: 100%; justify-content: center; }
 }
+
+/* Último ajuste: Info comparte la escala y el lenguaje de Inicio/Detalle. */
+.info-page .nav, .info-page footer { border: 0; }
+.info-page footer { position: relative; padding-top: 40px; }
+.info-page footer::before { content: ''; position: absolute; inset: 0 0 auto; height: 6px; background: linear-gradient(90deg, var(--pj-red), var(--pj-orange), var(--pj-yellow), var(--pj-green), var(--pj-blue), var(--pj-purple)); }
+.info-page .nav { min-height: 70px; }
+.info-page .info-hero { min-height: 430px; display: grid; place-items: center; align-content: center; }
+.info-page .info-hero > * { position: relative; z-index: 1; }
+.info-page .info-hero h1 { font-weight: 800; }
+.info-page .hero-cta .btn-primary { min-height: 48px; }
+.info-page .info-section .section-head h2 { font-weight: 800; }
+.info-page .card { overflow: hidden; }
+.info-page .card:focus-within, .info-page .card:hover { transform: translateY(-5px); }
+.info-page .btn-primary:focus-visible, .info-page .btn-ghost:focus-visible,
+.info-page .nav-links a:focus-visible, .info-page .nav-toggle-btn:focus-visible {
+  outline: 4px solid rgba(255,214,0,.85); outline-offset: 3px;
+}
+.info-page .hero-stats .stat b { font-weight: 800; }
+.info-page footer .links { max-width: 720px; margin-left: auto; margin-right: auto; }
+.info-page footer .links > a { padding: 5px 8px; border-radius: 8px; }
+
+@media (max-width: 680px) {
+  .info-page .nav { min-height: 64px; }
+  .info-page .info-hero { min-height: 0; }
+  .info-page footer { padding-bottom: 26px; }
+}

@@ -1267,6 +1267,21 @@ body.pj-home.mostrando-juego #player-content { min-height: 100%; }
   }
 }
 
+/* Cabecera del detalle: portada fija a la izquierda y metadatos a la derecha. */
+.pj-home .detail-page { display: block; }
+.pj-home .detail-top { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(260px, .65fr); align-items: center; gap: clamp(24px, 4vw, 54px); max-width: 1120px; margin: 0 auto; }
+.pj-home .detail-top .detail-hero { grid-column: 1; grid-row: 1; width: 100%; max-width: none; }
+.pj-home .detail-top .detail-head { grid-column: 2; grid-row: 1; width: 100%; max-width: none; margin: 0; }
+.pj-home .detail-cover { aspect-ratio: 16 / 9; width: 100%; }
+.pj-home .detail-body { max-width: 1120px; margin-left: auto; margin-right: auto; }
+@media screen and (max-width: 760px) {
+  .pj-home .detail-top { grid-template-columns: 1fr; gap: 16px; }
+  .pj-home .detail-top .detail-hero, .pj-home .detail-top .detail-head { grid-column: 1; grid-row: auto; }
+  .pj-home .detail-top .detail-head { align-items: stretch; }
+  .pj-home .detail-top .detail-play { max-width: none; }
+  .pj-home .detail-cover { aspect-ratio: 16 / 9; }
+}
+
 /* En Inicio cada categoría conserva su galería horizontal también en escritorio. */
 @media screen and (min-width: 900px) {
   .pj-home .h-row {

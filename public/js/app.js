@@ -270,6 +270,7 @@ function verInfo(id) {
   }).join('')}</div></div>` : '';
   document.getElementById('detail-page').innerHTML = `
     <a class="detail-back" href="javascript:cerrarDetalle()"><span class="material-symbols-rounded">arrow_back</span> Volver a Actividades</a>
+    <div class="detail-top">
     <div class="detail-hero">
       <div class="detail-cover" id="detail-cover"></div>
     </div>
@@ -281,6 +282,7 @@ function verInfo(id) {
         <span><span class="material-symbols-rounded">calendar_today</span>${escapeHtml(fecha)}</span>
       </div>
       ${!bloqueada ? `<button class="detail-play" type="button" onclick="abrirActividad('${a.id}', false)"><span class="material-symbols-rounded">play_arrow</span> Jugar ahora</button>` : '<span class="chip red detail-locked"><span class="material-symbols-rounded">lock</span> Actividad premium</span>'}
+    </div>
     </div>
     <div class="detail-body">
       <nav class="detail-tabs" role="tablist" aria-label="Secciones de la actividad">
