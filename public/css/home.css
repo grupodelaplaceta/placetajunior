@@ -1061,6 +1061,155 @@ body.pj-home.mostrando-juego .kp-nav-row { padding-bottom: 6px; }
   .pj-home .section { padding-top: 42px; }
 }
 
+/* ═══ Responsive final y feedback de interfaz ═══ */
+.pj-home .hero-carousel { transform: none; }
+.pj-home .hero-carousel-track::after { display: none; }
+
+/* ═══ Detalle de actividad — compacto, claro y accionable ═══ */
+.pj-home .detail-page {
+  max-width: 1120px;
+  padding: 28px 28px 64px;
+}
+.pj-home .detail-back {
+  width: fit-content;
+  margin-bottom: 18px;
+  padding: 8px 12px 8px 8px;
+  border: 1px solid var(--pj-line);
+  border-radius: 999px;
+  background: #fff;
+  font-size: 13px;
+  transition: color .18s ease, border-color .18s ease, transform .18s ease;
+}
+.pj-home .detail-back:hover { border-color: var(--pj-purple); transform: translateX(-3px); }
+.pj-home .detail-hero {
+  max-width: 720px;
+  border-radius: 20px;
+  box-shadow: 0 12px 30px rgba(37,27,91,.12);
+}
+.pj-home .detail-cover { aspect-ratio: 16 / 7; }
+.pj-home .detail-head { max-width: 720px; margin-top: 16px; text-align: left; }
+.pj-home .detail-head h1 { font-size: clamp(26px, 3.2vw, 38px); line-height: 1.08; letter-spacing: -.035em; text-transform: none; }
+.pj-home .detail-body { max-width: 920px; gap: 16px; margin-top: 18px; }
+.pj-home .detail-stats { gap: 10px; }
+.pj-home .dstat { min-height: 92px; padding: 12px 10px; border: 1px solid var(--pj-line); border-radius: 14px; }
+.pj-home .dstat .material-symbols-rounded { font-size: 23px; margin-bottom: 2px; }
+.pj-home .dstat-val { font-size: 18px; }
+.pj-home .detail-card { border: 1px solid var(--pj-line); border-radius: 16px; padding: 18px; box-shadow: 0 7px 20px rgba(37,27,91,.04); }
+.pj-home .detail-card h2 { font-size: 19px; margin-bottom: 7px; }
+.pj-home .detail-card p { font-size: 14px; line-height: 1.55; }
+.pj-home .detail-reward { margin-top: 12px; padding: 11px 13px; }
+.pj-home .detail-reward .material-symbols-rounded { font-size: 28px; }
+.pj-home .reward-val { font-size: 18px; }
+.pj-home .detail-unidades h2 { display: flex; align-items: center; gap: 7px; }
+.pj-home .detail-unidades h2::before { content: '☰'; color: var(--pj-orange); font-size: 18px; }
+.pj-home .detail-unit { margin: 0 -6px; width: calc(100% + 12px); padding: 11px 8px; border-radius: 10px; transition: background .18s ease, transform .18s ease; }
+.pj-home .detail-unit:hover, .pj-home .detail-unit:focus-visible { background: #f7f4ff; transform: translateX(3px); outline: none; }
+.pj-home .detail-unit span { font-size: 14px; color: var(--pj-ink); }
+.pj-home .detail-unit small { font-size: 12px; }
+.pj-home .detail-unit b { padding: 7px 10px; border-radius: 999px; background: #fff3e8; font-size: 11px; }
+.pj-home .detail-actions { align-items: center; gap: 10px; padding-top: 2px; }
+.pj-home .detail-actions .btn-lg { min-height: 46px; padding: 12px 20px; font-size: 15px; }
+.pj-home .detail-select-hint { margin-right: auto; font-size: 12px; }
+
+@media screen and (min-width: 900px) {
+  .pj-home .detail-page { display: grid; grid-template-columns: minmax(0, 720px) minmax(220px, 1fr); column-gap: 30px; align-items: start; }
+  .pj-home .detail-back { grid-column: 1 / -1; }
+  .pj-home .detail-hero { grid-column: 1; grid-row: 2; width: 100%; }
+  .pj-home .detail-head { grid-column: 2; grid-row: 2; align-self: center; margin: 0; padding: 12px 0; }
+  .pj-home .detail-body { grid-column: 1 / -1; grid-row: 3; width: 100%; max-width: none; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .pj-home .detail-stats, .pj-home .detail-actions { grid-column: 1 / -1; }
+  .pj-home .detail-body:not(:has(.detail-unidades)) > .detail-card { grid-column: 1 / -1; }
+}
+@media screen and (max-width: 600px) {
+  .pj-home .detail-page { padding: 18px 14px 46px; }
+  .pj-home .detail-back { margin-bottom: 14px; }
+  .pj-home .detail-hero { border-radius: 16px; }
+  .pj-home .detail-cover { aspect-ratio: 16 / 8; }
+  .pj-home .detail-head { margin-top: 13px; }
+  .pj-home .detail-head h1 { font-size: 28px; }
+  .pj-home .detail-body { gap: 12px; margin-top: 15px; }
+  .pj-home .dstat { min-height: 78px; padding: 9px 6px; }
+  .pj-home .dstat .material-symbols-rounded { font-size: 21px; }
+  .pj-home .dstat-lbl { font-size: 9px; }
+  .pj-home .dstat-val { font-size: 16px; }
+  .pj-home .detail-card { padding: 15px; }
+  .pj-home .detail-actions { display: grid; grid-template-columns: 1fr; }
+  .pj-home .detail-actions .btn-lg { width: 100%; }
+  .pj-home .detail-select-hint { margin: 0 0 2px; }
+}
+
+/* Carruseles estables en tablet y móvil: las tarjetas nunca se encogen. */
+@media screen and (max-width: 899px) {
+  .pj-home .h-row {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 14px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scroll-padding-inline: 2px;
+  }
+  .pj-home .h-row > .card {
+    flex: 0 0 clamp(240px, 72vw, 280px);
+    width: clamp(240px, 72vw, 280px);
+    min-width: clamp(240px, 72vw, 280px);
+    max-width: clamp(240px, 72vw, 280px);
+  }
+  .pj-home .h-row > .loader,
+  .pj-home .h-row > .empty { flex: 0 0 auto; }
+}
+@media screen and (max-width: 430px) {
+  .pj-home .h-row { gap: 12px; }
+  .pj-home .h-row > .card {
+    flex-basis: 220px;
+    width: 220px;
+    min-width: 220px;
+    max-width: 220px;
+  }
+}
+.pj-home .hero-carousel-track { border-width: 7px; }
+.pj-home .card, .pj-home .btn, .pj-home .ef-btn, .pj-home .nav-links a { touch-action: manipulation; }
+.pj-home .btn:focus-visible, .pj-home .card:focus-visible, .pj-home .ef-btn:focus-visible,
+.pj-home .nav-links a:focus-visible, .pj-home .nav-toggle-btn:focus-visible {
+  outline: 4px solid rgba(255, 214, 0, .85); outline-offset: 3px;
+}
+.pj-home .btn:active, .pj-home .card:active, .pj-home .ef-btn:active { transform: translateY(1px) scale(.98); }
+.pj-home .card { cursor: pointer; }
+.pj-home .card::after {
+  content: 'Toca para jugar'; position: absolute; right: 12px; top: 14px; z-index: 5;
+  padding: 4px 8px; border-radius: 999px; background: rgba(255,255,255,.9); color: var(--pj-purple);
+  font-size: 9px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
+  opacity: 0; transform: translateY(-5px); transition: opacity .2s ease, transform .2s ease;
+  pointer-events: none;
+}
+.pj-home .card:hover::after, .pj-home .card:focus-visible::after { opacity: 1; transform: translateY(0); }
+
+@media (max-width: 880px) {
+  .pj-home .hero-inner { gap: 22px; }
+  .pj-home .hero-copy { order: 1; }
+  .pj-home .hero-carousel { order: 2; }
+  .pj-home .nivel-badge { order: 3; }
+  .pj-home .hero { padding-top: 36px; }
+  .pj-home .hero-shapes .shape { width: 100px; height: 100px; opacity: .2; }
+}
+@media (max-width: 600px) {
+  .pj-home .hero { padding: 28px 16px 44px; }
+  .pj-home .hero-copy h2 { font-size: clamp(38px, 12vw, 52px); line-height: 1.02; }
+  .pj-home .hero-copy p { line-height: 1.5; margin-top: 16px; }
+  .pj-home .hero-carousel-track { border-width: 5px; border-radius: 20px; }
+  .pj-home .hero-carousel-dots { margin-top: 10px; }
+  .pj-home .hero-highlights { display: grid; grid-template-columns: 1fr 1fr; text-align: left; margin-top: 20px; }
+  .pj-home .hero-highlights span:last-child { grid-column: 1 / -1; justify-self: center; }
+  .pj-home .section-head h2 { font-size: 38px; }
+  .pj-home .edad-filter { display: flex; overflow-x: auto; gap: 6px; padding: 7px; scrollbar-width: none; }
+  .pj-home .edad-filter::-webkit-scrollbar { display: none; }
+  .pj-home .edad-filter .ef-btn { flex: 0 0 auto; white-space: nowrap; }
+  .pj-home .cat-title { margin-top: 32px; }
+  .pj-home .h-row { padding-bottom: 14px; }
+  .pj-home .card::after { display: none; }
+}
+
 /* ═══ Modo explorador — alegre, estimulante y fácil de entender ═══ */
 .pj-home .hero { isolation: isolate; }
 .pj-home .hero::after {
@@ -1116,3 +1265,7 @@ body.pj-home.mostrando-juego .kp-nav-row { padding-bottom: 6px; }
   .pj-home .hero-copy h2 em, .pj-home .cta-row .btn-primary, .pj-home .hero-carousel-track::after,
   .pj-home .section-kicker .material-symbols-rounded, .pj-home .cat-title .t-ico { animation: none; }
 }
+
+/* La composición principal debe sentirse cuidada, no inclinada ni decorativa por defecto. */
+.pj-home .hero-carousel { transform: none; }
+.pj-home .hero-carousel-track::after { display: none; }

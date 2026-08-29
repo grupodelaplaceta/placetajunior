@@ -126,7 +126,7 @@
 
   // Sonidos de interfaz por delegación: hover sutil (letra) y clic en menú/botones
   function prepararSonidosUI() {
-    var SEL = '.nav-links a, .nav-cta .btn, .cover-play, .ef-btn, .block-btn';
+    var SEL = '.nav-links a, .nav-cta .btn, .cover-play, .ef-btn, .block-btn, .card, .detail-unit, .btn-ghost';
     document.addEventListener('pointerover', function (e) {
       if (muted) return;
       var t = e.target && e.target.closest ? e.target.closest(SEL) : null;
