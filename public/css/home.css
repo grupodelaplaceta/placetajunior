@@ -298,6 +298,7 @@ body.pj-home {
   scroll-snap-align: start;
   transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
   height: 320px;
+  min-height: 320px;
 }
 .pj-home .card:hover { transform: translateY(-5px); box-shadow: 0 12px 26px rgba(17, 24, 39, .10); border-color: var(--accent); }
 .pj-home .card[data-color="blue"] { --accent: var(--pj-blue); }
@@ -316,7 +317,8 @@ body.pj-home {
   border-radius: var(--r-sm);
   overflow: hidden;
   background: var(--accent);
-  background-size: cover;
+  background-size: contain;
+  background-repeat: no-repeat;
   background-position: center;
   display: flex;
   align-items: center;
@@ -476,7 +478,7 @@ body.pj-home {
 .pj-home .modal h3 { font-family: var(--font-head); font-size: 26px; letter-spacing: 1px; text-transform: uppercase; color: var(--pj-purple); margin: 0 0 6px; }
 .pj-home .modal .m-sub { color: var(--pj-muted); font-size: 14px; margin: 0 0 14px; }
 .pj-home .m-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
-.pj-home .info-cover { height: 150px; border-radius: 14px; background: #e6e3ec; background-size: cover; background-position: center; margin-bottom: 14px; }
+.pj-home .info-cover { height: 150px; border-radius: 14px; background: #e6e3ec; background-size: contain; background-repeat: no-repeat; background-position: center; margin-bottom: 14px; }
 .pj-home .info-title { font-family: var(--font-head); font-size: 28px; letter-spacing: 1px; text-transform: uppercase; color: var(--pj-ink); }
 .pj-home .info-desc { color: var(--pj-muted); font-size: 14px; margin: 8px 0 12px; }
 .pj-home .info-cover + .meta { margin-bottom: 14px; }
@@ -624,7 +626,7 @@ body.pj-home.mostrando-detalle .detail-page { display: block; }
 .pj-home .detail-back { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-body); font-weight: 700; color: var(--pj-muted); text-decoration: none; margin-bottom: 16px; }
 .pj-home .detail-back:hover { color: var(--pj-purple); }
 .pj-home .detail-hero { position: relative; border-radius: 24px; overflow: hidden; box-shadow: 0 14px 40px rgba(17, 24, 39, .16); max-width: 880px; margin: 0 auto; }
-.pj-home .detail-cover { width: 100%; aspect-ratio: 16 / 9; background: #e6e3ec; background-size: cover; background-position: center; }
+.pj-home .detail-cover { width: 100%; aspect-ratio: 16 / 9; background: #e6e3ec; background-size: contain; background-repeat: no-repeat; background-position: center; }
 .pj-home .detail-head { text-align: center; margin: 18px auto 0; max-width: 880px; }
 .pj-home .detail-head .chip { margin-bottom: 8px; }
 .pj-home .detail-head h1 { font-family: var(--font-head); font-weight: 800; font-size: clamp(24px, 4vw, 36px); text-transform: uppercase; letter-spacing: 1px; color: var(--pj-purple); margin: 0; }
@@ -677,7 +679,7 @@ body.pj-home.mostrando-detalle .detail-page { display: block; }
 .print-worksheet .ws-unit + .ws-unit { break-before: page; }
 .print-worksheet .ws-unit-header { margin-bottom: 8px; }
 .print-worksheet .ws-unit-header .ws-cover { margin-bottom: 7px; max-width: 105mm; }
-.print-worksheet .ws-unit-header .ws-cover img { aspect-ratio: 16 / 6; }
+.print-worksheet .ws-unit-header .ws-cover img { aspect-ratio: 16 / 9; object-fit: contain; }
 .print-worksheet .ws-unit h3 { color: var(--ws-theme); border-bottom: 3px solid var(--ws-soft); padding-bottom: 5px; }
 .print-worksheet .ws-richtext p { margin: .35rem 0; line-height: 1.45; }
 .print-worksheet .ws-richtext { font-size: 12px; line-height: 1.4; }
@@ -689,7 +691,7 @@ body.pj-home.mostrando-detalle .detail-page { display: block; }
   .pj-home .section { padding-left: 34px; padding-right: 34px; }
   .pj-home .h-row { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; overflow: visible; }
   .pj-home .card { width: auto; min-width: 0; }
-  .pj-home .card .card-cover { height: 132px; }
+  .pj-home .card .card-cover { height: auto; min-height: 0; }
   .detail-body { max-width: 920px; margin: 0 auto; }
   .detail-stats { grid-template-columns: repeat(4, 1fr); }
   .pj-home.mostrando-juego #game-page { max-width: 1080px; margin: 0 auto; }
@@ -730,7 +732,7 @@ body.pj-home.mostrando-detalle .detail-page { display: block; }
 .print-worksheet .ws-col { flex: 1; display: flex; flex-direction: column; gap: 8px; }
 .print-worksheet .ws-item { border: 1.5px solid #9aa0aa; border-radius: 6px; padding: 4px 8px; text-align: center; font-size: 12px; font-weight: 700; min-height: 14px; page-break-inside: avoid; break-inside: avoid; }
 .print-worksheet .ws-cover { max-width: 140mm; margin: 0 auto 10px; border-radius: 12px; overflow: hidden; border: 2px solid #e5e7eb; }
-.print-worksheet .ws-cover img { width: 100%; display: block; aspect-ratio: 16 / 9; object-fit: cover; }
+.print-worksheet .ws-cover img { width: 100%; display: block; aspect-ratio: 16 / 9; object-fit: contain; }
 .print-worksheet .ws-img { margin: 5px 0; max-width: 80mm; page-break-inside: avoid; break-inside: avoid; }
 .print-worksheet .ws-img img { width: 100%; border-radius: 8px; border: 1px solid #e5e7eb; display: block; }
 .print-worksheet .ws-fuente { display: block; font-size: 9px; font-style: italic; color: #9CA3AF; margin-top: 2px; }

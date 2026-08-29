@@ -72,7 +72,7 @@ function coverHTML(a, badgeProg = '') {
     : '';
   // Si hay portada real la usamos; si no, se genera una imagen (miniaturas reales con canvas)
   const estilo = portada
-    ? `style="background-image:url('${String(portada).replace(/'/g, '%27')}');background-size:cover;background-position:center;"`
+    ? `style="background-image:url('${String(portada).replace(/'/g, '%27')}');background-size:contain;background-repeat:no-repeat;background-position:center;"`
     : `data-gen="1" data-cat="${escapeHtml(a.categoria || '')}" data-tipo="${escapeHtml(a.tipo || '')}"`;
   const icono = iconoMaterial(a);
   return `
@@ -208,7 +208,7 @@ function generarCaratulasEn(cont) {
     const cat = el.dataset.cat || '';
     const tipo = el.dataset.tipo || '';
     generarCaratula({ cat, tit, tipo }).then((url) => {
-      if (url) { el.style.backgroundImage = `url('${url}')`; el.style.backgroundSize = 'cover'; el.style.backgroundPosition = 'center'; }
+      if (url) { el.style.backgroundImage = `url('${url}')`; el.style.backgroundSize = 'contain'; el.style.backgroundRepeat = 'no-repeat'; el.style.backgroundPosition = 'center'; }
     });
   });
 }
