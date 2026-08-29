@@ -1209,6 +1209,59 @@ body.pj-home.mostrando-juego .kp-nav-row { padding-bottom: 6px; }
   }
 }
 
+/* Tarjetas de catálogo: portada + título, sin ruido visual. */
+.pj-home .card {
+  height: 300px;
+  min-height: 300px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+.pj-home .card:hover { box-shadow: none; transform: translateY(-4px); }
+.pj-home .card::before, .pj-home .card::after { display: none; }
+.pj-home .card-cover {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  border-radius: 15px;
+  box-shadow: 0 5px 14px rgba(37,27,91,.10);
+  transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
+}
+.pj-home .card:hover .card-cover { transform: translateY(-2px); box-shadow: 0 11px 22px rgba(37,27,91,.16); }
+.pj-home .card h3 {
+  margin: 11px 2px 0;
+  min-height: 36px;
+  max-height: 36px;
+  font-size: 15px;
+  line-height: 1.2;
+  color: var(--pj-ink);
+}
+.pj-home .card-foot { padding: 7px 2px 0; }
+.pj-home .card-foot .chip { padding: 4px 9px; background: #f0eef8; font-size: 10px; }
+.pj-home .info-btn, .pj-home .badge-tag { display: none; }
+.pj-home .cover-play {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  font-size: 0;
+  box-shadow: 0 5px 12px rgba(0,0,0,.18);
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.pj-home .cover-play .material-symbols-rounded { font-size: 20px; }
+.pj-home .cover-play:hover { transform: scale(1.1); box-shadow: 0 8px 16px rgba(0,0,0,.23); }
+@media screen and (max-width: 430px) {
+  .pj-home .card { height: 270px; min-height: 270px; }
+  .pj-home .card h3 { font-size: 14px; }
+}
+
 /* Entrada de marca ligera: breve, cálida y sin bloquear la carga. */
 .pj-intro {
   position: fixed; inset: 0; z-index: 10001; display: grid; place-items: center;
@@ -1413,6 +1466,17 @@ body.pj-home.mostrando-juego #player-content { min-height: 100%; }
   .pj-home .hero-copy h2 em, .pj-home .cta-row .btn-primary, .pj-home .hero-carousel-track::after,
   .pj-home .section-kicker .material-symbols-rounded, .pj-home .cat-title .t-ico { animation: none; }
 }
+
+/* Override final de catálogo: estas tarjetas no llevan marco ni badges. */
+.pj-home .card { height: 300px; min-height: 300px; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.pj-home .card::before, .pj-home .card::after { display: none; }
+.pj-home .card-cover { aspect-ratio: 16 / 9; border-radius: 15px; box-shadow: 0 5px 14px rgba(37,27,91,.10); }
+.pj-home .card h3 { margin: 11px 2px 0; min-height: 36px; max-height: 36px; font-size: 15px; line-height: 1.2; }
+.pj-home .card-foot { padding: 7px 2px 0; }
+.pj-home .info-btn, .pj-home .badge-tag { display: none; }
+.pj-home .cover-play { position: absolute; right: 10px; bottom: 10px; width: 38px; height: 38px; min-width: 38px; padding: 0; border: 0; border-radius: 50%; font-size: 0; }
+.pj-home .cover-play .material-symbols-rounded { font-size: 20px; }
+@media screen and (max-width: 430px) { .pj-home .card { height: 270px; min-height: 270px; } .pj-home .card h3 { font-size: 14px; } }
 
 /* La composición principal debe sentirse cuidada, no inclinada ni decorativa por defecto. */
 .pj-home .hero-carousel { transform: none; }
