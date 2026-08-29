@@ -1195,12 +1195,11 @@ body.pj-home.mostrando-juego .kp-nav-row { padding-bottom: 6px; }
 }
 .pj-intro-out { opacity: 0; visibility: hidden; pointer-events: none; }
 .pj-intro-mark {
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  width: 86px; height: 86px; border-radius: 28px; background: var(--pj-purple, #3f00d8);
-  color: #fff; font: 800 31px/1 var(--font-head, sans-serif);
+  display: inline-flex; align-items: center; justify-content: center; width: min(290px, 70vw);
+  padding: 22px 18px; border-radius: 28px; background: var(--pj-purple, #3f00d8);
   box-shadow: 0 12px 28px rgba(63,0,216,.22); animation: pj-intro-pop .55s cubic-bezier(.2,.8,.2,1) both;
 }
-.pj-intro-star { color: var(--pj-yellow, #ffd600); font-size: 26px; animation: pj-intro-twinkle 1s ease-in-out infinite alternate; }
+.pj-intro-mark img { display: block; width: 100%; height: auto; }
 .pj-intro p { position: absolute; margin: 142px 0 0; color: #777487; font-size: 13px; font-weight: 700; }
 .pj-intro-dots { display: inline-block; width: 20px; text-align: left; overflow: hidden; animation: pj-intro-dots 1s steps(4,end) infinite; }
 @keyframes pj-intro-pop { from { opacity: 0; transform: scale(.65) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
@@ -1223,6 +1222,27 @@ body.pj-home.mostrando-juego .kp-nav-row { padding-bottom: 6px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .pj-intro-mark, .pj-intro-star, .pj-intro-dots { animation: none; }
+}
+
+/* El reproductor ocupa un escenario estable; solo se desplaza su contenido. */
+body.pj-home.mostrando-juego .game-page {
+  display: block;
+  height: calc(100svh - 70px);
+  min-height: 520px;
+  max-height: calc(100svh - 70px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-bottom: 28px;
+  scrollbar-gutter: stable;
+}
+body.pj-home.mostrando-juego #player-content { min-height: 100%; }
+@media (max-width: 600px) {
+  body.pj-home.mostrando-juego .game-page {
+    height: calc(100svh - 64px);
+    max-height: calc(100svh - 64px);
+    min-height: 480px;
+    padding: 10px 10px 24px;
+  }
 }
 
 /* El hero usa la portada como apoyo visual, no como una segunda pantalla. */

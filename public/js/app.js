@@ -224,12 +224,12 @@ function cardActividad(a) {
     ? '<span class="badge-tag badge-free badge-prog"><span class="material-symbols-rounded b-ico">task_alt</span>Hecha</span>'
     : '';
   return `
-    <div class="card" data-color="${color}" onclick="${tieneUnidades ? `verInfo('${a.id}')` : `abrirActividad('${a.id}', ${bloqueada})`}">
+    <div class="card" data-color="${color}" onclick="verInfo('${a.id}')" role="button" tabindex="0" aria-label="Ver detalles de ${escapeHtml(a.titulo)}">
       ${coverHTML(a, badgeProg)}
       <h3>${escapeHtml(a.titulo)}</h3>
       <div class="card-foot">
         <span class="chip" data-color="${color}">${escapeHtml(a.categoria)}</span>
-        ${!bloqueada ? `<button type="button" class="cover-play" onclick="event.stopPropagation();${tieneUnidades ? `verInfo('${a.id}')` : `abrirActividad('${a.id}', false)`}" title="${tieneUnidades ? 'Ver unidades' : (enCurso ? 'Continuar' : 'Jugar')}"><span class="material-symbols-rounded">${tieneUnidades ? 'list' : 'play_arrow'}</span> ${tieneUnidades ? 'Ver unidades' : (enCurso ? 'Continuar' : 'Jugar')}</button>` : ''}
+        ${!bloqueada ? `<button type="button" class="cover-play" onclick="event.stopPropagation();abrirActividad('${a.id}', false)" title="${enCurso ? 'Continuar' : 'Jugar'}"><span class="material-symbols-rounded">play_arrow</span> ${enCurso ? 'Continuar' : 'Jugar'}</button>` : ''}
       </div>
     </div>`;
 }
@@ -851,6 +851,11 @@ function ocultarCarga() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Las tarjetas también se pueden abrir con teclado, igual que con clic.
+  document.addEventListener('keydown', (e) => {
+    const card = e.target.closest?.('.card[role="button"]');
+    if (card && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); card.click(); }
+  });
   // Barra superior: efecto al hacer scroll (menos transparencia + sombra)
   const nav = document.querySelector('.nav');
   if (nav) {
