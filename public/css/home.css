@@ -1478,6 +1478,26 @@ body.pj-home.mostrando-juego #player-content { min-height: 100%; }
 .pj-home .cover-play .material-symbols-rounded { font-size: 20px; }
 @media screen and (max-width: 430px) { .pj-home .card { height: 270px; min-height: 270px; } .pj-home .card h3 { font-size: 14px; } }
 
+/* Tarjeta compacta final: solo ocupa el espacio de su contenido. */
+.pj-home .h-row { align-items: flex-start; }
+.pj-home .card { height: auto; min-height: 0; overflow: visible; }
+.pj-home .card-cover { position: relative; flex: none; }
+.pj-home .card h3 { min-height: 0; max-height: 36px; margin-top: 9px; }
+.pj-home .card-foot { min-height: 26px; padding-top: 5px; }
+.pj-home .card-foot .chip { display: inline-flex; align-items: center; gap: 5px; border: 0; background: transparent; padding: 3px 0; color: var(--pj-muted); font-size: 10px; }
+.pj-home .card-foot .chip::before { content: '•'; color: var(--accent); font-size: 18px; line-height: 0; }
+.pj-home .cover-play {
+  display: inline-grid; place-items: center; width: 42px; height: 42px; min-width: 42px;
+  background: var(--accent); color: #fff; border: 3px solid #fff; box-shadow: 0 5px 14px rgba(20,16,50,.22);
+}
+.pj-home .cover-play:hover { background: var(--pj-ink); color: #fff; transform: scale(1.08); }
+@media screen and (max-width: 430px) { .pj-home .card { height: auto; min-height: 0; } }
+
+/* El detalle no ocupa espacio cuando se inicia el juego. */
+.pj-home .detail-page { display: none; }
+body.pj-home.mostrando-detalle .detail-page { display: block; }
+body.pj-home.mostrando-juego .detail-page { display: none; }
+
 /* La composición principal debe sentirse cuidada, no inclinada ni decorativa por defecto. */
 .pj-home .hero-carousel { transform: none; }
 .pj-home .hero-carousel-track::after { display: none; }
