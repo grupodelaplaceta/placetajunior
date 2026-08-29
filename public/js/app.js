@@ -234,6 +234,20 @@ function cardActividad(a) {
     </div>`;
 }
 
+function cambiarPestanaDetalle(tab, nombre) {
+  const root = document.getElementById('detail-page');
+  if (!root) return;
+  root.querySelectorAll('[data-detail-panel]').forEach(panel => {
+    panel.classList.toggle('is-active', panel.dataset.detailPanel === nombre);
+  });
+  root.querySelectorAll('.detail-tabs [role="tab"]').forEach(item => {
+    const active = item === tab;
+    item.classList.toggle('is-active', active);
+    item.setAttribute('aria-selected', active ? 'true' : 'false');
+  });
+  if (window.pjSonido) pjSonido.clic();
+}
+
 // Página de DETALLE de la actividad (a pantalla completa, no popup)
 function verInfo(id) {
   const a = TODAS.find(x => x.id === id);
@@ -246,11 +260,14 @@ function verInfo(id) {
     ? unidades.length
     : ((a.contenido && a.contenido.bloques) ? a.contenido.bloques.length : (a.num_fases || 0));
   const nPreg = a.num_preguntas || 0;
-  const unidadesHtml = unidades.length ? `<div class="detail-card detail-unidades" id="detalle-unidades"><h2>Diapositivas de la aventura</h2><p class="detail-units-lead">Avanza a tu ritmo. Cada parte desbloquea un nuevo reto.</p>${unidades.map((n, i) => {
+  const colaborador = a.colaborador_nombre || a.colaborador || a.autor_nombre || a.autor || a.creador_nombre || a.creador || a.entidad_nombre || a.entidad || 'Equipo Placeta Junior';
+  const fechaRaw = a.created_at || a.createdAt || a.fecha_publicacion || a.fechaPublicacion || a.publicado_at || '';
+  const fecha = fechaRaw ? new Date(fechaRaw).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Actividad publicada';
+  const unidadesHtml = unidades.length ? `<div class="detail-panel detail-panel-slides" data-detail-panel="slides" id="detalle-unidades"><div class="detail-card detail-unidades"><h2>Diapositivas de la aventura</h2><p class="detail-units-lead">Avanza a tu ritmo. Cada parte desbloquea un nuevo reto.</p>${unidades.map((n, i) => {
     const recompensa = Number(n.recompensa || 0);
     const desc = typeof n.descripcion === 'string' ? n.descripcion : '';
     return `<button class="detail-unit" type="button" onclick="abrirUnidad('${a.id}',${i})"><div><strong>Unidad ${i + 1}</strong><span>${escapeHtml(n.titulo || 'Siguiente unidad')}</span>${desc ? `<small>${escapeHtml(desc)}</small>` : ''}</div><b>${recompensa ? `+${recompensa} Pz · Empezar` : 'Empezar'}</b></button>`;
-  }).join('')}</div>` : '';
+  }).join('')}</div></div>` : '';
   document.getElementById('detail-page').innerHTML = `
     <a class="detail-back" href="javascript:cerrarDetalle()"><span class="material-symbols-rounded">arrow_back</span> Volver a Actividades</a>
     <div class="detail-hero">
@@ -259,13 +276,19 @@ function verInfo(id) {
     <div class="detail-head">
       <span class="chip" data-color="${color}">${escapeHtml(a.categoria)}</span>
       <h1>${escapeHtml(a.titulo)}</h1>
+      <div class="detail-byline">
+        <span><span class="material-symbols-rounded">person</span><b>Creado por</b> ${escapeHtml(colaborador)}</span>
+        <span><span class="material-symbols-rounded">calendar_today</span>${escapeHtml(fecha)}</span>
+      </div>
+      ${!bloqueada ? `<button class="detail-play" type="button" onclick="abrirActividad('${a.id}', false)"><span class="material-symbols-rounded">play_arrow</span> Jugar ahora</button>` : '<span class="chip red detail-locked"><span class="material-symbols-rounded">lock</span> Actividad premium</span>'}
     </div>
     <div class="detail-body">
-      <nav class="detail-tabs" aria-label="Secciones de la actividad">
-        <a class="is-active" href="#detalle-info">Información</a>
-        ${unidades.length ? `<a href="#detalle-unidades">Diapositivas <span>${unidades.length}</span></a>` : ''}
+      <nav class="detail-tabs" role="tablist" aria-label="Secciones de la actividad">
+        <button class="is-active" type="button" role="tab" aria-selected="true" onclick="cambiarPestanaDetalle(this, 'info')">Información</button>
+        ${unidades.length ? `<button type="button" role="tab" aria-selected="false" onclick="cambiarPestanaDetalle(this, 'slides')">Diapositivas <span>${unidades.length}</span></button>` : ''}
         <button type="button" onclick="descargarPdf('${a.id}')"><span class="material-symbols-rounded">download</span> Ficha PDF</button>
       </nav>
+      <div class="detail-panel detail-panel-info is-active" data-detail-panel="info">
       <div class="detail-stats">
         <div class="dstat"><span class="material-symbols-rounded">child_care</span><span class="dstat-lbl">Edad</span><span class="dstat-val">${escapeHtml(a.edad_recomendada || '6-12')}</span></div>
         <div class="dstat"><span class="material-symbols-rounded">trending_up</span><span class="dstat-lbl">Dificultad</span><span class="dstat-val">${escapeHtml(a.dificultad || 'media')}</span></div>
@@ -277,15 +300,17 @@ function verInfo(id) {
         <p>${escapeHtml(a.descripcion || '')}</p>
         ${a.recompensa ? `<div class="detail-reward"><span class="material-symbols-rounded">military_tech</span><div><span class="reward-lbl">Recompensa</span><span class="reward-val">+${a.recompensa} Pz</span></div></div>` : ''}
       </div>
+      </div>
       ${unidadesHtml}
       <div class="detail-actions">
-        ${unidades.length ? '<span class="detail-select-hint">Selecciona una unidad para comenzar</span>' : (bloqueada
+        ${unidades.length ? '<span class="detail-select-hint">Puedes empezar desde una diapositiva</span>' : (bloqueada
           ? '<span class="chip red">🔒 De pago (no subvencionada)</span>'
-          : `<button class="btn btn-primary btn-lg" onclick="abrirActividad('${a.id}', false)"><span class="material-symbols-rounded">play_arrow</span> Comenzar</button>`)}
+          : '')}
         <button class="btn btn-outline btn-lg" onclick="descargarPdf('${a.id}')"><span class="material-symbols-rounded">download</span> Descargar PDF</button>
       </div>
     </div>`;
   document.body.classList.add('mostrando-detalle');
+  document.title = `${a.titulo} | Placeta Junior`;
   try { if (!location.search.includes('id=')) history.pushState(null, '', '/?id=' + encodeURIComponent(a.id)); } catch (e) { /* sin historial */ }
   window.scrollTo(0, 0);
   const coverEl = document.getElementById('detail-cover');
@@ -300,6 +325,7 @@ function verInfo(id) {
 }
 function cerrarDetalle() {
   document.body.classList.remove('mostrando-detalle');
+  document.title = 'Actividades | Placeta Junior';
   try { if (location.search.includes('id=')) history.replaceState(null, '', '/'); } catch (e) { /* sin historial */ }
   window.scrollTo(0, 0);
 }
