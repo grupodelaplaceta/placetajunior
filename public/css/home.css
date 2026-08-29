@@ -1168,6 +1168,20 @@ body.pj-home.mostrando-juego .kp-nav-row { padding-bottom: 6px; }
     max-width: 220px;
   }
 }
+
+/* El hero usa la portada como apoyo visual, no como una segunda pantalla. */
+@media screen and (min-width: 900px) {
+  .pj-home .hero-carousel { max-width: 590px; justify-self: end; }
+  .pj-home .hero-carousel-track { aspect-ratio: 16 / 6; }
+}
+@media screen and (max-width: 899px) {
+  .pj-home .hero-carousel { width: min(100%, 560px); }
+  .pj-home .hero-carousel-track { aspect-ratio: 16 / 6.5; }
+}
+@media screen and (max-width: 600px) {
+  .pj-home .hero-carousel { width: min(100%, 430px); }
+  .pj-home .hero-carousel-track { aspect-ratio: 16 / 7; }
+}
 .pj-home .hero-carousel-track { border-width: 7px; }
 .pj-home .card, .pj-home .btn, .pj-home .ef-btn, .pj-home .nav-links a { touch-action: manipulation; }
 .pj-home .btn:focus-visible, .pj-home .card:focus-visible, .pj-home .ef-btn:focus-visible,

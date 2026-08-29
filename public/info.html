@@ -16,13 +16,19 @@
 
   <!-- Barra de navegación -->
   <header class="nav">
+    <input type="checkbox" id="info-nav-toggle" class="nav-toggle" hidden />
     <div class="nav-inner">
       <a class="brand" href="/">
         <img src="img/PJ-BLANCO-LOGO.png" alt="Placeta Junior" />
       </a>
+      <label for="info-nav-toggle" class="nav-toggle-btn" aria-label="Abrir menú">
+        <span></span><span></span><span></span>
+      </label>
       <nav class="nav-links">
         <a href="/">Actividades</a>
         <a href="/info" class="active">Info</a>
+        <a href="/terminos.html">Términos</a>
+        <a href="/privacidad.html">Privacidad</a>
       </nav>
       <div class="nav-cta">
         <a class="btn-primary" href="/"><span class="material-symbols-rounded">play_arrow</span> Jugar</a>
@@ -201,6 +207,6 @@
     </div>
     <p>© 2026 Placeta Junior · Grupo de La Placeta · <a href="/terminos.html">Términos</a> · <a href="/privacidad.html">Privacidad</a> · <a href="https://laplaceta.org" target="_blank" rel="noopener">laplaceta.org</a></p>
   </footer>
-  <script src="js/sonidos.js?v=20260825"></script>
+  <script src="js/sonidos.js?v=20260829-ui"></script>
 </body>
 </html>
