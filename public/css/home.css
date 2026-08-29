@@ -1245,6 +1245,27 @@ body.pj-home.mostrando-juego #player-content { min-height: 100%; }
   }
 }
 
+/* En Inicio cada categoría conserva su galería horizontal también en escritorio. */
+@media screen and (min-width: 900px) {
+  .pj-home .h-row {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 16px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 4px 2px 18px;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+  }
+  .pj-home .h-row > .card {
+    flex: 0 0 clamp(210px, 18vw, 280px);
+    width: clamp(210px, 18vw, 280px);
+    min-width: clamp(210px, 18vw, 280px);
+    max-width: clamp(210px, 18vw, 280px);
+  }
+}
+
 /* El hero usa la portada como apoyo visual, no como una segunda pantalla. */
 @media screen and (min-width: 900px) {
   .pj-home .hero-carousel { max-width: 590px; justify-self: end; }
