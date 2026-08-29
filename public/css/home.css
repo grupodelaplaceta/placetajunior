@@ -739,6 +739,7 @@ body.pj-home.mostrando-detalle .detail-page { display: block; }
 .print-worksheet .ws-map-wrap { text-align: center; }
 .print-worksheet .ws-map-wrap img { width: 100%; max-width: 175mm; height: auto; border: 1px solid #cbd5e1; border-radius: 8px; display: inline-block; }
 .print-worksheet .ws-msg { border: 1.5px dashed #cbd5e1; border-radius: 8px; padding: 20px; color: #9CA3AF; font-size: 12px; text-align: center; }
+.print-worksheet .ws-answer-box { min-height: 32mm; margin-top: 7px; padding: 8px 10px; border: 1.5px solid #9aa0aa; border-radius: 8px; line-height: 1.8; color: #374151; background: #fff; }
 /* Preguntas en dos columnas para aprovechar el papel */
 .print-worksheet .ws-test { column-count: 2; column-gap: 8mm; }
 .print-worksheet .ws-test h4 { column-span: all; }

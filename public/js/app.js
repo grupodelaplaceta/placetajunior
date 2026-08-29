@@ -517,10 +517,15 @@ async function descargarPdf(id) {
     } else if (b.tipo === 'mapa_mundi' && b.paises && b.paises.length) {
       const recon = (b.paises || []).map(p => String(p).trim()).filter(Boolean).filter(p => window.MAPA_MUNDI && MAPA_MUNDI.paises[p]);
       cuerpo += '<div class="ws-sec ws-mapa"><h4>Localiza en el mapamundi</h4>' + wsImg(b.imagen_url, b.fuente) + '<div class="ws-map-wrap" data-mapa="1" data-paises="' + esc(JSON.stringify(recon)) + '"></div><p class="ws-words">' + recon.map(esc).join(' · ') + '</p><p class="ws-hint">Busca cada país en el mapamundi y señálalo.</p></div>';
+    } else if (b.tipo === 'esquema') {
+      const esquema = b.esquema || b.escena || b;
+      const elementos = Array.isArray(esquema.elementos) ? esquema.elementos : [];
+      const etiquetas = elementos.map(e => e.texto || e.aria_label || e.accion?.titulo).filter(Boolean);
+      cuerpo += '<div class="ws-sec ws-esquema"><h4>' + esc(b.titulo || 'Esquema interactivo') + '</h4>' + wsImg(b.imagen_url, b.fuente) + '<p class="ws-hint">Observa el esquema y escribe qué representa cada elemento señalado.</p>' + (etiquetas.length ? '<div class="ws-words">Elementos: ' + etiquetas.map(esc).join(' · ') + '</div>' : '') + '<div class="ws-answer-box">Respuesta y explicación:<br><br>____________________________________________________________________<br><br>____________________________________________________________________<br><br>____________________________________________________________________</div></div>';
     } else if (b.tipo) {
       const titulo = b.titulo || b.nombre || String(b.tipo).replace(/_/g, ' ');
       const instrucciones = b.instrucciones || b.descripcion || b.texto || '';
-      cuerpo += '<div class="ws-sec"><h4>' + esc(titulo) + '</h4>' + (instrucciones ? '<div class="ws-richtext">' + formatearTextoJugador(instrucciones) + '</div>' : '') + '<p class="ws-hint">Actividad interactiva: ' + esc(titulo) + '</p><div class="ws-answer-line">Respuesta: ______________________________________________</div></div>';
+      cuerpo += '<div class="ws-sec"><h4>' + esc(titulo) + '</h4>' + (instrucciones ? '<div class="ws-richtext">' + formatearTextoJugador(instrucciones) + '</div>' : '') + '<p class="ws-hint">Actividad para realizar en papel: sigue las instrucciones y completa el espacio.</p><div class="ws-answer-box">Respuesta:<br><br>____________________________________________________________________<br><br>____________________________________________________________________</div></div>';
     }
   };
   if (unidadesPdf.length) {

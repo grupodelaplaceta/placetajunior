@@ -118,8 +118,11 @@ function abrirJuego(act) {
       const bloques = Array.isArray(contenido.bloques)
         ? contenido.bloques
         : (contenido.tipo ? [contenido] : []);
-      const encabezado = { tipo: 'texto', nivelIndex: i, titulo: `Nivel ${i + 1}: ${n.titulo || 'Siguiente reto'}`, contenido: n.descripcion || `Completa este nivel para desbloquear el siguiente. Recompensa: ${Number(n.recompensa || 0)} Pz` };
-      return [encabezado, ...bloques.map(b => ({ ...b, nivelIndex: i }))];
+      // Cada diapositiva comienza con la misma carátula que la actividad,
+      // como capítulos de una serie; después llegan sus ejercicios.
+      const caratula = { tipo: 'portada', nivelIndex: i, tit: act.titulo || 'Actividad', desc: n.descripcion || '', cat: act.categoria || 'General', edad: act.edad_recomendada || '6-12', dif: act.dificultad || 'media', tiempo: act.tiempo_estimado || 10 };
+      const encabezado = { tipo: 'texto', nivelIndex: i, titulo: `Capítulo ${i + 1}: ${n.titulo || 'Siguiente reto'}`, contenido: n.descripcion || `Completa este capítulo para desbloquear el siguiente. Recompensa: ${Number(n.recompensa || 0)} Pz` };
+      return [caratula, encabezado, ...bloques.map(b => ({ ...b, nivelIndex: i }))];
     });
   }
   if (!esCode && !bloquesJuego.length) { juniorAviso('Esta actividad aún no tiene contenido jugable.', 'error'); return; }
@@ -1979,7 +1982,7 @@ function nivelCompletado(nivel) {
   const indices = pantallas.map((s, i) => s.nivelIndex === nivel ? i : -1).filter(i => i >= 0);
   return indices.length === 0 || indices.every((i) => {
     const s = pantallas[i], e = kpEstado[i] || {};
-    if (s.tipo === 'texto') return true;
+    if (s.tipo === 'texto' || s.tipo === 'portada') return true;
     if (s.tipo === 'code') return e.superado === true;
     if (s.tipo === 'test' || s.tipo === 'calculo' || s.tipo === 'problema') return e.respondida === true;
     if (s.tipo === 'relacionar') return Object.keys(e.hechas || {}).length >= (bloquesJuego[s.bi]?.pares || []).length;
