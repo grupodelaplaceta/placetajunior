@@ -244,13 +244,20 @@ Reglas:
       let enExplicacion = false;
       let relTipo = null;
 
+      // Separa solo la etiqueta inicial. Nunca uses split global aquí:
+      // las URLs de imágenes contienen ':' en https:// y pueden contener '-'.
+      const valorTrasEtiqueta = (linea) => {
+        const m = String(linea || '').match(/^\s*[^:–-]+?\s*[:–-]\s*(.*)$/);
+        return m ? m[1].trim() : '';
+      };
+
       for (const l of lineas) {
         const lower = l.toLowerCase();
         // Saltar encabezados de sección ("Preguntas:", "Relaciona:", "Ordena:"...)
         const encabezados = ['preguntas', 'pregunta', 'relaciona', 'relacionar', 'relaciones', 'completa', 'completar', 'ordena', 'ordenar', 'parejas', 'pareja', 'escribe', 'escribir', 'calcula', 'calculo', 'cálculo', 'reto', 'retos', 'palabras', 'pistas', 'problemas', 'problema'];
         if (encabezados.includes(lower.replace(/[:.]+$/, '').trim()) || (l.endsWith(':') && l.length < 30)) continue;
         if (lower.startsWith('actividad') || lower.startsWith('título') || lower.startsWith('titulo')) {
-          const t = l.split(/[:–-]/).slice(1).join(':').trim();
+          const t = valorTrasEtiqueta(l);
           if (t) titulo = t;
           continue;
         }
@@ -264,14 +271,14 @@ Reglas:
         }
         if (enExplicacion) { explicaciones.push(l); continue; }
         if (lower.startsWith('descripción') || lower.startsWith('descripcion')) {
-          descripcion = l.split(/[:–-]/).slice(1).join(':').trim();
+          descripcion = valorTrasEtiqueta(l);
           continue;
         }
         // Completar: contiene ___
         if (l.includes('___')) {
-          const partes = l.split(/[:–-]/).map(s => s.trim());
-          const textoF = partes[0] || l;
-          const resp = partes[1] || '';
+          const separada = l.match(/^\s*(.*?)\s*[:–-]\s*(.*)$/);
+          const textoF = separada ? separada[1].trim() : l;
+          const resp = separada ? separada[2].trim() : '';
           if (resp) frases.push({ texto: textoF, respuesta: resp });
           continue;
         }

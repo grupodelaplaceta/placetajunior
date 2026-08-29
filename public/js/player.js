@@ -249,7 +249,8 @@ function abrirJuego(act) {
   kpCelebrado = false;
   pantallaIdx = 0;
   // Restaurar partida en curso guardada localmente (retomar donde se dejó)
-  const partida = (window.PJPartidas && act && act.id) ? PJPartidas.get(act.id) : null;
+  const clavePartida = act && act._unidadIndex != null ? `${act._actividadId || act.id}::unidad::${act._unidadIndex}` : (act && act.id);
+  const partida = (window.PJPartidas && clavePartida) ? PJPartidas.get(clavePartida) : null;
   if (partida && !partida.completada && partida.pantallaIdx) {
     try {
       const idx = Math.min(Math.max(1, Number(partida.pantallaIdx) || 1), pantallas.length - 1);
@@ -1114,7 +1115,7 @@ async function guardarProgreso() {
     const res = await fetch(`${API_BASE}/actividades/${actividadActual.id}/realizar`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ dip, respuestas })
+      body: JSON.stringify({ dip, respuestas, unidad: actividadActual._unidadIndex != null ? actividadActual._unidadIndex : undefined, recompensa_unidad: actividadActual._unidadIndex != null ? Number(actividadActual.recompensa || 0) : undefined })
     });
     const data = await res.json().catch(() => ({}));
     if (res.ok && data.success) {
@@ -1369,6 +1370,25 @@ function iniciarMapa(idx) {
           lyr.on('mouseout', () => { if (!(kpEstado[idx] && kpEstado[idx].respondida)) lyr.setStyle(MAP_STYLE); });
         }
       }).addTo(map);
+      // Ayuda visual: coloca la bandera real de cada país de la actividad
+      // sobre su territorio. Las imágenes proceden de Wikimedia Commons
+      // (Special:FilePath), no son emojis y conservan el mapa clicable.
+      const excepcionesBandera = {
+        'United States of America': 'Flag_of_the_United_States.svg',
+        'United Kingdom': 'Flag_of_the_United_Kingdom.svg',
+        'South Korea': 'Flag_of_South_Korea.svg',
+        'Russia': 'Flag_of_Russia.svg',
+        'Czechia': 'Flag_of_the_Czech_Republic.svg'
+      };
+      const banderaUrl = en => 'https://commons.wikimedia.org/wiki/Special:FilePath/' + encodeURIComponent(excepcionesBandera[en] || ('Flag_of_' + en.replace(/ /g, '_') + '.svg')) + '?width=96';
+      const objetivos = new Set((s.paises || []).map(p => MAPA_MUNDI.enDe(p)));
+      layer.eachLayer(ll => {
+        const en = ll.feature && ll.feature.properties && ll.feature.properties.name;
+        if (!objetivos.has(en)) return;
+        const centro = ll.getBounds().getCenter();
+        const nombre = MAPA_MUNDI.esDe(en);
+        L.marker(centro, { interactive: false, icon: L.divIcon({ className: 'pj-flag-marker', html: '<img src="' + banderaUrl(en) + '" alt="Bandera de ' + esc(nombre) + '"><span>' + esc(nombre) + '</span>', iconSize: [76, 44], iconAnchor: [38, 22] }) }).addTo(map);
+      });
       if (kpEstado[idx] && kpEstado[idx].respondida) {
         layer.eachLayer(ll => {
           const en = ll.feature && ll.feature.properties && ll.feature.properties.name;
@@ -2005,10 +2025,11 @@ function pantallaPrev() { if (pantallaIdx > 0 && pantallas[pantallaIdx]?.tipo !=
 function guardarPartidaLocal() {
   try {
     if (!window.PJPartidas || !actividadActual || !actividadActual.id) return;
+    const clave = actividadActual._unidadIndex != null ? `${actividadActual._actividadId || actividadActual.id}::unidad::${actividadActual._unidadIndex}` : actividadActual.id;
     const s = pantallas[pantallaIdx];
     // En la pantalla final, la actividad se considera completada
     if (s && s.tipo === 'final') {
-      PJPartidas.completar(actividadActual.id, { verdes: kpScore.verdes, rojos: kpScore.rojos });
+      PJPartidas.completar(clave, { verdes: kpScore.verdes, rojos: kpScore.rojos });
       return;
     }
     // En la portada no hay progreso real todavía
@@ -2019,7 +2040,7 @@ function guardarPartidaLocal() {
       const est = kpEstado[pantallaIdx] || {};
       code = { programa: est.programa || [] };
     }
-    PJPartidas.set(actividadActual.id, {
+    PJPartidas.set(clave, {
       pantallaIdx,
       kpEstado: JSON.parse(JSON.stringify(kpEstado)),
       kpScore: { ...kpScore },

@@ -664,16 +664,41 @@ body.pj-home.mostrando-detalle .detail-page { display: block; }
 .print-worksheet .ws-head p { margin: 0; font-size: 11px; color: #6B7280; }
 .print-worksheet .ws-meta { border: 1px solid #d1d5db; border-radius: 8px; padding: 5px 10px; margin-bottom: 10px; font-size: 12px; page-break-inside: avoid; break-inside: avoid; }
 .print-worksheet .ws-sec { margin-bottom: 10px; }
-.detail-unit { display:flex; gap:12px; align-items:center; justify-content:space-between; padding:12px 0; border-top:1px solid var(--pj-gray-200,#e5e7eb); }
+.detail-unit { width:100%; display:flex; gap:12px; align-items:center; justify-content:space-between; padding:12px 0; border:0; border-top:1px solid var(--pj-gray-200,#e5e7eb); background:transparent; text-align:left; cursor:pointer; font:inherit; }
 .detail-unit div { display:flex; flex-direction:column; gap:3px; }
 .detail-unit strong { color:var(--pj-purple,#4e3b70); }
 .detail-unit small { color:var(--pj-gray-500,#6b7280); }
 .detail-unit b { color:var(--pj-orange,#ff6600); white-space:nowrap; }
+.detail-select-hint { color: var(--pj-muted); font-size: 13px; }
+.pj-pdf-loading { position:fixed; inset:0; z-index:9999; display:grid; place-items:center; background:#111827aa; }
+.pj-pdf-loading-card { display:flex; flex-direction:column; align-items:center; gap:8px; padding:28px 34px; border-radius:20px; background:#fff; color:var(--pj-purple); box-shadow:0 12px 40px #11182755; }
+.pj-pdf-loading-card small { color:var(--pj-muted); }
 .print-worksheet .ws-unit { margin: 18px 0 24px; break-inside: avoid; }
+.print-worksheet .ws-unit + .ws-unit { break-before: page; }
+.print-worksheet .ws-unit-header { margin-bottom: 8px; }
+.print-worksheet .ws-unit-header .ws-cover { margin-bottom: 7px; max-width: 105mm; }
+.print-worksheet .ws-unit-header .ws-cover img { aspect-ratio: 16 / 6; }
 .print-worksheet .ws-unit h3 { color: var(--ws-theme); border-bottom: 3px solid var(--ws-soft); padding-bottom: 5px; }
 .print-worksheet .ws-richtext p { margin: .35rem 0; line-height: 1.45; }
+.print-worksheet .ws-richtext { font-size: 12px; line-height: 1.4; }
+.print-worksheet .ws-richtext h1, .print-worksheet .ws-richtext h2, .print-worksheet .ws-richtext h3, .print-worksheet .ws-richtext h4, .print-worksheet .ws-richtext h5 { margin: .45rem 0 .2rem; font-size: 14px; }
 .print-worksheet .ws-richtext ul, .print-worksheet .ws-richtext ol { margin: .35rem 0 .35rem 1.2rem; }
 .print-worksheet .ws-reward { color: var(--ws-theme); font-weight: 700; }
+@media screen and (min-width: 900px) {
+  .pj-home .section, .pj-home .detail-page, .pj-home .game-page { max-width: 1240px; margin-left: auto; margin-right: auto; }
+  .pj-home .section { padding-left: 34px; padding-right: 34px; }
+  .pj-home .h-row { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; overflow: visible; }
+  .pj-home .card { width: auto; min-width: 0; }
+  .pj-home .card .card-cover { height: 132px; }
+  .detail-body { max-width: 920px; margin: 0 auto; }
+  .detail-stats { grid-template-columns: repeat(4, 1fr); }
+  .pj-home.mostrando-juego #game-page { max-width: 1080px; margin: 0 auto; }
+  .kp-screen { max-width: 850px; margin: 0 auto; }
+  .kp-map { min-height: 520px; max-height: 620px; }
+}
+.pj-flag-marker { background: transparent; border: 0; text-align: center; pointer-events: none; }
+.pj-flag-marker img { display:block; width:56px; height:30px; object-fit:cover; margin:auto; border:1px solid #64748b; border-radius:3px; box-shadow:0 1px 4px #1e293b66; background:#fff; }
+.pj-flag-marker span { display:block; max-width:76px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding:1px 3px; border-radius:4px; background:#fff; color:#1e293b; font-size:9px; font-weight:700; box-shadow:0 1px 3px #1e293b44; }
 .print-worksheet .ws-sec h4 { font-family: 'Fredoka One', 'Outfit', sans-serif; font-size: 15px; font-weight: 800; text-transform: uppercase; color: var(--ws-theme); border-bottom: 2px solid var(--ws-soft); padding-bottom: 3px; margin: 0 0 6px; }
 .print-worksheet .ws-q, .print-worksheet .ws-line { margin-bottom: 6px; font-size: 13px; line-height: 1.4; page-break-inside: avoid; break-inside: avoid; }
 .print-worksheet .ws-n { font-weight: 800; color: var(--ws-theme); }

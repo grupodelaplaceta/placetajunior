@@ -249,7 +249,7 @@ function verInfo(id) {
   const unidadesHtml = unidades.length ? `<div class="detail-card detail-unidades"><h2>Unidades</h2>${unidades.map((n, i) => {
     const recompensa = Number(n.recompensa || 0);
     const desc = typeof n.descripcion === 'string' ? n.descripcion : '';
-    return `<div class="detail-unit"><div><strong>Unidad ${i + 1}</strong><span>${escapeHtml(n.titulo || 'Siguiente unidad')}</span>${desc ? `<small>${escapeHtml(desc)}</small>` : ''}</div><b>${recompensa ? `+${recompensa} Pz` : 'Sin recompensa'}</b></div>`;
+    return `<button class="detail-unit" type="button" onclick="abrirUnidad('${a.id}',${i})"><div><strong>Unidad ${i + 1}</strong><span>${escapeHtml(n.titulo || 'Siguiente unidad')}</span>${desc ? `<small>${escapeHtml(desc)}</small>` : ''}</div><b>${recompensa ? `+${recompensa} Pz · Empezar` : 'Empezar'}</b></button>`;
   }).join('')}</div>` : '';
   document.getElementById('detail-page').innerHTML = `
     <a class="detail-back" href="javascript:cerrarDetalle()"><span class="material-symbols-rounded">arrow_back</span> Volver a Actividades</a>
@@ -274,9 +274,9 @@ function verInfo(id) {
       </div>
       ${unidadesHtml}
       <div class="detail-actions">
-        ${bloqueada
+        ${unidades.length ? '<span class="detail-select-hint">Selecciona una unidad para comenzar</span>' : (bloqueada
           ? '<span class="chip red">🔒 De pago (no subvencionada)</span>'
-          : `<button class="btn btn-primary btn-lg" onclick="abrirActividad('${a.id}', false)"><span class="material-symbols-rounded">play_arrow</span> Comenzar</button>`}
+          : `<button class="btn btn-primary btn-lg" onclick="abrirActividad('${a.id}', false)"><span class="material-symbols-rounded">play_arrow</span> Comenzar</button>`)}
         <button class="btn btn-outline btn-lg" onclick="descargarPdf('${a.id}')"><span class="material-symbols-rounded">download</span> Descargar PDF</button>
       </div>
     </div>`;
@@ -450,6 +450,10 @@ function generarPdfCode(a) {
 async function descargarPdf(id) {
   const a = TODAS.find(x => x.id === id) || null;
   if (!a) return;
+  const cargaPdf = document.createElement('div');
+  cargaPdf.className = 'pj-pdf-loading';
+  cargaPdf.innerHTML = '<div class="pj-pdf-loading-card"><span class="loader"></span><strong>Preparando tu ficha…</strong><small>Cargando imágenes y unidades</small></div>';
+  document.body.appendChild(cargaPdf);
   if (window.pjSonido) pjSonido.clic();
   const esCode = a.tipo === 'code_blocks' || (a.contenido && a.contenido.tipo === 'code_blocks');
   const bloques = (a.contenido && a.contenido.bloques) || [];
@@ -521,7 +525,7 @@ async function descargarPdf(id) {
   };
   if (unidadesPdf.length) {
     unidadesPdf.forEach((n, i) => {
-      cuerpo += '<div class="ws-unit"><h3>Unidad ' + (i + 1) + (n.titulo ? ' — ' + esc(n.titulo) : '') + '</h3>';
+      cuerpo += '<div class="ws-unit"><div class="ws-unit-header">__PJ_UNIT_HEADER__</div><h3>Unidad ' + (i + 1) + (n.titulo ? ' — ' + esc(n.titulo) : '') + '</h3>';
       const desc = obtenerContenidoTextoPJ(n);
       if (desc) cuerpo += '<div class="ws-richtext ws-unit-desc">' + formatearTextoJugador(desc) + '</div>';
       let nb = Array.isArray(n.bloques) ? n.bloques : (n.contenido && Array.isArray(n.contenido.bloques) ? n.contenido.bloques : []);
@@ -542,6 +546,7 @@ async function descargarPdf(id) {
     if (url) portada = `<div class="ws-cover"><img src="${url}" alt="${esc(a.titulo)}"></div>`;
   }
   const ws = document.getElementById('print-worksheet');
+  cuerpo = cuerpo.replaceAll('__PJ_UNIT_HEADER__', `${portada}<div class="ws-meta">Nombre y apellidos: ________________________________&nbsp;&nbsp; Fecha: _______________&nbsp;&nbsp; Puntos: ________</div>`);
   // El color de la asignatura acompaña a toda la ficha imprimible.
   ws.dataset.color = categoriaColor(a.categoria || '');
   ws.innerHTML = `
@@ -564,6 +569,14 @@ async function descargarPdf(id) {
       ? '<img src="' + url + '" alt="Mapamundi">'
       : '<div class="ws-msg">Mapamundi no disponible.</div>';
   }
+  // No lanzar la impresión hasta que navegador haya descargado y decodificado
+  // todas las imágenes remotas (incluidas las de Wikimedia).
+  await Promise.all([...ws.querySelectorAll('img')].map(img => new Promise(resolve => {
+    img.loading = 'eager';
+    if (img.complete && img.naturalWidth > 0) return resolve();
+    img.onload = img.onerror = () => resolve();
+    setTimeout(resolve, 8000);
+  })));
   // Asegurar que las tipografías nuevas (Fredoka One / Outfit) estén cargadas para imprimir
   try {
     if (document.fonts && document.fonts.load) {
@@ -573,6 +586,7 @@ async function descargarPdf(id) {
       ]);
     }
   } catch (e) { /* sin tipografías web */ }
+  cargaPdf.remove();
   window.print();
 }
 
@@ -761,6 +775,25 @@ async function abrirActividad(id, bloqueada) {
   } catch (e) {
     juniorAviso('No se pudo cargar la actividad. Inténtalo de nuevo.', 'error');
   }
+}
+
+// Abre únicamente una unidad: su estado local y su puntuación quedan aislados
+// de las demás unidades de la misma actividad.
+async function abrirUnidad(id, indice) {
+  try {
+    const data = await apiGet(`/actividades/${id}`);
+    const a = data.actividad;
+    if (!a) throw new Error('Actividad no encontrada');
+    if (esBloqueada(a)) { juniorAviso('🔒 Esta actividad es de pago. Desbloquéala desde la app para jugarla.', 'error'); return; }
+    const unidades = obtenerUnidadesActividad(a), u = unidades[Number(indice)];
+    if (!u) throw new Error('Unidad no encontrada');
+    const contenido = { ...(a.contenido || {}) };
+    let bloques = Array.isArray(u.bloques) ? u.bloques : (u.contenido && Array.isArray(u.contenido.bloques) ? u.contenido.bloques : []);
+    if (!bloques.length && u.contenido && u.contenido.tipo) bloques = [u.contenido];
+    delete contenido.niveles; delete contenido.diapositivas; contenido.bloques = bloques;
+    const unidad = { ...a, contenido, titulo: `${a.titulo} · Unidad ${Number(indice) + 1}`, recompensa: Number(u.recompensa || 0), _unidadIndex: Number(indice), _actividadId: a.id };
+    cerrarDetalle(); mostrarAnuncioActividad(unidad); abrirJuego(unidad);
+  } catch (e) { juniorAviso('No se pudo abrir la unidad. Inténtalo de nuevo.', 'error'); }
 }
 
 function cerrarAnuncioActividad() {
