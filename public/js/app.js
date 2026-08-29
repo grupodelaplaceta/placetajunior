@@ -246,7 +246,7 @@ function verInfo(id) {
     ? unidades.length
     : ((a.contenido && a.contenido.bloques) ? a.contenido.bloques.length : (a.num_fases || 0));
   const nPreg = a.num_preguntas || 0;
-  const unidadesHtml = unidades.length ? `<div class="detail-card detail-unidades"><h2>Unidades</h2>${unidades.map((n, i) => {
+  const unidadesHtml = unidades.length ? `<div class="detail-card detail-unidades" id="detalle-unidades"><h2>Diapositivas de la aventura</h2><p class="detail-units-lead">Avanza a tu ritmo. Cada parte desbloquea un nuevo reto.</p>${unidades.map((n, i) => {
     const recompensa = Number(n.recompensa || 0);
     const desc = typeof n.descripcion === 'string' ? n.descripcion : '';
     return `<button class="detail-unit" type="button" onclick="abrirUnidad('${a.id}',${i})"><div><strong>Unidad ${i + 1}</strong><span>${escapeHtml(n.titulo || 'Siguiente unidad')}</span>${desc ? `<small>${escapeHtml(desc)}</small>` : ''}</div><b>${recompensa ? `+${recompensa} Pz · Empezar` : 'Empezar'}</b></button>`;
@@ -261,13 +261,18 @@ function verInfo(id) {
       <h1>${escapeHtml(a.titulo)}</h1>
     </div>
     <div class="detail-body">
+      <nav class="detail-tabs" aria-label="Secciones de la actividad">
+        <a class="is-active" href="#detalle-info">Información</a>
+        ${unidades.length ? `<a href="#detalle-unidades">Diapositivas <span>${unidades.length}</span></a>` : ''}
+        <button type="button" onclick="descargarPdf('${a.id}')"><span class="material-symbols-rounded">download</span> Ficha PDF</button>
+      </nav>
       <div class="detail-stats">
         <div class="dstat"><span class="material-symbols-rounded">child_care</span><span class="dstat-lbl">Edad</span><span class="dstat-val">${escapeHtml(a.edad_recomendada || '6-12')}</span></div>
         <div class="dstat"><span class="material-symbols-rounded">trending_up</span><span class="dstat-lbl">Dificultad</span><span class="dstat-val">${escapeHtml(a.dificultad || 'media')}</span></div>
         <div class="dstat"><span class="material-symbols-rounded">quiz</span><span class="dstat-lbl">Preguntas</span><span class="dstat-val">${nPreg}</span></div>
         <div class="dstat"><span class="material-symbols-rounded">flag</span><span class="dstat-lbl">Niveles</span><span class="dstat-val">${nBloques}</span></div>
       </div>
-      <div class="detail-card">
+      <div class="detail-card" id="detalle-info">
         <h2>¿De qué trata esta actividad?</h2>
         <p>${escapeHtml(a.descripcion || '')}</p>
         ${a.recompensa ? `<div class="detail-reward"><span class="material-symbols-rounded">military_tech</span><div><span class="reward-lbl">Recompensa</span><span class="reward-val">+${a.recompensa} Pz</span></div></div>` : ''}

@@ -1110,6 +1110,22 @@ body.pj-home.mostrando-juego .kp-nav-row { padding-bottom: 6px; }
 .pj-home .detail-actions { align-items: center; gap: 10px; padding-top: 2px; }
 .pj-home .detail-actions .btn-lg { min-height: 46px; padding: 12px 20px; font-size: 15px; }
 .pj-home .detail-select-hint { margin-right: auto; font-size: 12px; }
+.pj-home .detail-tabs {
+  grid-column: 1 / -1; display: flex; align-items: center; gap: 4px; padding: 5px;
+  border: 1px solid var(--pj-line); border-radius: 13px; background: #f8f7fc;
+  overflow-x: auto; scrollbar-width: none;
+}
+.pj-home .detail-tabs::-webkit-scrollbar { display: none; }
+.pj-home .detail-tabs a, .pj-home .detail-tabs button {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 5px; min-height: 34px;
+  padding: 7px 12px; border: 0; border-radius: 9px; background: transparent; color: var(--pj-muted);
+  font: 700 12px var(--font-body); text-decoration: none; cursor: pointer; transition: background .18s, color .18s, transform .18s;
+}
+.pj-home .detail-tabs a:hover, .pj-home .detail-tabs button:hover { color: var(--pj-purple); background: #fff; transform: translateY(-1px); }
+.pj-home .detail-tabs a.is-active { color: var(--pj-purple); background: #fff; box-shadow: 0 3px 10px rgba(37,27,91,.08); }
+.pj-home .detail-tabs a span { display: inline-grid; place-items: center; min-width: 18px; height: 18px; border-radius: 99px; background: var(--pj-purple-light); color: var(--pj-purple); font-size: 10px; }
+.pj-home .detail-tabs .material-symbols-rounded { font-size: 17px; }
+.pj-home .detail-units-lead { margin: -2px 0 4px !important; font-size: 12px !important; }
 
 @media screen and (min-width: 900px) {
   .pj-home .detail-page { display: grid; grid-template-columns: minmax(0, 720px) minmax(220px, 1fr); column-gap: 30px; align-items: start; }
@@ -1117,7 +1133,7 @@ body.pj-home.mostrando-juego .kp-nav-row { padding-bottom: 6px; }
   .pj-home .detail-hero { grid-column: 1; grid-row: 2; width: 100%; }
   .pj-home .detail-head { grid-column: 2; grid-row: 2; align-self: center; margin: 0; padding: 12px 0; }
   .pj-home .detail-body { grid-column: 1 / -1; grid-row: 3; width: 100%; max-width: none; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-  .pj-home .detail-stats, .pj-home .detail-actions { grid-column: 1 / -1; }
+  .pj-home .detail-tabs, .pj-home .detail-stats, .pj-home .detail-actions { grid-column: 1 / -1; }
   .pj-home .detail-body:not(:has(.detail-unidades)) > .detail-card { grid-column: 1 / -1; }
 }
 @media screen and (max-width: 600px) {
@@ -1133,6 +1149,8 @@ body.pj-home.mostrando-juego .kp-nav-row { padding-bottom: 6px; }
   .pj-home .dstat-lbl { font-size: 9px; }
   .pj-home .dstat-val { font-size: 16px; }
   .pj-home .detail-card { padding: 15px; }
+  .pj-home .detail-tabs { position: sticky; top: 8px; z-index: 4; }
+  .pj-home .detail-tabs a, .pj-home .detail-tabs button { padding-left: 10px; padding-right: 10px; }
   .pj-home .detail-actions { display: grid; grid-template-columns: 1fr; }
   .pj-home .detail-actions .btn-lg { width: 100%; }
   .pj-home .detail-select-hint { margin: 0 0 2px; }
