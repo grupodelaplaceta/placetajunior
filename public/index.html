@@ -11,6 +11,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
 </head>
 <body class="pj-home">
+  <!-- Entrada breve de marca antes de cargar la actividad -->
+  <div id="pj-intro" class="pj-intro" aria-label="Entrando en Placeta Junior">
+    <div class="pj-intro-mark"><span class="pj-intro-star">✦</span><span>PJ</span></div>
+    <p>Preparando tu aventura<span class="pj-intro-dots" aria-hidden="true">...</span></p>
+  </div>
+
   <!-- Pantalla de carga inicial -->
   <div id="pj-loading" class="pj-loading" aria-live="polite" aria-label="Cargando">
     <div class="pj-loading-inner">
@@ -159,6 +165,14 @@
   <script src="js/player.js?v=20260829-richtext"></script>
   <script src="js/accesibilidad.js?v=20260811c"></script>
   <script>
+    // Intro corta de marca: deja que la página respire antes del cargador real.
+    (function () {
+      const intro = document.getElementById('pj-intro');
+      if (!intro) return;
+      window.setTimeout(() => intro.classList.add('pj-intro-out'), 850);
+      window.setTimeout(() => intro.remove(), 1250);
+    }());
+
     // Carrusel preparado para incorporar nuevas fotos en .hero-carousel-track.
     (function () {
       const carousel = document.querySelector('[data-carousel]');

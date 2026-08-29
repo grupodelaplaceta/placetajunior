@@ -1169,6 +1169,44 @@ body.pj-home.mostrando-juego .kp-nav-row { padding-bottom: 6px; }
   }
 }
 
+/* Entrada de marca ligera: breve, cálida y sin bloquear la carga. */
+.pj-intro {
+  position: fixed; inset: 0; z-index: 10001; display: grid; place-items: center;
+  background: #fbfaff; color: var(--pj-ink, #17132b); text-align: center;
+  transition: opacity .35s ease, visibility .35s ease;
+}
+.pj-intro-out { opacity: 0; visibility: hidden; pointer-events: none; }
+.pj-intro-mark {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  width: 86px; height: 86px; border-radius: 28px; background: var(--pj-purple, #3f00d8);
+  color: #fff; font: 800 31px/1 var(--font-head, sans-serif);
+  box-shadow: 0 12px 28px rgba(63,0,216,.22); animation: pj-intro-pop .55s cubic-bezier(.2,.8,.2,1) both;
+}
+.pj-intro-star { color: var(--pj-yellow, #ffd600); font-size: 26px; animation: pj-intro-twinkle 1s ease-in-out infinite alternate; }
+.pj-intro p { position: absolute; margin: 142px 0 0; color: #777487; font-size: 13px; font-weight: 700; }
+.pj-intro-dots { display: inline-block; width: 20px; text-align: left; overflow: hidden; animation: pj-intro-dots 1s steps(4,end) infinite; }
+@keyframes pj-intro-pop { from { opacity: 0; transform: scale(.65) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+@keyframes pj-intro-twinkle { from { transform: rotate(-10deg) scale(.9); } to { transform: rotate(10deg) scale(1.1); } }
+@keyframes pj-intro-dots { from { width: 3px; } to { width: 20px; } }
+
+/* En escritorio las filas deben crear filas reales, nunca columnas implícitas. */
+@media screen and (min-width: 900px) {
+  .pj-home .h-row {
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    align-items: start;
+    overflow: visible;
+  }
+  .pj-home .h-row > .card { width: 100%; min-width: 0; max-width: none; height: 306px; min-height: 306px; align-self: start; }
+}
+@media screen and (min-width: 900px) and (max-width: 1099px) {
+  .pj-home .h-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pj-intro-mark, .pj-intro-star, .pj-intro-dots { animation: none; }
+}
+
 /* El hero usa la portada como apoyo visual, no como una segunda pantalla. */
 @media screen and (min-width: 900px) {
   .pj-home .hero-carousel { max-width: 590px; justify-self: end; }
