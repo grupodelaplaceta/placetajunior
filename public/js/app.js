@@ -673,6 +673,7 @@ async function generarMapaPdf(paises, W) {
 }
 
 let TODAS = []; // todas las actividades públicas
+let actividadPendiente = null;
 
 function abrirCodigoActividad() { const m = document.getElementById('codigo-actividad-modal'); if (m) { m.hidden = false; document.getElementById('codigo-actividad-input')?.focus(); } }
 function cerrarCodigoActividad() { const m = document.getElementById('codigo-actividad-modal'); if (m) m.hidden = true; }
@@ -803,8 +804,14 @@ async function abrirActividad(id, bloqueada) {
     } catch (e) { /* sin almacenamiento */ }
     const data = await apiGet(url);
     if (data.actividad) {
-      mostrarAnuncioActividad(data.actividad);
-      // El player maneja todos los tipos (incluido Placeta Junior Code)
+      // La navegación a una actividad siempre cierra la vista anterior.
+      cerrarDetalle();
+      // El anuncio es una pantalla previa: no puede quedar superpuesto al juego.
+      if (mostrarAnuncioActividad(data.actividad)) {
+        actividadPendiente = data.actividad;
+        return;
+      }
+      // El player maneja todos los tipos (incluido Placeta Junior Code).
       if (typeof abrirJuego === 'function') abrirJuego(data.actividad);
       else juniorAviso('No se pudo iniciar el juego.', 'error');
     } else {
@@ -830,13 +837,21 @@ async function abrirUnidad(id, indice) {
     if (!bloques.length && u.contenido && u.contenido.tipo) bloques = [u.contenido];
     delete contenido.niveles; delete contenido.diapositivas; contenido.bloques = bloques;
     const unidad = { ...a, contenido, titulo: `${a.titulo} · Unidad ${Number(indice) + 1}`, recompensa: Number(u.recompensa || 0), _unidadIndex: Number(indice), _actividadId: a.id };
-    cerrarDetalle(); mostrarAnuncioActividad(unidad); abrirJuego(unidad);
+    cerrarDetalle();
+    if (mostrarAnuncioActividad(unidad)) {
+      actividadPendiente = unidad;
+      return;
+    }
+    abrirJuego(unidad);
   } catch (e) { juniorAviso('No se pudo abrir la unidad. Inténtalo de nuevo.', 'error'); }
 }
 
 function cerrarAnuncioActividad() {
   const modal = document.getElementById('actividad-anuncio-modal');
   if (modal) modal.hidden = true;
+  const pendiente = actividadPendiente;
+  actividadPendiente = null;
+  if (pendiente && typeof abrirJuego === 'function') abrirJuego(pendiente);
 }
 
 // Anuncio común para vídeos y retos semanales. Se aceptan tanto columnas
@@ -854,15 +869,16 @@ function mostrarAnuncioActividad(a) {
   const video = horizontal
     ? (a?.video_url_horizontal || c.video_url_horizontal)
     : (a?.video_url_vertical || c.video_url_vertical);
-  if (!((activo && video) || retoVisible)) return;
+  if (!((activo && video) || retoVisible)) return false;
   const modal = document.getElementById('actividad-anuncio-modal');
   const out = document.getElementById('actividad-anuncio-contenido');
-  if (!modal || !out) return;
+  if (!modal || !out) return false;
   const fecha = fin && Number.isFinite(finMs) ? new Date(finMs).toLocaleString('es-ES') : '';
   out.innerHTML = video && activo
     ? `<h2>🎬 ${escapeHtml(a.titulo || 'Vídeo')}</h2><video class="pj-anuncio-video" src="${escapeHtml(video)}" controls playsinline></video>${retoVisible ? `<p class="pj-reto-aviso">🏆 Reto semanal activo${fecha ? ` hasta el ${escapeHtml(fecha)}` : ''}. ¡Tu resultado contará para el reto!</p>` : ''}`
     : `<h2>🏆 Reto de la semana</h2><p>${escapeHtml(a.titulo || 'Hay un nuevo reto disponible')}</p><p class="pj-reto-aviso">Puedes clasificar hasta ${escapeHtml(fecha || 'la fecha indicada en la actividad')}. Después la clasificación queda cerrada.</p>`;
   modal.hidden = false;
+  return true;
 }
 
 // ═══════════════════════════════════════════════════════════════════

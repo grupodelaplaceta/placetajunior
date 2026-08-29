@@ -1128,7 +1128,7 @@ async function guardarProgreso() {
     const res = await fetch(`${API_BASE}/actividades/${actividadActual.id}/realizar`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ dip, respuestas, unidad: actividadActual._unidadIndex != null ? actividadActual._unidadIndex : undefined, recompensa_unidad: actividadActual._unidadIndex != null ? Number(actividadActual.recompensa || 0) : undefined })
+      body: JSON.stringify({ dip, respuestas, resultado_id: `${actividadActual.id}:final${actividadActual._unidadIndex != null ? `:unidad:${actividadActual._unidadIndex}` : ''}`, unidad: actividadActual._unidadIndex != null ? actividadActual._unidadIndex : undefined, recompensa_unidad: actividadActual._unidadIndex != null ? Number(actividadActual.recompensa || 0) : undefined })
     });
     const data = await res.json().catch(() => ({}));
     if (res.ok && data.success) {
@@ -1965,14 +1965,22 @@ async function guardarCodeEnServidor(s, programa, evalRes) {
     let dip = '';
     try { dip = localStorage.getItem('pj-dip') || ''; } catch (e) { /* ok */ }
     if (!dip || !actividadActual || !actividadActual.id) return;
-    const r = await fetch(`${API_BASE}/code/evaluar`, {
+    // El endpoint de código desapareció del BFF. Usa el mismo endpoint de
+    // resultados que el resto de actividades para que también abone los Pz.
+    const r = await fetch(`${API_BASE}/actividades/${actividadActual.id}/realizar`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ dip, actividad_id: actividadActual.id, ejercicio: s.ejercicio || 0, programa: kpCodeSerializar(programa) })
+      body: JSON.stringify({
+        dip,
+        resultado_id: `${actividadActual._unidadIndex != null ? actividadActual._actividadId || actividadActual.id : actividadActual.id}:code:${s.ejercicio || 0}`,
+        respuestas: [{ idx: s.ejercicio || 0, correcta: evalRes.superado === true }],
+        unidad: actividadActual._unidadIndex != null ? actividadActual._unidadIndex : undefined,
+        recompensa_unidad: actividadActual._unidadIndex != null ? Number(actividadActual.recompensa || 0) : undefined
+      })
     }).then(r2 => r2.json()).catch(() => null);
     if (r && r.success) {
       // Si el servidor otorgó recompensa, lo reflejamos en el mensaje
-      if (r.placetas_ganadas > 0) {
-        kpCodeMostrarMsg(`🎉 ¡Actividad completada! +${r.placetas_ganadas} Pz`, true);
+      if (r.recompensa > 0) {
+        kpCodeMostrarMsg(`🎉 ¡Actividad completada! +${r.recompensa} Pz`, true);
       }
     }
   } catch (e) { /* silencioso: el progreso ya quedó en local */ }

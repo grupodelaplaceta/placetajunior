@@ -1481,6 +1481,8 @@ body.pj-home.mostrando-juego #player-content { min-height: 100%; }
 /* Tarjeta compacta final: solo ocupa el espacio de su contenido. */
 .pj-home .h-row { align-items: flex-start; }
 .pj-home .card { height: auto; min-height: 0; overflow: visible; }
+.pj-home .h-row > .card { height: auto !important; min-height: 0 !important; }
+.pj-home .card-foot { margin-top: 0 !important; }
 .pj-home .card-cover { position: relative; flex: none; }
 .pj-home .card h3 { min-height: 0; max-height: 36px; margin-top: 9px; }
 .pj-home .card-foot { min-height: 26px; padding-top: 5px; }
