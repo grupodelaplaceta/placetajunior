@@ -1123,6 +1123,14 @@ function screenFinal(s) {
         </div>
         <div id="kp-msg" class="kp-msg ${msgGuardar.startsWith('✅') ? 'ok' : (msgGuardar ? 'bad' : '')}">${msgGuardar}</div>
       </div>
+      <div class="kp-redeem">
+        <div><strong>Convierte tus puntos en Placetas</strong><small>Necesitas 10 puntos del mismo color por cada Placeta.</small></div>
+        <div class="kp-redeem-actions">
+          <button class="kp-btn kp-btn-green" type="button" onclick="canjearPuntos('verdes')">Canjear verdes</button>
+          <button class="kp-btn kp-btn-red" type="button" onclick="canjearPuntos('rojos')">Canjear rojos</button>
+        </div>
+        <div id="kp-redeem-msg" class="kp-msg" aria-live="polite"></div>
+      </div>
       <div class="kp-hint">💪 ¡Sigue así, campeón!</div>
     </div>`;
 }
@@ -2022,6 +2030,27 @@ function nivelCompletado(nivel) {
     if (s.tipo === 'ordenar') return Number(e.hechas || 0) > 0;
     return e.completado === true || e.respondida === true;
   });
+}
+
+async function canjearPuntos(tipo) {
+  const dip = document.getElementById('kp-dip')?.value.trim() || dipGuardado;
+  const puntos = tipo === 'rojos' ? kpScore.rojos : kpScore.verdes;
+  const msg = document.getElementById('kp-redeem-msg');
+  if (!msg) return;
+  if (!dip) { msg.className = 'kp-msg bad'; msg.textContent = 'Guarda primero tu progreso con tu DIP.'; return; }
+  if (puntos < 10) { msg.className = 'kp-msg bad'; msg.textContent = `Necesitas 10 puntos ${tipo}.`; return; }
+  const canje = Math.floor(puntos / 10) * 10;
+  msg.className = 'kp-msg'; msg.textContent = 'Procesando canje…';
+  try {
+    const res = await fetch(`${API_BASE}/puntos/canjear`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dip, tipo, [tipo === 'rojos' ? 'puntos_rojos' : 'puntos_verdes']: canje })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.success) throw new Error(data.error || 'No se pudo completar el canje');
+    msg.className = 'kp-msg ok';
+    msg.textContent = `✅ Canje completado: +${data.placetas_obtenidas} Placetas.`;
+  } catch (e) { msg.className = 'kp-msg bad'; msg.textContent = `❌ ${e.message || 'Error de conexión'}`; }
 }
 
 function obtenerContenidoTextoPJ(b) {

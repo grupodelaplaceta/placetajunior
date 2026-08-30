@@ -3,7 +3,11 @@
    Consume la API oficial de admin-placeta (RSP) /api/junior/...
    ═══════════════════════════════════════════════════════════════════ */
 
-const API_BASE = 'https://admin-placeta.vercel.app/api/junior';
+// BFF del mismo dominio por defecto; permite apuntar a otro entorno desde
+// window.PJ_API_BASE sin recompilar la web.
+const API_BASE = (window.PJ_API_BASE || (location.hostname === 'junior.laplaceta.org'
+  ? 'https://admin-placeta.vercel.app/api/junior'
+  : '/api/junior')).replace(/\/$/, '');
 
 // ── Helpers ──────────────────────────────────────────────────────────
 async function apiGet(path) {
@@ -113,7 +117,7 @@ function tipoIcono(tipo = '') {
   return '';
 }
 function iconoMaterial(a) {
-  return tipoIcono(a.tipo || '') || categoriaIcono(a.cat || '');
+  return tipoIcono(a.tipo || '') || categoriaIcono(a.categoria || a.cat || '');
 }
 function roundRectPath(ctx, x, y, w, h, r) {
   ctx.beginPath();
@@ -685,7 +689,8 @@ async function usarCodigoActividad() {
   const codigo = String(input?.value || '').trim().toUpperCase(); if (!codigo) return;
   if (sessionStorage.getItem('pj-used-code-' + codigo)) { if (error) { error.textContent = 'Este código ya se ha usado en esta sesión.'; error.classList.remove('hidden'); } return; }
   try {
-    const r = await fetch(`${API_BASE}/codigos/canjear`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ codigo, origen: 'web' }) });
+    const dip = localStorage.getItem('pj-dip') || '';
+    const r = await fetch(`${API_BASE}/codigos/canjear`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ codigo, dip, origen: 'web' }) });
     const data = await r.json(); if (!r.ok || !data.success) throw new Error(data.error || 'Código no válido');
     cerrarCodigoActividad();
     const id = data.actividadIds?.[0]; if (!id) throw new Error('El código no contiene actividades');

@@ -1580,6 +1580,69 @@ body.pj-home.mostrando-juego #player-content { min-height: 100%; }
 .pj-home .cover-play:hover { background: var(--pj-ink); color: #fff; transform: scale(1.1) rotate(-3deg); }
 @media screen and (max-width: 430px) { .pj-home .card { height: 290px; min-height: 290px; } }
 
+/* ── Composición UI estable 2026-08-31 ────────────────────────────
+   Un único acabado final para evitar que los overrides históricos
+   desplacen el botón de juego o rompan la cabecera en móvil. */
+.pj-home {
+  --pj-ink: #17142b;
+  --pj-muted: #687087;
+  --pj-line: #e8eaf1;
+}
+.pj-home .nav {
+  background: rgba(255,255,255,.94);
+  border-bottom: 1px solid #e9eaf2;
+  box-shadow: 0 8px 24px rgba(32,24,78,.06);
+}
+.pj-home .nav-inner { max-width: 1240px; min-height: 72px; padding: 12px 28px; gap: 18px; }
+.pj-home .brand img { width: auto; height: 42px; object-fit: contain; }
+.pj-home .nav-links { gap: 3px; }
+.pj-home .nav-links a { color: #596177; font-size: 14px; padding: 10px 13px; }
+.pj-home .nav-links a:hover, .pj-home .nav-links a.active { color: #3f00d8; background: #f0edff; }
+.pj-home .nav-cta { gap: 8px; }
+.pj-home .nav-cta .btn { min-height: 42px; padding: 10px 16px; }
+.pj-home .btn { border-radius: 12px; font-family: var(--font-body); font-weight: 700; box-shadow: 0 4px 0 rgba(63,0,216,.18); }
+.pj-home .btn-primary { background: #ff6d00; box-shadow: 0 4px 0 #c84f00; }
+.pj-home .btn-secondary { background: #eeeaff; color: #3f00d8; box-shadow: 0 4px 0 #d8d0ff; }
+.pj-home .hero { padding-top: 68px; padding-bottom: 64px; }
+.pj-home .hero-inner { max-width: 1180px; }
+.pj-home .hero-carousel { border-radius: 24px; overflow: hidden; box-shadow: 0 22px 50px rgba(45,28,113,.16); }
+.pj-home .section { max-width: 1240px; padding-left: 28px; padding-right: 28px; }
+.pj-home .h-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(235px, 1fr)); gap: 20px; overflow: visible; }
+.pj-home .card, .pj-home .h-row > .card { height: auto !important; min-height: 0 !important; padding: 12px; border: 1px solid #e8eaf1; border-radius: 20px; background: #fff; box-shadow: 0 8px 24px rgba(37,27,91,.06); }
+.pj-home .card:hover { transform: translateY(-5px); border-color: #cfc5ff; box-shadow: 0 16px 32px rgba(37,27,91,.12); }
+.pj-home .card-cover { width: 100%; aspect-ratio: 16 / 9; min-height: 0; border-radius: 14px; box-shadow: none; background-color: #f4f3fb; }
+.pj-home .card h3 { margin: 12px 2px 0; min-height: 42px; max-height: 42px; font-size: 16px; line-height: 1.3; color: #17142b; }
+.pj-home .card-foot { display: grid; grid-template-columns: 1fr; gap: 9px; padding: 10px 2px 1px; }
+.pj-home .card-foot .chip { width: fit-content; padding: 5px 9px; border-radius: 999px; background: #f3f1fa; color: #687087; font-size: 11px; }
+.pj-home .card-foot .chip::before { display: none; }
+.pj-home .card-visits { font-size: 11px; color: #8a91a4; }
+.pj-home .cover-play { min-height: 42px; width: 100%; border-radius: 11px; background: var(--accent); color: #fff; box-shadow: 0 4px 0 color-mix(in srgb, var(--accent) 70%, #111); }
+.pj-home .cover-play:hover { transform: translateY(-2px); background: var(--accent); color: #fff; }
+.pj-home .cat-title { margin-top: 32px; margin-bottom: 14px; }
+.kp-redeem { display: grid; gap: 12px; width: min(100%, 560px); margin: 20px auto 0; padding: 16px; border: 1px solid #e7e3f5; border-radius: 16px; background: #faf9ff; text-align: left; }
+.kp-redeem strong, .kp-redeem small { display: block; }
+.kp-redeem small { margin-top: 3px; color: var(--pj-muted); }
+.kp-redeem-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.kp-btn-green { background: #00a94f !important; color: #fff !important; }
+.kp-btn-red { background: #e62b4b !important; color: #fff !important; }
+@media (max-width: 760px) {
+  .pj-home .nav-inner { min-height: 62px; padding: 10px 16px; }
+  .pj-home .brand img { height: 34px; }
+  .pj-home .nav-links { order: 4; width: 100%; display: none; }
+  .pj-home .nav-toggle:checked ~ .nav-inner .nav-links { display: grid; grid-template-columns: repeat(2, 1fr); }
+  .pj-home .nav-cta { margin-left: auto; }
+  .pj-home .nav-cta .btn { padding: 9px 11px; font-size: 12px; }
+  .pj-home .nav-cta .btn-secondary { display: none; }
+  .pj-home .nav-toggle-btn { display: block; order: 3; }
+  .pj-home .h-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .pj-home .card { padding: 9px; border-radius: 16px; }
+  .pj-home .card h3 { font-size: 14px; min-height: 38px; max-height: 38px; }
+}
+@media (max-width: 430px) {
+  .pj-home .h-row { grid-template-columns: 1fr; }
+  .pj-home .section { padding-left: 16px; padding-right: 16px; }
+}
+
 /* El detalle no ocupa espacio cuando se inicia el juego. */
 .pj-home .detail-page { display: none; }
 body.pj-home.mostrando-detalle .detail-page { display: block; }
