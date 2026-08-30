@@ -256,7 +256,12 @@ function abrirJuego(act) {
   const partida = (window.PJPartidas && clavePartida) ? PJPartidas.get(clavePartida) : null;
   if (partida && !partida.completada && partida.pantallaIdx) {
     try {
-      const idx = Math.min(Math.max(1, Number(partida.pantallaIdx) || 1), pantallas.length - 1);
+      // Si el índice guardado ya era el resumen, se vuelve a mostrar para
+      // consolidar los puntos; en cualquier otro caso se retoma lo guardado.
+      const guardadoIdx = Math.max(1, Number(partida.pantallaIdx) || 1);
+      const idx = guardadoIdx >= pantallas.length - 1
+        ? pantallas.length - 1
+        : Math.min(guardadoIdx, Math.max(1, pantallas.length - 2));
       pantallaIdx = idx;
       if (Array.isArray(partida.kpEstado) && partida.kpEstado.length === kpEstado.length) {
         kpEstado = partida.kpEstado;
@@ -1071,6 +1076,15 @@ function pintarSel(idx) {
     cell.classList.toggle('sel', inSel && !isFound);
   });
 }
+function maxPuntosDePartida() {
+  return pantallas.reduce((total, x) => {
+    if (['portada', 'texto', 'final'].includes(x.tipo)) return total;
+    const b = x.bi != null ? bloquesJuego[x.bi] : null;
+    if (b?.tipo === 'clasificar_palabras') return total + datosClasificar(b.datos || b).items.length;
+    return total + 1;
+  }, 0);
+}
+
 function screenFinal(s) {
   const prog = (window.PJProgreso && PJProgreso.estado()) || { nivel: 1, enNivel: 0, verdes: 0, pct: 0 };
   const maxPuntos = pantallas.reduce((total, x) => {
@@ -1080,7 +1094,8 @@ function screenFinal(s) {
     return total + 1;
   }, 0);
   const recompensaMax = Number(actividadActual?.recompensa || actividadActual?.contenido?.recompensa || Math.floor(maxPuntos / 10)) || 0;
-  const recompensa = Math.min(recompensaMax, Math.floor(kpScore.verdes / 10));
+  const recompensa = recompensaMax > 0 && maxPuntos > 0
+    ? Math.round(recompensaMax * Math.min(1, kpScore.verdes / maxPuntos)) : 0;
   const nivelHtml = `
     <div class="kp-level">
       <div class="kp-level-head"><span class="material-symbols-rounded">emoji_events</span> Nivel ${prog.nivel}</div>
@@ -1128,7 +1143,7 @@ async function guardarProgreso() {
     const res = await fetch(`${API_BASE}/actividades/${actividadActual.id}/realizar`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ dip, respuestas, resultado_id: `${actividadActual.id}:final${actividadActual._unidadIndex != null ? `:unidad:${actividadActual._unidadIndex}` : ''}`, unidad: actividadActual._unidadIndex != null ? actividadActual._unidadIndex : undefined, recompensa_unidad: actividadActual._unidadIndex != null ? Number(actividadActual.recompensa || 0) : undefined })
+      body: JSON.stringify({ dip, respuestas, resultado_id: `${actividadActual.id}:final${actividadActual._unidadIndex != null ? `:unidad:${actividadActual._unidadIndex}` : ''}`, puntos_maximos: maxPuntosDePartida(), resultado_final: true, unidad: actividadActual._unidadIndex != null ? actividadActual._unidadIndex : undefined, recompensa_unidad: actividadActual._unidadIndex != null ? Number(actividadActual.recompensa || 0) : undefined })
     });
     const data = await res.json().catch(() => ({}));
     if (res.ok && data.success) {
@@ -1965,14 +1980,22 @@ async function guardarCodeEnServidor(s, programa, evalRes) {
     let dip = '';
     try { dip = localStorage.getItem('pj-dip') || ''; } catch (e) { /* ok */ }
     if (!dip || !actividadActual || !actividadActual.id) return;
+    // Los ejercicios forman una única actividad: se registra todo junto al
+    // terminar el último, evitando pagar una fracción por cada diapositiva.
+    if ((s.ejercicio || 0) < (s.total_ejercicios || 1) - 1) return;
+    const respuestas = [];
+    for (let i = 0; i < kpScore.verdes; i++) respuestas.push({ idx: i, correcta: true });
+    for (let i = 0; i < kpScore.rojos; i++) respuestas.push({ idx: kpScore.verdes + i, correcta: false });
     // El endpoint de código desapareció del BFF. Usa el mismo endpoint de
     // resultados que el resto de actividades para que también abone los Pz.
     const r = await fetch(`${API_BASE}/actividades/${actividadActual.id}/realizar`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         dip,
-        resultado_id: `${actividadActual._unidadIndex != null ? actividadActual._actividadId || actividadActual.id : actividadActual.id}:code:${s.ejercicio || 0}`,
-        respuestas: [{ idx: s.ejercicio || 0, correcta: evalRes.superado === true }],
+        resultado_id: `${actividadActual._unidadIndex != null ? actividadActual._actividadId || actividadActual.id : actividadActual.id}:code:final`,
+        puntos_maximos: s.total_ejercicios || 1,
+        resultado_final: true,
+        respuestas,
         unidad: actividadActual._unidadIndex != null ? actividadActual._unidadIndex : undefined,
         recompensa_unidad: actividadActual._unidadIndex != null ? Number(actividadActual.recompensa || 0) : undefined
       })

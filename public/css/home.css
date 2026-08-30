@@ -1492,6 +1492,8 @@ body.pj-home.mostrando-juego #player-content { min-height: 100%; }
 .pj-home .card-foot .chip::before { content: '•'; color: var(--accent); font-size: 18px; line-height: 0; }
 .pj-home .card-visits { display: inline-flex; align-items: center; gap: 3px; color: var(--pj-muted); font-size: 10px; white-space: nowrap; }
 .pj-home .card-visits .material-symbols-rounded { font-size: 15px; }
+.pj-home .detail-unit.is-locked { opacity: .58; cursor: not-allowed; filter: grayscale(.25); }
+.pj-home .detail-unit.is-locked b { color: var(--pj-muted); }
 .pj-home .cover-play {
   display: inline-grid; place-items: center; width: 46px; height: 46px; min-width: 46px;
   background: var(--accent); color: #fff; border: 3px solid #fff; box-shadow: 0 6px 16px rgba(20,16,50,.25);

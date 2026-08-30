@@ -268,7 +268,8 @@ function verInfo(id) {
   const unidadesHtml = unidades.length ? `<div class="detail-panel detail-panel-slides" data-detail-panel="slides" id="detalle-unidades"><div class="detail-card detail-unidades"><h2>Diapositivas de la aventura</h2><p class="detail-units-lead">Avanza a tu ritmo. Cada parte desbloquea un nuevo reto.</p>${unidades.map((n, i) => {
     const recompensa = Number(n.recompensa || 0);
     const desc = typeof n.descripcion === 'string' ? n.descripcion : '';
-    return `<button class="detail-unit" type="button" onclick="abrirUnidad('${a.id}',${i})"><div><strong>Unidad ${i + 1}</strong><span>${escapeHtml(n.titulo || 'Siguiente unidad')}</span>${desc ? `<small>${escapeHtml(desc)}</small>` : ''}</div><b>${recompensa ? `+${recompensa} Pz · Empezar` : 'Empezar'}</b></button>`;
+    const disponible = i === 0 || (window.PJPartidas && window.PJPartidas.estaCompletada(`${a.id}::unidad::${i - 1}`));
+    return `<button class="detail-unit${disponible ? '' : ' is-locked'}" type="button" ${disponible ? `onclick="abrirUnidad('${a.id}',${i})"` : 'disabled'}><div><strong>Unidad ${i + 1}</strong><span>${escapeHtml(n.titulo || 'Siguiente unidad')}</span>${desc ? `<small>${escapeHtml(desc)}</small>` : ''}</div><b>${disponible ? (recompensa ? `+${recompensa} Pz · Empezar` : 'Empezar') : '🔒 Completa la anterior'}</b></button>`;
   }).join('')}</div></div>` : '';
   document.getElementById('detail-page').innerHTML = `
     <a class="detail-back" href="javascript:cerrarDetalle()"><span class="material-symbols-rounded">arrow_back</span> Volver a Actividades</a>
@@ -834,11 +835,16 @@ async function abrirUnidad(id, indice) {
     if (esBloqueada(a)) { juniorAviso('🔒 Esta actividad es de pago. Desbloquéala desde la app para jugarla.', 'error'); return; }
     const unidades = obtenerUnidadesActividad(a), u = unidades[Number(indice)];
     if (!u) throw new Error('Unidad no encontrada');
+    const unidadIndex = Number(indice);
+    if (unidadIndex > 0 && !(window.PJPartidas && window.PJPartidas.estaCompletada(`${id}::unidad::${unidadIndex - 1}`))) {
+      juniorAviso('🔒 Completa la diapositiva anterior para continuar.', 'error');
+      return;
+    }
     const contenido = { ...(a.contenido || {}) };
     let bloques = Array.isArray(u.bloques) ? u.bloques : (u.contenido && Array.isArray(u.contenido.bloques) ? u.contenido.bloques : []);
     if (!bloques.length && u.contenido && u.contenido.tipo) bloques = [u.contenido];
     delete contenido.niveles; delete contenido.diapositivas; contenido.bloques = bloques;
-    const unidad = { ...a, contenido, titulo: `${a.titulo} · Unidad ${Number(indice) + 1}`, recompensa: Number(u.recompensa || 0), _unidadIndex: Number(indice), _actividadId: a.id };
+    const unidad = { ...a, contenido, titulo: `${a.titulo} · Unidad ${unidadIndex + 1}`, recompensa: Number(u.recompensa || 0), _unidadIndex: unidadIndex, _actividadId: a.id };
     cerrarDetalle();
     if (mostrarAnuncioActividad(unidad)) {
       actividadPendiente = unidad;
