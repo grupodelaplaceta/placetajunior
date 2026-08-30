@@ -1485,15 +1485,21 @@ body.pj-home.mostrando-juego #player-content { min-height: 100%; }
 .pj-home .card-foot { margin-top: 0 !important; }
 .pj-home .card-cover { position: relative; flex: none; }
 .pj-home .card h3 { min-height: 0; max-height: 36px; margin-top: 9px; }
-.pj-home .card-foot { min-height: 26px; padding-top: 5px; }
+.pj-home .card, .pj-home .h-row > .card { height: 326px; min-height: 326px; }
+.pj-home .card h3 { min-height: 36px; max-height: 36px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.pj-home .card-foot { min-height: 42px; padding-top: 5px; margin-top: auto !important; }
 .pj-home .card-foot .chip { display: inline-flex; align-items: center; gap: 5px; border: 0; background: transparent; padding: 3px 0; color: var(--pj-muted); font-size: 10px; }
 .pj-home .card-foot .chip::before { content: '•'; color: var(--accent); font-size: 18px; line-height: 0; }
+.pj-home .card-visits { display: inline-flex; align-items: center; gap: 3px; color: var(--pj-muted); font-size: 10px; white-space: nowrap; }
+.pj-home .card-visits .material-symbols-rounded { font-size: 15px; }
 .pj-home .cover-play {
-  display: inline-grid; place-items: center; width: 42px; height: 42px; min-width: 42px;
-  background: var(--accent); color: #fff; border: 3px solid #fff; box-shadow: 0 5px 14px rgba(20,16,50,.22);
+  display: inline-grid; place-items: center; width: 46px; height: 46px; min-width: 46px;
+  background: var(--accent); color: #fff; border: 3px solid #fff; box-shadow: 0 6px 16px rgba(20,16,50,.25);
+  background: linear-gradient(145deg, var(--accent), color-mix(in srgb, var(--accent) 72%, #111));
 }
-.pj-home .cover-play:hover { background: var(--pj-ink); color: #fff; transform: scale(1.08); }
-@media screen and (max-width: 430px) { .pj-home .card { height: auto; min-height: 0; } }
+.pj-home .cover-play .material-symbols-rounded { font-size: 25px; font-variation-settings: 'FILL' 1, 'wght' 700; }
+.pj-home .cover-play:hover { background: var(--pj-ink); color: #fff; transform: scale(1.1) rotate(-3deg); }
+@media screen and (max-width: 430px) { .pj-home .card { height: 290px; min-height: 290px; } }
 
 /* El detalle no ocupa espacio cuando se inicia el juego. */
 .pj-home .detail-page { display: none; }

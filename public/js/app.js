@@ -219,6 +219,7 @@ function cardActividad(a) {
   const color = categoriaColor(a.categoria);
   const enCurso = window.PJPartidas ? PJPartidas.estaEnCurso(a.id) : false;
   const completada = window.PJPartidas ? PJPartidas.estaCompletada(a.id) : false;
+  const visitas = Number(a.visitas ?? a.visitas_count ?? a.views ?? a.estadisticas?.visitas ?? a.estadisticas?.visitas_totales ?? a.estadisticas?.veces_realizada ?? 0) || 0;
   // Solo mostramos "Hecha"; el botón "Continuar" ya indica una partida en curso.
   const badgeProg = completada
     ? '<span class="badge-tag badge-free badge-prog"><span class="material-symbols-rounded b-ico">task_alt</span>Hecha</span>'
@@ -229,6 +230,7 @@ function cardActividad(a) {
       <h3>${escapeHtml(a.titulo)}</h3>
       <div class="card-foot">
         <span class="chip" data-color="${color}">${escapeHtml(a.categoria)}</span>
+        <span class="card-visits" title="Número de visitas"><span class="material-symbols-rounded" aria-hidden="true">visibility</span>${visitas.toLocaleString('es-ES')}</span>
         ${!bloqueada ? `<button type="button" class="cover-play" onclick="event.stopPropagation();abrirActividad('${a.id}', false)" title="${enCurso ? 'Continuar' : 'Jugar'}"><span class="material-symbols-rounded">play_arrow</span> ${enCurso ? 'Continuar' : 'Jugar'}</button>` : ''}
       </div>
     </div>`;
