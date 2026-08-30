@@ -1095,6 +1095,30 @@ body.pj-home.mostrando-juego .kp-nav-row { padding-bottom: 6px; }
   .pj-home .hero-copy p { margin-left: auto; margin-right: auto; }
 }
 
+/* Ajuste de acabado: jerarquía limpia y sin aspecto de maqueta. */
+.pj-home .nav { border-bottom: 1px solid #eceef3; box-shadow: 0 2px 12px rgba(43,35,80,.04); }
+.pj-home .hero { padding-top: 48px; padding-bottom: 56px; }
+.pj-home .hero-inner { max-width: 1120px; gap: 56px; }
+.pj-home .hero-copy h2 { letter-spacing: -.035em; }
+.pj-home .hero-copy p { color: #6e6790; line-height: 1.65; }
+.pj-home .hero-carousel-track { border: 0; border-radius: 24px; box-shadow: 0 16px 36px rgba(43,35,80,.14); }
+.pj-home .hero-carousel-dots { margin-top: 12px; }
+.pj-home .section { padding-top: 48px; }
+.pj-home .section-head h2 { text-transform: none; letter-spacing: -.03em; color: #2b2350; }
+.pj-home .cat-title { text-transform: none; letter-spacing: -.02em; font-size: 22px; }
+.pj-home .cat-title::before { width: 8px; height: 22px; border-radius: 99px; }
+.pj-home .card, .pj-home .h-row > .card { border: 1px solid #eceef3; border-radius: 20px; }
+.pj-home .card:hover { border-color: #d8d0ff; }
+.pj-home .card h3 { text-transform: none; letter-spacing: -.01em; font-size: 15px; }
+.pj-home .cover-play { border-radius: 12px; box-shadow: none; }
+.pj-home .footer { background: #2b2350; border-top: 0; }
+.pj-home .footer-links a { color: rgba(255,255,255,.82); }
+.pj-home .footer-copy { color: rgba(255,255,255,.58); }
+@media (max-width: 940px) {
+  .pj-home .hero-inner { gap: 28px; }
+  .pj-home .hero-carousel { order: -1; }
+}
+
 /* ═══ Detalle de actividad — compacto, claro y accionable ═══ */
 .pj-home .detail-page {
   max-width: 1120px;
