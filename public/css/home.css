@@ -1065,6 +1065,36 @@ body.pj-home.mostrando-juego .kp-nav-row { padding-bottom: 6px; }
 .pj-home .hero-carousel { transform: none; }
 .pj-home .hero-carousel-track::after { display: none; }
 
+/* Rediseño 2026 basado en placeta-junior-rediseno.html, conservando el
+   reproductor, el catálogo y el banner dinámico de la web actual. */
+.pj-home {
+  --pj-ink: #2b2350;
+  --pj-muted: #6e6790;
+  background: #f5f4fc;
+}
+.pj-home .nav { background: rgba(255,255,255,.93); border-bottom: 1px solid rgba(43,35,80,.08); backdrop-filter: blur(12px); }
+.pj-home .nav-inner { max-width: 1180px; padding: 12px 24px; }
+.pj-home .brand img { height: 40px; }
+.pj-home .nav-links a.active { background: #efeaff; color: #4c33d6; }
+.pj-home .hero { background: linear-gradient(135deg, #efe9ff 0%, #e6f4ff 58%, #f5f4fc 100%); padding: 58px 24px 48px; }
+.pj-home .hero-inner { max-width: 1180px; grid-template-columns: minmax(0,1fr) minmax(360px,.92fr); gap: 48px; }
+.pj-home .hero-copy { text-align: left; }
+.pj-home .hero-copy h2 { font-size: clamp(36px,4.6vw,58px); line-height: 1.08; }
+.pj-home .hero-copy h2 em { color: #4c33d6; font-style: normal; }
+.pj-home .hero-copy p { max-width: 47ch; font-size: 17px; }
+.pj-home .hero-carousel { width: 100%; }
+.pj-home .hero-carousel-track { aspect-ratio: 16 / 9; border: 5px solid #fff; border-radius: 28px; box-shadow: 0 18px 38px rgba(43,35,80,.13); }
+.pj-home .section { max-width: 1180px; padding: 56px 24px 24px; }
+.pj-home .section-kicker { color: #4c33d6; background: #efeaff; border-radius: 999px; }
+.pj-home .ef-btn.active { background: #6c4dff; border-color: #6c4dff; box-shadow: 0 4px 0 #4c33d6; }
+.pj-home .card { border-radius: 22px; box-shadow: 0 8px 18px rgba(43,35,80,.08); }
+.pj-home .card:hover { transform: translateY(-5px); box-shadow: 0 14px 34px rgba(43,35,80,.12); }
+.pj-home .footer { background: #2b2350; }
+@media (max-width: 940px) {
+  .pj-home .hero-copy { text-align: center; }
+  .pj-home .hero-copy p { margin-left: auto; margin-right: auto; }
+}
+
 /* ═══ Detalle de actividad — compacto, claro y accionable ═══ */
 .pj-home .detail-page {
   max-width: 1120px;
