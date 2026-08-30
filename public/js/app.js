@@ -922,7 +922,7 @@ document.addEventListener('DOMContentLoaded', () => {
     else if (p.get('id')) verInfo(p.get('id'));
   }).catch(() => ocultarCarga());
   // Seguridad: nunca dejar la pantalla de carga bloqueando la web.
-  setTimeout(ocultarCarga, 8000);
+  setTimeout(ocultarCarga, 5000);
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') cerrarDetalle();
   });

@@ -1143,7 +1143,7 @@ async function guardarProgreso() {
     const res = await fetch(`${API_BASE}/actividades/${actividadActual.id}/realizar`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ dip, respuestas, resultado_id: `${actividadActual.id}:final${actividadActual._unidadIndex != null ? `:unidad:${actividadActual._unidadIndex}` : ''}`, puntos_maximos: maxPuntosDePartida(), resultado_final: true, unidad: actividadActual._unidadIndex != null ? actividadActual._unidadIndex : undefined, recompensa_unidad: actividadActual._unidadIndex != null ? Number(actividadActual.recompensa || 0) : undefined })
+      body: JSON.stringify({ dip, respuestas, puntos_verdes: kpScore.verdes, puntos_rojos: kpScore.rojos, resultado_id: `${actividadActual.id}:final${actividadActual._unidadIndex != null ? `:unidad:${actividadActual._unidadIndex}` : ''}`, puntos_maximos: maxPuntosDePartida(), resultado_final: true, unidad: actividadActual._unidadIndex != null ? actividadActual._unidadIndex : undefined, recompensa_unidad: actividadActual._unidadIndex != null ? Number(actividadActual.recompensa || 0) : undefined })
     });
     const data = await res.json().catch(() => ({}));
     if (res.ok && data.success) {
@@ -1995,6 +1995,8 @@ async function guardarCodeEnServidor(s, programa, evalRes) {
         resultado_id: `${actividadActual._unidadIndex != null ? actividadActual._actividadId || actividadActual.id : actividadActual.id}:code:final`,
         puntos_maximos: s.total_ejercicios || 1,
         resultado_final: true,
+        puntos_verdes: kpScore.verdes,
+        puntos_rojos: kpScore.rojos,
         respuestas,
         unidad: actividadActual._unidadIndex != null ? actividadActual._unidadIndex : undefined,
         recompensa_unidad: actividadActual._unidadIndex != null ? Number(actividadActual.recompensa || 0) : undefined

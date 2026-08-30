@@ -1119,6 +1119,29 @@ body.pj-home.mostrando-juego .kp-nav-row { padding-bottom: 6px; }
   .pj-home .hero-carousel { order: -1; }
 }
 
+/* ── Último pulido de interacción ─────────────────────────────────────── */
+.pj-home .nav { position: sticky; top: 0; z-index: 500; min-height: 64px; }
+.pj-home .nav.scrolled { box-shadow: 0 8px 24px rgba(43,35,80,.10); }
+.pj-home .nav-links a, .pj-home .btn, .pj-home .cover-play, .pj-home .ef-btn { transition: transform .16s ease, background-color .16s ease, color .16s ease, box-shadow .16s ease; }
+.pj-home .nav-links a:focus-visible, .pj-home .btn:focus-visible, .pj-home .cover-play:focus-visible, .pj-home .ef-btn:focus-visible { outline: 3px solid #ffc93c; outline-offset: 3px; }
+.pj-home .card { min-height: 0 !important; height: auto !important; padding: 10px; gap: 8px; contain: layout paint; }
+.pj-home .card-cover { aspect-ratio: 16 / 9; min-height: 132px; }
+.pj-home .card h3 { min-height: 40px; margin: 4px 4px 0; font-size: 15px; line-height: 1.3; }
+.pj-home .card-foot { margin-top: 0 !important; padding-top: 4px; }
+.pj-home .cover-play { width: 100%; min-height: 42px; justify-content: center; border-radius: 12px; font-size: 13px; font-weight: 800; letter-spacing: .02em; }
+.pj-home .cover-play:hover { transform: translateY(-2px); filter: brightness(1.05); }
+.pj-home .cover-play:active { transform: translateY(0); }
+.pj-home .h-row { content-visibility: auto; contain-intrinsic-size: 330px; }
+.pj-home .pj-loading { will-change: opacity; }
+.pj-home .pj-loading-inner { gap: 14px; }
+.pj-home .pj-loading-logo { width: min(220px, 58vw); }
+@media (max-width: 880px) {
+  .pj-home .nav { min-height: 58px; }
+  .pj-home .nav-inner { padding: 10px 16px; }
+  .pj-home .nav-links { max-height: calc(100svh - 74px); overflow-y: auto; }
+  .pj-home .card-cover { min-height: 116px; }
+}
+
 /* ═══ Detalle de actividad — compacto, claro y accionable ═══ */
 .pj-home .detail-page {
   max-width: 1120px;
