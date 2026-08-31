@@ -42,12 +42,14 @@ window.PJProgreso = {
     const p = this.leer();
     const nivel = this.nivelDeVerdes(p.verdes);
     const enNivel = p.verdes % 50;
+    const paraSiguiente = p.verdes > 0 && enNivel === 0 ? 50 : 50 - enNivel;
     return {
       verdes: p.verdes,
       rojos: p.rojos,
       jugadas: p.jugadas,
       nivel: nivel,
       enNivel: enNivel,
+      paraSiguiente: paraSiguiente,
       pct: enNivel / 50
     };
   }

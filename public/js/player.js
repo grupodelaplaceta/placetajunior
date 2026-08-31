@@ -1100,7 +1100,7 @@ function screenFinal(s) {
     <div class="kp-level">
       <div class="kp-level-head"><span class="material-symbols-rounded">emoji_events</span> Nivel ${prog.nivel}</div>
       <div class="kp-level-track"><div class="kp-level-bar" style="width:${Math.round(prog.pct * 100)}%"></div></div>
-      <div class="kp-level-sub">${prog.enNivel} / 50 para el siguiente nivel · ${prog.verdes} puntos verdes en total</div>
+      <div class="kp-level-sub">Faltan ${prog.paraSiguiente ?? (50 - prog.enNivel)} puntos para el siguiente nivel · ${prog.verdes} puntos verdes en total</div>
     </div>`;
   return `
     <div class="kp-screen">

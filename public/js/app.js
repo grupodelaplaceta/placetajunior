@@ -6,7 +6,9 @@
 // BFF del mismo dominio por defecto; permite apuntar a otro entorno desde
 // window.PJ_API_BASE sin recompilar la web.
 const API_BASE = (window.PJ_API_BASE || (location.hostname === 'junior.laplaceta.org'
-  ? 'https://admin-placeta.vercel.app/api/junior'
+  // RSP es el backend único de progreso, canjes, niveles y recompensas.
+  // admin-placeta conserva el catálogo histórico, pero no expone estas rutas.
+  ? 'https://rsp.laplaceta.org/api/junior'
   : '/api/junior')).replace(/\/$/, '');
 
 // ── Helpers ──────────────────────────────────────────────────────────
@@ -957,7 +959,7 @@ function actualizarNivelBadge() {
   el.innerHTML = `<span class="nb-ico material-symbols-rounded">emoji_events</span>
     <span class="nb-nivel">Nivel ${p.nivel}</span>
     <span class="nb-bar"><span class="nb-fill" style="width:${Math.round(p.pct * 100)}%"></span></span>
-    <span class="nb-sub">${p.enNivel}/50</span>`;
+    <span class="nb-sub">faltan ${p.paraSiguiente} pts</span>`;
 }
 if (document.readyState !== 'loading') actualizarNivelBadge();
 else document.addEventListener('DOMContentLoaded', actualizarNivelBadge);
