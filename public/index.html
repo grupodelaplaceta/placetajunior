@@ -29,17 +29,17 @@
     </div>
   </div>
 
-  <!-- Tira arcoíris de marca (borde superior) -->
-  <div class="strip" aria-hidden="true"></div>
+  <!-- Barra superior persistente: tira arcoíris + navegación (nunca cambia) -->
+  <div class="pj-topbar">
+    <div class="strip" aria-hidden="true"></div>
 
-  <!-- Barra de navegación -->
-  <header class="nav">
-    <input type="checkbox" id="nav-toggle" class="nav-toggle" hidden />
-    <div class="nav-inner">
-      <a class="brand" href="/">
-        <img src="img/PJ-BLANCO-LOGO.png" alt="Placeta Junior" /></a>
-      </a>
-      <label for="nav-toggle" class="nav-toggle-btn" aria-label="Abrir menú">
+    <!-- Barra de navegación -->
+    <header class="nav">
+      <input type="checkbox" id="nav-toggle" class="nav-toggle" hidden />
+      <div class="nav-inner">
+        <a class="brand" href="/">
+          <img src="img/PJ-BLANCO-LOGO.png" alt="Placeta Junior" /></a>
+        <label for="nav-toggle" class="nav-toggle-btn" aria-label="Abrir menú">
         <span></span><span></span><span></span>
       </label>
       <nav class="nav-links">
@@ -52,8 +52,7 @@
         <button class="btn btn-secondary" type="button" onclick="abrirCodigoActividad()"><span class="material-symbols-rounded">key</span> Tengo un código</button>
       </div>
     </div>
-  </header>
-
+  </header>  </div>
   <!-- Hero -->
   <section class="hero">
     <div class="hero-shapes">
@@ -80,27 +79,12 @@
       </div>
       <div class="hero-carousel" data-carousel aria-label="Galería de Placeta Junior">
         <div class="hero-carousel-track" id="hero-carousel-track">
-          <figure class="hero-slide is-active"><img src="img/bannerpj.jpg" alt="Placeta Junior" fetchpriority="high" decoding="async" /></figure>
+          <figure class="hero-slide is-active"><img src="img/bannerpj-16x9.jpg" alt="Placeta Junior" fetchpriority="high" decoding="async" /></figure>
           <!-- Próximas imágenes: añadir otro .hero-slide dentro del track. -->
         </div>
         <div class="hero-carousel-dots" aria-hidden="true"><span class="is-active"></span></div>
       </div>
       <div id="nivel-badge" class="nivel-badge" hidden></div>
-    </div>
-  </section>
-
-  <section class="how-it-works" aria-labelledby="como-funciona-titulo">
-    <div class="how-inner">
-      <div class="how-intro">
-        <span class="section-kicker"><span class="material-symbols-rounded">lightbulb</span> Así de fácil</span>
-        <h2 id="como-funciona-titulo">Aprende jugando</h2>
-        <p>No necesitas saberlo todo. Solo elige una aventura y empieza.</p>
-      </div>
-      <div class="how-steps">
-        <article class="how-step step-orange"><span class="step-number">1</span><span class="material-symbols-rounded">explore</span><div><h3>Elige</h3><p>Busca algo que te llame la atención.</p></div></article>
-        <article class="how-step step-blue"><span class="step-number">2</span><span class="material-symbols-rounded">play_circle</span><div><h3>Juega</h3><p>Responde, prueba y descubre.</p></div></article>
-        <article class="how-step step-green"><span class="step-number">3</span><span class="material-symbols-rounded">emoji_events</span><div><h3>Consigue</h3><p>Gana puntos y celebra tus logros.</p></div></article>
-      </div>
     </div>
   </section>
 
@@ -163,6 +147,14 @@
       <p class="footer-copy">© 2026 Placeta Junior · Grupo de La Placeta</p>
     </div>
   </footer>
+
+  <!-- Navegación inferior (móvil, apariencia de app) -->
+  <nav class="pj-bottom-nav" aria-label="Navegación principal">
+    <a href="/" class="is-active" aria-label="Inicio"><span class="material-symbols-rounded">home</span><span>Inicio</span></a>
+    <a href="#actividades" aria-label="Jugar"><span class="material-symbols-rounded">play_circle</span><span>Jugar</span></a>
+    <button type="button" onclick="abrirCodigoActividad()" aria-label="Tengo un código"><span class="material-symbols-rounded">key</span><span>Código</span></button>
+    <a href="/info" aria-label="Para familias"><span class="material-symbols-rounded">family_restroom</span><span>Familias</span></a>
+  </nav>
 
   <!-- Lluvia de confeti al acabar los juegos -->
   <div id="confetti" class="hidden"></div>

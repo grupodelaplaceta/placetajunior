@@ -297,7 +297,6 @@ function verInfo(id) {
       <nav class="detail-tabs" role="tablist" aria-label="Secciones de la actividad">
         <button class="is-active" type="button" role="tab" aria-selected="true" onclick="cambiarPestanaDetalle(this, 'info')">Información</button>
         ${unidades.length ? `<button type="button" role="tab" aria-selected="false" onclick="cambiarPestanaDetalle(this, 'slides')">Diapositivas <span>${unidades.length}</span></button>` : ''}
-        <button type="button" onclick="descargarPdf('${a.id}')"><span class="material-symbols-rounded">download</span> Ficha PDF</button>
       </nav>
       <div class="detail-panel detail-panel-info is-active" data-detail-panel="info">
       <div class="detail-stats">
