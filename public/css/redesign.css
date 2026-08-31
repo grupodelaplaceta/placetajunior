@@ -123,17 +123,18 @@ body.pj-home { background: var(--pj-bg); color: var(--pj-ink); }
 .pj-home .cat-title[data-color="orange"] .t-ico { color: var(--pj-orange); background: #fff1e0; }
 .pj-home .cat-title[data-color="yellow"] .t-ico { color: #b49c00; background: #fffbe6; }
 .pj-home .cat-title[data-color="purple"] .t-ico { color: var(--pj-purple); background: var(--pj-lilac); }
-/* ── Rejilla responsiva de actividades: caben en la pantalla ───────
-   Sin scroll horizontal ni filas apiladas: las tarjetas llenan el ancho
-   y se reparten en filas (responsive), para no bajar/subir de más. */
+/* ── Filas horizontales por categoría (deslizables) ────────────────
+   Tarjetas compactas para ver varias por fila y no bajar/subir de más. */
 .pj-home .h-row {
   display: grid !important;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
-  grid-auto-flow: row !important;
-  gap: 14px !important;
+  grid-auto-flow: column !important;
+  grid-auto-columns: clamp(240px, 24vw, 290px) !important;
+  grid-template-columns: none !important;
+  gap: 12px !important;
   padding: 2px 2px 14px;
-  overflow: visible !important;
-  scroll-snap-type: none;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
 }
 .pj-home .h-row > .card {
   width: 100% !important;
@@ -146,18 +147,6 @@ body.pj-home { background: var(--pj-bg); color: var(--pj-ink); }
 .pj-home .h-row::-webkit-scrollbar-thumb { background: #d3cdf0; border-radius: 8px; }
 .pj-home .h-row::-webkit-scrollbar-track { background: transparent; }
 .pj-home .card { scroll-snap-align: start; }
-
-/* Filtro por categoría (chips) */
-.pj-home .cat-filter { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 16px; }
-.pj-home .cat-filter .cf-btn {
-  border: 2px solid var(--pj-border); background: #fff; color: var(--pj-muted);
-  border-radius: 999px; padding: 8px 15px; font-family: var(--font-body);
-  font-weight: 800; font-size: 13px; cursor: pointer; transition: .15s;
-  box-shadow: 0 3px 0 #d9d7e8;
-}
-.pj-home .cat-filter .cf-btn:hover { background: var(--pj-lilac); color: var(--pj-purple); }
-.pj-home .cat-filter .cf-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #d9d7e8; }
-.pj-home .cat-filter .cf-btn.active { background: var(--pj-purple); border-color: var(--pj-purple); color: #fff; box-shadow: 0 3px 0 #3a1e7a; }
 .pj-home .card { overflow: hidden; padding: 11px; border: 4px solid var(--accent, var(--pj-purple)); border-radius: 2rem; background: #fff; box-shadow: 0 8px 0 color-mix(in srgb, var(--accent) 30%, #fff), 0 14px 26px rgba(45,33,100,.08); transition: transform .2s ease, box-shadow .2s ease; height: auto; min-height: 0; }
 .pj-home .card:hover { transform: translateY(-6px); box-shadow: 0 11px 0 color-mix(in srgb, var(--accent) 40%, #fff), 0 20px 32px rgba(45,33,100,.12); }
 .pj-home .card-cover { border-radius: 1.6rem; aspect-ratio: 16 / 9; min-height: 0; background: #f1eff9; }
@@ -326,7 +315,7 @@ body.pj-home.mostrando-juego .kp-stage { flex: 1 1 auto; min-height: 0; overflow
   .pj-home .edad-filter { width: 100%; overflow-x: auto; }
   .pj-home .ef-btn { flex: 0 0 auto; }
   .pj-home .ef-count { margin-left: auto; }
-  .pj-home .h-row { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important; gap: 10px !important; }
+  .pj-home .h-row { grid-auto-columns: clamp(230px, 72vw, 300px) !important; gap: 10px !important; }
   .pj-home .card { padding: 8px; border-radius: 1.7rem; }
   .pj-home .card-cover { border-radius: 1.3rem; }
   .pj-home .card h3 { font-size: 15px; min-height: 40px; max-height: 40px; }
