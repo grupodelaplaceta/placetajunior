@@ -16,6 +16,7 @@
   var buffers = {};   // nombre -> AudioBuffer decodificado
   var ctx = null;
   var master = null;
+  var gestoRecibido = false;
 
   function ac() {
     try {
@@ -38,6 +39,9 @@
   // Carga y decodifica un sonido (fetch funciona en file:// y en https)
   function cargar(n) {
     if (buffers[n]) return;
+    // Chrome bloquea AudioContext hasta un gesto real. No lo creemos desde
+    // requestIdleCallback: solo precargamos audio después del primer clic.
+    if (!gestoRecibido) return;
     try {
       fetch('sounds/' + n + '.wav')
         .then(function (r) { return r.arrayBuffer(); })
@@ -115,12 +119,7 @@
   }
 
   // Primer gesto del usuario: crea el contexto y carga todos los sonidos
-  function primerGesto() { ac(); NOMBRES.forEach(cargar); }
-  if (window.requestIdleCallback) {
-    try { window.requestIdleCallback(function () { NOMBRES.forEach(cargar); }, { timeout: 3000 }); } catch (e) { NOMBRES.forEach(cargar); }
-  } else {
-    setTimeout(function () { NOMBRES.forEach(cargar); }, 800);
-  }
+  function primerGesto() { gestoRecibido = true; ac(); NOMBRES.forEach(cargar); }
   try { document.addEventListener('pointerdown', primerGesto, { once: true, passive: true }); } catch (e) { /* ok */ }
   try { document.addEventListener('keydown', primerGesto, { once: true, passive: true }); } catch (e) { /* ok */ }
 

@@ -1643,6 +1643,60 @@ body.pj-home.mostrando-juego #player-content { min-height: 100%; }
   .pj-home .section { padding-left: 16px; padding-right: 16px; }
 }
 
+/* ── Pase de claridad infantil ─────────────────────────────────────
+   La interfaz debe poder entenderse de un vistazo: una acción principal,
+   tarjetas grandes y suficiente contraste/espacio para manos pequeñas. */
+.pj-home {
+  --pj-bg: #f7f8fc;
+  --pj-ink: #202044;
+  --pj-muted: #62647d;
+  --pj-line: #e7e8f1;
+}
+.pj-home .nav { box-shadow: 0 3px 18px rgba(36, 30, 87, .08); border-bottom: 0; }
+.pj-home .nav-inner { min-height: 72px; }
+.pj-home .brand img { height: 48px; }
+.pj-home .nav-links a { font-size: 15px; padding: 11px 16px; }
+.pj-home .btn { min-height: 48px; padding: 13px 22px; text-transform: none; letter-spacing: 0; }
+.pj-home .btn-primary { box-shadow: 0 8px 18px rgba(63, 0, 216, .2); }
+.pj-home .btn-large { min-height: 58px; padding-inline: 30px; font-size: 19px; }
+.pj-home .hero { padding: 68px 20px 76px; background: linear-gradient(145deg, #f0edff 0%, #fff 58%, #fff8e8 100%); }
+.pj-home .hero-inner { max-width: 1120px; display: grid; grid-template-columns: minmax(0, .92fr) minmax(360px, 1.08fr); align-items: center; text-align: left; gap: 52px; }
+.pj-home .hero-copy { display: flex; flex-direction: column; align-items: flex-start; }
+.pj-home .hero-eyebrow { font-size: 17px; font-weight: 700; color: var(--pj-purple); background: #fff; border: 2px solid #e3ddff; border-radius: 999px; padding: 9px 15px; }
+.pj-home .hero h2 { margin: 18px 0 12px; color: var(--pj-ink); font-family: var(--font-head); font-size: clamp(42px, 5.2vw, 70px); line-height: 1.03; letter-spacing: -.8px; text-transform: none; }
+.pj-home .hero h2 em { color: var(--pj-purple); font-style: normal; }
+.pj-home .hero-copy > p { max-width: 510px; font-size: 19px; line-height: 1.55; color: var(--pj-muted); }
+.pj-home .cta-row { justify-content: flex-start; margin-top: 24px; }
+.pj-home .hero-highlights { justify-content: flex-start; gap: 10px 18px; margin-top: 25px; flex-wrap: wrap; }
+.pj-home .hero-highlights span { font-size: 14px; color: var(--pj-muted); }
+.pj-home .hero-highlights .material-symbols-rounded { color: var(--pj-green); }
+.pj-home .hero-carousel { width: 100%; transform: rotate(1deg); }
+.pj-home .hero-carousel-track { border: 9px solid #fff; border-radius: 30px; box-shadow: 0 20px 42px rgba(43, 32, 106, .2); }
+.pj-home .section { padding-top: 60px; }
+.pj-home .section-head h2 { text-transform: none; letter-spacing: -.3px; font-size: clamp(34px, 5vw, 48px); }
+.pj-home .section-head p { font-size: 17px; }
+.pj-home .edad-filter { background: #fff; padding: 8px; border: 1px solid var(--pj-line); border-radius: 18px; display: inline-flex; gap: 6px; margin-top: 22px; }
+.pj-home .ef-btn { min-height: 42px; border-radius: 12px; font-size: 14px; }
+.pj-home .ef-btn.active { background: var(--pj-purple); box-shadow: 0 5px 12px rgba(63, 0, 216, .18); }
+.pj-home .card { height: 340px; min-height: 340px; border: 1px solid var(--pj-line); border-radius: 24px; padding: 12px; box-shadow: 0 4px 12px rgba(32, 32, 68, .04); }
+.pj-home .card:hover { transform: translateY(-6px); box-shadow: 0 16px 30px rgba(32, 32, 68, .12); }
+.pj-home .card-cover { border-radius: 17px; }
+@media (max-width: 880px) {
+  .pj-home .hero { padding-top: 42px; }
+  .pj-home .hero-inner { display: flex; gap: 30px; text-align: center; }
+  .pj-home .hero-copy { align-items: center; }
+  .pj-home .hero-copy > p { font-size: 17px; }
+  .pj-home .cta-row, .pj-home .hero-highlights { justify-content: center; }
+  .pj-home .hero-carousel { max-width: 650px; }
+}
+@media (max-width: 560px) {
+  .pj-home .nav-cta .btn-secondary { display: none; }
+  .pj-home .hero h2 { font-size: 42px; }
+  .pj-home .hero .btn-large { width: 100%; }
+  .pj-home .edad-filter { display: flex; width: 100%; overflow-x: auto; }
+  .pj-home .ef-btn { flex: 0 0 auto; }
+}
+
 /* El detalle no ocupa espacio cuando se inicia el juego. */
 .pj-home .detail-page { display: none; }
 body.pj-home.mostrando-detalle .detail-page { display: block; }

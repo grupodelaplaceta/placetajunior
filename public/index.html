@@ -43,14 +43,12 @@
       </label>
       <nav class="nav-links">
         <a href="/" class="active">Inicio</a>
-        <a href="#actividades">Actividades</a>
-        <a href="/info">Info</a>
-        <a href="/terminos.html">Términos</a>
-        <a href="/privacidad.html">Privacidad</a>
+        <a href="#actividades">Jugar</a>
+        <a href="/info">Para familias</a>
       </nav>
       <div class="nav-cta">
-        <a class="btn btn-primary" href="#actividades"><span class="material-symbols-rounded">play_arrow</span> Jugar</a>
-        <button class="btn btn-secondary" type="button" onclick="abrirCodigoActividad()"><span class="material-symbols-rounded">key</span> Código</button>
+        <a class="btn btn-primary" href="#actividades"><span class="material-symbols-rounded">play_arrow</span> Jugar ahora</a>
+        <button class="btn btn-secondary" type="button" onclick="abrirCodigoActividad()"><span class="material-symbols-rounded">key</span> Tengo un código</button>
       </div>
     </div>
   </header>
@@ -66,17 +64,17 @@
     <div class="hero-inner">
       <h1 class="sr-only">Placeta Junior</h1>
       <div class="hero-copy">
-        <span class="hero-eyebrow"><span class="material-symbols-rounded">auto_awesome</span> ¡Hola, explorador!</span>
-        <h2>Juega, descubre<br /><em>¡y supera retos!</em></h2>
-        <p>Un mundo de actividades para aprender a tu ritmo, conseguir Placetas y celebrar cada pequeño logro.</p>
+        <span class="hero-eyebrow"><span class="material-symbols-rounded">waving_hand</span> ¡Hola, explorador!</span>
+        <h2>Tu próxima aventura<br /><em>empieza aquí</em></h2>
+        <p>Elige un reto, juega a tu ritmo y descubre algo nuevo. No pasa nada si te equivocas: aquí se aprende jugando.</p>
         <div class="cta-row">
-          <a class="btn btn-primary" href="#actividades"><span class="material-symbols-rounded">play_arrow</span> Jugar</a>
-          <a class="btn btn-ghost" href="#actividades"><span class="material-symbols-rounded">explore</span> Explorar actividades</a>
+          <a class="btn btn-primary btn-large" href="#actividades"><span class="material-symbols-rounded">play_arrow</span> Empezar a jugar</a>
+          <a class="btn btn-ghost" href="#actividades"><span class="material-symbols-rounded">explore</span> Ver aventuras</a>
         </div>
         <div class="hero-highlights" aria-label="Ventajas de Placeta Junior">
           <span><span class="material-symbols-rounded">bolt</span> Retos cortos</span>
-          <span><span class="material-symbols-rounded">emoji_events</span> Recompensas</span>
-          <span><span class="material-symbols-rounded">devices</span> Desde cualquier dispositivo</span>
+          <span><span class="material-symbols-rounded">favorite</span> A tu ritmo</span>
+          <span><span class="material-symbols-rounded">devices</span> En cualquier pantalla</span>
         </div>
       </div>
       <div class="hero-carousel" data-carousel aria-label="Galería de Placeta Junior">
@@ -95,12 +93,12 @@
       <div class="section-head">
         <span class="section-kicker"><span class="material-symbols-rounded">rocket_launch</span> Elige tu aventura</span>
         <h2>Actividades</h2>
-        <p>Elige un reto, ponte a prueba y descubre algo nuevo.</p>
+        <p>Hay una aventura para cada curiosidad. ¿Cuál te apetece hoy?</p>
       </div>
       <div id="error-banner" class="error-banner hidden"></div>
 
       <div class="edad-filter" role="group" aria-label="Filtrar actividades por edad">
-        <button type="button" class="ef-btn active" data-edad="todas" onclick="setFiltroEdad('todas', this)">Todas las edades</button>
+        <button type="button" class="ef-btn active" data-edad="todas" onclick="setFiltroEdad('todas', this)">Todas</button>
         <button type="button" class="ef-btn" data-edad="0-5" onclick="setFiltroEdad('0-5', this)">3-5 años</button>
         <button type="button" class="ef-btn" data-edad="6-8" onclick="setFiltroEdad('6-8', this)">6-8 años</button>
         <button type="button" class="ef-btn" data-edad="9-12" onclick="setFiltroEdad('9-12', this)">9-12 años</button>
