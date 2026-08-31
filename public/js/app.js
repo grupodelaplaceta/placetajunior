@@ -959,7 +959,7 @@ function actualizarNivelBadge() {
   el.innerHTML = `<span class="nb-ico material-symbols-rounded">emoji_events</span>
     <span class="nb-nivel">Nivel ${p.nivel}</span>
     <span class="nb-bar"><span class="nb-fill" style="width:${Math.round(p.pct * 100)}%"></span></span>
-    <span class="nb-sub">faltan ${p.paraSiguiente} pts</span>`;
+    <span class="nb-sub">faltan ${p.paraSiguiente} Pz</span>`;
 }
 if (document.readyState !== 'loading') actualizarNivelBadge();
 else document.addEventListener('DOMContentLoaded', actualizarNivelBadge);
