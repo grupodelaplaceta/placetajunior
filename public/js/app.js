@@ -813,6 +813,15 @@ async function abrirActividad(id, bloqueada) {
     } catch (e) { /* sin almacenamiento */ }
     const data = await apiGet(url);
     if (data.actividad) {
+      // Las actividades organizadas en diapositivas/unidades NUNCA se
+      // reproducen todas juntas: se abre el selector de unidad para jugar
+      // una a una (flujo esperado, igual que en la app).
+      if (obtenerUnidadesActividad(data.actividad).length > 0) {
+        cerrarDetalle();
+        if (!TODAS.some(x => x.id === data.actividad.id)) TODAS.push(data.actividad);
+        verInfo(data.actividad.id);
+        return;
+      }
       // La navegación a una actividad siempre cierra la vista anterior.
       cerrarDetalle();
       // El anuncio es una pantalla previa: no puede quedar superpuesto al juego.
