@@ -153,9 +153,10 @@ body.pj-home { background: var(--pj-bg); color: var(--pj-ink); }
 .pj-home .card-foot { gap: 8px; padding: 11px 3px 2px; }
 .pj-home .card-foot .chip { padding: 5px 10px; color: var(--accent, var(--pj-purple)); background: color-mix(in srgb, var(--accent) 12%, #fff); border: 2px solid var(--accent, var(--pj-purple)); border-radius: 999px; font-size: 11px; font-weight: 800; }
 .pj-home .card-visits { color: #9793aa; font-size: 11px; }
-.pj-home .cover-play { min-height: 46px; border-radius: 999px; font-family: var(--font-head); font-size: 14px; font-weight: 800; letter-spacing: .3px; background: var(--accent, var(--pj-purple)); color: #fff; box-shadow: 0 4px 0 rgba(0,0,0,.25); transition: transform .12s ease, box-shadow .12s ease, filter .12s ease; }
+.pj-home .cover-play { display: inline-flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: nowrap; white-space: nowrap; min-height: 46px; border-radius: 999px; font-family: var(--font-head); font-size: 14px; font-weight: 800; letter-spacing: .3px; background: var(--accent, var(--pj-purple)); color: #fff; box-shadow: 0 4px 0 rgba(0,0,0,.25); transition: transform .12s ease, box-shadow .12s ease, filter .12s ease; }
 .pj-home .cover-play:hover { filter: brightness(1.05); transform: translateY(-2px); }
 .pj-home .cover-play:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,.2); }
+.pj-home .cover-play .material-symbols-rounded { font-size: 20px; flex: 0 0 auto; }
 .pj-home .badge-tag { border-radius: 999px; font-size: 11px; font-weight: 800; }
 .pj-home .info-btn { width: 34px; height: 34px; border-radius: 50%; }
 
