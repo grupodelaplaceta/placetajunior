@@ -777,25 +777,29 @@ function renderPopulares() {
   generarCaratulasEn(row);
 }
 
-// 🗂️ Una fila horizontal por categoría (gratis y de pago mezcladas)
+// 🗂️ Filtro por categoría + rejilla responsiva: todas las actividades caben
+// en la pantalla sin tener que bajar/subir por cada categoría apilada.
+let filtroCategoria = 'todas';
+function setFiltroCategoria(el) {
+  filtroCategoria = el ? el.dataset.cat : 'todas';
+  document.querySelectorAll('.cat-filter .cf-btn').forEach(b => b.classList.toggle('active', b === el));
+  renderCategorias();
+}
 function renderCategorias() {
   const cont = document.getElementById('categorias');
   const filtradas = TODAS.filter(a => edadCumple(a, filtroEdad));
   const cats = [...new Set(filtradas.map(a => a.categoria).filter(Boolean))];
-  if (cats.length === 0) {
-    cont.innerHTML = '';
-    return;
-  }
-  cont.innerHTML = cats.map(cat => {
-    const lista = filtradas.filter(a => a.categoria === cat);
-    if (lista.length === 0) return '';
-    return `
-      <div class="cat-section">
-        <h3 class="cat-title" data-color="${categoriaColor(cat)}"><span class="t-ico material-symbols-rounded">${categoriaIcono(cat)}</span> ${escapeHtml(cat)}</h3>
-        <div class="h-row">${lista.map(cardActividad).join('')}</div>
-      </div>`;
-  }).join('');
-  cont.querySelectorAll('.cat-section .h-row').forEach(sec => generarCaratulasEn(sec));
+  if (cats.length === 0) { cont.innerHTML = ''; return; }
+  const lista = filtroCategoria === 'todas'
+    ? filtradas
+    : filtradas.filter(a => a.categoria === filtroCategoria);
+  const chips = ['todas', ...cats].map(c =>
+    `<button type="button" class="cf-btn${filtroCategoria === c ? ' active' : ''}" data-cat="${escapeHtml(c)}" onclick="setFiltroCategoria(this)">${c === 'todas' ? 'Todas' : escapeHtml(c)}</button>`
+  ).join('');
+  cont.innerHTML = `
+    <div class="cat-filter" role="group" aria-label="Filtrar por categoría">${chips}</div>
+    <div class="h-row">${lista.length ? lista.map(cardActividad).join('') : '<div class="empty">No hay actividades en esta categoría todavía. 🚀</div>'}</div>`;
+  generarCaratulasEn(cont);
 }
 
 // Abrir y JUGAR la actividad publicada (reproductor de la web)
