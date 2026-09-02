@@ -1847,3 +1847,9 @@ h1, h2, h3, h4, h5,
 .kp-btn-next:hover { filter: brightness(1.05); }
 .kp-btn-ghost { background: #fff; color: var(--pj-purple); border: 2px solid var(--pj-purple); }
 .kp-btn-ghost:hover { background: var(--pj-purple-light); }
+/* Iconos Material en etiquetas, chips y pantalla final (en lugar de emojis) */
+.kp-qt .material-symbols-rounded, .kp-chip-level .material-symbols-rounded { font-size: 15px; vertical-align: -2px; margin-right: 4px; }
+.kp-chip-level { display: inline-flex; align-items: center; gap: 4px; }
+.kp-save h4 .material-symbols-rounded, .kp-reward-ico, .kp-save-row .kp-btn .material-symbols-rounded { font-size: 18px; vertical-align: -4px; margin-right: 2px; }
+.kp-reward { display: flex; align-items: center; justify-content: center; gap: 4px; }
+#juniorAccPanel .acc-head { display: flex; align-items: center; justify-content: center; gap: 6px; text-align: center; }

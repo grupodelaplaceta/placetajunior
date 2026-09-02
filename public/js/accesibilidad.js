@@ -51,14 +51,16 @@
   // ── Botón y panel flotante ──────────────────────────────────────────
   const btn = document.createElement('button');
   btn.id = 'juniorAccBtn';
-  btn.textContent = '♿';
   btn.setAttribute('aria-label', 'Accesibilidad');
+  btn.setAttribute('title', 'Accesibilidad');
+  // Icono vectorial SVG (nada de emojis) para que se vea nítido en cualquier pantalla.
+  btn.innerHTML = '<svg aria-hidden="true" viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M12 2c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm8 7h-5v12c0 .55-.45 1-1 1s-1-.45-1-1v-5h-2v5c0 .55-.45 1-1 1s-1-.45-1-1V9H4c-.55 0-1-.45-1-1s.45-1 1-1h16c.55 0 1 .45 1 1s-.45 1-1 1z"/></svg>';
 
   const panel = document.createElement('div');
   panel.id = 'juniorAccPanel';
   panel.hidden = true;
   panel.innerHTML =
-    '<div class="acc-head">♿ Accesibilidad</div>' +
+    '<div class="acc-head"><span class="acc-ico material-symbols-rounded" aria-hidden="true">accessible</span> Accesibilidad</div>' +
     '<button type="button" class="acc-toggle" id="accMayus"><span class="acc-ico material-symbols-rounded">text_fields</span> MAYÚSCULAS</button>' +
     '<button type="button" class="acc-toggle" id="accAudio"><span class="acc-ico material-symbols-rounded">volume_up</span> AUDIO</button>' +
     '<button type="button" class="acc-toggle" id="accGrande"><span class="acc-ico material-symbols-rounded">text_increase</span> Letra grande</button>' +

@@ -520,7 +520,7 @@ function renderPantalla() {
         <div class="kp-progress-track"><div class="kp-progress-bar" style="width:${pct}%"></div></div>
       </div>
       <div class="kp-score-chips" aria-label="Resultado">
-        <span class="kp-chip-level" title="Tu nivel">🏆 Nv ${progNivel}</span>
+        <span class="kp-chip-level" title="Tu nivel"><span class="material-symbols-rounded" aria-hidden="true">emoji_events</span> Nv ${progNivel}</span>
         <span class="kp-chip-score ok"><span class="material-symbols-rounded">check_circle</span>${kpScore.verdes}</span>
         <span class="kp-chip-score bad"><span class="material-symbols-rounded">cancel</span>${kpScore.rojos}</span>
       </div>
@@ -616,7 +616,7 @@ function screenCalculo(s, est) {
   const gridVertical = s.vertical ? verticalOperacionInputHTML(a, bb, op, s.llevadas !== false, 'c' + pantallaIdx) : null;
   const calcCuerpo = gridVertical || `<div class="kp-calc">${numTile(a)} <span class="kp-calc-op">${opSimbolo(op)}</span> ${numTile(bb)} <span class="kp-calc-op">=</span> <span class="kp-calc-q">?</span></div>`;
   let html = `<div class="kp-screen kp-calc-screen">
-    <div class="kp-qt">🧮 Cálculo mental · ${s.si + 1} / ${s.n || 1}</div>
+    <div class="kp-qt"><span class="material-symbols-rounded" aria-hidden="true">calculate</span> Cálculo mental · ${s.si + 1} / ${s.n || 1}</div>
     <div class="kp-calc-timer"><span class="kp-timer" data-timer="${totalSeg}">⏱️ ${totalSeg}s</span>
       <div class="kp-timer-track"><div class="kp-timer-bar" style="width:100%"></div></div></div>
     ${calcCuerpo}`;
@@ -700,7 +700,7 @@ function screenProblema(s, est) {
     ? `<div class="kp-problema-pregunta">${esc(frase).replace(/___/g, '<span class="kp-hueco">___</span>')}</div>`
     : `<div class="kp-problema-pregunta">¿Cuánto es?</div>`;
   let html = `<div class="kp-screen">
-    <div class="kp-qt">📝 Problemas · ${s.pi + 1} / ${s.n || 1}</div>
+    <div class="kp-qt"><span class="material-symbols-rounded" aria-hidden="true">description</span> Problemas · ${s.pi + 1} / ${s.n || 1}</div>
     <div class="kp-problema-card">
       <div class="kp-problema-texto">${esc(enunciado)}</div>
       ${fraseHtml}
@@ -788,13 +788,13 @@ function screenEsquema(s, est) {
     else if (e.tipo === 'texto') { const fs=Math.max(10,Math.min(64,num(e.tamano,20))), maxChars=Math.max(8,Math.floor(ew/(fs*.55))), words=String(e.texto||'').split(/\s+/), lines=[];let line='';words.forEach(word=>{if((line+' '+word).trim().length>maxChars){if(line)lines.push(line);line=word;}else line=(line+' '+word).trim();});if(line)lines.push(line);body += `<text x="${x}" y="${y+fs}" fill="${color(e.color||'#111111')}" font-family="inherit" font-size="${fs}" font-weight="${e.negrita?'700':'400'}" aria-label="${label}">${lines.slice(0,Math.max(1,Math.floor(eh/(fs*1.25)))).map((l,k)=>`<tspan x="${x}" dy="${k?fs*1.25:0}">${esc(l)}</tspan>`).join('')}</text>`; }
     if (e.accion?.tipo === 'popup') { const hit=e.tipo==='circulo'?`<circle cx="${x}" cy="${y}" r="${Math.max(24,num(e.radio,20)+8)}" fill="transparent"/>`:`<rect x="${x}" y="${y}" width="${Math.max(ew,48)}" height="${Math.max(eh,48)}" fill="transparent"/>`;body += `<g class="pj-schema-action" tabindex="0" role="button" aria-label="${label}" onclick="abrirEsquemaPopup(${s.bi},${i})" onkeydown="if(event.key==='Enter'||event.key===' ')abrirEsquemaPopup(${s.bi},${i})">${hit}</g>`; }
   });
-  return `<div class="kp-screen"><div class="kp-qt">🧩 ${esc(b.titulo || 'Esquema')}</div><div class="pj-esquema" role="group" aria-label="${esc(b.aria_label || b.titulo || 'Esquema visual')}"><svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet" focusable="false" xmlns="http://www.w3.org/2000/svg">${body}</svg></div><div class="kp-hint">👆 Pulsa los elementos destacados para ver más información</div><div style="text-align:center;margin-top:14px;"><button class="kp-check" onclick="pantallaNext()">Continuar →</button></div></div>`;
+  return `<div class="kp-screen"><div class="kp-qt"><span class="material-symbols-rounded" aria-hidden="true">extension</span> ${esc(b.titulo || 'Esquema')}</div><div class="pj-esquema" role="group" aria-label="${esc(b.aria_label || b.titulo || 'Esquema visual')}"><svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet" focusable="false" xmlns="http://www.w3.org/2000/svg">${body}</svg></div><div class="kp-hint">👆 Pulsa los elementos destacados para ver más información</div><div style="text-align:center;margin-top:14px;"><button class="kp-check" onclick="pantallaNext()">Continuar →</button></div></div>`;
 }
 
 function screenInteractive(s, est) {
   const b=bloquesJuego[s.bi], d=b.datos||{}, tipo=b.tipo;
   const opts = tipo==='detective' ? d.opciones||[] : tipo==='laboratorio' ? (d.opciones||[]).map(x=>String(x).split('|')[0]) : tipo==='construccion' ? d.piezas||[] : tipo==='exploracion' ? (d.lugares||[]).map(x=>String(x).split('|')[0]) : tipo==='historia_interactiva' ? ((d.escenas||[])[0]?.opciones||[]) : [];
-  let body=`<div class="kp-screen kp-interactive"><div class="kp-qt">${tipo==='arrastrar'?'🧲':tipo==='buscar'?'🔎':tipo==='detective'?'🕵️':tipo==='laboratorio'?'🧪':tipo==='construccion'?'🏗️':tipo==='presupuesto'?'🛒':tipo==='exploracion'?'🗺️':tipo==='simulacion'?'🎲':'📖'} ${esc(b.titulo||tipo)}</div><p>${esc(b.instrucciones||'Completa este reto.')}</p>`;
+  let body=`<div class="kp-screen kp-interactive"><div class="kp-qt"><span class="material-symbols-rounded" aria-hidden="true">${tipo==='arrastrar'?'drag_indicator':tipo==='buscar'?'search':tipo==='detective'?'visibility':tipo==='laboratorio'?'science':tipo==='construccion'?'construction':tipo==='presupuesto'?'shopping_cart':tipo==='exploracion'?'explore':tipo==='simulacion'?'casino':'menu_book'}</span> ${esc(b.titulo||tipo)}</div><p>${esc(b.instrucciones||'Completa este reto.')}</p>`;
   if(tipo==='buscar') body+=`<div class="kp-scene">${(d.objetos||[]).map((x,i)=>{const a=String(x).split('|');return `<button class="kp-scene-object ${est.seleccion?.includes(i)?'selected':''}" onclick="kpBuscarObjeto(${s.bi},${i})">${esc(a[0])}<small>${esc(a[1]||'')}</small></button>`}).join('')}</div>`;
   else if(tipo==='simulacion') body+=`<p>${esc(d.pregunta||'Lanza el dado y observa los resultados.')}</p><button class="kp-btn" onclick="kpLanzarDado(${s.bi})">🎲 LANZAR DADO</button><div class="kp-results">${(est.lanzamientos||[]).join(' · ')}</div>`;
   else if(tipo==='memoria') body+=`<p>Encuentra dos tarjetas iguales:</p><div class="kp-memory">${(d.tarjetas||[]).map((x,i)=>`<button class="kp-memory-card" onclick="kpMemoriaJuego(${s.bi},${i})">${est.reveladas?.includes(i)?esc(x):'?'}</button>`).join('')}</div>`;
@@ -851,7 +851,7 @@ function abrirEsquemaPopup(bi, ei) {
 function screenTexto(s, est) {
   const b = bloquesJuego[s.bi];
   let html = `<div class="kp-screen">
-    <div class="kp-qt">📖 ${esc(b.titulo || 'Aprende')}</div>`;
+    <div class="kp-qt"><span class="material-symbols-rounded" aria-hidden="true">menu_book</span> ${esc(b.titulo || 'Aprende')}</div>`;
   if (imagenDePJ(b)) html += kpImg(imagenDePJ(b), b.fuente, b.imagen_alt || b.imagenAlt);
   html += `<div class="kp-explicacion">${formatearTextoJugador(obtenerContenidoTextoPJ(b))}`;
   html += `</div>`;
@@ -930,7 +930,7 @@ function screenTest(s, est) {
   let html = `<div class="kp-screen kp-test">
     <div class="kp-qcard">
       <span class="kp-orb" aria-hidden="true"></span>
-      <div class="kp-qt">📝 Pregunta ${s.pi + 1} de ${s.nPreg}</div>
+      <div class="kp-qt"><span class="material-symbols-rounded" aria-hidden="true">quiz</span> Pregunta ${s.pi + 1} de ${s.nPreg}</div>
       <div class="kp-q">${esc(p.pregunta || '…')}</div>`;
   if (p.imagen_url) html += kpImg(p.imagen_url, p.fuente, p.imagen_alt);
   if (p.pictograma) html += kpImg(p.pictograma, p.fuente, p.imagen_alt);
@@ -988,7 +988,7 @@ function screenSopa(s, est) {
   const total = validas.length;
   const hechas = Object.keys(enc).length;
   let html = `<div class="kp-screen">
-    <div class="kp-qt">🔤 Sopa de letras</div>
+    <div class="kp-qt"><span class="material-symbols-rounded" aria-hidden="true">abc</span> Sopa de letras</div>
     <div class="kp-wordchips">${chips}</div>`;
   if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente, b.imagen_alt);
   html += `<div class="kp-grid" data-pantalla="${pantallaIdx}" data-size="${s.size}" style="grid-template-columns:repeat(${s.size},1fr);">`;
@@ -1157,14 +1157,14 @@ function screenFinal(s) {
         <div class="kp-score-item verdes"><span class="kp-score-num">🟢</span>${kpScore.verdes} <small>puntos verdes</small></div>
         <div class="kp-score-item rojos"><span class="kp-score-num">🔴</span>${kpScore.rojos} <small>puntos rojos</small></div>
       </div>
-      <div class="kp-reward"><strong>🎁 ${recompensa} Pz</strong> ${recompensaMax > 0 ? `de ${recompensaMax} Pz máximas` : ''}</div>
+      <div class="kp-reward"><span class="material-symbols-rounded kp-reward-ico" aria-hidden="true">redeem</span> <strong>${recompensa} Pz</strong> ${recompensaMax > 0 ? `de ${recompensaMax} Pz máximas` : ''}</div>
       <div class="kp-save">
-        <h4>💾 Guardar mi progreso</h4>
+        <h4><span class="material-symbols-rounded" aria-hidden="true">save</span> Guardar mi progreso</h4>
         <p class="kp-save-sub">En la web el progreso es local. Guarda con tu DIP para sumar los puntos y recibir ${recompensa} Pz.</p>
         <div class="kp-save-row">
           <input id="kp-dip" type="text" inputmode="text" autocomplete="off"
             placeholder="Tu DIP (ej: 11111111D)" value="${esc(dipGuardado)}" maxlength="20">
-          <button class="kp-btn" onclick="guardarProgreso()" ${guardandoDIP ? 'disabled' : ''}>${guardandoDIP ? 'Guardando…' : '💾 Guardar'}</button>
+          <button class="kp-btn" onclick="guardarProgreso()" ${guardandoDIP ? 'disabled' : ''}>${guardandoDIP ? 'Guardando…' : '<span class="material-symbols-rounded" aria-hidden="true">save</span> Guardar'}</button>
         </div>
         <div id="kp-msg" class="kp-msg ${msgGuardar.startsWith('✅') ? 'ok' : (msgGuardar ? 'bad' : '')}">${msgGuardar}</div>
       </div>
@@ -1241,7 +1241,7 @@ function screenRelacionar(s, est) {
     ? `<div class="kp-pair-img" style="background-image:url('${esc(pjUrlImg(pares[j].izq_img))}')" role="img" aria-label="${esc(pares[j].izq_alt || pares[j].izq || 'Imagen')}" title="${esc(pares[j].izq || '')}"></div>`
     : esc(pares[j].izq || '…');
   let html = `<div class="kp-screen">
-    <div class="kp-qt">🔗 Relacionar</div>`;
+    <div class="kp-qt"><span class="material-symbols-rounded" aria-hidden="true">link</span> Relacionar</div>`;
   if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente, b.imagen_alt);
   html += `<div class="kp-match">
       <div class="kp-col">${izqOrder.map((j) => `<div class="kp-pair${izqCls(j)}" onclick="kpIzq(${pantallaIdx},${j})">${hechas[j] ? '✅ ' : ''}${itemIzq(j)}</div>`).join('')}</div>
@@ -1258,7 +1258,7 @@ function screenRelacionarEscribir(s, est, pares) {
   const escrito = est.escrito || {};
   const done = pares.every((_, j) => escrito[j] === 'ok');
   let html = `<div class="kp-screen">
-    <div class="kp-qt">✏️ Escribe la palabra</div>`;
+    <div class="kp-qt"><span class="material-symbols-rounded" aria-hidden="true">edit_note</span> Escribe la palabra</div>`;
   if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente, b.imagen_alt);
   html += `<div class="kp-esc-list">`;
   pares.forEach((p, j) => {
@@ -1322,7 +1322,7 @@ function screenOrdenar(s, est) {
   const done = est.orden.slice(0, est.hechas);
   const pend = est.orden.slice(est.hechas);
   let html = `<div class="kp-screen">
-    <div class="kp-qt">📌 Ordena los pasos</div>`;
+    <div class="kp-qt"><span class="material-symbols-rounded" aria-hidden="true">format_list_numbered</span> Ordena los pasos</div>`;
   if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente, b.imagen_alt);
   html += `<div class="kp-steps">`;
   done.forEach((ix, k) => { html += `<div class="kp-step done"><span class="kp-num">${k + 1}</span>${esc(b.items[ix] || '…')}</div>`; });
@@ -1347,7 +1347,7 @@ function screenCompletar(s, est) {
   const estado = est.estado || {};
   const modo = b.modo || 'escribir';
   let html = `<div class="kp-screen">
-    <div class="kp-qt">✏️ Completa la frase</div>`;
+    <div class="kp-qt"><span class="material-symbols-rounded" aria-hidden="true">edit_note</span> Completa la frase</div>`;
   if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente, b.imagen_alt);
   (b.frases || []).forEach((f, fi) => {
     const st = estado[fi];
@@ -1410,7 +1410,7 @@ const MAP_STYLE = { color: '#b6c2d9', weight: 0.5, fillColor: '#dbeafe', fillOpa
 function screenMapa(s, est) {
   const chips = (s.paises || []).map(p => `<span class="kp-chip">${esc(p)}</span>`).join('');
   return `<div class="kp-screen">
-    <div class="kp-qt">🌍 Localiza en el mapamundi · ${s.qi + 1} de ${s.n}</div>
+    <div class="kp-qt"><span class="material-symbols-rounded" aria-hidden="true">public</span> Localiza en el mapamundi · ${s.qi + 1} de ${s.n}</div>
     <div class="kp-map-q">${esc(s.pide)}</div>
     <div class="kp-map" id="kp-map-${pantallaIdx}"></div>
     <div class="kp-map-chips">${chips}</div>
@@ -1444,25 +1444,6 @@ function iniciarMapa(idx) {
           lyr.on('mouseout', () => { if (!(kpEstado[idx] && kpEstado[idx].respondida)) lyr.setStyle(MAP_STYLE); });
         }
       }).addTo(map);
-      // Ayuda visual: coloca la bandera real de cada país de la actividad
-      // sobre su territorio. Las imágenes proceden de Wikimedia Commons
-      // (Special:FilePath), no son emojis y conservan el mapa clicable.
-      const excepcionesBandera = {
-        'United States of America': 'Flag_of_the_United_States.svg',
-        'United Kingdom': 'Flag_of_the_United_Kingdom.svg',
-        'South Korea': 'Flag_of_South_Korea.svg',
-        'Russia': 'Flag_of_Russia.svg',
-        'Czechia': 'Flag_of_the_Czech_Republic.svg'
-      };
-      const banderaUrl = en => 'https://commons.wikimedia.org/wiki/Special:FilePath/' + encodeURIComponent(excepcionesBandera[en] || ('Flag_of_' + en.replace(/ /g, '_') + '.svg')) + '?width=96';
-      const objetivos = new Set((s.paises || []).map(p => MAPA_MUNDI.enDe(p)));
-      layer.eachLayer(ll => {
-        const en = ll.feature && ll.feature.properties && ll.feature.properties.name;
-        if (!objetivos.has(en)) return;
-        const centro = ll.getBounds().getCenter();
-        const nombre = MAPA_MUNDI.esDe(en);
-        L.marker(centro, { interactive: false, icon: L.divIcon({ className: 'pj-flag-marker', html: '<img src="' + banderaUrl(en) + '" alt="Bandera de ' + esc(nombre) + '"><span>' + esc(nombre) + '</span>', iconSize: [76, 44], iconAnchor: [38, 22] }) }).addTo(map);
-      });
       if (kpEstado[idx] && kpEstado[idx].respondida) {
         layer.eachLayer(ll => {
           const en = ll.feature && ll.feature.properties && ll.feature.properties.name;
