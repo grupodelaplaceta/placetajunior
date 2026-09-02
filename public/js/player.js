@@ -1408,13 +1408,12 @@ function kpCompletarOpcion(idx, fi, k) {
 // ── Mapamundi (Leaflet + world-atlas) ───────────────────────────────
 const MAP_STYLE = { color: '#b6c2d9', weight: 0.5, fillColor: '#dbeafe', fillOpacity: 0.85 };
 function screenMapa(s, est) {
-  const chips = (s.paises || []).map(p => `<span class="kp-chip">${esc(p)}</span>`).join('');
+  // Sin lista de candidatos ni etiquetas: localizar no debe revelar la respuesta.
   return `<div class="kp-screen">
     <div class="kp-qt"><span class="material-symbols-rounded" aria-hidden="true">public</span> Localiza en el mapamundi · ${s.qi + 1} de ${s.n}</div>
     <div class="kp-map-q">${esc(s.pide)}</div>
     <div class="kp-map" id="kp-map-${pantallaIdx}"></div>
-    <div class="kp-map-chips">${chips}</div>
-    <div class="kp-hint">👆 Pulsa en el mapa el país correcto. Usa la rueda del ratón o pellizca para acercar.</div>
+    <div class="kp-hint">👆 Toca en el mapa dónde está el lugar que te piden. Acerca con la rueda o con dos dedos para mirar mejor.</div>
   </div>`;
 }
 function destruirMapas() {
@@ -1438,7 +1437,6 @@ function iniciarMapa(idx) {
         style: MAP_STYLE,
         onEachFeature: (feat, lyr) => {
           const en = (feat.properties && feat.properties.name) || '';
-          lyr.bindTooltip(MAPA_MUNDI.esDe(en), { sticky: true, direction: 'top', opacity: 0.92 });
           lyr.on('click', () => kpMapa(idx, en));
           lyr.on('mouseover', () => { if (!(kpEstado[idx] && kpEstado[idx].respondida)) lyr.setStyle({ fillColor: '#a5c8f0', color: '#64748b', weight: 1 }); });
           lyr.on('mouseout', () => { if (!(kpEstado[idx] && kpEstado[idx].respondida)) lyr.setStyle(MAP_STYLE); });
