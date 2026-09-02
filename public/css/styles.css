@@ -1853,3 +1853,39 @@ h1, h2, h3, h4, h5,
 .kp-save h4 .material-symbols-rounded, .kp-reward-ico, .kp-save-row .kp-btn .material-symbols-rounded { font-size: 18px; vertical-align: -4px; margin-right: 2px; }
 .kp-reward { display: flex; align-items: center; justify-content: center; gap: 4px; }
 #juniorAccPanel .acc-head { display: flex; align-items: center; justify-content: center; gap: 6px; text-align: center; }
+/* ── Mecanografía: escribir con el teclado ── */
+.kp-meca-word { font-family: var(--font-head); font-size: clamp(28px, 6vw, 44px); color: var(--pj-purple); text-align: center; margin: 6px 0 10px; letter-spacing: 2px; }
+.kp-meca-slots { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 6px auto 10px; max-width: 460px; }
+.kp-meca-slot { width: 34px; height: 44px; border: 2px solid #d7d3e6; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; background: #fff; color: var(--pj-ink); }
+.kp-meca-slot.on { border-color: var(--pj-green); background: var(--pj-green-light); color: var(--pj-green); }
+.kp-meca-slot.bad { border-color: var(--pj-red); background: var(--pj-red-light); color: var(--pj-red); }
+.kp-meca-slot.cur { border-color: var(--pj-purple); box-shadow: 0 0 0 3px var(--pj-purple-light); }
+.kp-meca-input { display: block; width: min(360px, 90%); margin: 0 auto 8px; padding: 12px 14px; border: 2px solid var(--pj-purple); border-radius: 14px; font-size: 20px; text-align: center; font-weight: 700; }
+.kp-meca-row { display: flex; justify-content: center; margin: 6px 0; }
+/* ── Números y operaciones con bloques ── */
+.nb-fig { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; align-items: center; margin: 10px auto; max-width: 420px; }
+.nb-fig-big .nb-cube { width: 30px; height: 30px; }
+.nb-op { gap: 10px; }
+.nb-cube { width: 26px; height: 26px; border-radius: 7px; display: inline-block; box-shadow: inset 0 -4px 0 rgba(0,0,0,.14), 0 2px 4px rgba(0,0,0,.12); }
+.nb-sign { font-size: 34px; font-weight: 800; color: var(--pj-purple); margin: 0 4px; }
+.nb-opts { max-width: 420px; }
+.nb-opt { font-variant-numeric: tabular-nums; }
+.nb-build-ctrl { display: flex; justify-content: center; gap: 10px; margin: 8px 0; }
+.nb-count { font-size: 20px; font-weight: 800; text-align: center; color: var(--pj-ink); margin-bottom: 6px; }
+/* Zona de construcción: arrastrar cubos y fusionarlos */
+.nb-goal { font-size: 18px; font-weight: 800; text-align: center; color: var(--pj-ink); margin-bottom: 6px; }
+.nb-goal strong { color: var(--pj-purple); font-size: 26px; }
+.nb-board { min-height: 92px; border: 3px dashed #b9c2d9; border-radius: 16px; margin: 6px auto 4px; padding: 12px 8px; display: flex; align-items: center; justify-content: center; background: #f8faff; max-width: 470px; }
+.nb-board.filled { border-style: solid; border-color: var(--pj-green); background: var(--pj-green-light); }
+.nb-board-empty { color: #8a94ad; font-weight: 700; font-size: 15px; text-align: center; }
+.nb-rod { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; align-items: center; }
+.nb-rod .nb-cube { width: 24px; height: 24px; }
+.nb-value { text-align: center; font-size: 16px; font-weight: 800; color: #4b5563; margin: 2px 0 6px; }
+.nb-value strong { color: var(--pj-purple); font-size: 20px; }
+.nb-tray { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 4px auto 6px; }
+.nb-piece { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px; border: 2px solid #d8d4e8; border-radius: 12px; background: #fff; cursor: grab; user-select: none; -webkit-user-drag: element; touch-action: manipulation; transition: transform .1s, box-shadow .1s; }
+.nb-piece:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(63, 0, 216, .15); }
+.nb-piece:active { cursor: grabbing; }
+.nb-piece-inner { display: flex; gap: 1.5px; }
+.nb-px { width: 12px; height: 12px; border-radius: 3px; display: inline-block; box-shadow: inset 0 -2px 0 rgba(0,0,0,.12); }
+.nb-piece-val { font-size: 13px; font-weight: 800; color: #1f2937; }

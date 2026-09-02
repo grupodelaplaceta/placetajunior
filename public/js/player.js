@@ -294,6 +294,36 @@ function abrirJuego(act) {
           pantallas.push({ tipo: 'espana', modo: modoEsp, qi, n: (preg || []).length, pide: q.pide || ('Haz clic en ' + q.correctaEn), correctaCod: corrCod, correctaEn: q.correctaEn || MAPA_MUNDI.nombreEspana(modoEsp, corrCod) });
           kpEstado.push({ respondida: false, acierto: null, sel: null });
         });
+      } else if (b.tipo === 'mecanografia') {
+        const items = (b.palabras || b.items || (b.texto ? [b.texto] : [])).map(x => String(x).trim()).filter(Boolean);
+        items.forEach((target, mi) => {
+          pantallas.push({ tipo: 'meca', mi, n: items.length, target });
+          kpEstado.push({ typed: '', respondida: false, acierto: null });
+        });
+      } else if (b.tipo === 'numero_bloques') {
+        const modoNb = ['sumar', 'restar', 'construir', 'contar'].includes(b.modo) ? b.modo : 'contar';
+        const ejesNb = (b.ejercicios && b.ejercicios.length) ? b.ejercicios : [{}];
+        ejesNb.forEach((ej, ei) => {
+          const aNb = Math.max(0, Math.min(12, Number(ej.a) || 0));
+          const bNb = Math.max(0, Math.min(12, Number(ej.b) || 0));
+          let correctoNb, preguntaNb, piezasNb = [];
+          if (modoNb === 'sumar') { correctoNb = aNb + bNb; preguntaNb = '¿Cuánto es ' + aNb + ' + ' + bNb + '?'; }
+          else if (modoNb === 'restar') { correctoNb = Math.max(0, aNb - bNb); preguntaNb = '¿Cuánto es ' + aNb + ' − ' + bNb + '?'; }
+          else if (modoNb === 'construir') {
+            correctoNb = Math.max(1, Math.min(20, Number(ej.objetivo ?? ej.a ?? 5) || 5));
+            preguntaNb = 'Construye el número ' + correctoNb + ' con cubos';
+            piezasNb = (Array.isArray(ej.piezas) && ej.piezas.length)
+              ? ej.piezas.map(Number).filter(v => v > 0 && v <= correctoNb)
+              : nbPiezas(correctoNb);
+            if (!piezasNb.includes(1)) piezasNb = [1].concat(piezasNb);
+          }
+          else { correctoNb = Math.max(1, Math.min(20, Number(ej.objetivo ?? ej.a ?? 5) || 5)); preguntaNb = '¿Cuántos cubos hay?'; }
+          const opsNb = (modoNb === 'construir')
+            ? []
+            : ((Array.isArray(ej.opciones) && ej.opciones.length) ? ej.opciones.map(Number).filter(v => !isNaN(v)) : nbOpciones(correctoNb));
+          pantallas.push({ tipo: 'nb', modo: modoNb, ei, n: ejesNb.length, a: aNb, b: bNb, objetivo: (modoNb === 'construir' || modoNb === 'contar') ? correctoNb : 0, correcto: correctoNb, opciones: opsNb.length ? opsNb : nbOpciones(correctoNb), piezas: piezasNb, preguntaNb });
+          kpEstado.push({ contador: 0, historia: [], respondida: false, acierto: null, sel: null, aviso: '' });
+        });
       } else if (['arrastrar','buscar','detective','laboratorio','construccion','presupuesto','dinero_euro','construir_frase','clasificar_palabras','completar_palabra','cazador_errores','lectura_interactiva','exploracion','simulacion','historia_interactiva','memoria','sonido','codigo_secreto','escape_room'].includes(b.tipo) && (b.datos || b.palabras || b.texto || b.escenas || b.elementos || b.categorias)) {
         pantallas.push({ tipo: 'interactivo', bi, nivelIndex: b.nivelIndex });
         kpEstado.push({ respondida: false, seleccion: [], lanzamientos: [], gastado: 0, clasificarIndice: 0, clasificarRespuestas: {} });
@@ -504,6 +534,8 @@ function renderPantalla() {
   else if (s.tipo === 'problema') cuerpo = screenProblema(s, est);
   else if (s.tipo === 'mapa') cuerpo = screenMapa(s, est);
   else if (s.tipo === 'espana') cuerpo = screenEspana(s, est);
+  else if (s.tipo === 'meca') cuerpo = screenMeca(s, est);
+  else if (s.tipo === 'nb') cuerpo = screenNB(s, est);
   else if (s.tipo === 'code') cuerpo = screenCode(s, est);
   else if (s.tipo === 'code_explica') cuerpo = screenCodeExplica(s);
   else if (s.tipo === 'interactivo') cuerpo = screenInteractive(s, est);
@@ -547,6 +579,7 @@ function renderPantalla() {
   if (s.tipo === 'calculo') iniciarTimerCalculo();
   if (s.tipo === 'mapa') iniciarMapa(pantallaIdx);
   if (s.tipo === 'espana') iniciarEspana(pantallaIdx);
+  if (s.tipo === 'meca') { const mi = document.getElementById('kp-meca-input-' + pantallaIdx); if (mi) setTimeout(function () { try { mi.focus(); } catch (e) { /* ok */ } }, 150); }
   if (s.tipo === 'portada') cargarPortadaImg(pantallaIdx);
   if (s.tipo === 'code') { kpCodeDibujarEscenario(); kpCodePintarPrograma(); }
 
@@ -605,6 +638,8 @@ function textoPantallaWeb(s) {
   if (s.tipo === 'problema') { const b = bloquesJuego[s.bi]; const p = (b.problemas || [])[s.pi] || {}; return 'Problema. ' + (p.enunciado || '') + ' ' + (p.frase || p.pregunta || '¿Cuánto es?'); }
   if (s.tipo === 'mapa') return 'Localiza en el mapamundi: ' + (s.pide || '');
   if (s.tipo === 'espana') return (s.modo === 'comunidades' ? 'Comunidades autónomas de España. ' : 'Provincias de España. ') + (s.pide || '');
+  if (s.tipo === 'meca') return 'Escribe con el teclado la palabra: ' + (s.target || '');
+  if (s.tipo === 'nb') return 'Números con bloques. ' + (s.pideTexto || s.pregunta || '');
   if (s.tipo === 'code') return 'Placeta Junior Code. Ejercicio ' + ((s.ejercicio || 0) + 1) + '. ' + (s.objetivo_texto || 'Lleva a Candela hasta la estrella.');
   if (s.tipo === 'code_explica') return 'Placeta Junior Code. ' + (s.explicacion || 'Pulsa los bloques para programar a Candela.');
   if (s.tipo === 'final') return '¡Enhorabuena! Actividad completada.';
@@ -1543,6 +1578,191 @@ function kpMapa(idx, en) {
     renderPantalla();
   });
 }
+
+// ── Mecanografía: escribir palabras/textos con el teclado ───────────
+function normalizaMeca(s) { return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+function kpMecaSlots(s, est) {
+  const t = s.target || '', typed = est.typed || '';
+  let h = '';
+  for (let i = 0; i < t.length; i++) {
+    let cls = 'kp-meca-slot', val = '&nbsp;';
+    if (i < typed.length) {
+      if (normalizaMeca(typed[i]) === normalizaMeca(t[i])) { cls += ' on'; val = esc(t[i]); }
+      else { cls += ' bad'; val = esc(typed[i]); }
+    } else if (i === typed.length) { cls += ' cur'; }
+    h += '<span class="' + cls + '">' + val + '</span>';
+  }
+  return '<div class="kp-meca-slots" role="textbox" aria-label="Escribe: ' + esc(t) + '">' + h + '</div>';
+}
+function screenMeca(s, est) {
+  const t = s.target || '';
+  const done = est.respondida;
+  return `<div class="kp-screen kp-meca-screen">
+    <div class="kp-qt"><span class="material-symbols-rounded" aria-hidden="true">keyboard</span> Escribe con el teclado · ${s.mi + 1} de ${s.n}</div>
+    <div class="kp-meca-word">${esc(t)}</div>
+    <div id="kp-meca-slots-${pantallaIdx}">${kpMecaSlots(s, est)}</div>
+    <input id="kp-meca-input-${pantallaIdx}" class="kp-meca-input" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" placeholder="Escribe aquí…" ${done ? 'disabled' : ''} oninput="kpMecaInput(this, ${pantallaIdx})" onkeydown="if(event.key==='Enter'){ event.preventDefault(); kpMecaInput(this, ${pantallaIdx}); }" />
+    <div class="kp-meca-row"><button type="button" class="kp-btn kp-btn-ghost" onclick="kpMecaSkip(${pantallaIdx})">No lo sé</button></div>
+    <div class="kp-hint">⌨️ Escribe en el teclado la palabra de arriba.</div>
+  </div>`;
+}
+function kpMecaInput(el, idx) {
+  const s = pantallas[idx], est = kpEstado[idx];
+  if (!s || est.respondida || s.tipo !== 'meca') return;
+  let v = (typeof el === 'string' ? el : (el && el.value)) || '';
+  if (v.length > s.target.length) { v = v.slice(0, s.target.length); if (el && el.value !== undefined) el.value = v; }
+  est.typed = v;
+  const caja = document.getElementById('kp-meca-slots-' + idx);
+  if (caja) caja.innerHTML = kpMecaSlots(s, est);
+  if (v === s.target) {
+    est.respondida = true; est.acierto = true;
+    kpScore.verdes++; if (window.pjSonido) pjSonido.exito();
+    renderPantalla();
+    mostrarFeedback(true, s.target, function () { if (pantallaIdx < pantallas.length - 1) pantallaIdx++; renderPantalla(); });
+  }
+}
+function kpMecaSkip(idx) {
+  const s = pantallas[idx], est = kpEstado[idx];
+  if (!s || est.respondida || s.tipo !== 'meca') return;
+  est.respondida = true; est.acierto = false;
+  kpScore.rojos++; if (window.pjSonido) pjSonido.error();
+  renderPantalla();
+  mostrarFeedback(false, 'La palabra era «' + s.target + '»', function () { if (pantallaIdx < pantallas.length - 1) pantallaIdx++; renderPantalla(); });
+}
+
+// ── Números y operaciones con bloques (estilo "cubitos") ────────────
+function nbColor(n) { const p = ['#ff8a00', '#e11d48', '#7c3aed', '#2563eb', '#0d9488', '#16a34a', '#eab308', '#db2777']; return p[n % p.length]; }
+function nbOpciones(c) {
+  const set = new Set([c]); let d = 1;
+  while (set.size < 4) { if (c + d >= 0) set.add(c + d); if (c - d >= 0) set.add(c - d); d++; }
+  let arr = [...set].slice(0, 4);
+  for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp; }
+  return arr;
+}
+function nbCubos(n, colorOverride) {
+  let h = '';
+  for (let i = 0; i < n; i++) { h += '<span class="nb-cube" style="background:' + (colorOverride || nbColor(n)) + '"></span>'; }
+  return h;
+}
+function nbPiezas(T) {
+  const base = [1, 2, 3, 4, 5, 10];
+  let arr = base.filter(v => v < T);                 // nunca regala la pieza = objetivo
+  if (arr.length < 4) {
+    for (let i = 1; arr.length < 4 && i < T; i++) { if (!arr.includes(i)) arr.push(i); }
+  }
+  arr.sort((x, y) => x - y);
+  if (!arr.includes(1)) arr.unshift(1);              // el 1 garantiza poder construirlo
+  return arr.length ? arr : [1];
+}
+function nbPiezaHTML(v) {
+  const c = nbColor(v);
+  let sq = '';
+  const mini = Math.min(v, 10);
+  for (let i = 0; i < mini; i++) sq += '<span class="nb-px" style="background:' + c + '"></span>';
+  return '<span class="nb-piece-inner">' + sq + '</span><span class="nb-piece-val">' + v + '</span>';
+}
+function screenNB(s, est) {
+  const M = s.modo;
+  const etiquetas = { contar: 'Contar', sumar: 'Sumar', restar: 'Restar', construir: 'Construir' };
+  let cuerpo = '', opsHTML = '';
+  if (M !== 'construir') {
+    opsHTML = '<div class="kp-opts nb-opts">' + (s.opciones || []).map((o, k) =>
+      '<div class="kp-opt nb-opt" onclick="kpNBResp(' + pantallaIdx + ',' + Number(o) + ')"><span class="kp-letra">' + 'ABCD'[k] + '</span>' + Number(o) + '</div>').join('') + '</div>';
+  }
+  if (M === 'contar') {
+    cuerpo = '<div class="nb-fig nb-fig-big">' + nbCubos(s.correcto) + '</div>';
+  } else if (M === 'sumar' || M === 'restar') {
+    const sg = (M === 'sumar') ? '+' : '−';
+    cuerpo = '<div class="nb-fig nb-op">' + nbCubos(s.a) + '<span class="nb-sign">' + sg + '</span>' + nbCubos(s.b) + '</div>';
+  } else {
+    const n = est.contador || 0, meta = s.objetivo || 0, queda = meta - n;
+    const piezas = s.piezas || [];
+    const piezasHTML = piezas.map(v => '<div class="nb-piece" draggable="true" data-v="' + v + '" title="Bloque de valor ' + v + '" role="button" tabindex="0" aria-label="Añadir bloque de valor ' + v + '" ondragstart="kpNBDrag(event)" onclick="kpNBAdd(event,' + pantallaIdx + ',' + v + ')">' + nbPiezaHTML(v) + '</div>').join('');
+    cuerpo = '<div class="nb-build">' +
+      '<div class="nb-goal">Meta: <strong>' + meta + '</strong>' + (queda > 0 ? ' · te faltan ' + queda : ' · ¡completado!') + '</div>' +
+      '<div class="nb-board' + (n ? ' filled' : '') + '" ondrop="kpNBAdd(event,' + pantallaIdx + ',null)" ondragover="if(event.preventDefault)event.preventDefault()" aria-label="Zona para construir el número">' +
+        (n === 0 ? '<span class="nb-board-empty">Arrastra aquí los cubos para fusionarlos</span>' : '<span class="nb-rod" style="--c:' + nbColor(n) + '">' + nbCubos(n, nbColor(n)) + '</span>') +
+      '</div>' +
+      '<div class="nb-value"><strong>' + n + '</strong> cubo' + (n === 1 ? '' : 's') + ' fusionados</div>' +
+      '<div class="nb-tray" aria-label="Cubos que puedes arrastrar">' + piezasHTML + '</div>' +
+      '<div id="kp-nb-aviso-' + pantallaIdx + '" class="kp-msg' + (est.aviso ? ' bad' : '') + '">' + esc(est.aviso || '') + '</div>' +
+      '<div class="nb-build-ctrl">' +
+        '<button type="button" class="kp-btn kp-btn-ghost" onclick="kpNBDeshacer(' + pantallaIdx + ')" ' + (!(est.historia && est.historia.length) ? 'disabled' : '') + '>Deshacer</button>' +
+        '<button type="button" class="kp-btn kp-btn-ghost" onclick="kpNBReset(' + pantallaIdx + ')" ' + (!n ? 'disabled' : '') + '>Reiniciar</button>' +
+      '</div></div>';
+  }
+  return `<div class="kp-screen kp-nb-screen">
+    <div class="kp-qt"><span class="material-symbols-rounded" aria-hidden="true">123</span> ${etiquetas[M] || M} con bloques · ${s.ei + 1} de ${s.n}</div>
+    <div class="kp-map-q">${esc(s.preguntaNb || '')}</div>
+    ${cuerpo}
+    ${opsHTML}
+    <div class="kp-hint">${M === 'construir' ? 'Arrastra los cubos a la zona y se fusionarán. ¡Consigue llegar justo al número!' : 'Cuenta los cubos y elige la respuesta correcta.'}</div>
+  </div>`;
+}
+function kpNBResp(idx, val) {
+  const s = pantallas[idx], est = kpEstado[idx];
+  if (!s || est.respondida || s.tipo !== 'nb' || s.modo === 'construir') return;
+  const ok = Number(val) === s.correcto;
+  est.respondida = true; est.sel = val; est.acierto = ok;
+  if (ok) { kpScore.verdes++; if (window.pjSonido) pjSonido.exito(); }
+  else { kpScore.rojos++; if (window.pjSonido) pjSonido.error(); }
+  renderPantalla();
+  mostrarFeedback(ok, String(s.correcto), function () { if (pantallaIdx < pantallas.length - 1) pantallaIdx++; renderPantalla(); });
+}
+function kpNBDrag(e) {
+  try {
+    const pieza = e.target && e.target.closest ? e.target.closest('.nb-piece') : null;
+    if (pieza && e.dataTransfer) { e.dataTransfer.setData('text/plain', String(pieza.dataset.v)); e.dataTransfer.effectAllowed = 'move'; }
+  } catch (err) { /* ok */ }
+}
+function kpNBAdd(ev, idx, v) {
+  const s = pantallas[idx], est = kpEstado[idx];
+  if (!s || est.respondida || s.tipo !== 'nb' || s.modo !== 'construir') return;
+  if (ev && ev.preventDefault) ev.preventDefault();
+  let val = (Number(v) > 0) ? Number(v) : 0;
+  if (!val && ev && ev.dataTransfer) { const raw = ev.dataTransfer.getData('text/plain'); if (raw !== '') val = Number(raw); }
+  if (!val || isNaN(val) || val <= 0 || !(s.piezas || []).includes(val)) return;
+  const cur = est.contador || 0;
+  if (cur + val > s.objetivo) {
+    est.aviso = 'Te pasas: el bloque de ' + val + ' no cabe en ' + s.objetivo + '. Prueba con uno más pequeño.';
+    if (window.pjSonido) pjSonido.error();
+    const el = document.getElementById('kp-nb-aviso-' + idx);
+    if (el) { el.textContent = est.aviso; el.classList.add('bad'); el.classList.remove('ok'); }
+    return;
+  }
+  (est.historia = est.historia || []).push(val);
+  est.contador = cur + val;
+  est.aviso = '';
+  if (est.contador === s.objetivo) {
+    est.respondida = true; est.acierto = true;
+    kpScore.verdes++; if (window.pjSonido) pjSonido.exito();
+    renderPantalla();
+    mostrarFeedback(true, '¡Has construido el ' + s.objetivo + ' fusionando los cubos!', function () { if (pantallaIdx < pantallas.length - 1) pantallaIdx++; renderPantalla(); });
+  } else { renderPantalla(); }
+}
+function kpNBDeshacer(idx) {
+  const s = pantallas[idx], est = kpEstado[idx];
+  if (!s || est.respondida || s.tipo !== 'nb' || s.modo !== 'construir') return;
+  const ultimo = (est.historia || []).pop();
+  if (ultimo == null) return;
+  est.contador = Math.max(0, (est.contador || 0) - ultimo);
+  est.aviso = '';
+  renderPantalla();
+}
+function kpNBReset(idx) {
+  const s = pantallas[idx], est = kpEstado[idx];
+  if (!s || est.respondida || s.tipo !== 'nb' || s.modo !== 'construir') return;
+  est.contador = 0; est.historia = []; est.aviso = '';
+  renderPantalla();
+}
+// Enter/Espacio activan una pieza de bloques cuando tiene el foco (accesibilidad).
+document.addEventListener('keydown', function (e) {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const t = e.target;
+  if (!t || !t.classList || !t.classList.contains('nb-piece')) return;
+  e.preventDefault();
+  try { t.click(); } catch (err) { /* ok */ }
+});
 
 // ── Placeta Junior Code: editor de bloques (integrado en el player) ──
 // Estética "cute": botones redondeados con iconos SVG descriptivos (no emojis).
