@@ -135,6 +135,7 @@ Reglas:
 - Empieza SIEMPRE con un bloque "texto" que enseñe el contenido antes de las preguntas.
 - ACCESIBILIDAD: si un bloque usa "imagen_url" o una pareja usa "izq_img", incluye SIEMPRE el texto alternativo en "imagen_alt" o "izq_alt" (una descripción breve de lo que muestra la imagen, p. ej. "Niña leyendo un libro"). Es obligatorio para la accesibilidad.
 - FUENTES DE IMÁGENES: si usas una imagen real, indica SIEMPRE su procedencia en "fuente" (bloque) o "izq_fuente" (pareja), p. ej. "Foto: NASA · dominio público". Si la imagen es decorativa o inventada, deja la fuente en blanco.
+- URLS DE IMAGEN: escribe SIEMPRE la URL directa ("https://...") en "imagen_url" o "izq_img". NUNCA la envuelvas como enlace Markdown [texto](url), aunque la URL contenga ':' (p. ej. https://commons.wikimedia.org/wiki/Special:FilePath/Bandera_de_España.svg o .../wiki/Special:Redirect/file/X.svg): el ':' parte el enlace y la imagen no se muestra.
 - PRECIOS Y RECOMPENSA (en Pz, IVA incluido): usa 0 para gratis. "precio_licencia" es lo que cuesta desbloquear la actividad para siempre, "precio_intento" lo que cuesta cada intento, "recompensa" el MÁXIMO que gana el niño al completarla (el backend la ajusta según aciertos y errores) y "subvencionada" true solo si una entidad la cubre (entonces es gratis para el niño).
 - CODE_BLOCKS (Placeta Junior Code): crea una lista `ejercicios` con 3-5 retos progresivos (del más fácil al más difícil). Cada ejercicio tiene: `titulo`, `explicacion` (frase corta explicando qué hacer), `objetivo_texto`, `bloques_permitidos` (solo los necesarios para ese ejercicio: avanzar, retroceder, girar, saltar, repetir, si), `escenario` de cuadrícula (ancho/alto, obstáculos y monedas), `inicio` (x,y,direccion de Candela) y `objetivo` (posicion x,y, opcionalmente monedas/max_pasos/debe_usar) y `pistas`. El objetivo siempre es llevar a Candela (👧) a la estrella (⭐) sin chocar. Empieza con ejercicios muy sencillos (solo AVANZAR) y añade GIRAR, luego obstáculos, REPETIR y SI poco a poco.
 - En completar, usa palabras en SINGULAR y, en modo opciones, escribe "opciones" (distractores).
@@ -341,6 +342,7 @@ Reglas:
       let obj;
       try { obj = JSON.parse($('codigo').value); }
       catch (e) { aviso('❌ El código no es JSON válido: ' + e.message, true); return; }
+      if (pjSaneaImagenes(obj) > 0) $('codigo').value = JSON.stringify(obj, null, 2);
       const contenido = (obj.contenido && typeof obj.contenido === 'object') ? obj.contenido : obj;
       const niveles = Array.isArray(contenido.niveles) ? contenido.niveles : (Array.isArray(contenido.diapositivas) ? contenido.diapositivas : []);
       const bloquesRaiz = Array.isArray(contenido.bloques) ? contenido.bloques : [];
@@ -453,6 +455,7 @@ Reglas:
       let obj;
       try { obj = JSON.parse($('codigo').value); }
       catch (e) { aviso('❌ El código no es JSON válido: ' + e.message, true); return; }
+      if (pjSaneaImagenes(obj) > 0) $('codigo').value = JSON.stringify(obj, null, 2);
        const contenido = (obj.contenido && typeof obj.contenido === 'object') ? obj.contenido : { version: 2, bloques: obj.bloques || [] };
        // Acepta tanto el nombre que usa DevAI como el histórico del Studio.
        if (!Array.isArray(contenido.niveles) && Array.isArray(contenido.diapositivas)) contenido.niveles = contenido.diapositivas;
@@ -587,11 +590,55 @@ Reglas:
 
     function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
+    // ── Reparación de URLs de imagen ──────────────────────────────────
+    // A veces una URL de imagen llega partida como enlace Markdown por el ':'
+    // de la propia URL (p. ej. "…/wiki/Special:Redirect/file/X.svg"):
+    //   "[https://…/wiki/Special](https://…/wiki/Special):Redirect/file/X.svg"
+    // Aquí se reconstruye la URL real para que la imagen pueda mostrarse.
+    function pjUrlImg(u) {
+      u = String(u ?? '').trim();
+      if (!u) return u;
+      const ini = u.indexOf('](');
+      if (ini > -1) {
+        const fin = u.indexOf(')', ini + 2);
+        if (fin > -1) {
+          const etiqueta = u.slice(0, ini).replace(/^\[\s*/, '').trim();
+          const href = u.slice(ini + 2, fin).trim();
+          const resto = u.slice(fin + 1).trim();
+          for (const c of [href + resto, href, etiqueta]) {
+            const limpia = pjUrlEsquema(c);
+            if (/^https?:\/\//i.test(limpia)) return limpia;
+          }
+        }
+      }
+      return pjUrlEsquema(u);
+    }
+    function pjUrlEsquema(u) {
+      return String(u ?? '').trim().replace(/^([a-z][a-z0-9+.\-]*):\/([^/])/i, '$1://$2');
+    }
+    function pjEsCampoImagen(k) {
+      return k === 'imagen_url' || k === 'imagenUrl' || k === 'image_url' || k === 'imageUrl' || k === 'imagen' || k === 'izq_img' || k === 'izq_imagen_url' || k === 'izqImg' || k === 'portada_url' || k === 'portadaUrl';
+    }
+    function pjSaneaImagenes(raiz) {
+      if (!raiz) return 0;
+      let cambios = 0;
+      if (Array.isArray(raiz)) { for (const x of raiz) cambios += pjSaneaImagenes(x); return cambios; }
+      if (raiz && typeof raiz === 'object') {
+        for (const k of Object.keys(raiz)) {
+          const v = raiz[k];
+          if (typeof v === 'string') {
+            if (pjEsCampoImagen(k)) { const c = pjUrlImg(v); if (c !== v) { raiz[k] = c; cambios++; } }
+          } else if (v && typeof v === 'object') { cambios += pjSaneaImagenes(v); }
+        }
+      }
+      return cambios;
+    }
+
     // Renderiza una imagen en la previsualización con su texto alternativo
     // (alt) y su fuente editables. Los paths apuntan al JSON de #codigo.
     function imgPrev(url, alt, fuente, altPath, fuentePath) {
       return '<div class="prev-img">'
-        + '<img src="' + esc(url) + '" alt="' + esc(alt || '') + '">'
+        + '<img src="' + esc(pjUrlImg(url)) + '" alt="' + esc(alt || '') + '">'
         + '<div class="prev-alt"><span class="prev-alt-tag">Alt (accesibilidad)</span>'
         + '<input type="text" class="alt-input" data-alt-path="' + esc(altPath) + '" value="' + esc(alt || '') + '" placeholder="Describe la imagen…">'
         + '</div>'

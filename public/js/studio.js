@@ -190,6 +190,51 @@ let imgTarget = null; // dónde se aplicará la imagen del modal
 function $(id) { return document.getElementById(id); }
 function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
+// ── Reparación de URLs de imagen ─────────────────────────────────────
+// Algunas actividades (generadas con IA) guardan la URL de la imagen como
+// un enlace Markdown partido por el ':' de la propia URL (p. ej. el ':' de
+// "…/wiki/Special:Redirect/file/X.svg"). Ejemplo real guardado:
+//   "imagen_url": "[https://…/wiki/Special](https://…/wiki/Special):Redirect/file/X.svg"
+// Aquí se reconstruye la URL real para que la imagen pueda mostrarse.
+function pjUrlImg(u) {
+  u = String(u ?? '').trim();
+  if (!u) return u;
+  const ini = u.indexOf('](');
+  if (ini > -1) {
+    const fin = u.indexOf(')', ini + 2);
+    if (fin > -1) {
+      const etiqueta = u.slice(0, ini).replace(/^\[\s*/, '').trim();
+      const href = u.slice(ini + 2, fin).trim();
+      const resto = u.slice(fin + 1).trim();
+      for (const c of [href + resto, href, etiqueta]) {
+        const limpia = pjUrlEsquema(c);
+        if (/^https?:\/\//i.test(limpia)) return limpia;
+      }
+    }
+  }
+  return pjUrlEsquema(u);
+}
+function pjUrlEsquema(u) {
+  return String(u ?? '').trim().replace(/^([a-z][a-z0-9+.\-]*):\/([^/])/i, '$1://$2');
+}
+function pjEsCampoImagen(k) {
+  return k === 'imagen_url' || k === 'imagenUrl' || k === 'image_url' || k === 'imageUrl' || k === 'imagen' || k === 'izq_img' || k === 'izq_imagen_url' || k === 'izqImg' || k === 'portada_url' || k === 'portadaUrl';
+}
+function pjSaneaImagenes(raiz) {
+  if (!raiz) return 0;
+  let cambios = 0;
+  if (Array.isArray(raiz)) { for (const x of raiz) cambios += pjSaneaImagenes(x); return cambios; }
+  if (raiz && typeof raiz === 'object') {
+    for (const k of Object.keys(raiz)) {
+      const v = raiz[k];
+      if (typeof v === 'string') {
+        if (pjEsCampoImagen(k)) { const c = pjUrlImg(v); if (c !== v) { raiz[k] = c; cambios++; } }
+      } else if (v && typeof v === 'object') { cambios += pjSaneaImagenes(v); }
+    }
+  }
+  return cambios;
+}
+
 // ── Multi-proyecto ───────────────────────────────────────────────────
 // Todos los proyectos se guardan en localStorage bajo 'pj-studio-proyectos'
 // (un objeto { id: { nombre, bloques, meta, actualizado } }). El activo se
@@ -204,6 +249,7 @@ function listarProyectos() {
   } catch (e) { return {}; }
 }
 function guardarProyecto(nombre) {
+  pjSaneaImagenes(bloques);
   const clave = (nombre || '').trim() || 'Mi actividad';
   const d = listarProyectos();
   if (!d[clave]) d[clave] = { nombre: clave };
@@ -375,6 +421,7 @@ function cargar() {
 
 // ── Render ───────────────────────────────────────────────────────────
 function render() {
+  pjSaneaImagenes(bloques);
   const canvas = $('canvas');
   if (bloques.length === 0) {
     canvas.innerHTML = '<div id="canvas-empty" class="canvas-empty">Arrastra bloques aquí 👇</div>';

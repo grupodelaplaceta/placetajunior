@@ -23,8 +23,53 @@ let guardandoDIP = false;
 function esc(s) {
   return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
+// ── Reparación de URLs de imagen ─────────────────────────────────────
+// Algunas actividades (generadas con IA) guardan la URL de la imagen como
+// un enlace Markdown partido por el ':' de la propia URL. Ejemplo real:
+//   "imagen_url": "[https://…/wiki/Special](https://…/wiki/Special):Redirect/file/X.svg"
+// (la URL original era …/wiki/Special:Redirect/file/X.svg). Aquí se
+// reconstruye la URL real para que la imagen pueda mostrarse, y se restaura
+// el esquema si quedó con un solo "/" (https:/host).
+function pjUrlImg(u) {
+  u = String(u ?? '').trim();
+  if (!u) return u;
+  const ini = u.indexOf('](');
+  if (ini > -1) {
+    const fin = u.indexOf(')', ini + 2);
+    if (fin > -1) {
+      const etiqueta = u.slice(0, ini).replace(/^\[\s*/, '').trim();
+      const href = u.slice(ini + 2, fin).trim();
+      const resto = u.slice(fin + 1).trim();
+      for (const c of [href + resto, href, etiqueta]) {
+        const limpia = pjUrlEsquema(c);
+        if (/^https?:\/\//i.test(limpia)) return limpia;
+      }
+    }
+  }
+  return pjUrlEsquema(u);
+}
+function pjUrlEsquema(u) {
+  return String(u ?? '').trim().replace(/^([a-z][a-z0-9+.\-]*):\/([^/])/i, '$1://$2');
+}
+function pjEsCampoImagen(k) {
+  return k === 'imagen_url' || k === 'imagenUrl' || k === 'image_url' || k === 'imageUrl' || k === 'imagen' || k === 'izq_img' || k === 'izq_imagen_url' || k === 'izqImg' || k === 'portada_url' || k === 'portadaUrl';
+}
+function pjSaneaImagenes(raiz) {
+  if (!raiz) return 0;
+  let cambios = 0;
+  if (Array.isArray(raiz)) { for (const x of raiz) cambios += pjSaneaImagenes(x); return cambios; }
+  if (raiz && typeof raiz === 'object') {
+    for (const k of Object.keys(raiz)) {
+      const v = raiz[k];
+      if (typeof v === 'string') {
+        if (pjEsCampoImagen(k)) { const c = pjUrlImg(v); if (c !== v) { raiz[k] = c; cambios++; } }
+      } else if (v && typeof v === 'object') { cambios += pjSaneaImagenes(v); }
+    }
+  }
+  return cambios;
+}
 function kpImg(url, fuente, alt) {
-  return `<div class="kp-img"><img src="${esc(url)}" alt="${esc(alt || '')}"><div class="kp-fuente">📸 ${esc(fuente || 'Fuente sin indicar')}</div></div>`;
+  return `<div class="kp-img"><img src="${esc(pjUrlImg(url))}" alt="${esc(alt || '')}"><div class="kp-fuente">📸 ${esc(fuente || 'Fuente sin indicar')}</div></div>`;
 }
 function imagenDePJ(b) { return b && (b.imagen_url || b.imagenUrl || b.imagen || b.image_url || b.imageUrl || ''); }
 function shuffleArr(a) {
@@ -97,6 +142,9 @@ function generarSopa(palabras, tamano) {
 
 // ── Abrir el juego de una actividad publicada ────────────────────────
 function abrirJuego(act) {
+  // Reconstruye las URLs de imagen guardadas partidas como enlace Markdown
+  // (por el ':' de URLs como …/wiki/Special:Redirect/file/X.svg).
+  if (act) pjSaneaImagenes(act);
   actividadActual = act || null;
   if (window.pjSonido) pjSonido.abrir();
   const esCode = act && (String(act.tipo || '').startsWith('code') || (act.contenido && act.contenido.tipo === 'code_blocks'));
@@ -125,6 +173,8 @@ function abrirJuego(act) {
       return [caratula, encabezado, ...bloques.map(b => ({ ...b, nivelIndex: i }))];
     });
   }
+  // Cobertura adicional para bloques reconstruidos desde contenido en string.
+  if (!esCode) pjSaneaImagenes(bloquesJuego);
   if (!esCode && !bloquesJuego.length) { juniorAviso('Esta actividad aún no tiene contenido jugable.', 'error'); return; }
   pantallas = [];
   kpEstado = [];
@@ -1200,7 +1250,7 @@ function screenRelacionar(s, est) {
   const izqCls = (j) => (hechas[j] ? ' ok' : (est.izq === j ? ' sel' : ''));
   const derCls = (j) => (hechas[j] ? ' ok' : '');
   const itemIzq = (j) => pares[j].izq_img
-    ? `<div class="kp-pair-img" style="background-image:url('${esc(pares[j].izq_img)}')" role="img" aria-label="${esc(pares[j].izq_alt || pares[j].izq || 'Imagen')}" title="${esc(pares[j].izq || '')}"></div>`
+    ? `<div class="kp-pair-img" style="background-image:url('${esc(pjUrlImg(pares[j].izq_img))}')" role="img" aria-label="${esc(pares[j].izq_alt || pares[j].izq || 'Imagen')}" title="${esc(pares[j].izq || '')}"></div>`
     : esc(pares[j].izq || '…');
   let html = `<div class="kp-screen">
     <div class="kp-qt">🔗 Relacionar</div>`;
