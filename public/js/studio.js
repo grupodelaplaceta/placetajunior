@@ -2092,6 +2092,9 @@ function screenFinal(s) {
         <div class="kp-score-item verdes"><span class="kp-score-num">🟢</span>${kpScore.verdes} <small>puntos verdes</small></div>
         <div class="kp-score-item rojos"><span class="kp-score-num">🔴</span>${kpScore.rojos} <small>puntos rojos</small></div>
       </div>
+      <div class="kp-end-actions">
+        <button type="button" class="kp-btn" onclick="cerrarPreview()"><span class="material-symbols-rounded">home</span> Volver al menú</button>
+      </div>
       <div class="kp-hint">💪 ¡Sigue así, campeón!</div>
     </div>`;
 }
