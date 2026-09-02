@@ -605,6 +605,10 @@ async function descargarPdf(id) {
     } else if (b.tipo === 'mapa_mundi' && b.paises && b.paises.length) {
       const recon = (b.paises || []).map(p => String(p).trim()).filter(Boolean).filter(p => window.MAPA_MUNDI && MAPA_MUNDI.paises[p]);
       cuerpo += '<div class="ws-sec ws-mapa"><h4>Localiza en el mapamundi</h4>' + wsImg(b.imagen_url, b.fuente) + '<div class="ws-map-wrap" data-mapa="1" data-paises="' + esc(JSON.stringify(recon)) + '"></div><p class="ws-words">' + recon.map(esc).join(' · ') + '</p><p class="ws-hint">Busca cada país en el mapamundi y señálalo.</p></div>';
+    } else if (b.tipo === 'mapa_espana' && b.objetivos && b.objetivos.length) {
+      const modoPdf = b.modo === 'comunidades' ? 'comunidades autónomas' : 'provincias';
+      cuerpo += '<div class="ws-sec ws-mapa"><h4>Localiza en el mapa de España (' + modoPdf + ')</h4>' + wsImg(b.imagen_url, b.fuente) + '<p class="ws-words">' + b.objetivos.map(esc).join(' · ') + '</p><p class="ws-hint">Colorea o numera cada zona en un mapa de España.</p></div>';
+      b.objetivos.forEach((o, k) => { cuerpo += '<div class="ws-line"><span class="ws-n">' + (k + 1) + '.</span> ' + esc(o) + '</div>'; });
     } else if (b.tipo === 'esquema') {
       const esquema = b.esquema || b.escena || b;
       const elementos = Array.isArray(esquema.elementos) ? esquema.elementos : [];

@@ -111,6 +111,7 @@
       { "tipo": "cazador_errores", "texto": "Ayer fuimos al parque y vimos un pajaro.", "errores": [ { "incorrecto": "pajaro", "correcto": "pájaro" } ] },
       { "tipo": "lectura_interactiva", "escenas": [ { "texto": "Candela encuentra una caja misteriosa.", "opciones": [ { "texto": "Abrir la caja", "siguiente": 1 }, { "texto": "Buscar ayuda", "siguiente": 1 } ] }, { "texto": "¡Dentro hay una sorpresa!", "opciones": [] } ] },
       { "tipo": "mapa_mundi", "paises": ["España", "Francia", "Italia", "Portugal"] },
+      { "tipo": "mapa_espana", "modo": "provincias", "titulo": "Provincias de España", "objetivos": ["Asturias", "Madrid", "Toledo", "Málaga"] },
       { "tipo": "arrastrar", "titulo": "Recicla con Candela", "instrucciones": "Coloca cada objeto en su contenedor.", "datos": { "elementos": ["🍌|Cáscara|orgánico"], "zonas": ["orgánico","papel"], "respuestas": { "Cáscara": "orgánico" } } },
       { "tipo": "buscar", "titulo": "Busca y encuentra", "instrucciones": "Encuentra los objetos.", "datos": { "objetos": ["💡|Lámpara|1","🪑|Silla|0"], "objetivo": 1 } },
       { "tipo": "detective", "datos": { "pistas": ["Estuvo en la cocina."], "opciones": ["Candela","El gato"], "correcta": 0 } },
@@ -140,6 +141,7 @@ Reglas:
 - CODE_BLOCKS (Placeta Junior Code): crea una lista `ejercicios` con 3-5 retos progresivos (del más fácil al más difícil). Cada ejercicio tiene: `titulo`, `explicacion` (frase corta explicando qué hacer), `objetivo_texto`, `bloques_permitidos` (solo los necesarios para ese ejercicio: avanzar, retroceder, girar, saltar, repetir, si), `escenario` de cuadrícula (ancho/alto, obstáculos y monedas), `inicio` (x,y,direccion de Candela) y `objetivo` (posicion x,y, opcionalmente monedas/max_pasos/debe_usar) y `pistas`. El objetivo siempre es llevar a Candela (👧) a la estrella (⭐) sin chocar. Empieza con ejercicios muy sencillos (solo AVANZAR) y añade GIRAR, luego obstáculos, REPETIR y SI poco a poco.
 - En completar, usa palabras en SINGULAR y, en modo opciones, escribe "opciones" (distractores).
 - En mapa_mundi, usa solo países conocidos (España, Francia, Italia, Portugal, Reino Unido, Alemania, Egipto, Brasil, México, Estados Unidos, Canadá, China, India, Japón, Australia…).
+- En mapa_espana, escribe "modo": "comunidades" o "provincias" y en "objetivos" nombres en español (p. ej. "Asturias", "Toledo", "Castilla y León"). NUNCA añadas listas ni pistas que revelen dónde está la respuesta: el niño debe localizarla mirando el mapa.
 - ESQUEMAS SEGUROS: para sustituir imágenes usa un bloque `esquema` con `esquema.elementos`. Solo puedes usar `texto`, `rectangulo`, `circulo` y `linea`, con colores hexadecimales y medidas numéricas. No escribas HTML, SVG, JavaScript, CSS, URLs, imágenes, iframes ni fuentes externas. Para información al pulsar, añade únicamente `accion: {"tipo":"popup", "titulo":"...", "contenido":"..."}` al elemento: la plataforma crea el popup y aplica accesibilidad y tipografías propias.
 - En calculo_mental, "operacion" puede ser "suma", "resta", "multiplicacion" o "division" (cada "suma" puede sobrescribirla con su propio "op"). "vertical": true muestra la cuenta en vertical (suma/resta) y, en las sumas, "llevadas": true pinta las llevadas encima de cada columna.
 - No generes bloques de tipo "problemas" temporalmente. El formato "calculo_mental" sí está permitido.
@@ -444,6 +446,7 @@ Reglas:
         else if (b.tipo === 'calculo_mental') n += (b.sumas || []).filter(s => s.a !== '' && s.b !== '').length;
         else if (b.tipo === 'problemas') n += (b.problemas || []).filter(p => p.enunciado && p.respuesta !== '' && p.respuesta != null).length;
         else if (b.tipo === 'mapa_mundi') n += (b.paises || []).filter(p => p && window.MAPA_MUNDI && MAPA_MUNDI.paises[p]).length;
+        else if (b.tipo === 'mapa_espana') n += (b.objetivos || []).filter(Boolean).length;
         else if (b.tipo === 'code_blocks') n += ((b.ejercicios && b.ejercicios.length) || (b.objetivo && b.objetivo.posicion ? 1 : 0));
       }
       return n;

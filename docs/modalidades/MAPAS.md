@@ -1,5 +1,11 @@
 # Mapas — «Localiza» sin chivatos · Mundo · España (CCAA y provincias)
 
+> **Estado:** ✅ Piloto Web implementado: `mapa_espana` (modos
+> `comunidades` y `provincias`) funciona en el reproductor con datos propios
+> en `/data/espana-*.json`. Pendiente: plantilla en Studio, PDF con contorno
+> vectorial de España y soporte en la App.
+
+
 ## 1. Problema corregido en la Web (ya aplicado)
 
 - ❌ Se ponían **banderas con el nombre encima de cada país**: tapaban la

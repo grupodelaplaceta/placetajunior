@@ -283,6 +283,17 @@ function abrirJuego(act) {
           pantallas.push({ tipo: 'mapa', bi, qi, n: (preg || []).length, paises, pide: q.pide || ('Haz clic en ' + corr), correcta: corr, correctaEn: MAPA_MUNDI.paises[corr] });
           kpEstado.push({ respondida: false, acierto: null, sel: null });
         });
+      } else if (b.tipo === 'mapa_espana') {
+        const modoEsp = (b.modo === 'comunidades') ? 'comunidades' : 'provincias';
+        const candidatos = (b.objetivos || []).map(o => String(o).trim()).filter(Boolean);
+        const objs = (window.MAPA_MUNDI ? candidatos.map(o => ({ cod: MAPA_MUNDI.codigoEspana(modoEsp, o) })).filter(r => r.cod).map(r => ({ cod: r.cod, name: MAPA_MUNDI.nombreEspana(modoEsp, r.cod) })) : []);
+        const preg = (b.preguntas && b.preguntas.length) ? b.preguntas : objs.map(r => ({ pide: 'Haz clic en ' + r.name, correctaCod: r.cod, correctaEn: r.name }));
+        (preg || []).forEach((q, qi) => {
+          const corrCod = q.correctaCod || (objs[qi] && objs[qi].cod);
+          if (!corrCod) return;
+          pantallas.push({ tipo: 'espana', modo: modoEsp, qi, n: (preg || []).length, pide: q.pide || ('Haz clic en ' + q.correctaEn), correctaCod: corrCod, correctaEn: q.correctaEn || MAPA_MUNDI.nombreEspana(modoEsp, corrCod) });
+          kpEstado.push({ respondida: false, acierto: null, sel: null });
+        });
       } else if (['arrastrar','buscar','detective','laboratorio','construccion','presupuesto','dinero_euro','construir_frase','clasificar_palabras','completar_palabra','cazador_errores','lectura_interactiva','exploracion','simulacion','historia_interactiva','memoria','sonido','codigo_secreto','escape_room'].includes(b.tipo) && (b.datos || b.palabras || b.texto || b.escenas || b.elementos || b.categorias)) {
         pantallas.push({ tipo: 'interactivo', bi, nivelIndex: b.nivelIndex });
         kpEstado.push({ respondida: false, seleccion: [], lanzamientos: [], gastado: 0, clasificarIndice: 0, clasificarRespuestas: {} });
@@ -492,6 +503,7 @@ function renderPantalla() {
   else if (s.tipo === 'calculo') cuerpo = screenCalculo(s, est);
   else if (s.tipo === 'problema') cuerpo = screenProblema(s, est);
   else if (s.tipo === 'mapa') cuerpo = screenMapa(s, est);
+  else if (s.tipo === 'espana') cuerpo = screenEspana(s, est);
   else if (s.tipo === 'code') cuerpo = screenCode(s, est);
   else if (s.tipo === 'code_explica') cuerpo = screenCodeExplica(s);
   else if (s.tipo === 'interactivo') cuerpo = screenInteractive(s, est);
@@ -534,6 +546,7 @@ function renderPantalla() {
   clearInterval(calcTimer);
   if (s.tipo === 'calculo') iniciarTimerCalculo();
   if (s.tipo === 'mapa') iniciarMapa(pantallaIdx);
+  if (s.tipo === 'espana') iniciarEspana(pantallaIdx);
   if (s.tipo === 'portada') cargarPortadaImg(pantallaIdx);
   if (s.tipo === 'code') { kpCodeDibujarEscenario(); kpCodePintarPrograma(); }
 
@@ -591,6 +604,7 @@ function textoPantallaWeb(s) {
   if (s.tipo === 'calculo') { const b = bloquesJuego[s.bi]; const su = (b.sumas || [])[s.si] || {}; return 'Calcula: ' + (Number(su.a) || 0) + ' ' + opSimbolo(operacionDe(su, b)) + ' ' + (Number(su.b) || 0); }
   if (s.tipo === 'problema') { const b = bloquesJuego[s.bi]; const p = (b.problemas || [])[s.pi] || {}; return 'Problema. ' + (p.enunciado || '') + ' ' + (p.frase || p.pregunta || '¿Cuánto es?'); }
   if (s.tipo === 'mapa') return 'Localiza en el mapamundi: ' + (s.pide || '');
+  if (s.tipo === 'espana') return (s.modo === 'comunidades' ? 'Comunidades autónomas de España. ' : 'Provincias de España. ') + (s.pide || '');
   if (s.tipo === 'code') return 'Placeta Junior Code. Ejercicio ' + ((s.ejercicio || 0) + 1) + '. ' + (s.objetivo_texto || 'Lleva a Candela hasta la estrella.');
   if (s.tipo === 'code_explica') return 'Placeta Junior Code. ' + (s.explicacion || 'Pulsa los bloques para programar a Candela.');
   if (s.tipo === 'final') return '¡Enhorabuena! Actividad completada.';
@@ -1407,6 +1421,8 @@ function kpCompletarOpcion(idx, fi, k) {
 
 // ── Mapamundi (Leaflet + world-atlas) ───────────────────────────────
 const MAP_STYLE = { color: '#b6c2d9', weight: 0.5, fillColor: '#dbeafe', fillOpacity: 0.85 };
+// España: bordes internos algo más marcados para distinguir cada zona.
+const SPAIN_STYLE = { color: '#8ea3c4', weight: 1, fillColor: '#dbeafe', fillOpacity: 0.95 };
 function screenMapa(s, est) {
   // Sin lista de candidatos ni etiquetas: localizar no debe revelar la respuesta.
   return `<div class="kp-screen">
@@ -1415,6 +1431,65 @@ function screenMapa(s, est) {
     <div class="kp-map" id="kp-map-${pantallaIdx}"></div>
     <div class="kp-hint">👆 Toca en el mapa dónde está el lugar que te piden. Acerca con la rueda o con dos dedos para mirar mejor.</div>
   </div>`;
+}
+function screenEspana(s, est) {
+  const rotulo = s.modo === 'comunidades' ? 'Comunidades de España' : 'Provincias de España';
+  return `<div class="kp-screen">
+    <div class="kp-qt"><span class="material-symbols-rounded" aria-hidden="true">map</span> ${rotulo} · ${s.qi + 1} de ${s.n}</div>
+    <div class="kp-map-q">${esc(s.pide)}</div>
+    <div class="kp-map" id="kp-map-${pantallaIdx}"></div>
+    <div class="kp-hint">👆 Toca en el mapa la zona correcta. Acerca con la rueda o con dos dedos para ver bien las islas.</div>
+  </div>`;
+}
+function iniciarEspana(idx) {
+  const s = pantallas[idx];
+  const cont = document.getElementById('kp-map-' + idx);
+  if (!cont || !s || s.tipo !== 'espana') return;
+  MAPA_MUNDI.cargarTodo()
+    .then(() => MAPA_MUNDI.cargarEspana(s.modo))
+    .then(fc => {
+      if (!document.body.contains(cont)) return;
+      if (!window.L) { cont.innerHTML = '<div class="kp-msg bad">No se pudo cargar el mapa (comprueba la conexión).</div>'; return; }
+      const map = L.map(cont, { minZoom: 3, maxZoom: 10, zoomControl: true, attributionControl: false, scrollWheelZoom: true, maxBounds: [[25, -32], [46, 8]] });
+      (window.__pjMapas = window.__pjMapas || []).push(map);
+      const layer = L.geoJSON(fc, {
+        style: SPAIN_STYLE,
+        onEachFeature: (feat, lyr) => {
+          const cod = (feat.properties && feat.properties.cod) || '';
+          lyr.on('click', () => kpEspana(idx, cod));
+          lyr.on('mouseover', () => { if (!(kpEstado[idx] && kpEstado[idx].respondida)) lyr.setStyle({ fillColor: '#a5c8f0', color: '#5b6b8c', weight: 1.5 }); });
+          lyr.on('mouseout', () => { if (!(kpEstado[idx] && kpEstado[idx].respondida)) lyr.setStyle(SPAIN_STYLE); });
+        }
+      }).addTo(map);
+      if (kpEstado[idx] && kpEstado[idx].respondida) {
+        layer.eachLayer(ll => {
+          const cod = ll.feature && ll.feature.properties && ll.feature.properties.cod;
+          if (cod === s.correctaCod) ll.setStyle({ fillColor: '#22a06b', color: '#166534', weight: 1.5, fillOpacity: 0.9 });
+          else if (cod === kpEstado[idx].sel) ll.setStyle({ fillColor: '#f87171', color: '#991b1b', weight: 1.5, fillOpacity: 0.9 });
+        });
+      }
+      // Encuadrar toda España (península + Canarias + Baleares) y medir bien.
+      setTimeout(() => {
+        try {
+          const b = layer.getBounds();
+          if (b && b.isValid && b.isValid()) map.fitBounds(b, { padding: [20, 20], maxZoom: 6 });
+          map.invalidateSize();
+        } catch (e) { /* ok */ }
+      }, 60);
+    })
+    .catch(() => { if (document.body.contains(cont)) cont.innerHTML = '<div class="kp-msg bad">No se pudo cargar el mapa (comprueba la conexión).</div>'; });
+}
+function kpEspana(idx, cod) {
+  const s = pantallas[idx], est = kpEstado[idx];
+  if (!est || !s || s.tipo !== 'espana' || est.respondida || !cod) return;
+  est.respondida = true; est.sel = cod; est.acierto = (cod === s.correctaCod);
+  if (est.acierto) { kpScore.verdes++; if (window.pjSonido) pjSonido.exito(); }
+  else { kpScore.rojos++; if (window.pjSonido) pjSonido.error(); }
+  renderPantalla();
+  mostrarFeedback(est.acierto, s.correctaEn, function () {
+    if (pantallaIdx < pantallas.length - 1) pantallaIdx++;
+    renderPantalla();
+  });
 }
 function destruirMapas() {
   const arr = window.__pjMapas || [];
