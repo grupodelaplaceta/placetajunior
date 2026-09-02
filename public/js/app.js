@@ -874,7 +874,7 @@ async function abrirActividad(id, bloqueada) {
         return;
       }
       // El player maneja todos los tipos (incluido Placeta Junior Code).
-      if (typeof abrirJuego === 'function') abrirJuego(data.actividad);
+      if (typeof abrirJuego === 'function') { window.__pjUnidadContext = null; abrirJuego(data.actividad); }
       else juniorAviso('No se pudo iniciar el juego.', 'error');
     } else {
       juniorAviso('No se encontró la actividad.', 'error');
@@ -904,6 +904,8 @@ async function abrirUnidad(id, indice) {
     if (!bloques.length && u.contenido && u.contenido.tipo) bloques = [u.contenido];
     delete contenido.niveles; delete contenido.diapositivas; contenido.bloques = bloques;
     const unidad = { ...a, contenido, titulo: `${a.titulo} · Unidad ${unidadIndex + 1}`, recompensa: Number(u.recompensa || 0), _unidadIndex: unidadIndex, _actividadId: a.id };
+    // Contexto para la pantalla final: saber si queda una unidad siguiente.
+    window.__pjUnidadContext = { id: a.id, indice: unidadIndex, total: unidades.length };
     cerrarDetalle();
     if (mostrarAnuncioActividad(unidad)) {
       actividadPendiente = unidad;
@@ -911,6 +913,25 @@ async function abrirUnidad(id, indice) {
     }
     abrirJuego(unidad);
   } catch (e) { juniorAviso('No se pudo abrir la unidad. Inténtalo de nuevo.', 'error'); }
+}
+
+// ¿Queda una unidad/diapositiva siguiente en la misma actividad?
+function pjHaySiguienteUnidad() {
+  try {
+    const ctx = window.__pjUnidadContext;
+    if (!ctx || !ctx.id) return false;
+    if (ctx.total != null) return (ctx.indice + 1) < Number(ctx.total);
+    const a = TODAS.find(x => x.id === ctx.id);
+    return !!a && (ctx.indice + 1 < obtenerUnidadesActividad(a).length);
+  } catch (e) { return false; }
+}
+// Botón de la pantalla final: abre la siguiente unidad/diapositiva.
+function pjIrSiguienteUnidad() {
+  try {
+    const ctx = window.__pjUnidadContext;
+    if (!ctx || !ctx.id || !pjHaySiguienteUnidad()) return;
+    abrirUnidad(ctx.id, ctx.indice + 1);
+  } catch (e) { /* sin catálogo */ }
 }
 
 function cerrarAnuncioActividad() {

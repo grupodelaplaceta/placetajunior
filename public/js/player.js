@@ -541,13 +541,6 @@ function renderPantalla() {
   document.dispatchEvent(new CustomEvent('junior:texto', { detail: textoPantallaWeb(s) }));
 }
 
-// Cierra el reproductor y limpia el feedback
-function cerrarPlayer() {
-  ocultarFeedback();
-  const m = document.getElementById('player-modal');
-  if (m) m.classList.add('hidden');
-}
-
 // Overlay de feedback (éxito/error) con ARIA y foco accesible
 function asegurarFeedback() {
   if (document.getElementById('kp-feedback')) return;
@@ -1136,7 +1129,6 @@ function maxPuntosDePartida() {
 }
 
 function screenFinal(s) {
-  const prog = (window.PJProgreso && PJProgreso.estado()) || { nivel: 1, enNivel: 0, verdes: 0, pct: 0 };
   const maxPuntos = pantallas.reduce((total, x) => {
     if (['portada', 'texto', 'final'].includes(x.tipo)) return total;
     const b = x.bi != null ? bloquesJuego[x.bi] : null;
@@ -1146,12 +1138,16 @@ function screenFinal(s) {
   const recompensaMax = Number(actividadActual?.recompensa || actividadActual?.contenido?.recompensa || Math.floor(maxPuntos / 10)) || 0;
   const recompensa = recompensaMax > 0 && maxPuntos > 0
     ? Math.round(recompensaMax * Math.min(1, kpScore.verdes / maxPuntos)) : 0;
-  const nivelHtml = `
-    <div class="kp-level">
-      <div class="kp-level-head"><span class="material-symbols-rounded">emoji_events</span> Nivel ${prog.nivel}</div>
-      <div class="kp-level-track"><div class="kp-level-bar" style="width:${Math.round(prog.pct * 100)}%"></div></div>
-      <div class="kp-level-sub">Faltan ${prog.paraSiguiente ?? (50 - prog.enNivel)} puntos para el siguiente nivel · ${prog.verdes} puntos verdes en total</div>
-    </div>`;
+  // Si la actividad tiene más diapositivas/unidades por delante, ofrecemos
+  // pasar a la siguiente; si no, solo volver al menú.
+  const haySiguiente = (typeof window.pjHaySiguienteUnidad === 'function') && !!window.pjHaySiguienteUnidad();
+  const acciones = `
+      <div class="kp-end-actions">
+        ${haySiguiente
+          ? `<button type="button" class="kp-btn kp-btn-next" onclick="window.pjIrSiguienteUnidad()"><span class="material-symbols-rounded">arrow_forward</span> Ir a la siguiente unidad</button>`
+          : ''}
+        <button type="button" class="kp-btn ${haySiguiente ? 'kp-btn-ghost' : ''}" onclick="volverAlMenu()"><span class="material-symbols-rounded">home</span> Volver al menú</button>
+      </div>`;
   return `
     <div class="kp-screen">
       <div class="kp-cover cover-${chipColor(s.cat)}">🎉</div>
@@ -1161,8 +1157,7 @@ function screenFinal(s) {
         <div class="kp-score-item verdes"><span class="kp-score-num">🟢</span>${kpScore.verdes} <small>puntos verdes</small></div>
         <div class="kp-score-item rojos"><span class="kp-score-num">🔴</span>${kpScore.rojos} <small>puntos rojos</small></div>
       </div>
-      <div class="kp-reward"><strong>🎁 ${recompensa} Pz</strong> de ${recompensaMax} Pz máximas<br><small>En la app, o con un DIP, estos puntos pueden convertirse en Placetas.</small></div>
-      ${nivelHtml}
+      <div class="kp-reward"><strong>🎁 ${recompensa} Pz</strong> ${recompensaMax > 0 ? `de ${recompensaMax} Pz máximas` : ''}</div>
       <div class="kp-save">
         <h4>💾 Guardar mi progreso</h4>
         <p class="kp-save-sub">En la web el progreso es local. Guarda con tu DIP para sumar los puntos y recibir ${recompensa} Pz.</p>
@@ -1173,14 +1168,7 @@ function screenFinal(s) {
         </div>
         <div id="kp-msg" class="kp-msg ${msgGuardar.startsWith('✅') ? 'ok' : (msgGuardar ? 'bad' : '')}">${msgGuardar}</div>
       </div>
-      <div class="kp-redeem">
-        <div><strong>Convierte tus puntos en Placetas</strong><small>Necesitas 10 puntos del mismo color por cada Placeta.</small></div>
-        <div class="kp-redeem-actions">
-          <button class="kp-btn kp-btn-green" type="button" onclick="canjearPuntos('verdes')">Canjear verdes</button>
-          <button class="kp-btn kp-btn-red" type="button" onclick="canjearPuntos('rojos')">Canjear rojos</button>
-        </div>
-        <div id="kp-redeem-msg" class="kp-msg" aria-live="polite"></div>
-      </div>
+      ${acciones}
       <div class="kp-hint">💪 ¡Sigue así, campeón!</div>
     </div>`;
 }
@@ -2176,7 +2164,7 @@ function guardarPartidaLocal() {
 }
 
 // Cierra el reproductor (el progreso se guarda localmente, se puede retomar)
-function cerrarPlayer() {
+function salirPlayer(sinConfirmar) {
   if (window.pjSonido) pjSonido.clic();
   if (window.PJMusic) window.PJMusic.menu(); // volver a la música del menú (día/noche)
   const cerrar = () => {
@@ -2190,11 +2178,16 @@ function cerrarPlayer() {
       try { if (location.search.includes('jugar=')) history.replaceState(null, '', '/'); } catch (e) { /* sin historial */ }
     }
     window.__pjDesdeDetalle = false;
+    window.__pjUnidadContext = null;
   };
   // El progreso ya se guardó en cada pantalla: se puede retomar más tarde
   guardarPartidaLocal();
-  juniorConfirmar('¿Quieres salir? Tu progreso se guarda en este dispositivo y puedes continuar cuando quieras.', cerrar);
+  if (sinConfirmar) { cerrar(); }
+  else juniorConfirmar('¿Quieres salir? Tu progreso se guarda en este dispositivo y puedes continuar cuando quieras.', cerrar);
 }
+function cerrarPlayer() { salirPlayer(false); }
+// Botón de la pantalla final: salir directamente (la actividad ya está completada).
+function volverAlMenu() { salirPlayer(true); }
 
 document.addEventListener('DOMContentLoaded', () => {
   const close = document.getElementById('player-close');
