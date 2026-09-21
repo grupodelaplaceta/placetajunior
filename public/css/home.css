@@ -611,6 +611,16 @@ body.pj-home {
 .pj-home .edad-filter .ef-btn.active { background: var(--pj-purple); border-color: var(--pj-purple); color: #fff; }
 .pj-home .edad-filter .ef-count { margin-left: auto; font-size: 12.5px; color: var(--pj-muted); font-weight: 600; }
 
+/* Colecciones SEO: acceso visible a cada etapa sin alterar el catálogo dinámico. */
+.pj-home .collection-shortcuts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 18px 0 26px; }
+.pj-home .collection-shortcuts a { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 13px 15px; border: 2px solid var(--pj-line); border-radius: var(--r); background: #fff; color: var(--pj-ink); text-decoration: none; transition: border-color .15s, transform .15s; }
+.pj-home .collection-shortcuts a:hover { border-color: var(--pj-purple); transform: translateY(-2px); }
+.pj-home .collection-shortcuts .material-symbols-rounded { flex: 0 0 auto; color: var(--pj-purple); font-size: 24px; }
+.pj-home .collection-shortcuts strong, .pj-home .collection-shortcuts small { display: block; }
+.pj-home .collection-shortcuts strong { font-size: 14px; }
+.pj-home .collection-shortcuts small { margin-top: 2px; color: var(--pj-muted); font-size: 12px; }
+@media (max-width: 650px) { .pj-home .collection-shortcuts { grid-template-columns: 1fr; gap: 8px; } }
+
 /* Página de detalle (a pantalla completa, no popup) */
 .pj-home .detail-page { display: none; max-width: 1080px; margin: 0 auto; padding: 24px 20px 60px; }
 body.pj-home.mostrando-detalle .hero,

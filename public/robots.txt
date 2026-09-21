@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Allow: /colecciones
+Allow: /colecciones/
+Disallow: /studio
+Disallow: /devai
+Disallow: /preview
+Disallow: /api/
+Disallow: /app/
+Disallow: /cuenta/
+
+Sitemap: https://junior.laplaceta.org/sitemap.xml

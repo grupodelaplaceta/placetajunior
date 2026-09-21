@@ -5,6 +5,10 @@
   ],
   "routes": [
     { "src": "/", "dest": "/public/index.html" },
+    { "src": "/colecciones", "dest": "/public/colecciones/index.html" },
+    { "src": "/colecciones/infantil", "dest": "/public/colecciones/infantil.html" },
+    { "src": "/colecciones/primaria", "dest": "/public/colecciones/primaria.html" },
+    { "src": "/colecciones/secundaria", "dest": "/public/colecciones/secundaria.html" },
     { "src": "/studio", "dest": "/public/studio.html" },
     { "src": "/devai", "dest": "/public/devai.html" },
     { "src": "/info", "dest": "/public/info.html" },
