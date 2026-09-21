@@ -25,6 +25,7 @@
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body.collection-page { margin: 0; color: var(--collection-ink); background: var(--collection-bg); font-family: 'Outfit', sans-serif; }
+.collection-page main { overflow: hidden; }
 .collection-page a { color: inherit; }
 .collection-strip { height: 7px; background: linear-gradient(90deg, #ff1744 0 16%, #ff6d00 16% 32%, #ffd600 32% 48%, #00c853 48% 64%, #2979ff 64% 80%, #3f00d8 80%); }
 .collection-nav { position: sticky; top: 0; z-index: 10; background: rgba(255,255,255,.96); border-bottom: 3px solid var(--collection-purple); backdrop-filter: blur(12px); }
@@ -36,13 +37,16 @@ body.collection-page { margin: 0; color: var(--collection-ink); background: var(
 .collection-nav-links a.is-active { background: var(--collection-purple); color: #fff; }
 .collection-nav-cta { display: inline-flex; align-items: center; padding: 9px 16px; border-radius: 999px; background: var(--collection-purple); color: #fff !important; font-size: 13px; font-weight: 700; text-decoration: none; }
 .collection-nav-cta:hover, .collection-nav-cta:focus-visible { background: #2f00a6; }
-.collection-hero { padding: 64px 22px 50px; background: linear-gradient(135deg, #eeeaff 0%, #ffffff 58%, #fff1df 100%); }
+.collection-hero { position: relative; padding: 72px 22px 58px; overflow: hidden; background: linear-gradient(135deg, #eeeaff 0%, #ffffff 58%, #fff1df 100%); }
+.collection-hero::after { content: ''; position: absolute; right: 7%; bottom: -76px; width: 210px; height: 210px; border: 32px solid rgba(63,0,216,.08); border-radius: 42% 58% 58% 42%; transform: rotate(18deg); pointer-events: none; }
 .collection-hero-inner, .collection-main, .collection-footer-inner { max-width: 1180px; margin: 0 auto; }
+.collection-hero-inner { position: relative; z-index: 1; }
 .collection-kicker { display: inline-flex; align-items: center; gap: 7px; margin-bottom: 14px; color: var(--collection-purple); font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
 .collection-hero h1 { max-width: 780px; margin: 0 0 14px; color: var(--collection-ink); font-family: 'Outfit', sans-serif; font-size: clamp(2.15rem, 5vw, 4.3rem); line-height: 1.02; letter-spacing: 0; }
 .collection-hero h1 em { color: var(--collection-purple); font-style: normal; }
 .collection-hero p { max-width: 720px; margin: 0; color: var(--collection-muted); font-size: clamp(1rem, 2vw, 1.2rem); line-height: 1.6; }
-.collection-main { padding: 34px 22px 70px; }
+.collection-main { padding: 40px 22px 70px; }
+.collection-main > h2 { margin: 0 0 18px; color: var(--collection-ink); font-size: clamp(1.45rem, 3vw, 2rem); }
 .collection-breadcrumb { margin-bottom: 26px; color: var(--collection-muted); font-size: 13px; }
 .collection-breadcrumb a { color: var(--collection-purple); font-weight: 700; text-decoration: none; }
 .collection-tools { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 16px; margin-bottom: 26px; padding: 10px 0; border-bottom: 1px solid var(--collection-line); }
@@ -54,14 +58,15 @@ body.collection-page { margin: 0; color: var(--collection-ink); background: var(
 .collection-filter { border: 1px solid var(--collection-line); border-radius: 999px; padding: 5px 10px; background: transparent; color: var(--collection-muted); font: inherit; font-size: .78rem; font-weight: 700; cursor: pointer; }
 .collection-filter:hover, .collection-filter.is-active { border-color: var(--collection-purple); color: var(--collection-purple); background: #f0edff; }
 .collection-count { color: var(--collection-muted); font-size: .9rem; font-weight: 700; }
-.collection-status { padding: 24px; color: var(--collection-muted); text-align: center; }
-.collection-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.collection-status { display: grid; place-items: center; min-height: 150px; padding: 24px; color: var(--collection-muted); text-align: center; background: #fff; border: 1px dashed var(--collection-line); border-radius: 16px; }
+.collection-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
 .collection-card { display: flex; min-height: 208px; flex-direction: column; padding: 20px; background: #fff; border: 1px solid var(--collection-line); border-top: 5px solid var(--collection-purple); border-radius: 16px; text-decoration: none; box-shadow: 0 8px 24px rgba(23,19,43,.05); transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
 .collection-card:hover, .collection-card:focus-visible { transform: translateY(-4px); border-color: var(--collection-purple); box-shadow: 0 14px 30px rgba(23,19,43,.11); }
 .collection-card[data-color="blue"] { border-top-color: var(--collection-blue); }
 .collection-card[data-color="green"] { border-top-color: var(--collection-green); }
 .collection-card[data-color="orange"] { border-top-color: var(--collection-orange); }
 .collection-card[data-color="red"] { border-top-color: #ff1744; }
+.collection-card::before { content: '↗'; align-self: flex-end; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; background: #f0edff; color: var(--collection-purple); font-size: 1rem; font-weight: 800; }
 .collection-card h3 { margin: 14px 0 8px; font-size: 1.1rem; line-height: 1.2; }
 .collection-card p { margin: 0; color: var(--collection-muted); font-size: .92rem; line-height: 1.45; }
 .collection-card-meta { display: flex; justify-content: space-between; gap: 8px; margin-top: auto; padding-top: 18px; color: var(--collection-muted); font-size: .78rem; font-weight: 700; }
@@ -83,8 +88,9 @@ body.collection-page { margin: 0; color: var(--collection-ink); background: var(
   .collection-nav-links { gap: 2px; }
   .collection-nav-links a { padding: 8px 9px; font-size: 12px; }
   .collection-nav-cta { padding: 8px 10px; font-size: 11px; }
-  .collection-hero { padding: 44px 16px 36px; }
-  .collection-main { padding: 24px 16px 52px; }
+  .collection-hero { padding: 48px 16px 38px; }
+  .collection-hero::after { right: -66px; bottom: -90px; width: 160px; height: 160px; border-width: 24px; }
+  .collection-main { padding: 28px 16px 52px; }
   .collection-tools { display: grid; gap: 8px; padding: 10px 0; }
   .collection-tools > div:first-child { margin-right: 0; }
   .collection-tools > div:not(:first-child) { display: flex; align-items: center; gap: 4px; }
