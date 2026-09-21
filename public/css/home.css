@@ -324,12 +324,7 @@ body.pj-home {
   align-items: center;
   justify-content: center;
 }
-.pj-home .categoria-filter { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: -20px 0 28px; }
-.pj-home .cf-btn { display: inline-flex; align-items: center; padding: 8px 14px; border: 2px solid var(--pj-line); border-radius: var(--r-pill); background: #fff; color: var(--pj-muted); font-size: 13px; font-weight: 700; text-decoration: none; }
-.pj-home .cf-btn:hover, .pj-home .cf-btn.active { border-color: var(--pj-purple); color: var(--pj-purple); background: rgba(63, 0, 216, .08); }
 .pj-home .card h3 {
-  .pj-home .card h3 a { color: inherit; text-decoration: none; }
-  .pj-home .card h3 a:hover { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 3px; }
   font-family: var(--font-head);
   font-size: 14px;
   line-height: 1.25;

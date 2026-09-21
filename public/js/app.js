@@ -278,7 +278,7 @@ function cardActividad(a) {
   return `
     <div class="card" data-color="${color}" onclick="verInfo('${a.id}')" role="button" tabindex="0" aria-label="Ver detalles de ${escapeHtml(a.titulo)}">
       ${coverHTML(a, badgeProg)}
-      <h3><a href="${actividadUrl(a)}" onclick="event.stopPropagation();">${escapeHtml(a.titulo)}</a></h3>
+      <h3>${escapeHtml(a.titulo)}</h3>
       <div class="card-foot">
         <span class="chip" data-color="${color}">${escapeHtml(a.categoria)}</span>
         <span class="card-visits" title="Número de visitas"><span class="material-symbols-rounded" aria-hidden="true">visibility</span>${visitas.toLocaleString('es-ES')}</span>
@@ -365,8 +365,8 @@ function verInfo(id) {
       </div>
     </div>`;
   document.body.classList.add('mostrando-detalle');
-  actualizarMetaActividad(a);
-  try { if (location.pathname !== actividadUrl(a)) history.pushState(null, '', actividadUrl(a)); } catch (e) { /* sin historial */ }
+  document.title = `${a.titulo} | Placeta Junior`;
+  try { if (!location.search.includes('id=')) history.pushState(null, '', '/?id=' + encodeURIComponent(a.id)); } catch (e) { /* sin historial */ }
   window.scrollTo(0, 0);
   const coverEl = document.getElementById('detail-cover');
   const portadaDetalle = a.portada_url || a.portadaUrl || a.contenido?.__rspPortadaUrl || a.contenido?.__rsp_portada_url || '';
@@ -381,8 +381,7 @@ function verInfo(id) {
 function cerrarDetalle() {
   document.body.classList.remove('mostrando-detalle');
   document.title = 'Actividades | Placeta Junior';
-  document.querySelector('meta[name="description"]')?.setAttribute('content', 'Web oficial del proyecto Placeta Junior · Grupo de La Placeta. Actividades educativas públicas, Studio e información del programa educativo.');
-  try { if (location.pathname.startsWith('/actividades/')) history.replaceState(null, '', '/'); } catch (e) { /* sin historial */ }
+  try { if (location.search.includes('id=')) history.replaceState(null, '', '/'); } catch (e) { /* sin historial */ }
   window.scrollTo(0, 0);
 }
 
@@ -735,46 +734,6 @@ async function generarMapaPdf(paises, W) {
 let TODAS = []; // todas las actividades públicas
 let actividadPendiente = null;
 
-function seoSlug(value) {
-  return String(value || 'actividad').toLocaleLowerCase('es')
-    .replace(/ñ/g, '__enie__').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .replace(/__enie__/g, 'ñ').replace(/[^a-z0-9ñ]+/g, '-')
-    .replace(/^-|-$/g, '') || 'actividad';
-}
-function actividadUrl(a) { return `/actividades/${seoSlug(a.titulo)}--${encodeURIComponent(a.id)}`; }
-function categoriaUrl(categoria) { return `/categorias/${seoSlug(categoria)}`; }
-function actividadDesdeRuta() {
-  const match = location.pathname.match(/^\/actividades\/[^/]+--(.+)$/);
-  return match ? decodeURIComponent(match[1]) : '';
-}
-function categoriaDesdeRuta() {
-  const match = location.pathname.match(/^\/categorias\/([^/]+)$/);
-  return match ? decodeURIComponent(match[1]) : '';
-}
-function actualizarMetaActividad(a) {
-  const description = `${a.descripcion || `Actividad educativa de ${a.categoria || 'Placeta Junior'}`} · Edad recomendada: ${a.edad_recomendada || '6-12'}.`;
-  document.title = `${a.titulo} | Placeta Junior`;
-  document.querySelector('meta[name="description"]')?.setAttribute('content', description.slice(0, 155));
-  let canonical = document.querySelector('link[rel="canonical"]');
-  if (!canonical) { canonical = document.createElement('link'); canonical.rel = 'canonical'; document.head.appendChild(canonical); }
-  canonical.href = `${location.origin}${actividadUrl(a)}`;
-  const schema = { '@context': 'https://schema.org', '@type': a.tipo === 'test' ? 'Quiz' : 'LearningResource', name: a.titulo, description: a.descripcion || '', url: canonical.href, educationalLevel: a.edad_recomendada || undefined, learningResourceType: a.tipo || 'Actividad educativa', isPartOf: { '@type': 'Course', name: 'Placeta Junior', url: `${location.origin}/` }, provider: { '@type': 'Organization', name: 'Placeta Junior', url: `${location.origin}/` } };
-  let jsonLd = document.getElementById('pj-activity-schema');
-  if (!jsonLd) { jsonLd = document.createElement('script'); jsonLd.id = 'pj-activity-schema'; jsonLd.type = 'application/ld+json'; document.head.appendChild(jsonLd); }
-  jsonLd.textContent = JSON.stringify(schema);
-}
-function actualizarMetaCategoria(categoria) {
-  const nombre = categoria || 'Actividades educativas';
-  document.title = `${nombre} | Placeta Junior`;
-  document.querySelector('meta[name="description"]')?.setAttribute('content', `Actividades educativas de ${nombre} para aprender jugando en Placeta Junior.`);
-  let canonical = document.querySelector('link[rel="canonical"]');
-  if (!canonical) { canonical = document.createElement('link'); canonical.rel = 'canonical'; document.head.appendChild(canonical); }
-  canonical.href = `${location.origin}${categoria ? categoriaUrl(categoria) : '/categorias'}`;
-  let jsonLd = document.getElementById('pj-category-schema');
-  if (!jsonLd) { jsonLd = document.createElement('script'); jsonLd.id = 'pj-category-schema'; jsonLd.type = 'application/ld+json'; document.head.appendChild(jsonLd); }
-  jsonLd.textContent = JSON.stringify({ '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Inicio', item: `${location.origin}/` }, { '@type': 'ListItem', position: 2, name: nombre, item: canonical.href }] });
-}
-
 function abrirCodigoActividad() { const m = document.getElementById('codigo-actividad-modal'); if (m) { m.hidden = false; document.getElementById('codigo-actividad-input')?.focus(); } }
 function cerrarCodigoActividad() { const m = document.getElementById('codigo-actividad-modal'); if (m) m.hidden = true; }
 async function usarCodigoActividad() {
@@ -802,7 +761,6 @@ function obtenerUnidadesActividad(a) {
 
 // ── Clasificar / filtrar por edad ──────────────────────────────────
 let filtroEdad = 'todas'; // 'todas' | '0-5' | '6-8' | '9-12' | '13+'
-let filtroCategoria = 'todas';
 function edadMinima(a) {
   const m = String(a.edad_recomendada || '').match(/\d+/);
   return m ? parseInt(m[0], 10) : null;
@@ -824,29 +782,10 @@ function setFiltroEdad(val, el) {
   renderCategorias();
   actualizarContadorEdad();
 }
-function categoriaCumple(a) { return filtroCategoria === 'todas' || seoSlug(a.categoria) === filtroCategoria; }
-function setFiltroCategoria(val) {
-  filtroCategoria = val;
-  document.querySelectorAll('.cf-btn').forEach((button) => button.classList.toggle('active', button.dataset.categoria === val));
-  renderPopulares();
-  renderCategorias();
-  actualizarContadorEdad();
-  if (val !== 'todas') history.replaceState(null, '', categoriaUrl(TODAS.find((a) => seoSlug(a.categoria) === val)?.categoria || val));
-}
-function renderFiltroCategorias() {
-  const root = document.getElementById('categoria-filter');
-  if (!root) return;
-  const categories = [...new Set(TODAS.map((a) => a.categoria).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
-  root.innerHTML = `<a class="cf-btn ${filtroCategoria === 'todas' ? 'active' : ''}" href="/categorias" data-categoria="todas">Todas</a>${categories.map((category) => `<a class="cf-btn ${filtroCategoria === seoSlug(category) ? 'active' : ''}" href="${categoriaUrl(category)}" data-categoria="${seoSlug(category)}">${escapeHtml(category)}</a>`).join('')}`;
-  root.querySelectorAll('.cf-btn').forEach((button) => button.addEventListener('click', (event) => {
-    event.preventDefault();
-    setFiltroCategoria(button.dataset.categoria);
-  }));
-}
 function actualizarContadorEdad() {
   const c = document.getElementById('edad-count');
   if (!c) return;
-  const n = TODAS.filter(a => edadCumple(a, filtroEdad) && categoriaCumple(a)).length;
+  const n = TODAS.filter(a => edadCumple(a, filtroEdad)).length;
   c.textContent = n + (n === 1 ? ' actividad' : ' actividades');
 }
 
@@ -868,9 +807,6 @@ async function cargarTodo() {
     } catch (e) { /* sin almacenamiento */ }
     const data = await apiGet(url);
     TODAS = data.actividades || [];
-    filtroCategoria = categoriaDesdeRuta() || 'todas';
-    renderFiltroCategorias();
-    if (filtroCategoria !== 'todas') actualizarMetaCategoria(TODAS.find((a) => seoSlug(a.categoria) === filtroCategoria)?.categoria || filtroCategoria);
   } catch (e) {
     banner.textContent = 'No se pudieron cargar las actividades. Inténtalo de nuevo en unos instantes.';
     banner.classList.remove('hidden');
@@ -883,7 +819,7 @@ async function cargarTodo() {
 // ⭐ Populares: las más jugadas (fila horizontal)
 function renderPopulares() {
   const row = document.getElementById('populares-row');
-  const ordenadas = [...TODAS].filter(a => edadCumple(a, filtroEdad) && categoriaCumple(a)).sort((a, b) =>
+  const ordenadas = [...TODAS].filter(a => edadCumple(a, filtroEdad)).sort((a, b) =>
     (b.estadisticas?.veces_realizada || 0) - (a.estadisticas?.veces_realizada || 0)
   ).slice(0, 10);
   row.innerHTML = ordenadas.length
@@ -895,7 +831,7 @@ function renderPopulares() {
 // 🗂️ Una fila horizontal por categoría (deslizable): gratis y de pago mezcladas
 function renderCategorias() {
   const cont = document.getElementById('categorias');
-  const filtradas = TODAS.filter(a => edadCumple(a, filtroEdad) && categoriaCumple(a));
+  const filtradas = TODAS.filter(a => edadCumple(a, filtroEdad));
   const cats = [...new Set(filtradas.map(a => a.categoria).filter(Boolean))];
   if (cats.length === 0) { cont.innerHTML = ''; return; }
   cont.innerHTML = cats.map(cat => {
@@ -903,7 +839,7 @@ function renderCategorias() {
     if (lista.length === 0) return '';
     return `
       <div class="cat-section">
-        <h3 class="cat-title" data-color="${categoriaColor(cat)}"><span class="t-ico material-symbols-rounded">${categoriaIcono(cat)}</span> <a href="${categoriaUrl(cat)}">${escapeHtml(cat)}</a></h3>
+        <h3 class="cat-title" data-color="${categoriaColor(cat)}"><span class="t-ico material-symbols-rounded">${categoriaIcono(cat)}</span> ${escapeHtml(cat)}</h3>
         <div class="h-row">${lista.map(cardActividad).join('')}</div>
       </div>`;
   }).join('');
@@ -1066,9 +1002,7 @@ document.addEventListener('DOMContentLoaded', () => {
   cargarTodo().then(() => {
     ocultarCarga();
     const p = new URLSearchParams(location.search);
-    const routeId = actividadDesdeRuta();
     if (p.get('jugar')) abrirActividad(p.get('jugar'), false);
-    else if (routeId) verInfo(routeId);
     else if (p.get('id')) verInfo(p.get('id'));
   }).catch(() => ocultarCarga());
   // Seguridad: nunca dejar la pantalla de carga bloqueando la web.
@@ -1078,12 +1012,12 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   window.addEventListener('popstate', () => {
     const p = new URLSearchParams(location.search);
-    if (!p.get('id') && !p.get('jugar') && !actividadDesdeRuta()) {
+    if (!p.get('id') && !p.get('jugar')) {
       cerrarDetalle();
       document.body.classList.remove('mostrando-juego');
-    } else if (p.get('id') || actividadDesdeRuta()) {
+    } else if (p.get('id')) {
       document.body.classList.remove('mostrando-juego');
-      verInfo(p.get('id') || actividadDesdeRuta());
+      verInfo(p.get('id'));
     } else if (p.get('jugar')) {
       document.body.classList.remove('mostrando-detalle');
       abrirActividad(p.get('jugar'), false);
