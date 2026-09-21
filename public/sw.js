@@ -6,7 +6,7 @@
    ═══════════════════════════════════════════════════════════════════ */
 // Versionar la caché fuerza la actualización del reproductor y estilos en
 // dispositivos que ya visitaron la web.
-const CACHE = 'placetajunior-assets-v2';
+const CACHE = 'placetajunior-assets-v3';
 
 const ASSETS = [
   '/css/styles.css',
@@ -21,6 +21,7 @@ const ASSETS = [
   '/js/progreso.js',
   '/js/topojson-client.min.js',
   '/js/colecciones.js',
+  '/js/modalidades.js',
   '/css/colecciones.css',
   '/js/leaflet.js',
   '/fonts/handly_casual.ttf',

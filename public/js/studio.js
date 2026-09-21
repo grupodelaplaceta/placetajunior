@@ -18,6 +18,9 @@ const TIPOS = {
   calculo_mental: { ico: 'calculate', nombre: 'Cálculo mental' },
   mapa_mundi:    { ico: 'public', nombre: 'Mapamundi' },
   code_blocks:   { ico: 'code', nombre: 'Placeta Junior Code' },
+  secuencia_visual: { ico: 'view_timeline', nombre: 'Secuencia visual' },
+  trazo:        { ico: 'draw', nombre: 'Trazo guiado' },
+  code_retos:   { ico: 'compare_arrows', nombre: 'Retos de eficiencia' },
   arrastrar:     { ico: 'open_with', nombre: 'Arrastrar y colocar' },
   buscar:        { ico: 'search', nombre: 'Busca y encuentra' },
   detective:     { ico: 'manage_search', nombre: 'Candela Detective' },
@@ -368,6 +371,18 @@ function nuevoBloque(tipo) {
       max_bloques: 5,
       pistas: []
     }];
+  }
+  if (tipo === 'secuencia_visual') {
+    b.instrucciones = 'Pulsa las tarjetas en el orden correcto.';
+    b.datos = { items: [{ texto: 'Primero', orden: 0 }, { texto: 'Después', orden: 1 }, { texto: 'Al final', orden: 2 }] };
+  }
+  if (tipo === 'trazo') {
+    b.instrucciones = 'Sigue la guía con el dedo o el ratón.';
+    b.datos = { guia: 'A', instrucciones: b.instrucciones };
+  }
+  if (tipo === 'code_retos') {
+    b.instrucciones = 'Compara dos soluciones y elige la más eficiente.';
+    b.datos = { retos: [{ titulo: 'Llega a la estrella', objetivo: 'Elige el programa más corto.', correcta: 0, opciones: [{ nombre: 'Programa A', pasos: ['avanzar', 'avanzar'] }, { nombre: 'Programa B', pasos: ['avanzar', 'girar', 'avanzar', 'girar'] }] }] };
   }
   if (['arrastrar','buscar','detective','laboratorio','construccion','presupuesto','dinero_euro','construir_frase','clasificar_palabras','completar_palabra','cazador_errores','lectura_interactiva','exploracion','simulacion','historia_interactiva','memoria','sonido','codigo_secreto','escape_room'].includes(tipo)) {
     b.instrucciones = tipo === 'arrastrar' ? 'Coloca cada elemento en su lugar.' : '¡Completa este reto!';

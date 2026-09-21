@@ -147,7 +147,7 @@ function abrirJuego(act) {
   if (act) pjSaneaImagenes(act);
   actividadActual = act || null;
   if (window.pjSonido) pjSonido.abrir();
-  const esCode = act && (String(act.tipo || '').startsWith('code') || (act.contenido && act.contenido.tipo === 'code_blocks'));
+  const esCode = act && (act.tipo === 'code_blocks' || (act.contenido && act.contenido.tipo === 'code_blocks'));
   bloquesJuego = (act && act.contenido && act.contenido.bloques) ? act.contenido.bloques : [];
   // RSP puede organizar una actividad en niveles/diapositivas. Se
   // convierten en una secuencia única para reutilizar todos los juegos del
@@ -185,6 +185,9 @@ function abrirJuego(act) {
   const edad = act.edad_recomendada || '6-12';
   const dif = act.dificultad || 'media';
   const tiempo = act.tiempo_estimado || 10;
+  const etapa = window.PJModalidades ? window.PJModalidades.etapaDeEdad(edad) : 'primaria';
+  document.body.dataset.pjEtapa = etapa;
+  document.getElementById('game-page')?.setAttribute('data-pj-etapa', etapa);
 
   pantallas.push({ tipo: 'portada', tit, desc, cat, edad, dif, tiempo });
   kpEstado.push({});
@@ -239,6 +242,19 @@ function abrirJuego(act) {
       } else if (b.tipo === 'esquema') {
         pantallas.push({ tipo: 'esquema', bi });
         kpEstado.push({});
+      } else if (['secuencia_visual', 'ordenar_imagenes'].includes(b.tipo)) {
+        const items = Array.isArray(b.items) ? b.items : (Array.isArray(b.imagenes) ? b.imagenes : (Array.isArray(b.datos?.items) ? b.datos.items : []));
+        pantallas.push({ tipo: 'secuencia', bi, items });
+        kpEstado.push({ seleccion: [], respondida: false, acierto: null });
+      } else if (b.tipo === 'trazo') {
+        pantallas.push({ tipo: 'trazo', bi });
+        kpEstado.push({ trazoHecho: false, respondida: false, acierto: null });
+      } else if (b.tipo === 'code_retos') {
+        const retos = b.retos || b.datos?.retos || [];
+        retos.forEach((reto, ri) => {
+          pantallas.push({ tipo: 'code_reto', bi, ri, n: retos.length });
+          kpEstado.push({ respondida: false, acierto: null });
+        });
       } else if (b.tipo === 'sopa_letras') {
         const { grid, size } = generarSopa(b.palabras, b.tamano);
         pantallas.push({ tipo: 'sopa', bi, grid, size });
@@ -525,6 +541,9 @@ function renderPantalla() {
   if (s.tipo === 'portada') cuerpo = screenPortada(s);
   else if (s.tipo === 'texto') cuerpo = screenTexto(s, est);
   else if (s.tipo === 'esquema') cuerpo = screenEsquema(s, est);
+  else if (s.tipo === 'secuencia') cuerpo = screenSecuencia(s, est);
+  else if (s.tipo === 'trazo') cuerpo = screenTrazo(s, est);
+  else if (s.tipo === 'code_reto') cuerpo = screenCodeReto(s, est);
   else if (s.tipo === 'test') cuerpo = screenTest(s, est);
   else if (s.tipo === 'sopa') cuerpo = screenSopa(s, est);
   else if (s.tipo === 'relacionar') cuerpo = screenRelacionar(s, est);
@@ -582,6 +601,7 @@ function renderPantalla() {
   if (s.tipo === 'meca') { const mi = document.getElementById('kp-meca-input-' + pantallaIdx); if (mi) setTimeout(function () { try { mi.focus(); } catch (e) { /* ok */ } }, 150); }
   if (s.tipo === 'portada') cargarPortadaImg(pantallaIdx);
   if (s.tipo === 'code') { kpCodeDibujarEscenario(); kpCodePintarPrograma(); }
+  if (s.tipo === 'trazo') iniciarTrazo(pantallaIdx);
 
   // Accesibilidad: exponer el texto de la pantalla para la lectura con audio
   document.dispatchEvent(new CustomEvent('junior:texto', { detail: textoPantallaWeb(s) }));
@@ -629,6 +649,9 @@ function textoPantallaWeb(s) {
   if (s.tipo === 'portada') return 'Actividad ' + (s.tit || '') + '. ' + (s.desc || '');
   if (s.tipo === 'texto') { const b = bloquesJuego[s.bi]; return 'Explicación. ' + (b.contenido || ''); }
   if (s.tipo === 'esquema') { const b = bloquesJuego[s.bi]; return String(b.aria_label || b.titulo || 'Esquema interactivo'); }
+  if (s.tipo === 'secuencia') return 'Ordena las imágenes en la secuencia correcta';
+  if (s.tipo === 'trazo') return 'Repasa el trazo siguiendo la guía';
+  if (s.tipo === 'code_reto') return 'Elige el programa más eficiente';
   if (s.tipo === 'test') { const p = bloquesJuego[s.bi].preguntas[s.pi]; return p ? (p.pregunta || '') : ''; }
   if (s.tipo === 'sopa') return 'Encuentra las palabras';
   if (s.tipo === 'relacionar') return 'Relaciona las parejas';
@@ -838,6 +861,65 @@ function screenEsquema(s, est) {
     if (e.accion?.tipo === 'popup') { const hit=e.tipo==='circulo'?`<circle cx="${x}" cy="${y}" r="${Math.max(24,num(e.radio,20)+8)}" fill="transparent"/>`:`<rect x="${x}" y="${y}" width="${Math.max(ew,48)}" height="${Math.max(eh,48)}" fill="transparent"/>`;body += `<g class="pj-schema-action" tabindex="0" role="button" aria-label="${label}" onclick="abrirEsquemaPopup(${s.bi},${i})" onkeydown="if(event.key==='Enter'||event.key===' ')abrirEsquemaPopup(${s.bi},${i})">${hit}</g>`; }
   });
   return `<div class="kp-screen"><div class="kp-qt"><span class="material-symbols-rounded" aria-hidden="true">extension</span> ${esc(b.titulo || 'Esquema')}</div><div class="pj-esquema" role="group" aria-label="${esc(b.aria_label || b.titulo || 'Esquema visual')}"><svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet" focusable="false" xmlns="http://www.w3.org/2000/svg">${body}</svg></div><div class="kp-hint">👆 Pulsa los elementos destacados para ver más información</div><div style="text-align:center;margin-top:14px;"><button class="kp-check" onclick="pantallaNext()">Continuar →</button></div></div>`;
+}
+
+function screenSecuencia(s, est) {
+  const b = bloquesJuego[s.bi] || {}, items = s.items || [];
+  const label = (item, i) => typeof item === 'object' ? (item.alt || item.texto || `Paso ${i + 1}`) : String(item);
+  const visual = (item, i) => typeof item === 'object' && item.url
+    ? `<img src="${esc(item.url)}" alt="${esc(label(item, i))}" loading="lazy">`
+    : `<span class="pj-sequence-symbol">${esc(label(item, i))}</span>`;
+  const selected = est.seleccion || [];
+  return `<div class="kp-screen pj-sequence-screen"><div class="kp-qt"><span class="material-symbols-rounded" aria-hidden="true">view_timeline</span> ${esc(b.titulo || 'Ordena la secuencia')}</div><p>${esc(b.instrucciones || 'Pulsa cada tarjeta en el orden correcto.')}</p><div class="pj-sequence-grid">${items.map((item, i) => `<button type="button" class="pj-sequence-card${selected.includes(i) ? ' is-selected' : ''}" onclick="kpSecuenciaSeleccionar(${s.bi},${i})" ${est.respondida ? 'disabled' : ''}><span class="pj-sequence-number">${selected.includes(i) ? selected.indexOf(i) + 1 : ''}</span>${visual(item, i)}</button>`).join('')}</div>${est.respondida ? `<div class="kp-msg ${est.acierto ? 'ok' : 'bad'}">${est.acierto ? '¡Secuencia correcta!' : 'Revisa el orden e inténtalo de nuevo.'}</div>` : `<button class="kp-btn" onclick="kpComprobarSecuencia(${s.bi})" ${selected.length !== items.length ? 'disabled' : ''}>Comprobar orden</button>`}</div>`;
+}
+function kpSecuenciaSeleccionar(bi, index) {
+  const est = kpEstado[pantallaIdx];
+  if (!est || est.respondida) return;
+  est.seleccion = est.seleccion || [];
+  if (!est.seleccion.includes(index)) est.seleccion.push(index);
+  renderPantalla();
+}
+function kpComprobarSecuencia(bi) {
+  const est = kpEstado[pantallaIdx], b = bloquesJuego[bi] || {}, items = b.items || b.imagenes || b.datos?.items || [];
+  const expected = items.map((item, index) => Number(item?.orden ?? index));
+  const actual = (est.seleccion || []).map((index) => Number(items[index]?.orden ?? index));
+  est.respondida = true; est.acierto = actual.every((value, index) => value === expected[index]);
+  if (est.acierto) kpScore.verdes++; else kpScore.rojos++;
+  renderPantalla();
+  mostrarFeedback(est.acierto, 'el orden correcto', () => { if (!est.acierto) { est.respondida = false; est.seleccion = []; renderPantalla(); return; } pantallaNext(); });
+}
+function screenTrazo(s, est) {
+  const b = bloquesJuego[s.bi] || {}, d = b.datos || b;
+  return `<div class="kp-screen pj-trazo-screen"><div class="kp-qt"><span class="material-symbols-rounded" aria-hidden="true">draw</span> ${esc(b.titulo || 'Repasa el trazo')}</div><p>${esc(d.instrucciones || 'Sigue la guía con el dedo o el ratón.')}</p><div class="pj-trazo-board" data-trazo="${pantallaIdx}"><canvas id="pj-trazo-canvas" width="720" height="420" aria-label="Lienzo para practicar el trazo"></canvas><span class="pj-trazo-guide">${esc(d.guia || d.letra || 'A')}</span></div>${est.respondida ? `<div class="kp-msg ${est.acierto ? 'ok' : 'bad'}">${est.acierto ? '¡Buen trazo!' : 'Prueba a seguir la guía con más calma.'}</div>` : `<button class="kp-btn" onclick="kpComprobarTrazo(${s.bi})" ${est.trazoHecho ? '' : 'disabled'}>Comprobar trazo</button>`}</div>`;
+}
+function iniciarTrazo(index) {
+  const canvas = document.getElementById('pj-trazo-canvas');
+  if (!canvas) return;
+  const est = kpEstado[index] || {};
+  const ctx = canvas.getContext('2d');
+  ctx.lineWidth = 12; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#3f00d8';
+  let drawing = false;
+  const point = (event) => { const rect = canvas.getBoundingClientRect(); const source = event.touches?.[0] || event; return { x: (source.clientX - rect.left) * canvas.width / rect.width, y: (source.clientY - rect.top) * canvas.height / rect.height }; };
+  const start = (event) => { event.preventDefault(); drawing = true; const p = point(event); ctx.beginPath(); ctx.moveTo(p.x, p.y); est.trazoHecho = true; const button = document.querySelector('.pj-trazo-screen .kp-btn'); if (button) button.disabled = false; };
+  const move = (event) => { if (!drawing) return; event.preventDefault(); const p = point(event); ctx.lineTo(p.x, p.y); ctx.stroke(); };
+  const end = () => { drawing = false; };
+  canvas.addEventListener('pointerdown', start); canvas.addEventListener('pointermove', move); canvas.addEventListener('pointerup', end); canvas.addEventListener('pointerleave', end);
+}
+function kpComprobarTrazo(bi) {
+  const est = kpEstado[pantallaIdx]; if (!est || !est.trazoHecho || est.respondida) return;
+  est.respondida = true; est.acierto = true; kpScore.verdes++; renderPantalla(); mostrarFeedback(true, 'el trazo', pantallaNext);
+}
+function screenCodeReto(s, est) {
+  const b = bloquesJuego[s.bi] || {}, retos = b.retos || b.datos?.retos || [], reto = retos[s.ri] || {};
+  const opciones = reto.opciones || reto.programas || [];
+  return `<div class="kp-screen pj-code-reto-screen"><div class="kp-qt"><span class="material-symbols-rounded" aria-hidden="true">compare_arrows</span> Reto de eficiencia · ${s.ri + 1} / ${s.n}</div><h3>${esc(reto.titulo || '¿Qué programa es mejor?')}</h3><p>${esc(reto.objetivo || reto.instrucciones || 'Elige la solución más clara y eficiente.')}</p><div class="pj-code-options">${opciones.map((option, i) => `<button type="button" class="pj-code-option" onclick="kpResponderCodeReto(${s.bi},${i})" ${est.respondida ? 'disabled' : ''}><strong>${esc(option.nombre || `Programa ${String.fromCharCode(65 + i)}`)}</strong><code>${esc(Array.isArray(option.pasos) ? option.pasos.join(' → ') : option.codigo || option.texto || '')}</code><small>${esc(option.explicacion || '')}</small></button>`).join('')}</div></div>`;
+}
+function kpResponderCodeReto(bi, optionIndex) {
+  const s = pantallas[pantallaIdx], est = kpEstado[pantallaIdx], b = bloquesJuego[bi] || {}, reto = (b.retos || b.datos?.retos || [])[s.ri] || {};
+  if (!est || est.respondida) return;
+  est.respondida = true; est.acierto = optionIndex === Number(reto.correcta ?? reto.mejor ?? 0);
+  if (est.acierto) kpScore.verdes++; else kpScore.rojos++;
+  renderPantalla(); mostrarFeedback(est.acierto, 'la solución más eficiente', pantallaNext);
 }
 
 function screenInteractive(s, est) {

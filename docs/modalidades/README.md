@@ -133,6 +133,7 @@
 
 Documentos por familia:
 
+- [Modalidades por etapa educativa](MODALIDADES-ETAPAS.md)
 - [Mapas (mundo sin pistas + España CCAA/provincias)](MAPAS.md)
 - [Placeta Junior Code — modalidades](MODALIDADES-CODE.md)
 - [Caligrafía — modalidades](MODALIDADES-CALIGRAFIA.md)
