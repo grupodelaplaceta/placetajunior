@@ -27,6 +27,12 @@
   }
   aplicar();
 
+  window.__juniorSetMayusculas = function (valor) {
+    mayus = !!valor;
+    guardar();
+    aplicar();
+  };
+
   const synth = window.speechSynthesis || null;
 
   function hablar(texto) {

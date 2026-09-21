@@ -23,6 +23,36 @@ let guardandoDIP = false;
 function esc(s) {
   return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
+
+function mostrarSelectorEscritura() {
+  const anterior = document.getElementById('pj-escritura-popup');
+  if (anterior) anterior.remove();
+  const popup = document.createElement('div');
+  popup.id = 'pj-escritura-popup';
+  popup.className = 'pj-escritura-popup';
+  popup.setAttribute('role', 'dialog');
+  popup.setAttribute('aria-modal', 'true');
+  popup.setAttribute('aria-labelledby', 'pj-escritura-titulo');
+  popup.innerHTML = `<div class="pj-escritura-card">
+    <div class="pj-escritura-burbuja" aria-hidden="true">A a</div>
+    <p class="pj-escritura-kicker">ANTES DE EMPEZAR</p>
+    <h2 id="pj-escritura-titulo">¿CÓMO QUIERES VER LAS LETRAS?</h2>
+    <p class="pj-escritura-subtitulo">ELIGE LA FORMA QUE TE RESULTE MÁS CÓMODA.</p>
+    <div class="pj-escritura-opciones">
+      <button type="button" class="pj-escritura-opcion pj-escritura-mayus"><strong>ABC</strong><span>MAYÚSCULAS</span></button>
+      <button type="button" class="pj-escritura-opcion pj-escritura-minus"><strong>abc</strong><span>MINÚSCULAS</span></button>
+    </div>
+  </div>`;
+  document.body.appendChild(popup);
+  const cerrar = (mayusculas) => {
+    if (window.__juniorSetMayusculas) window.__juniorSetMayusculas(mayusculas);
+    popup.remove();
+    renderPantalla();
+  };
+  popup.querySelector('.pj-escritura-mayus').addEventListener('click', () => cerrar(true));
+  popup.querySelector('.pj-escritura-minus').addEventListener('click', () => cerrar(false));
+  popup.querySelector('.pj-escritura-mayus').focus();
+}
 // ── Reparación de URLs de imagen ─────────────────────────────────────
 // Algunas actividades (generadas con IA) guardan la URL de la imagen como
 // un enlace Markdown partido por el ':' de la propia URL. Ejemplo real:
@@ -386,7 +416,7 @@ function abrirJuego(act) {
     document.body.classList.add('mostrando-juego');
   }
   asegurarFeedback();
-  renderPantalla();
+  mostrarSelectorEscritura();
   try { if (act && act.id && !location.search.includes('jugar=')) history.pushState(null, '', '/?jugar=' + encodeURIComponent(act.id)); } catch (e) { /* sin historial */ }
 }
 
@@ -565,6 +595,7 @@ function renderPantalla() {
   guardarPartidaLocal();
   const total = pantallas.length;
   const pct = total > 1 ? Math.round((pantallaIdx / (total - 1)) * 100) : 0;
+  const tipoPantalla = s.tipo || 'actividad';
   let etiqueta;
   if (s.tipo === 'test') etiqueta = 'Pregunta ' + (s.pi + 1) + ' de ' + s.nPreg;
   else if (s.tipo === 'calculo') etiqueta = 'Cálculo ' + (s.si + 1) + ' de ' + s.n;
@@ -578,7 +609,7 @@ function renderPantalla() {
   document.getElementById('player-content').innerHTML = `
     <div class="kp-top">
       <button type="button" class="kp-nav-btn kp-salir" onclick="cerrarPlayer()" title="Salir de la actividad"><span class="material-symbols-rounded">close</span><span class="kp-salir-txt">Salir</span></button>
-      <div class="kp-progress" aria-hidden="true">
+      <div class="kp-progress" aria-label="Progreso: ${pct}%">
         <span class="kp-progress-label">${esc(etiqueta)}</span>
         <div class="kp-progress-track"><div class="kp-progress-bar" style="width:${pct}%"></div></div>
       </div>
@@ -589,11 +620,11 @@ function renderPantalla() {
       </div>
     </div>
     <div class="kp-nav-row">
-      <button type="button" class="kp-nav-btn" onclick="pantallaPrev()" ${(pantallaIdx === 0 || s.tipo === 'final') ? 'disabled' : ''} title="Anterior"><span class="material-symbols-rounded">chevron_left</span></button>
-      <span class="kp-dots">${pantallas.map((_, i) => `<span class="kp-dot ${i === pantallaIdx ? 'on' : ''}"></span>`).join('')}</span>
-      <button type="button" class="kp-nav-btn" onclick="pantallaNext()" ${pantallaIdx === pantallas.length - 1 ? 'disabled' : ''} title="Siguiente"><span class="material-symbols-rounded">chevron_right</span></button>
+      <button type="button" class="kp-nav-btn" onclick="pantallaPrev()" ${(pantallaIdx === 0 || s.tipo === 'final') ? 'disabled' : ''} title="Anterior" aria-label="Pantalla anterior"><span class="material-symbols-rounded">chevron_left</span></button>
+      <span class="kp-dots" aria-label="Pantalla ${pantallaIdx + 1} de ${total}">${pantallas.map((_, i) => `<span class="kp-dot ${i === pantallaIdx ? 'on' : ''}" ${i === pantallaIdx ? 'aria-current="step"' : ''}></span>`).join('')}</span>
+      <button type="button" class="kp-nav-btn" onclick="pantallaNext()" ${pantallaIdx === pantallas.length - 1 ? 'disabled' : ''} title="Siguiente" aria-label="Pantalla siguiente"><span class="material-symbols-rounded">chevron_right</span></button>
     </div>
-    <div class="kp-stage" aria-live="polite">${cuerpo}</div>`;
+    <div class="kp-stage" data-screen-type="${esc(tipoPantalla)}" aria-live="polite">${cuerpo}</div>`;
   clearInterval(calcTimer);
   if (s.tipo === 'calculo') iniciarTimerCalculo();
   if (s.tipo === 'mapa') iniciarMapa(pantallaIdx);
@@ -2269,8 +2300,12 @@ function kpCodeSerializar(prog) {
     const b = { op: item.op };
     if (item.veces != null) b.veces = item.veces;
     if (item.dir) b.dir = item.dir;
+    if (item.sonido) b.sonido = item.sonido;
     if (item.condicion) b.condicion = item.condicion;
+    if (item.hacia) b.hacia = item.hacia;
+    if (item.negado) b.negado = true;
     if (item.bloques !== undefined) b.bloques = kpCodeSerializar(item.bloques);
+    if (item.bloques_no !== undefined) b.bloques_no = kpCodeSerializar(item.bloques_no);
     return b;
   });
 }

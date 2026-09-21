@@ -43,6 +43,7 @@ window.PJCode = (function () {
           op: b.op || b.tipo || 'avanzar',
           veces: b.veces != null ? Number(b.veces) : 1,
           dir: b.dir || b.direccion || 'derecha',
+          sonido: b.sonido || 'pop',
           condicion: b.condicion || b.si || 'obstaculo',
           hacia: b.hacia || 'delante',
           negado: !!b.negado,
@@ -152,6 +153,7 @@ window.PJCode = (function () {
           const nx = x + DELTAS[dir].x * 2;
           const ny = y + DELTAS[dir].y * 2;
           if (!dentro(nx, ny)) { fin = true; error.tipo = 'fuera'; error.mensaje = 'Candela saltó fuera del tablero.'; registrar('error', { tipo: 'fuera' }); return; }
+          if (hayObstaculo(nx, ny)) { fin = true; error.tipo = 'obstaculo'; error.mensaje = 'Candela cayó sobre un obstáculo.'; registrar('error', { tipo: 'obstaculo' }); return; }
           x = nx; y = ny;
           visitadas.add(`${x},${y}`);
           posicionFinal = { x, y };

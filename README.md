@@ -23,6 +23,19 @@ El proyecto está conectado al repo `grupodelaplaceta/placetajunior`. En Vercel:
 - Output: `/`
 
 ## Identidad visual
+
+## Estadísticas de la plataforma
+
+Placeta Junior usa métricas internas de primera parte para mejorar el servicio y
+acompañar el aprendizaje. Se analizan, cuando están disponibles, las actividades
+consultadas o iniciadas, finalización, respuestas correctas e incorrectas,
+puntos verdes y rojos, etapa educativa, tiempo aproximado de sesión y errores
+técnicos. Los resultados identificados por DIP se usan además para progreso,
+recompensas y diplomas.
+
+No se usan redes publicitarias, perfiles para publicidad, venta de datos ni
+analítica de terceros. La política de privacidad explica las finalidades, la
+conservación y los derechos aplicables.
 Colores oficiales PJ (P-J-U-N-I-O-R):
 - P negro `#000000`, J rojo `#FF3333`, U naranja `#FF6600`, N amarillo `#D6CE52`,
   I verde `#336E45`, O azul `#3A00E1`, R púrpura `#4E3B70`

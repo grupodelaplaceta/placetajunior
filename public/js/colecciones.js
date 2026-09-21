@@ -22,7 +22,7 @@
     if (stage === 'secundaria') return filter === 'peques' ? age >= 12 && age <= 14 : age >= 15;
     return filter === 'peques' ? age >= 6 && age <= 8 : age >= 9 && age <= 12;
   };
-  const API_BASE = window.location.hostname === 'junior.laplaceta.org' ? 'https://rsp.laplaceta.org/api/junior' : '/api/junior';
+  const API_BASE = (window.PJ_API_BASE || (window.location.hostname === 'junior.laplaceta.org' ? '/api/junior' : 'https://rsp.laplaceta.org/api/junior')).replace(/\/$/, '');
   const state = { activities: [], subject: 'Todas', age: 'todas' };
   const grid = document.getElementById('collection-grid');
   const status = document.getElementById('collection-status');

@@ -5,11 +5,7 @@
 
 // BFF del mismo dominio por defecto; permite apuntar a otro entorno desde
 // window.PJ_API_BASE sin recompilar la web.
-const API_BASE = (window.PJ_API_BASE || (location.hostname === 'junior.laplaceta.org'
-  // RSP es el backend único de progreso, canjes, niveles y recompensas.
-  // admin-placeta conserva el catálogo histórico, pero no expone estas rutas.
-  ? 'https://rsp.laplaceta.org/api/junior'
-  : '/api/junior')).replace(/\/$/, '');
+const API_BASE = (window.PJ_API_BASE || (location.hostname === 'junior.laplaceta.org' ? '/api/junior' : 'https://rsp.laplaceta.org/api/junior')).replace(/\/$/, '');
 
 // ── Helpers ──────────────────────────────────────────────────────────
 async function apiGet(path) {
