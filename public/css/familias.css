@@ -1,0 +1,35 @@
+/* Área editorial para familias y docentes. Usa el shell visual de la portada. */
+.familias-page { --fam-ink:#17132b; --fam-muted:#6d6a7d; --fam-line:#e6e7ef; --fam-purple:#3f00d8; --fam-blue:#2979ff; --fam-green:#00a95a; --fam-orange:#ff6d00; background:#f7f8fc; color:var(--fam-ink); }
+.familias-page .familias-hero { position:relative; overflow:hidden; padding:72px 22px 68px; background:linear-gradient(135deg,#eeeaff 0%,#fff 56%,#fff1df 100%); }
+.familias-page .familias-hero::after { content:''; position:absolute; right:7%; bottom:-90px; width:230px; height:230px; border:34px solid rgba(63,0,216,.08); border-radius:42% 58% 58% 42%; transform:rotate(18deg); }
+.familias-page .familias-hero-inner,.familias-page .familias-main { position:relative; z-index:1; max-width:1180px; margin:0 auto; }
+.familias-page .familias-kicker { display:inline-flex; margin-bottom:14px; color:var(--fam-purple); font-weight:800; font-size:13px; letter-spacing:.08em; text-transform:uppercase; }
+.familias-page .familias-hero h1 { max-width:820px; margin:0 0 14px; color:var(--fam-ink); font-family:var(--font-head); font-size:clamp(2.2rem,5vw,4.5rem); line-height:1.02; }
+.familias-page .familias-hero h1 em { color:var(--fam-purple); font-style:normal; }
+.familias-page .familias-hero p { max-width:700px; margin:0; color:var(--fam-muted); font-size:clamp(1rem,2vw,1.2rem); line-height:1.6; }
+.familias-page .familias-main { padding:42px 22px 76px; }
+.familias-page .familias-breadcrumb { margin-bottom:24px; color:var(--fam-muted); font-size:13px; }
+.familias-page .familias-breadcrumb a { color:var(--fam-purple); font-weight:800; text-decoration:none; }
+.familias-page .familias-heading { max-width:720px; margin-bottom:24px; }
+.familias-page .familias-heading h2 { margin:0 0 7px; color:var(--fam-ink); font-family:var(--font-head); font-size:clamp(1.45rem,3vw,2.1rem); }
+.familias-page .familias-heading p { margin:0; color:var(--fam-muted); line-height:1.6; }
+.familias-page .familias-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+.familias-page .familias-card { display:flex; min-height:220px; flex-direction:column; padding:21px; border:1px solid var(--fam-line); border-top:5px solid var(--fam-purple); border-radius:17px; background:#fff; box-shadow:0 8px 24px rgba(23,19,43,.05); text-decoration:none; transition:transform .18s,box-shadow .18s,border-color .18s; }
+.familias-page .familias-card:hover,.familias-page .familias-card:focus-visible { transform:translateY(-4px); border-color:var(--fam-purple); box-shadow:0 15px 32px rgba(23,19,43,.11); }
+.familias-page .familias-card[data-color="blue"] { border-top-color:var(--fam-blue); }
+.familias-page .familias-card[data-color="green"] { border-top-color:var(--fam-green); }
+.familias-page .familias-card[data-color="orange"] { border-top-color:var(--fam-orange); }
+.familias-page .familias-card .ico { display:grid; width:45px; height:45px; place-items:center; border-radius:14px; background:#f0edff; color:var(--fam-purple); font-size:23px; }
+.familias-page .familias-card h3 { margin:16px 0 8px; color:var(--fam-ink); font-family:var(--font-head); font-size:1.15rem; }
+.familias-page .familias-card p { margin:0; color:var(--fam-muted); line-height:1.5; }
+.familias-page .familias-card span:last-child { margin-top:auto; padding-top:17px; color:var(--fam-purple); font-size:.85rem; font-weight:800; }
+.familias-page .familias-article { max-width:840px; }
+.familias-page .familias-article section { margin-top:28px; padding:25px; border:1px solid var(--fam-line); border-radius:17px; background:#fff; }
+.familias-page .familias-article h2 { margin:0 0 9px; color:var(--fam-purple); font-family:var(--font-head); font-size:1.45rem; }
+.familias-page .familias-article h3 { margin:19px 0 6px; color:var(--fam-ink); font-size:1.05rem; }
+.familias-page .familias-article p,.familias-page .familias-article li { color:var(--fam-muted); line-height:1.65; }
+.familias-page .familias-article ul { padding-left:1.25rem; }
+.familias-page .familias-note { padding:17px 19px; border-left:4px solid var(--fam-orange); border-radius:10px; background:#fff4e9; color:#6d461e; }
+.familias-page .familias-cta { display:inline-flex; align-items:center; gap:7px; margin-top:18px; padding:12px 19px; border-radius:999px; background:var(--fam-purple); color:#fff; font-weight:800; text-decoration:none; }
+@media (max-width:820px) { .familias-page .familias-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media (max-width:600px) { .familias-page .familias-hero { padding:49px 16px 42px; } .familias-page .familias-hero::after { right:-70px; bottom:-85px; width:170px; height:170px; border-width:25px; } .familias-page .familias-main { padding:28px 16px 54px; } .familias-page .familias-grid { grid-template-columns:1fr; } .familias-page .familias-card { min-height:175px; padding:18px; } .familias-page .familias-article section { padding:19px; } }
