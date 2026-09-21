@@ -477,6 +477,11 @@ body.pj-home {
 }
 .pj-home .modal h3 { font-family: var(--font-head); font-size: 26px; letter-spacing: 1px; text-transform: uppercase; color: var(--pj-purple); margin: 0 0 6px; }
 .pj-home .modal .m-sub { color: var(--pj-muted); font-size: 14px; margin: 0 0 14px; }
+.pj-home .pj-placetas-lock-card { display: grid; gap: 12px; max-width: 430px; text-align: center; }
+.pj-home .pj-placetas-lock-card h2 { margin: 0; color: var(--pj-purple); font-size: 24px; line-height: 1.15; }
+.pj-home .pj-placetas-lock-card p { margin: 0; color: var(--pj-muted); font-size: 15px; line-height: 1.55; }
+.pj-home .pj-placetas-lock-icon { width: 58px; height: 58px; display: grid; place-items: center; margin: 0 auto; border-radius: 18px; background: var(--pj-purple-light); color: var(--pj-purple); font-size: 30px; }
+.pj-home .pj-placetas-lock-card .btn { width: 100%; }
 .pj-home .m-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
 .pj-home .info-cover { height: 150px; border-radius: 14px; background: #e6e3ec; background-size: contain; background-repeat: no-repeat; background-position: center; margin-bottom: 14px; }
 .pj-home .info-title { font-family: var(--font-head); font-size: 28px; letter-spacing: 1px; text-transform: uppercase; color: var(--pj-ink); }

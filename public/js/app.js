@@ -791,6 +791,36 @@ function actualizarContadorEdad() {
 
 function esPago(a) { return (a.precio_licencia > 0 || a.precio_intento > 0); }
 function esBloqueada(a) { return esPago(a) && !a.subvencionada; }
+const PJ_APP_DOWNLOAD_URL = 'https://play.google.com/store/apps/details?id=org.laplaceta.placetajunior';
+
+function cerrarBloqueoPlacetas() {
+  document.getElementById('pj-placetas-lock')?.remove();
+}
+function mostrarBloqueoPlacetas() {
+  cerrarBloqueoPlacetas();
+  const modal = document.createElement('div');
+  modal.id = 'pj-placetas-lock';
+  modal.className = 'pj-modal';
+  modal.setAttribute('role', 'dialog');
+  modal.setAttribute('aria-modal', 'true');
+  modal.setAttribute('aria-labelledby', 'pj-placetas-lock-title');
+  modal.innerHTML = `<div class="pj-modal-card pj-placetas-lock-card"><button type="button" class="pj-modal-close" onclick="cerrarBloqueoPlacetas()" aria-label="Cerrar">×</button><span class="material-symbols-rounded pj-placetas-lock-icon" aria-hidden="true">lock</span><h2 id="pj-placetas-lock-title">Actividad limitada mediante Placetas</h2><p>El equipo de Placeta Junior ha limitado el acceso a esta actividad mediante <strong>Placetas</strong>. Puedes desbloquearla desde la app de Placeta Junior.</p><a class="btn btn-primary" href="${PJ_APP_DOWNLOAD_URL}" target="_blank" rel="noopener">Descargar Placeta Junior</a><button type="button" class="btn btn-outline" onclick="cerrarBloqueoPlacetas()">Cerrar</button></div>`;
+  document.body.appendChild(modal);
+  modal.querySelector('.pj-modal-close')?.focus();
+}
+
+function unidadInicialGuardada(id, unidades) {
+  if (!window.PJPartidas || !unidades.length) return 0;
+  const partidas = window.PJPartidas.leer ? window.PJPartidas.leer() : {};
+  let ultima = null;
+  unidades.forEach((_, indice) => {
+    const partida = partidas[`${id}::unidad::${indice}`];
+    if (partida && (!ultima || Number(partida.guardado || 0) >= Number(ultima.partida.guardado || 0))) ultima = { indice, partida };
+  });
+  if (!ultima) return 0;
+  if (ultima.partida.completada && ultima.indice + 1 < unidades.length) return ultima.indice + 1;
+  return ultima.indice;
+}
 
 // ═══════════════════════════════════════════════════════════════════
 //  CARGA + FILAS POR CATEGORÍA
@@ -849,7 +879,7 @@ function renderCategorias() {
 // Abrir y JUGAR la actividad publicada (reproductor de la web)
 async function abrirActividad(id, bloqueada) {
   if (bloqueada) {
-    juniorAviso('🔒 Esta actividad es de pago (no subvencionada). Puedes adquirirla en la app Placeta Junior y pagarla con Placetas.', 'error');
+    mostrarBloqueoPlacetas();
     return;
   }
   try {
@@ -861,13 +891,15 @@ async function abrirActividad(id, bloqueada) {
     } catch (e) { /* sin almacenamiento */ }
     const data = await apiGet(url);
     if (data.actividad) {
+      if (esBloqueada(data.actividad)) { mostrarBloqueoPlacetas(); return; }
       // Las actividades organizadas en diapositivas/unidades NUNCA se
       // reproducen todas juntas: se abre el selector de unidad para jugar
       // una a una (flujo esperado, igual que en la app).
       if (obtenerUnidadesActividad(data.actividad).length > 0) {
         cerrarDetalle();
         if (!TODAS.some(x => x.id === data.actividad.id)) TODAS.push(data.actividad);
-        verInfo(data.actividad.id);
+        const unidades = obtenerUnidadesActividad(data.actividad);
+        abrirUnidad(data.actividad.id, unidadInicialGuardada(data.actividad.id, unidades));
         return;
       }
       // La navegación a una actividad siempre cierra la vista anterior.
@@ -895,7 +927,7 @@ async function abrirUnidad(id, indice) {
     const data = await apiGet(`/actividades/${id}`);
     const a = data.actividad;
     if (!a) throw new Error('Actividad no encontrada');
-    if (esBloqueada(a)) { juniorAviso('🔒 Esta actividad es de pago. Desbloquéala desde la app para jugarla.', 'error'); return; }
+    if (esBloqueada(a)) { mostrarBloqueoPlacetas(); return; }
     const unidades = obtenerUnidadesActividad(a), u = unidades[Number(indice)];
     if (!u) throw new Error('Unidad no encontrada');
     const unidadIndex = Number(indice);
