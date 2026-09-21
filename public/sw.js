@@ -6,7 +6,7 @@
    ═══════════════════════════════════════════════════════════════════ */
 // Versionar la caché fuerza la actualización del reproductor y estilos en
 // dispositivos que ya visitaron la web.
-const CACHE = 'placetajunior-assets-v3';
+const CACHE = 'placetajunior-assets-v4';
 
 const ASSETS = [
   '/css/styles.css',
@@ -71,11 +71,10 @@ self.addEventListener('fetch', function (e) {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
 
-  // API siempre actualizada: no se guarda contenido dinámico en caché.
-  if (url.hostname.indexOf('admin-placeta') !== -1 || url.pathname.indexOf('/api/') === 0) {
-    e.respondWith(fetch(req));
-    return;
-  }
+  // Las APIs se dejan pasar directamente al navegador. En especial, las
+  // peticiones cross-origin no deben quedar envueltas por el SW: un fallo de
+  // red o CORS dentro de respondWith() se convierte en un error del worker.
+  if (url.origin !== self.location.origin || url.pathname.indexOf('/api/') === 0) return;
 
   // HTML siempre desde red: los cambios de la web no esperan a una caché.
   if (url.origin === self.location.origin && req.mode === 'navigate') {
