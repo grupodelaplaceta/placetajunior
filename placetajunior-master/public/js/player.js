@@ -48,6 +48,7 @@ function mostrarSelectorEscritura() {
       <button type="button" class="pj-escritura-opcion pj-escritura-mayus"><strong>ABC</strong><span>MAYÚSCULAS</span></button>
       <button type="button" class="pj-escritura-opcion pj-escritura-minus"><strong>abc</strong><span>MINÚSCULAS</span></button>
     </div>
+    <p class="pj-escritura-legal">Estas preferencias se guardan en este navegador para que todas las actividades de Placeta Junior usen el mismo idioma y formato de letras.</p>
   </div>`;
   document.body.appendChild(popup);
   let idiomaElegido = 'es';

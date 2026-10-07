@@ -17,7 +17,22 @@
   let sonido = true;
   let idioma = 'es';
   const KEY = 'junior_acc_web';
-  try { const s = JSON.parse(localStorage.getItem(KEY) || '{}'); mayus = !!s.mayus; audio = !!s.audio; grande = !!s.grande; contraste = !!s.contraste; sonido = s.sonido !== false; idioma = s.idioma || 'es'; } catch (e) { /* ok */ }
+  let guardado = false;
+  function cargarGuardado() {
+    try {
+      const s = JSON.parse(localStorage.getItem(KEY) || '{}');
+      if (s && typeof s === 'object') {
+        guardado = true;
+        mayus = !!s.mayus;
+        audio = !!s.audio;
+        grande = !!s.grande;
+        contraste = !!s.contraste;
+        sonido = s.sonido !== false;
+        idioma = s.idioma || 'es';
+      }
+    } catch (e) { /* ok */ }
+  }
+  cargarGuardado();
   window.__juniorAudio = audio;
   window.__juniorLocale = idioma;
 
@@ -90,7 +105,18 @@
 
   btn.addEventListener('click', () => { panel.hidden = !panel.hidden; if (window.pjSonido) pjSonido.clic(); });
 
-  function guardar() { try { localStorage.setItem(KEY, JSON.stringify({ mayus, audio, grande, contraste, sonido, idioma })); } catch (e) { /* ok */ } }
+  function guardar() {
+    guardado = true;
+    try { localStorage.setItem(KEY, JSON.stringify({ mayus, audio, grande, contraste, sonido, idioma })); } catch (e) { /* ok */ }
+  }
+  function abrirConfiguracionInicial() {
+    if (guardado) return;
+    if (!document.getElementById('pj-escritura-popup') && typeof window.mostrarSelectorEscritura === 'function') {
+      window.setTimeout(() => {
+        if (!document.getElementById('pj-escritura-popup') && !guardado) window.mostrarSelectorEscritura();
+      }, 300);
+    }
+  }
   function refrescar() {
     document.getElementById('accMayus').classList.toggle('on', mayus);
     document.getElementById('accAudio').classList.toggle('on', audio);
@@ -119,6 +145,7 @@
   });
   document.getElementById('accLeer').addEventListener('click', leerPagina);
   refrescar();
+  abrirConfiguracionInicial();
 
   // Autoleer si el jugador expone el texto de la pantalla y el audio está activo
   document.addEventListener('junior:texto', (e) => {
