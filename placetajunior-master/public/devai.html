@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <link rel="icon" type="image/png" href="favijunior.png" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>DevAI | Placeta Junior</title>
+  <style>
+    :root {
+      --pj-purple: #7c3aed; --pj-purple-light: #ede9fe; --pj-green: #22a06b; --pj-green-light: #e5f6ee;
+      --pj-orange: #ff8a00; --pj-blue: #2563eb; --pj-gray-50: #fafafa; --pj-gray-100: #f4f4f5;
+      --pj-gray-200: #e4e4e7; --pj-gray-500: #71717a; --pj-gray-800: #27272a; --pj-white: #fff;
+      --radius: 14px; --shadow: 0 6px 24px rgba(0,0,0,.08);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; background: var(--pj-gray-50); color: var(--pj-gray-800); }
+    .topbar { background: var(--pj-purple); color: #fff; padding: 14px 22px; display: flex; align-items: center; gap: 10px; }
+    .topbar .logo { font-weight: 800; font-size: 17px; }
+    .topbar .tag { background: rgba(255,255,255,.18); padding: 3px 9px; border-radius: 999px; font-size: 11px; }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 22px; }
+    .card { background: var(--pj-white); border: 1px solid var(--pj-gray-200); border-radius: var(--radius); padding: 18px; margin-bottom: 18px; box-shadow: var(--shadow); }
+    .card h2 { margin: 0 0 6px; font-size: 16px; color: var(--pj-purple); }
+    .card .sub { margin: 0 0 12px; font-size: 12.5px; color: var(--pj-gray-500); }
+    textarea { width: 100%; font-family: 'Consolas', 'Menlo', monospace; font-size: 12.5px; border: 1px solid var(--pj-gray-200); border-radius: 10px; padding: 10px; resize: vertical; color: var(--pj-gray-800); background: var(--pj-white); }
+    textarea#prompt { min-height: 300px; }
+    textarea#codigo { min-height: 300px; }
+    textarea#texto { min-height: 120px; font-family: inherit; font-size: 14px; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .field { display: flex; flex-direction: column; gap: 4px; }
+    .field label { font-size: 11px; font-weight: 700; color: var(--pj-gray-500); }
+    input, select { border: 1px solid var(--pj-gray-200); border-radius: 10px; padding: 8px 10px; font-size: 13px; }
+    .btn { border: none; border-radius: 12px; padding: 10px 16px; font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; }
+    .btn-purple { background: var(--pj-purple); color: #fff; }
+    .btn-green { background: var(--pj-green); color: #fff; }
+    .btn-outline { background: #fff; border: 1px solid var(--pj-gray-200); color: var(--pj-gray-800); }
+    .btn:hover { filter: brightness(1.05); }
+    .meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 12px 0; }
+    #preview { border: 2px dashed var(--pj-gray-200); border-radius: var(--radius); padding: 16px; min-height: 80px; background: var(--pj-gray-50); }
+    #preview h3 { margin: 0 0 8px; color: var(--pj-purple); }
+    .bloque-prev { background: #fff; border: 1px solid var(--pj-gray-200); border-radius: 10px; padding: 10px; margin: 8px 0; font-size: 13px; }
+    .badge { display: inline-block; background: var(--pj-purple-light); color: var(--pj-purple); padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; margin-bottom: 6px; }
+    .prev-img { margin: 6px 0; }
+    .prev-img img { max-width: 220px; max-height: 150px; border-radius: 8px; border: 1px solid var(--pj-gray-200); display: block; }
+    .prev-alt { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+    .prev-alt-tag { font-size: 11px; font-weight: 700; color: var(--pj-purple); white-space: nowrap; }
+    .alt-input { flex: 1; min-width: 0; border: 1px solid var(--pj-gray-300); border-radius: 6px; padding: 4px 8px; font-size: 12px; }
+    .alt-input:focus { outline: none; border-color: var(--pj-purple); }
+    .prev-economia { border-color: var(--pj-green) !important; background: #f6fbf7 !important; }
+    .prev-meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin-top: 8px; }
+    .prev-meta-field { display: flex; flex-direction: column; gap: 3px; font-size: 11px; font-weight: 700; color: var(--pj-gray-600); }
+    .prev-meta-field input[type="number"] { border: 1px solid var(--pj-gray-300); border-radius: 6px; padding: 5px 8px; font-size: 13px; font-weight: 600; }
+    .prev-meta-field input[type="number"]:focus { outline: none; border-color: var(--pj-green); }
+    .prev-meta-field.check { flex-direction: row; align-items: center; gap: 6px; font-weight: 600; }
+    .ok { color: var(--pj-green); font-weight: 700; }
+    .err { color: #dc2626; font-weight: 700; }
+    .falta { border-color: #dc2626 !important; background: #fff5f5 !important; }
+    .campo-lbl { display: flex; align-items: center; gap: 4px; }
+    .campo-lbl .req { color: #dc2626; }
+    #info-campos { margin-top: 8px; font-size: 12px; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    @media (max-width: 760px) { .grid2 { grid-template-columns: 1fr; } }
+  </style>
+  <script src="js/mapa-mundi.js"></script>
+</head>
+<body>
+  <div class="topbar">
+    <span class="logo">🤖 DevAI · Placeta Junior</span>
+    <span class="tag">oculto /devai</span>
+    <span style="flex:1"></span>
+    <a href="/studio" style="color:#fff;font-size:13px;">→ Studio</a>
+  </div>
+
+  <div class="wrap">
+    <div class="card">
+      <h2>1️⃣ Genera la actividad con IA</h2>
+      <p class="sub">Copia este prompt en cualquier IA (ChatGPT, Claude, Gemini…), pega tu idea y pídele que responda <b>solo el JSON</b>. Luego pégalo en el paso 3.</p>
+      <textarea id="prompt" spellcheck="false">Actúa como creador de actividades educativas de Placeta Junior (proyecto para niños de 6 a 14 años). Dada la descripción de una actividad, genera ÚNICAMENTE JSON válido (sin texto extra, sin markdown) con este esquema exacto:
+
+{
+  "titulo": "Título de la actividad",
+  "descripcion": "Descripción breve",
+  "categoria": "Matemáticas|Lengua|Ciencias|Geografía|Tecnología|Lógica|Cultura|General",
+  "edad_recomendada": "6-12",
+  "dificultad": "facil|media|dificil",
+  "tiempo_estimado": 10,
+  "precio_licencia": 0,
+  "precio_intento": 0,
+  "recompensa": 0,
+  "subvencionada": false,
+  "contenido": {
+    "version": 2,
+    "niveles": [
+      { "orden": 1, "titulo": "Descubrimos", "descripcion": "Aprende lo básico", "recompensa": 0, "bloques": [ { "tipo": "texto", "titulo": "Explicación", "contenido": "Contenido de la diapositiva." } ] },
+      { "orden": 2, "titulo": "Practicamos", "descripcion": "Demuestra lo aprendido", "recompensa": 0, "bloques": [ { "tipo": "test", "preguntas": [ { "pregunta": "¿... ?", "opciones": ["A", "B", "C"], "correcta": 0 } ] } ] }
+    ],
+    "bloques": [
+      { "tipo": "texto", "titulo": "Aprende", "contenido": "Explicación en una o varias líneas\nSegundo párrafo.", "imagen_url": "", "imagen_alt": "", "fuente": "" },
+      { "tipo": "esquema", "titulo": "Partes de una planta", "aria_label": "Esquema de una planta", "esquema": { "ancho": 800, "alto": 450, "elementos": [ { "tipo": "circulo", "x": 400, "y": 180, "radio": 80, "color": "#86efac", "aria_label": "Copa de la planta" }, { "tipo": "texto", "x": 330, "y": 300, "texto": "Raíz", "tamano": 24, "negrita": true }, { "tipo": "rectangulo", "x": 600, "y": 80, "ancho": 150, "alto": 70, "color": "#fef3c7", "accion": { "tipo": "popup", "titulo": "La raíz", "contenido": "Sujeta la planta y absorbe agua." }, "aria_label": "Ver información sobre la raíz" } ] } ,
+      { "tipo": "test", "preguntas": [ { "pregunta": "¿...?", "opciones": ["A","B","C","D"], "correcta": 0 } ] },
+      { "tipo": "sopa_letras", "palabras": ["SOL","LUNA"], "pistas": ["Estrella central","Satélite"], "tamano": 10 },
+      { "tipo": "relacionar", "modo": "escribir", "pares": [ { "izq": "pista que ve el niño", "der": "palabra correcta", "izq_img": "", "izq_alt": "", "izq_fuente": "" } ] },
+      { "tipo": "relacionar", "modo": "emparejar", "pares": [ { "izq": "izquierda", "der": "derecha" } ] },
+      { "tipo": "ordenar", "items": ["Paso 1","Paso 2","Paso 3"] },
+      { "tipo": "completar", "modo": "opciones", "frases": [ { "texto": "La frase con ___", "respuesta": "perro", "opciones": ["gato","pájaro"] } ] },
+      { "tipo": "completar", "modo": "escribir", "frases": [ { "texto": "La frase con ___", "respuesta": "palabra" } ] },
+      { "tipo": "calculo_mental", "operacion": "suma", "vertical": false, "llevadas": true, "sumas": [ { "a": 3, "b": 5, "op": "suma" } ], "segundos": 10, "modo": "opciones" },
+      { "tipo": "construir_frase", "palabras": ["come", "El", "gato", "pescado"], "respuesta": "El gato come pescado" },
+      { "tipo": "clasificar_palabras", "categorias": ["Sustantivo", "Verbo", "Adjetivo"], "elementos": [ { "texto": "perro", "categoria": "Sustantivo" }, { "texto": "correr", "categoria": "Verbo" }, { "texto": "azul", "categoria": "Adjetivo" } ] },
+      { "tipo": "completar_palabra", "modo": "opciones", "ejercicios": [ { "texto": "El ca__o corre por el parque.", "respuesta": "rr", "opciones": ["r", "rr", "rrr"] } ] },
+      { "tipo": "cazador_errores", "texto": "Ayer fuimos al parque y vimos un pajaro.", "errores": [ { "incorrecto": "pajaro", "correcto": "pájaro" } ] },
+      { "tipo": "lectura_interactiva", "escenas": [ { "texto": "Candela encuentra una caja misteriosa.", "opciones": [ { "texto": "Abrir la caja", "siguiente": 1 }, { "texto": "Buscar ayuda", "siguiente": 1 } ] }, { "texto": "¡Dentro hay una sorpresa!", "opciones": [] } ] },
+      { "tipo": "mapa_mundi", "paises": ["España", "Francia", "Italia", "Portugal"] },
+      { "tipo": "mapa_espana", "modo": "provincias", "titulo": "Provincias de España", "objetivos": ["Asturias", "Madrid", "Toledo", "Málaga"] },
+      { "tipo": "arrastrar", "titulo": "Recicla con Candela", "instrucciones": "Coloca cada objeto en su contenedor.", "datos": { "elementos": ["🍌|Cáscara|orgánico"], "zonas": ["orgánico","papel"], "respuestas": { "Cáscara": "orgánico" } } },
+      { "tipo": "buscar", "titulo": "Busca y encuentra", "instrucciones": "Encuentra los objetos.", "datos": { "objetos": ["💡|Lámpara|1","🪑|Silla|0"], "objetivo": 1 } },
+      { "tipo": "detective", "datos": { "pistas": ["Estuvo en la cocina."], "opciones": ["Candela","El gato"], "correcta": 0 } },
+      { "tipo": "laboratorio", "datos": { "opciones": ["☀️|Luz|1","❄️|Hielo|0"], "resultado": "La planta crece." } },
+      { "tipo": "construccion", "datos": { "piezas": ["🔋 Batería","💡 Bombilla","🔌 Cables"] } },
+      { "tipo": "presupuesto", "datos": { "presupuesto": 20, "productos": ["🍎|Manzana|2"] } },
+      { "tipo": "exploracion", "datos": { "lugares": ["📍 Tarragona|Ciudad romana|tarragona"] } },
+      { "tipo": "simulacion", "datos": { "caras": 6, "pregunta": "Lanza el dado 20 veces." } },
+      { "tipo": "historia_interactiva", "datos": { "escenas": [ { "texto": "Hay una puerta.", "opciones": ["Abrirla","Pedir ayuda"], "siguiente": [1,1] } ] } },
+      { "tipo": "memoria", "datos": { "tarjetas": ["☀️","🌙","☀️","🌙"] } },
+      { "tipo": "sonido", "datos": { "audio_url": "", "opciones": ["perro","gato"], "respuesta": "perro" } },
+      { "tipo": "codigo_secreto", "datos": { "pistas": ["La primera cifra es 4."], "contraseña": "46" } },
+      { "tipo": "escape_room", "datos": { "pruebas": [ { "pregunta": "¿Cuánto es 2 + 2?", "opciones": ["3","4"], "correcta": 1 } ], "contraseña": "SALIDA" } },
+      { "tipo": "code_blocks", "titulo": "Haz llegar a Candela a la estrella", "lenguaje": "placeta_blocks", "objetivo_texto": "Programa a Candela para llegar a la estrella", "ejercicios": [ { "titulo": "Avanza 1 casilla", "explicacion": "Pulsa el bloque AVANZAR una vez.", "objetivo_texto": "Lleva a Candela hasta la estrella (1,0).", "bloques_permitidos": ["avanzar"], "escenario": { "tipo": "cuadricula", "ancho": 6, "alto": 6, "obstaculos": [], "monedas": [] }, "inicio": { "x": 0, "y": 0, "direccion": "derecha" }, "objetivo": { "posicion": { "x": 1, "y": 0 }, "max_pasos": 4 }, "pistas": ["Añade 1 bloque AVANZAR."] }, { "titulo": "Esquiva la roca", "explicacion": "Ahora hay una roca. Usa GIRAR para esquivarla.", "objetivo_texto": "Lleva a Candela hasta la estrella (3,1).", "bloques_permitidos": ["avanzar", "girar"], "escenario": { "tipo": "cuadricula", "ancho": 6, "alto": 6, "obstaculos": [{"x": 2, "y": 0}], "monedas": [] }, "inicio": { "x": 0, "y": 0, "direccion": "derecha" }, "objetivo": { "posicion": { "x": 3, "y": 1 }, "max_pasos": 10 }, "pistas": ["Avanza, gira, pasa y vuelve."] } ] }
+    ]
+  }
+}
+
+Reglas:
+- "correcta" es el índice (base 0) de la opción correcta de cada pregunta.
+- En relacionar modo "escribir": "der" es la palabra que el niño debe teclear (NO la pongas en "izq").
+- Empieza SIEMPRE con un bloque "texto" que enseñe el contenido antes de las preguntas.
+- ACCESIBILIDAD: si un bloque usa "imagen_url" o una pareja usa "izq_img", incluye SIEMPRE el texto alternativo en "imagen_alt" o "izq_alt" (una descripción breve de lo que muestra la imagen, p. ej. "Niña leyendo un libro"). Es obligatorio para la accesibilidad.
+- FUENTES DE IMÁGENES: si usas una imagen real, indica SIEMPRE su procedencia en "fuente" (bloque) o "izq_fuente" (pareja), p. ej. "Foto: NASA · dominio público". Si la imagen es decorativa o inventada, deja la fuente en blanco.
+- URLS DE IMAGEN: escribe SIEMPRE la URL directa ("https://...") en "imagen_url" o "izq_img". NUNCA la envuelvas como enlace Markdown [texto](url), aunque la URL contenga ':' (p. ej. https://commons.wikimedia.org/wiki/Special:FilePath/Bandera_de_España.svg o .../wiki/Special:Redirect/file/X.svg): el ':' parte el enlace y la imagen no se muestra.
+- PRECIOS Y RECOMPENSA (en Pz, IVA incluido): usa 0 para gratis. "precio_licencia" es lo que cuesta desbloquear la actividad para siempre, "precio_intento" lo que cuesta cada intento, "recompensa" el MÁXIMO que gana el niño al completarla (el backend la ajusta según aciertos y errores) y "subvencionada" true solo si una entidad la cubre (entonces es gratis para el niño).
+- CODE_BLOCKS (Placeta Junior Code): crea una lista `ejercicios` con 3-5 retos progresivos (del más fácil al más difícil). Cada ejercicio tiene: `titulo`, `explicacion` (frase corta explicando qué hacer), `objetivo_texto`, `bloques_permitidos` (solo los necesarios para ese ejercicio: avanzar, retroceder, girar, saltar, repetir, si), `escenario` de cuadrícula (ancho/alto, obstáculos y monedas), `inicio` (x,y,direccion de Candela) y `objetivo` (posicion x,y, opcionalmente monedas/max_pasos/debe_usar) y `pistas`. El objetivo siempre es llevar a Candela (👧) a la estrella (⭐) sin chocar. Empieza con ejercicios muy sencillos (solo AVANZAR) y añade GIRAR, luego obstáculos, REPETIR y SI poco a poco.
+- En completar, usa palabras en SINGULAR y, en modo opciones, escribe "opciones" (distractores).
+- En mapa_mundi, usa solo países conocidos (España, Francia, Italia, Portugal, Reino Unido, Alemania, Egipto, Brasil, México, Estados Unidos, Canadá, China, India, Japón, Australia…).
+- En mapa_espana, escribe "modo": "comunidades" o "provincias" y en "objetivos" nombres en español (p. ej. "Asturias", "Toledo", "Castilla y León"). NUNCA añadas listas ni pistas que revelen dónde está la respuesta: el niño debe localizarla mirando el mapa.
+- ESQUEMAS SEGUROS: para sustituir imágenes usa un bloque `esquema` con `esquema.elementos`. Solo puedes usar `texto`, `rectangulo`, `circulo` y `linea`, con colores hexadecimales y medidas numéricas. No escribas HTML, SVG, JavaScript, CSS, URLs, imágenes, iframes ni fuentes externas. Para información al pulsar, añade únicamente `accion: {"tipo":"popup", "titulo":"...", "contenido":"..."}` al elemento: la plataforma crea el popup y aplica accesibilidad y tipografías propias.
+- En calculo_mental, "operacion" puede ser "suma", "resta", "multiplicacion" o "division" (cada "suma" puede sobrescribirla con su propio "op"). "vertical": true muestra la cuenta en vertical (suma/resta) y, en las sumas, "llevadas": true pinta las llevadas encima de cada columna.
+- No generes bloques de tipo "problemas" temporalmente. El formato "calculo_mental" sí está permitido.
+- Para lenguaje usa "construir_frase", "clasificar_palabras", "completar_palabra", "cazador_errores" y "lectura_interactiva" con sus estructuras de ejemplo.
+- Escribe en español, adáptalo a la edad indicada y numera bien los bloques.
+- DIAPOSITIVAS/NIVELES: si la actividad tiene varias partes, usa `contenido.niveles` (también llamado `diapositivas`) con 2-6 objetos ordenados. Cada objeto debe tener `orden`, `titulo`, `descripcion`, `recompensa` y `bloques`. La primera diapositiva debe explicar y las siguientes practicar. Si usas niveles, deja también `contenido.bloques` como resumen o vacío.
+- IMPORTANTE: devuelve solo el JSON, sin texto ni comillas de código.</textarea>
+      <div class="row" style="margin-top:10px;">
+        <button class="btn btn-purple" onclick="copiar('prompt')">📋 Copiar prompt</button>
+      </div>
+    </div>
+
+    <div class="card devai-formatos">
+      <h2>🎮 Formatos nuevos listos para usar</h2>
+      <p class="sub">Elige una plantilla, edítala y pulsa <strong>Previsualizar</strong> para abrir el reproductor real.</p>
+      <div class="row">
+        <button class="btn btn-outline" onclick="plantilla('construir_frase')">📝 Frases</button>
+        <button class="btn btn-outline" onclick="plantilla('clasificar_palabras')">🔤 Clasificar</button>
+        <button class="btn btn-outline" onclick="plantilla('completar_palabra')">✏️ Ortografía</button>
+        <button class="btn btn-outline" onclick="plantilla('cazador_errores')">🔎 Errores</button>
+        <button class="btn btn-outline" onclick="plantilla('lectura_interactiva')">📖 Lectura</button>
+        <button class="btn btn-outline" onclick="plantilla('dinero_euro')">💶 Euros</button>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h2>2️⃣ Generador de formato (texto → código)</h2>
+        <p class="sub">Escribe tu actividad en texto libre y genera el código en texto directo (sin IA).</p>
+        <textarea id="texto" placeholder="Ej:&#10;Actividad: El sistema solar (8 años)&#10;Preguntas:&#10;¿Cuál es el planeta rojo? -> Marte&#10;¿Qué estrella da luz a la Tierra? -> El Sol&#10;Relaciona:&#10;Sol -> Estrella&#10;Luna -> Satélite"></textarea>
+        <div class="row" style="margin-top:10px;">
+          <button class="btn btn-purple" onclick="generar()">⚙️ Generar código</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>3️⃣ Código de la actividad (texto directo)</h2>
+        <p class="sub">Edita o pega aquí el JSON (el de la IA o el generado). Con "Previsualizar" lo ves renderizado y con "Publicar" lo envías a revisión.</p>
+        <textarea id="codigo" spellcheck="false" placeholder='Pega aquí el JSON de la actividad... o pulsa "Generar código" en el paso 2.'></textarea>
+        <div class="meta">
+          <div class="field"><label class="campo-lbl">Título <span class="req">*</span></label><input id="titulo" placeholder="Título (si no está en el JSON)" /></div>
+          <div class="field"><label class="campo-lbl">Descripción <span class="req">*</span></label><input id="descripcion" placeholder="Descripción" /></div>
+          <div class="field"><label>Categoría</label>
+            <select id="categoria">
+              <option>Matemáticas</option><option>Lengua</option><option>Ciencias</option><option>Geografía</option>
+              <option>Tecnología</option><option>Lógica</option><option>Cultura</option><option selected>General</option>
+            </select>
+          </div>
+          <div class="field"><label>Edad</label><input id="edad" value="6-12" /></div>
+          <div class="field"><label>Dificultad</label>
+            <select id="dificultad"><option>facil</option><option selected>media</option><option>dificil</option></select>
+          </div>
+          <div class="field"><label>Tiempo (min)</label><input id="tiempo" type="number" value="10" /></div>
+          <div class="field"><label>Precio licencia (Pz)</label><input id="precio-licencia" type="number" min="0" value="0" /></div>
+          <div class="field"><label>Precio intento (Pz)</label><input id="precio-intento" type="number" min="0" value="0" /></div>
+          <div class="field"><label>Recompensa (Pz)</label><input id="recompensa" type="number" min="0" value="0" /></div>
+          <div class="field"><label class="check" style="display:flex;align-items:center;gap:6px;"><input id="subvencionada" type="checkbox" /> 🎁 Subvencionada</label></div>
+        </div>
+        <div id="info-campos" aria-live="polite"></div>
+        <div class="row">
+          <button class="btn btn-purple" onclick="copiar('codigo')">📋 Copiar código</button>
+          <button class="btn btn-outline" onclick="previsualizar()">👁️ Previsualizar</button>
+          <button class="btn btn-green" onclick="publicar()">🚀 Publicar a revisión</button>
+        </div>
+        <div id="mensaje" style="margin-top:10px;font-size:13px;"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>👁️ Vista previa</h2>
+      <div id="preview"><p style="color:var(--pj-gray-500);font-size:13px;">Aún no hay nada que previsualizar. Pega el código y pulsa Previsualizar.</p></div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'https://admin-placeta.vercel.app/api/junior';
+    function $(id) { return document.getElementById(id); }
+    function plantilla(tipo) {
+      const p = { construir_frase: { tipo, titulo:'Constructor de frases', instrucciones:'Ordena las palabras para formar una frase.', palabras:['come','El','gato','pescado'], respuesta:'El gato come pescado' }, clasificar_palabras: { tipo, titulo:'Clasificador de palabras', instrucciones:'Clasifica cada palabra.', categorias:['Sustantivo','Verbo','Adjetivo'], elementos:[{texto:'perro',categoria:'Sustantivo'},{texto:'correr',categoria:'Verbo'},{texto:'azul',categoria:'Adjetivo'}] }, completar_palabra: { tipo, titulo:'Completa la palabra', modo:'opciones', ejercicios:[{texto:'El ca__o corre por el parque.',respuesta:'rr',opciones:['r','rr','rrr']}] }, cazador_errores: { tipo, titulo:'Cazador de errores', instrucciones:'Encuentra la palabra incorrecta.', texto:'Ayer fuimos al parque y vimos un pajaro.', errores:[{incorrecto:'pajaro',correcto:'pájaro'}] }, lectura_interactiva: { tipo, titulo:'Lectura interactiva', escenas:[{texto:'Candela encuentra una caja misteriosa.',opciones:[{texto:'Abrir la caja',siguiente:1},{texto:'Buscar ayuda',siguiente:1}]},{texto:'Dentro hay una sorpresa. ¡Fin!',opciones:[]}] }, dinero_euro: { tipo, titulo:'Billetes y monedas de euro', instrucciones:'Forma la cantidad exacta.', objetivo:7.35, monedas:[.01,.02,.05,.10,.20,.50,1,2], billetes:[5,10,20] } }[tipo];
+      $('codigo').value = JSON.stringify({ titulo: p.titulo, descripcion: 'Actividad educativa Placeta Junior', contenido: { version: 2, bloques: [p] } }, null, 2); $('titulo').value=p.titulo; $('descripcion').value='Actividad educativa Placeta Junior'; $('codigo').focus();
+    }
+    function copiar(id) {
+      const el = $(id); el.select();
+      navigator.clipboard.writeText(el.value).then(() => {
+        const m = $('mensaje'); if (m) { m.className = 'ok'; m.textContent = '✅ Copiado al portapapeles.'; }
+      });
+    }
+
+    // ── Generador de formato: texto libre → JSON de bloques ──────────
+    function generar() {
+      const texto = $('texto').value.trim();
+      if (!texto) { aviso('Escribe primero una descripción en el paso 2.', true); return; }
+      const bloques = [];
+      let titulo = 'Actividad generada';
+      let descripcion = '';
+      const lineas = texto.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+
+      const preguntas = [];
+      const paresEmp = [];
+      const paresEsc = [];
+      const frases = [];
+      const problemas = [];
+      let explicaciones = [];
+      let enExplicacion = false;
+      let relTipo = null;
+
+      // Separa solo la etiqueta inicial. Nunca uses split global aquí:
+      // las URLs de imágenes contienen ':' en https:// y pueden contener '-'.
+      const valorTrasEtiqueta = (linea) => {
+        const m = String(linea || '').match(/^\s*[^:–-]+?\s*[:–-]\s*(.*)$/);
+        return m ? m[1].trim() : '';
+      };
+
+      for (const l of lineas) {
+        const lower = l.toLowerCase();
+        // Saltar encabezados de sección ("Preguntas:", "Relaciona:", "Ordena:"...)
+        const encabezados = ['preguntas', 'pregunta', 'relaciona', 'relacionar', 'relaciones', 'completa', 'completar', 'ordena', 'ordenar', 'parejas', 'pareja', 'escribe', 'escribir', 'calcula', 'calculo', 'cálculo', 'reto', 'retos', 'palabras', 'pistas', 'problemas', 'problema'];
+        if (encabezados.includes(lower.replace(/[:.]+$/, '').trim()) || (l.endsWith(':') && l.length < 30)) continue;
+        if (lower.startsWith('actividad') || lower.startsWith('título') || lower.startsWith('titulo')) {
+          const t = valorTrasEtiqueta(l);
+          if (t) titulo = t;
+          continue;
+        }
+        // Texto explicativo: "Explicación:" / "Aprende:" / "Texto:" activa el modo, "Preguntas:" lo cierra
+        if (/^(explicaci[oó]n|aprende|texto|informaci[oó]n)\s*:/i.test(l) || l === 'Explicación' || l === 'Aprende') {
+          enExplicacion = true;
+          continue;
+        }
+        if (enExplicacion && (encabezados.includes(lower.replace(/[:.]+$/, '').trim()) || /^(pregunta|relaciona|completa|ordena|calcula)/i.test(l))) {
+          enExplicacion = false;
+        }
+        if (enExplicacion) { explicaciones.push(l); continue; }
+        if (lower.startsWith('descripción') || lower.startsWith('descripcion')) {
+          descripcion = valorTrasEtiqueta(l);
+          continue;
+        }
+        // Completar: contiene ___
+        if (l.includes('___')) {
+          const separada = l.match(/^\s*(.*?)\s*[:–-]\s*(.*)$/);
+          const textoF = separada ? separada[1].trim() : l;
+          const resp = separada ? separada[2].trim() : '';
+          if (resp) frases.push({ texto: textoF, respuesta: resp });
+          continue;
+        }
+        // Problema matemático: "enunciado => resultado" (la historia puede tener varios pasos)
+        if (l.includes('=>')) {
+          const [a, b] = l.split('=>').map(s => s.trim());
+          if (a && b !== '' && !isNaN(Number(b))) { problemas.push({ enunciado: a, frase: '', respuesta: Number(b) }); }
+          continue;
+        }
+        // Relacionar: con -> o → o =
+        const sep = l.includes('->') ? '->' : l.includes('→') ? '→' : (l.includes(' = ') ? ' = ' : null);
+        if (sep) {
+          const [a, b] = l.split(sep).map(s => s.trim());
+          if (a && b) { paresEmp.push({ izq: a, der: b }); relTipo = relTipo || 'emparejar'; }
+          continue;
+        }
+        // Pregunta de test
+        if (l.startsWith('¿') || l.endsWith('?') || lower.startsWith('pregunta')) {
+          const p = l.replace(/^pregunta\s*\d*\s*[:–-]\s*/i, '').trim();
+          if (p) preguntas.push({ pregunta: p, opciones: ['Sí', 'No'], correcta: 0 });
+          continue;
+        }
+        // Pista para escribir la palabra: "pista = palabra" (con palabra entre corchetes o tras '=')
+        const eq = l.indexOf('=');
+        if (eq > 0) {
+          const a = l.slice(0, eq).trim();
+          const b = l.slice(eq + 1).trim();
+          if (a && b && !a.endsWith('?') && !b.endsWith('?')) {
+            paresEsc.push({ izq: a, der: b, izq_img: '', izq_alt: '', izq_fuente: '' });
+            relTipo = 'escribir';
+            continue;
+          }
+        }
+        if (preguntas.length < 20) preguntas.push({ pregunta: l, opciones: ['Sí', 'No'], correcta: 0 });
+      }
+
+      if (explicaciones.length) bloques.push({ tipo: 'texto', titulo: 'Aprende', contenido: explicaciones.join('\n'), imagen_url: null, imagen_alt: null, fuente: null });
+      if (preguntas.length) bloques.push({ tipo: 'test', titulo: 'Preguntas', imagen_url: null, imagen_alt: null, fuente: null, preguntas });
+      if (paresEmp.length) bloques.push({ tipo: 'relacionar', titulo: 'Relaciona', modo: 'emparejar', pares: paresEmp });
+      if (paresEsc.length) bloques.push({ tipo: 'relacionar', titulo: 'Escribe la palabra', modo: 'escribir', pares: paresEsc });
+      if (frases.length) bloques.push({ tipo: 'completar', titulo: 'Completa', frases });
+      // Problemas matemáticos desactivados temporalmente; cálculo mental sigue disponible.
+
+      if (!bloques.length) { aviso('No pude detectar bloques. Usa preguntas con "?" o parejas con "->".', true); return; }
+
+      const contenido = { version: 2, bloques };
+      $('codigo').value = JSON.stringify({ titulo, descripcion, categoria: $('categoria').value, edad_recomendada: $('edad').value, dificultad: $('dificultad').value, tiempo_estimado: parseInt($('tiempo').value, 10) || 10, precio_licencia: parseInt($('precio-licencia').value, 10) || 0, precio_intento: parseInt($('precio-intento').value, 10) || 0, recompensa: parseInt($('recompensa').value, 10) || 0, subvencionada: $('subvencionada').checked, contenido }, null, 2);
+      $('titulo').value = titulo;
+      $('descripcion').value = descripcion;
+      detectarCampos();
+      aviso('⚙️ Código generado en el paso 3. Puedes editarlo o previsualizarlo.', false);
+    }
+
+    // ── Previsualizar ────────────────────────────────────────────────
+    function previsualizar() {
+      if (previsualizarMotor()) return;
+      detectarCampos();
+      const m = $('mensaje'); m.textContent = ''; m.className = '';
+      let obj;
+      try { obj = JSON.parse($('codigo').value); }
+      catch (e) { aviso('❌ El código no es JSON válido: ' + e.message, true); return; }
+      if (pjSaneaImagenes(obj) > 0) $('codigo').value = JSON.stringify(obj, null, 2);
+      const contenido = (obj.contenido && typeof obj.contenido === 'object') ? obj.contenido : obj;
+      const niveles = Array.isArray(contenido.niveles) ? contenido.niveles : (Array.isArray(contenido.diapositivas) ? contenido.diapositivas : []);
+      const bloquesRaiz = Array.isArray(contenido.bloques) ? contenido.bloques : [];
+      if (!bloquesRaiz.length && !niveles.length) { aviso('❌ Falta contenido.bloques o contenido.niveles en el JSON.', true); return; }
+      // El preview usa la misma secuencia que el reproductor: portada,
+      // diapositivas ordenadas y sus bloques, para detectar errores antes de publicar.
+      const bloques = niveles.length
+        ? niveles.slice().sort((a, b) => Number(a.orden || 0) - Number(b.orden || 0)).flatMap((n, i) => [
+            { tipo: 'texto', titulo: `Diapositiva ${i + 1}: ${n.titulo || 'Sin título'}`, contenido: n.descripcion || '' },
+            ...(Array.isArray(n.bloques) ? n.bloques : (Array.isArray(n.contenido?.bloques) ? n.contenido.bloques : []))
+          ])
+        : bloquesRaiz;
+      // Ruta base para editar el alt según dónde vivan los bloques en el JSON
+      const pathBase = (obj.contenido && Array.isArray(obj.contenido.bloques)) ? 'contenido.bloques' : 'bloques';
+      const tit = obj.titulo || $('titulo').value || 'Actividad';
+      let html = '<h3>' + esc(tit) + '</h3>';
+      if (obj.descripcion) html += '<p style="font-size:13px;color:var(--pj-gray-500);margin:0 0 10px;">' + esc(obj.descripcion) + '</p>';
+      if (niveles.length) html += '<div class="badge">' + niveles.length + ' diapositiva' + (niveles.length === 1 ? '' : 's') + '</div>';
+
+      // Panel de precios / recompensa editable (sincroniza el JSON)
+      html += '<div class="bloque-prev prev-economia">'
+        + '<span class="badge" style="background:var(--pj-green-light);color:var(--pj-green);">💰 Precios y recompensa (Pz · IVA incl.)</span>'
+        + '<div class="prev-meta-grid">'
+        + '<label class="prev-meta-field"><span>Precio licencia</span><input type="number" min="0" class="meta-input" data-meta-path="precio_licencia" value="' + esc(String(obj.precio_licencia ?? 0)) + '"></label>'
+        + '<label class="prev-meta-field"><span>Precio intento</span><input type="number" min="0" class="meta-input" data-meta-path="precio_intento" value="' + esc(String(obj.precio_intento ?? 0)) + '"></label>'
+        + '<label class="prev-meta-field"><span>Recompensa máx</span><input type="number" min="0" class="meta-input" data-meta-path="recompensa" value="' + esc(String(obj.recompensa ?? 0)) + '"></label>'
+        + '<label class="prev-meta-field check"><input type="checkbox" class="meta-input" data-meta-path="subvencionada"' + (obj.subvencionada ? ' checked' : '') + '> 🎁 Subvencionada (gratis)</label>'
+        + '</div></div>';
+
+      bloques.forEach((b, i) => {
+        html += '<div class="bloque-prev"><span class="badge">Bloque ' + (i + 1) + ' · ' + esc(b.tipo || '?') + '</span>';
+        if (b.imagen_url) html += imgPrev(b.imagen_url, b.imagen_alt, b.fuente, pathBase + '.' + i + '.imagen_alt', pathBase + '.' + i + '.fuente');
+        if (b.tipo === 'test' && Array.isArray(b.preguntas)) {
+          b.preguntas.forEach((p, k) => {
+            html += '<div><b>' + esc(p.pregunta || '¿?') + '</b></div>';
+            if (p.imagen_url) html += imgPrev(p.imagen_url, p.imagen_alt, p.fuente, pathBase + '.' + i + '.preguntas.' + k + '.imagen_alt', pathBase + '.' + i + '.preguntas.' + k + '.fuente');
+            (p.opciones || []).forEach((op, k) => { html += '<div style="margin-left:14px;">' + (k === p.correcta ? '✅ ' : '○ ') + esc(op) + '</div>'; });
+          });
+        } else if (b.tipo === 'relacionar' && Array.isArray(b.pares)) {
+          b.pares.forEach((p, k) => {
+            html += '<div style="margin-left:8px;">🔗 ' + esc(p.izq) + ' ↔ <b>' + esc(p.der) + '</b></div>';
+            if (p.izq_img) html += imgPrev(p.izq_img, p.izq_alt, p.izq_fuente, pathBase + '.' + i + '.pares.' + k + '.izq_alt', pathBase + '.' + i + '.pares.' + k + '.izq_fuente');
+          });
+        } else if (b.tipo === 'sopa_letras' && Array.isArray(b.palabras)) {
+          html += '<div style="margin-left:8px;">🔤 ' + b.palabras.map(esc).join(', ') + '</div>';
+        } else if (b.tipo === 'ordenar' && Array.isArray(b.items)) {
+          html += '<div style="margin-left:8px;">📌 ' + b.items.map(esc).join(' → ') + '</div>';
+        } else if (b.tipo === 'completar' && Array.isArray(b.frases)) {
+          b.frases.forEach(f => { html += '<div style="margin-left:8px;">✏️ ' + esc(f.texto) + ' <b>[' + esc(f.respuesta) + ']</b></div>'; });
+        } else if (b.tipo === 'calculo_mental' && Array.isArray(b.sumas)) {
+          const ops = { suma: '+', resta: '−', multiplicacion: '×', division: '÷' };
+          b.sumas.forEach(s => { const op = ops[s.op || b.operacion || 'suma'] || '+'; html += '<div style="margin-left:8px;">🧮 ' + esc(s.a) + ' ' + op + ' ' + esc(s.b) + ' = ?' + (b.vertical ? ' · vertical' : '') + '</div>'; });
+        } else if (b.tipo === 'problemas' && Array.isArray(b.problemas)) {
+          const opsSym = { suma: '+', resta: '−', multiplicacion: '×', division: '÷' };
+          b.problemas.forEach(p => {
+            html += '<div style="margin-left:8px;">📝 ' + esc(p.enunciado) + '</div><div style="margin-left:14px;color:var(--pj-purple);"><b>' + esc(p.frase || 'Resultado: ___') + '</b> → ' + esc(p.respuesta) + '</div>';
+            (p.operaciones || []).forEach(o => { html += '<div style="margin-left:22px;color:var(--pj-gray-500);">▸ ' + esc(o.a) + ' ' + (opsSym[o.op] || '+') + ' ' + esc(o.b) + ' (vertical)</div>'; });
+          });
+        } else if (b.tipo === 'mapa_mundi' && Array.isArray(b.paises)) {
+          html += '<div style="margin-left:8px;">🌍 Localiza en el mapamundi: ' + b.paises.map(esc).join(', ') + '</div>';
+        } else if (b.tipo === 'esquema') {
+          const sc = b.esquema || b.escena || b;
+          const elementos = Array.isArray(sc.elementos) ? sc.elementos : [];
+          const popups = elementos.filter(e => e.accion && e.accion.tipo === 'popup').length;
+          html += '<div style="margin-left:8px;">🧩 Esquema seguro · ' + elementos.length + ' elemento(s)' + (popups ? ' · ' + popups + ' popup(s) interactivo(s)' : '') + '</div>';
+          html += '<div style="margin-left:8px;color:var(--pj-gray-500);">Solo primitivas SVG declarativas, sin HTML ni código ejecutable.</div>';
+        } else {
+          html += '<div style="margin-left:8px;color:var(--pj-gray-500);">(bloque sin contenido detectado)</div>';
+        }
+        html += '</div>';
+      });
+      $('preview').innerHTML = html;
+      aviso('👁️ Previsualización lista.', false);
+    }
+
+    // Preview compartido con la web pública: mismo player.js, mismos estados
+    // y mismas animaciones que verá el alumno.
+    function previsualizarMotor() {
+      let obj;
+      try { obj = JSON.parse($('codigo').value); } catch (e) { aviso('❌ El código no es JSON válido: ' + e.message, true); return true; }
+      const contenido = obj.contenido && typeof obj.contenido === 'object' ? obj.contenido : { version: 2, bloques: obj.bloques || [] };
+      const activity = { id: 'preview-' + Date.now(), titulo: obj.titulo || 'Mi actividad', descripcion: obj.descripcion || '', categoria: obj.categoria || 'General', edad_recomendada: obj.edad_recomendada || '6-12', dificultad: obj.dificultad || 'media', contenido };
+      const previewJson = JSON.stringify(activity);
+      sessionStorage.setItem('pj-preview-activity', previewJson);
+      localStorage.setItem('pj-preview-activity', previewJson);
+      window.open('/preview.html', '_blank', 'noopener');
+      return true;
+    }
+
+    // ── Publicar ─────────────────────────────────────────────────────
+    function contarPreguntas(bloques) {
+      let n = 0;
+      for (const b of bloques) {
+        if (b.tipo === 'test') n += (b.preguntas || []).length;
+        else if (b.tipo === 'sopa_letras') n += (b.palabras || []).filter(Boolean).length;
+        else if (b.tipo === 'relacionar') n += (b.pares || []).filter(p => p.izq && p.der).length;
+        else if (b.tipo === 'ordenar') n += (b.items || []).filter(Boolean).length;
+        else if (b.tipo === 'completar') n += (b.frases || []).filter(f => f.texto && f.respuesta).length;
+        else if (b.tipo === 'calculo_mental') n += (b.sumas || []).filter(s => s.a !== '' && s.b !== '').length;
+        else if (b.tipo === 'problemas') n += (b.problemas || []).filter(p => p.enunciado && p.respuesta !== '' && p.respuesta != null).length;
+        else if (b.tipo === 'mapa_mundi') n += (b.paises || []).filter(p => p && window.MAPA_MUNDI && MAPA_MUNDI.paises[p]).length;
+        else if (b.tipo === 'mapa_espana') n += (b.objetivos || []).filter(Boolean).length;
+        else if (b.tipo === 'code_blocks') n += ((b.ejercicios && b.ejercicios.length) || (b.objetivo && b.objetivo.posicion ? 1 : 0));
+      }
+      return n;
+    }
+
+    async function publicar() {
+      detectarCampos();
+      const m = $('mensaje'); m.textContent = ''; m.className = '';
+      let obj;
+      try { obj = JSON.parse($('codigo').value); }
+      catch (e) { aviso('❌ El código no es JSON válido: ' + e.message, true); return; }
+      if (pjSaneaImagenes(obj) > 0) $('codigo').value = JSON.stringify(obj, null, 2);
+       const contenido = (obj.contenido && typeof obj.contenido === 'object') ? obj.contenido : { version: 2, bloques: obj.bloques || [] };
+       // Acepta tanto el nombre que usa DevAI como el histórico del Studio.
+       if (!Array.isArray(contenido.niveles) && Array.isArray(contenido.diapositivas)) contenido.niveles = contenido.diapositivas;
+       if (!Array.isArray(contenido.bloques)) contenido.bloques = [];
+       if (Array.isArray(contenido.niveles)) {
+         contenido.niveles = contenido.niveles.map((n, i) => ({ ...n, orden: Number(n.orden || i + 1), bloques: Array.isArray(n.bloques) ? n.bloques : (n.contenido?.bloques || []) }));
+       }
+      const nivelesPublicar = Array.isArray(contenido.niveles) ? contenido.niveles : [];
+      const bloques = contenido.bloques || [];
+      if (!bloques.length && !nivelesPublicar.length) { aviso('❌ No hay bloques ni diapositivas para publicar.', true); return; }
+      const titulo = (obj.titulo || $('titulo').value || '').trim();
+      const descripcion = (obj.descripcion || $('descripcion').value || '').trim();
+      if (!titulo || !descripcion) { aviso('❌ Faltan título y descripción.', true); return; }
+      const body = {
+        tipo_titular: 'interno', dip: null, eip: null, nombre_entidad: null, nombre_autor: null,
+        titulo, descripcion,
+        categoria: obj.categoria || $('categoria').value,
+        tipo: 'otro',
+        edad_recomendada: obj.edad_recomendada || $('edad').value,
+        dificultad: obj.dificultad || $('dificultad').value,
+        tiempo_estimado: parseInt(obj.tiempo_estimado || $('tiempo').value, 10) || 10,
+        precio_licencia: parseInt(obj.precio_licencia ?? $('precio-licencia').value, 10) || 0,
+        precio_intento: parseInt(obj.precio_intento ?? $('precio-intento').value, 10) || 0,
+        recompensa: parseInt(obj.recompensa ?? $('recompensa').value, 10) || 0,
+        subvencionada: (obj.subvencionada ?? $('subvencionada').checked) === true,
+        num_preguntas: contarPreguntas(bloques.length ? bloques : nivelesPublicar.flatMap(n => n.bloques || [])),
+        num_fases: nivelesPublicar.length || bloques.length,
+        contenido
+      };
+      m.textContent = '⏳ Enviando…'; m.className = '';
+      try {
+        const res = await fetch(API_BASE + '/actividades', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+        });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.success) {
+          m.className = 'ok';
+          m.textContent = '✅ ¡Publicada! ' + (data.mensaje || 'Enviada a revisión del Filtro de Placeta Junior.');
+        } else {
+          m.className = 'err';
+          m.textContent = '❌ ' + (data.error || data.mensaje || 'No se pudo publicar.');
+        }
+      } catch (e) {
+        m.className = 'err';
+        m.textContent = '❌ Error de conexión: ' + e.message;
+      }
+    }
+
+    function aviso(msg, esError) {
+      const m = $('mensaje');
+      m.className = esError ? 'err' : 'ok';
+      m.textContent = msg;
+    }
+
+    // ── Autodetección al pegar/editar el código ──────────────────────
+    // Al pegar el JSON rellena automáticamente los campos de envío y
+    // avisa de los que faltan por rellenar para poder publicar.
+    let debounceDetectar = null;
+    let ultimoAvisoDetect = 0;
+    function detectarCampos() {
+      let obj = null;
+      try { obj = JSON.parse($('codigo').value); }
+      catch (e) { return; }
+      if (!obj || typeof obj !== 'object') return;
+      const bloques = (obj.contenido && obj.contenido.bloques) || obj.bloques || [];
+
+      // Rellena cada campo solo si viene definido en el JSON
+      const rellenar = (sel, val) => {
+        if (val === undefined || val === null || val === '') return false;
+        const el = $(sel);
+        if (!el) return false;
+        if (String(el.value).trim() !== String(val).trim()) { el.value = val; return true; }
+        return false;
+      };
+      let cambiados = 0;
+      if (rellenar('titulo', obj.titulo)) cambiados++;
+      if (rellenar('descripcion', obj.descripcion)) cambiados++;
+      if (obj.categoria) {
+        const sel = $('categoria');
+        if (sel) {
+          if (![...sel.options].some(o => o.value === obj.categoria)) sel.add(new Option(obj.categoria, obj.categoria));
+          if (sel.value !== obj.categoria) { sel.value = obj.categoria; cambiados++; }
+        }
+      }
+      if (rellenar('edad', obj.edad_recomendada)) cambiados++;
+      if (rellenar('dificultad', obj.dificultad)) cambiados++;
+      if (rellenar('tiempo', obj.tiempo_estimado)) cambiados++;
+      if (obj.precio_licencia != null) { if (rellenar('precio-licencia', obj.precio_licencia)) cambiados++; }
+      if (obj.precio_intento != null) { if (rellenar('precio-intento', obj.precio_intento)) cambiados++; }
+      if (obj.recompensa != null) { if (rellenar('recompensa', obj.recompensa)) cambiados++; }
+      if (obj.subvencionada != null) {
+        const cb = $('subvencionada');
+        if (cb && cb.checked !== !!obj.subvencionada) { cb.checked = !!obj.subvencionada; cambiados++; }
+      }
+
+      // Resalta los campos obligatorios que falten para enviar
+      const falta = [];
+      [['titulo', 'Título'], ['descripcion', 'Descripción']].forEach(([id, nombre]) => {
+        const el = $(id);
+        const vacio = !el || !el.value.trim();
+        if (el) el.classList.toggle('falta', vacio);
+        if (vacio) falta.push(nombre);
+      });
+      if (!Array.isArray(bloques) || !bloques.length) falta.push('bloques en contenido');
+
+      const ahora = Date.now();
+      if (cambiados > 0 || falta.length || ahora - ultimoAvisoDetect > 2500) {
+        ultimoAvisoDetect = ahora;
+        const info = $('info-campos');
+        if (info) {
+          if (falta.length) {
+            info.style.color = '#dc2626';
+            info.innerHTML = '⚠️ Código detectado (' + (cambiados || 'sin cambios') + ' campo/s rellenado/s). Faltan por rellenar para enviar: <b>' + falta.join(', ') + '</b>.';
+          } else {
+            info.style.color = 'var(--pj-green)';
+            info.innerHTML = '✅ Código detectado: ' + bloques.length + ' bloque(s) y campos listos. Pulsa <b>🚀 Publicar a revisión</b>.';
+          }
+        }
+      }
+    }
+
+    // Detecta nada más pegar/editar el código y también al cargar la página
+    $('codigo').addEventListener('input', function () {
+      clearTimeout(debounceDetectar);
+      debounceDetectar = setTimeout(detectarCampos, 350);
+    });
+    $('codigo').addEventListener('paste', function () { setTimeout(detectarCampos, 0); });
+    ['titulo', 'descripcion'].forEach(id => {
+      $(id).addEventListener('input', function () { this.classList.toggle('falta', !this.value.trim()); });
+    });
+    detectarCampos();
+
+    function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
+    // ── Reparación de URLs de imagen ──────────────────────────────────
+    // A veces una URL de imagen llega partida como enlace Markdown por el ':'
+    // de la propia URL (p. ej. "…/wiki/Special:Redirect/file/X.svg"):
+    //   "[https://…/wiki/Special](https://…/wiki/Special):Redirect/file/X.svg"
+    // Aquí se reconstruye la URL real para que la imagen pueda mostrarse.
+    function pjUrlImg(u) {
+      u = String(u ?? '').trim();
+      if (!u) return u;
+      const ini = u.indexOf('](');
+      if (ini > -1) {
+        const fin = u.indexOf(')', ini + 2);
+        if (fin > -1) {
+          const etiqueta = u.slice(0, ini).replace(/^\[\s*/, '').trim();
+          const href = u.slice(ini + 2, fin).trim();
+          const resto = u.slice(fin + 1).trim();
+          for (const c of [href + resto, href, etiqueta]) {
+            const limpia = pjUrlEsquema(c);
+            if (/^https?:\/\//i.test(limpia)) return limpia;
+          }
+        }
+      }
+      return pjUrlEsquema(u);
+    }
+    function pjUrlEsquema(u) {
+      return String(u ?? '').trim().replace(/^([a-z][a-z0-9+.\-]*):\/([^/])/i, '$1://$2');
+    }
+    function pjEsCampoImagen(k) {
+      return k === 'imagen_url' || k === 'imagenUrl' || k === 'image_url' || k === 'imageUrl' || k === 'imagen' || k === 'izq_img' || k === 'izq_imagen_url' || k === 'izqImg' || k === 'portada_url' || k === 'portadaUrl';
+    }
+    function pjSaneaImagenes(raiz) {
+      if (!raiz) return 0;
+      let cambios = 0;
+      if (Array.isArray(raiz)) { for (const x of raiz) cambios += pjSaneaImagenes(x); return cambios; }
+      if (raiz && typeof raiz === 'object') {
+        for (const k of Object.keys(raiz)) {
+          const v = raiz[k];
+          if (typeof v === 'string') {
+            if (pjEsCampoImagen(k)) { const c = pjUrlImg(v); if (c !== v) { raiz[k] = c; cambios++; } }
+          } else if (v && typeof v === 'object') { cambios += pjSaneaImagenes(v); }
+        }
+      }
+      return cambios;
+    }
+
+    // Renderiza una imagen en la previsualización con su texto alternativo
+    // (alt) y su fuente editables. Los paths apuntan al JSON de #codigo.
+    function imgPrev(url, alt, fuente, altPath, fuentePath) {
+      return '<div class="prev-img">'
+        + '<img src="' + esc(pjUrlImg(url)) + '" alt="' + esc(alt || '') + '">'
+        + '<div class="prev-alt"><span class="prev-alt-tag">Alt (accesibilidad)</span>'
+        + '<input type="text" class="alt-input" data-alt-path="' + esc(altPath) + '" value="' + esc(alt || '') + '" placeholder="Describe la imagen…">'
+        + '</div>'
+        + '<div class="prev-alt"><span class="prev-alt-tag">📸 Fuente</span>'
+        + '<input type="text" class="alt-input" data-alt-path="' + esc(fuentePath) + '" value="' + esc(fuente || '') + '" placeholder="Ej: Foto: NASA · dominio público">'
+        + '</div></div>';
+    }
+
+    // Al escribir el alt o la fuente en la previsualización, actualiza el JSON de #codigo
+    document.addEventListener('input', function (e) {
+      const el = e.target;
+      if (!el || !el.classList || !el.classList.contains('alt-input')) return;
+      const path = el.getAttribute('data-alt-path');
+      if (!path) return;
+      try {
+        const obj = JSON.parse($('codigo').value);
+        const parts = path.split('.');
+        let cur = obj;
+        for (let i = 0; i < parts.length - 1; i++) {
+          if (cur[parts[i]] == null) return;
+          cur = cur[parts[i]];
+        }
+        cur[parts[parts.length - 1]] = el.value;
+        $('codigo').value = JSON.stringify(obj, null, 2);
+      } catch (err) { /* si el JSON no es válido, no hacemos nada */ }
+    });
+
+    // Al editar el panel de precios / recompensa, sincroniza el JSON y los campos meta
+    document.addEventListener('input', function (e) {
+      const el = e.target;
+      if (!el || !el.classList || !el.classList.contains('meta-input')) return;
+      const path = el.getAttribute('data-meta-path');
+      if (!path) return;
+      try {
+        const obj = JSON.parse($('codigo').value);
+        const parts = path.split('.');
+        let cur = obj;
+        for (let i = 0; i < parts.length - 1; i++) {
+          if (cur[parts[i]] == null) return;
+          cur = cur[parts[i]];
+        }
+        if (el.type === 'checkbox') cur[parts[parts.length - 1]] = el.checked;
+        else cur[parts[parts.length - 1]] = parseInt(el.value, 10) || 0;
+        $('codigo').value = JSON.stringify(obj, null, 2);
+        // Refleja en los campos meta del formulario (paso 3)
+        const map = { precio_licencia: 'precio-licencia', precio_intento: 'precio-intento', recompensa: 'recompensa', subvencionada: 'subvencionada' };
+        const campoId = map[path];
+        if (campoId) {
+          const campo = $(campoId);
+          if (campo) {
+            if (el.type === 'checkbox') campo.checked = el.checked;
+            else campo.value = el.value;
+          }
+        }
+      } catch (err) { /* si el JSON no es válido, no hacemos nada */ }
+    });
+  </script>
+</body>
+</html>

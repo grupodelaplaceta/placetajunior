@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "public/**", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/api/junior/(.*)", "dest": "https://rsp.laplaceta.org/api/junior/$1" },
+    { "src": "/", "dest": "/public/index.html" },
+    { "src": "/colecciones", "dest": "/public/colecciones/index.html" },
+    { "src": "/colecciones/infantil", "dest": "/public/colecciones/infantil.html" },
+    { "src": "/colecciones/primaria", "dest": "/public/colecciones/primaria.html" },
+    { "src": "/colecciones/secundaria", "dest": "/public/colecciones/secundaria.html" },
+    { "src": "/familias-docentes", "dest": "/public/familias-docentes/index.html" },
+    { "src": "/familias-docentes/como-funciona", "dest": "/public/familias-docentes/como-funciona.html" },
+    { "src": "/familias-docentes/seguridad", "dest": "/public/familias-docentes/seguridad.html" },
+    { "src": "/familias-docentes/docentes", "dest": "/public/familias-docentes/docentes.html" },
+    { "src": "/studio", "dest": "/public/studio.html" },
+    { "src": "/devai", "dest": "/public/devai.html" },
+    { "src": "/info", "dest": "/public/info.html" },
+    { "src": "/(.*)", "dest": "/public/$1" }
+  ]
+}

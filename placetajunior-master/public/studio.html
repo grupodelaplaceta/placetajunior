@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Studio | Placeta Junior</title>
+  <meta name="description" content="Placeta Junior Studio: editor visual drag & drop estilo Canva para crear actividades educativas (test, sopa de letras, relacionar, ordenar, completar)." />
+  <link rel="stylesheet" href="css/styles.css?v=20260902-final" />
+  <link rel="stylesheet" href="css/home.css?v=20260831-ui" />
+  <link rel="stylesheet" href="css/redesign.css?v=20260831-ui2" />
+<link rel="icon" type="image/png" href="favijunior.png" />
+<link rel="stylesheet" href="css/familias.css" />
+</head>
+<body class="pj-home familias-page studio-page">
+  <div class="pj-topbar"><div class="strip" aria-hidden="true"></div><header class="nav"><div class="nav-inner">
+    <a class="brand" href="/">
+      <img class="brand-logo" src="img/PJ-BLANCO-LOGO.png" alt="Placeta Junior" />
+    </a>
+    <nav class="nav-links" aria-label="Navegación para familias">
+      <a href="/">Actividades</a>
+      <a href="/studio" class="active">Studio</a>
+      <a href="/info">Info</a>
+    </nav>
+  </div></header></div>
+
+  <!-- Barra superior del editor -->
+  <div class="studio-toolbar">
+    <span class="studio-title">🎨 Studio — Crea tu actividad</span>
+    <div class="studio-proyectos" title="Gestiona varios proyectos">
+      <span class="sp-label"><span class="material-symbols-rounded">folder</span> Proyecto</span>
+      <input id="proyecto-nombre" type="text" placeholder="Nombre del proyecto" style="width:150px;" onchange="renombrarProyecto(this.value)" />
+      <select id="proyecto-select" onchange="cargarProyecto(this.value)"></select>
+      <button id="btn-nuevo" class="btn btn-outline" type="button" title="Nuevo proyecto" onclick="nuevoProyectoPrompt()"><span class="material-symbols-rounded">add</span></button>
+      <button id="btn-duplicar" class="btn btn-outline" type="button" title="Duplicar proyecto" onclick="duplicarProyecto(proyectoActual)"><span class="material-symbols-rounded">content_copy</span></button>
+      <button id="btn-borrar" class="btn btn-outline" type="button" title="Borrar proyecto" onclick="borrarProyectoPrompt()"><span class="material-symbols-rounded">delete</span></button>
+    </div>
+    <div class="studio-actions">
+      <button id="btn-vista" class="btn btn-purple" type="button">👁️ Vista previa</button>
+      <button id="btn-guardar" class="btn btn-outline" type="button">💾 Guardar</button>
+      <button id="btn-publicar" class="btn btn-green" type="button">🚀 Publicar</button>
+    </div>
+  </div>
+
+  <!-- Avisos -->
+  <div style="max-width:1280px;margin:0 auto;padding:16px 24px 0;">
+    <div id="form-error" class="error-banner hidden"></div>
+    <div id="form-success" class="error-banner" style="background:var(--pj-green-light);color:var(--pj-green);"></div>
+  </div>
+
+  <div class="studio">
+    <!-- Paleta de bloques -->
+    <aside class="studio-palette">
+      <h3>Bloques</h3>
+      <p class="hint">Crea tu actividad en 3 pasos:</p>
+      <div class="palette-steps">
+        <span><b>1</b> Añade un bloque</span>
+        <span><b>2</b> Rellena sus datos</span>
+        <span><b>3</b> Vista previa y publica</span>
+      </div>
+      <div class="block-btn" draggable="true" data-tipo="test"><span class="b-ico svg-ico"><svg class="blk-icono" width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="3" width="12" height="14" rx="2"/><path d="M5 7h6M5 10h6M5 13h4" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg></span><span class="b-name">Test</span></div>
+      <div class="block-btn" draggable="true" data-tipo="texto"><span class="b-ico svg-ico"><svg class="blk-icono" width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 4h5a3 3 0 0 1 3 3v9a3 3 0 0 0-3-3H3z"/><path d="M13 4h5a3 3 0 0 1 3 3v9a3 3 0 0 0-3-3h-5z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg></span><span class="b-name">Texto explicativo</span></div>
+      <div class="block-btn" draggable="true" data-tipo="sopa_letras"><span class="b-ico svg-ico"><svg class="blk-icono" width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 5h8M8 5v11M5 16h6" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg></span><span class="b-name">Sopa de letras</span></div>
+      <div class="block-btn" draggable="true" data-tipo="relacionar"><span class="b-ico svg-ico"><svg class="blk-icono" width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 11l5-5a3.5 3.5 0 0 1 5 5l-2 2M10 13l-5 5a3.5 3.5 0 0 1-5-5l2-2" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg></span><span class="b-name">Relacionar</span></div>
+      <div class="block-btn" draggable="true" data-tipo="ordenar"><span class="b-ico svg-ico"><svg class="blk-icono" width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><path d="M9 6h7M9 10h7M9 14h5M3 5l1-1v3M3 10h2M4 10v4M3 14h3" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg></span><span class="b-name">Ordenar</span></div>
+      <div class="block-btn" draggable="true" data-tipo="completar"><span class="b-ico svg-ico"><svg class="blk-icono" width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h13M3 10h13M3 14h8M13 14l4-4 2 2-4 4h-2z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="b-name">Completar</span></div>
+      <div class="block-btn" draggable="true" data-tipo="calculo_mental"><span class="b-ico svg-ico"><svg class="blk-icono" width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="3" width="9" height="9" rx="1"/><path d="M6 6h1M9 6h1M6 9h1M9 9h1M6 12h4M12 13l3-3M12 10l3 3" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg></span><span class="b-name">Cálculo mental</span></div>
+      <div class="block-btn" draggable="true" data-tipo="mapa_mundi"><span class="b-ico svg-ico"><svg class="blk-icono" width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M2 8h12M8 2c-2 2-2 10 0 12M8 2c2 2 2 10 0 12" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></span><span class="b-name">Mapamundi</span></div>
+      <div class="block-btn block-btn-code" draggable="true" data-tipo="code_blocks"><span class="b-ico svg-ico"><svg class="blk-icono" width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 5L2 8l4 3M10 5l4 3-4 3" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="b-name">Placeta Junior Code</span></div>
+      <div class="palette-divider">Experiencias interactivas</div>
+      <div class="block-btn block-btn-new" draggable="true" data-tipo="arrastrar"><span class="b-ico material-symbols-rounded">open_with</span><span class="b-name">Arrastrar y colocar</span></div>
+      <div class="block-btn block-btn-new" draggable="true" data-tipo="buscar"><span class="b-ico material-symbols-rounded">search</span><span class="b-name">Busca y encuentra</span></div>
+      <div class="block-btn block-btn-new" draggable="true" data-tipo="detective"><span class="b-ico material-symbols-rounded">manage_search</span><span class="b-name">Candela Detective</span></div>
+      <div class="block-btn block-btn-new" draggable="true" data-tipo="laboratorio"><span class="b-ico material-symbols-rounded">science</span><span class="b-name">Laboratorio</span></div>
+      <div class="block-btn block-btn-new" draggable="true" data-tipo="construccion"><span class="b-ico material-symbols-rounded">build</span><span class="b-name">Construye</span></div>
+      <div class="block-btn block-btn-new" draggable="true" data-tipo="presupuesto"><span class="b-ico material-symbols-rounded">shopping_cart</span><span class="b-name">Tienda de Candela</span></div>
+      <div class="block-btn block-btn-new" draggable="true" data-tipo="dinero_euro"><span class="b-ico material-symbols-rounded">euro</span><span class="b-name">Billetes y monedas</span></div>
+      <div class="block-btn block-btn-new" draggable="true" data-tipo="construir_frase"><span class="b-ico material-symbols-rounded">format_quote</span><span class="b-name">Constructor de frases</span></div>
+      <div class="block-btn block-btn-new" draggable="true" data-tipo="clasificar_palabras"><span class="b-ico material-symbols-rounded">category</span><span class="b-name">Clasificar palabras</span></div>
+      <div class="block-btn block-btn-new" draggable="true" data-tipo="completar_palabra"><span class="b-ico material-symbols-rounded">spellcheck</span><span class="b-name">Completa la palabra</span></div>
+      <div class="block-btn block-btn-new" draggable="true" data-tipo="cazador_errores"><span class="b-ico material-symbols-rounded">search_check</span><span class="b-name">Cazador de errores</span></div>
+      <div class="block-btn block-btn-new" draggable="true" data-tipo="lectura_interactiva"><span class="b-ico material-symbols-rounded">menu_book</span><span class="b-name">Lectura interactiva</span></div>
+      <div class="block-btn block-btn-new" draggable="true" data-tipo="exploracion"><span class="b-ico material-symbols-rounded">explore</span><span class="b-name">Exploración</span></div>
+      <div class="block-btn block-btn-new" draggable="true" data-tipo="simulacion"><span class="b-ico material-symbols-rounded">casino</span><span class="b-name">Simulador</span></div>
+      <div class="block-btn block-btn-new" draggable="true" data-tipo="historia_interactiva"><span class="b-ico material-symbols-rounded">auto_stories</span><span class="b-name">Historia interactiva</span></div>
+      <div class="block-btn block-btn-new" draggable="true" data-tipo="memoria"><span class="b-ico material-symbols-rounded">memory</span><span class="b-name">Memoria</span></div>
+      <div class="block-btn block-btn-new" draggable="true" data-tipo="sonido"><span class="b-ico material-symbols-rounded">hearing</span><span class="b-name">Sonido</span></div>
+      <div class="block-btn block-btn-new" draggable="true" data-tipo="codigo_secreto"><span class="b-ico material-symbols-rounded">lock</span><span class="b-name">Código secreto</span></div>
+      <div class="block-btn block-btn-new" draggable="true" data-tipo="escape_room"><span class="b-ico material-symbols-rounded">vpn_key</span><span class="b-name">Escape room</span></div>
+      <div class="palette-divider">Nuevas modalidades por etapa</div>
+      <div class="block-btn block-btn-new" draggable="true" data-tipo="secuencia_visual"><span class="b-ico material-symbols-rounded">view_timeline</span><span class="b-name">Secuencia visual · Infantil</span></div>
+      <div class="block-btn block-btn-new" draggable="true" data-tipo="trazo"><span class="b-ico material-symbols-rounded">draw</span><span class="b-name">Trazo guiado · Infantil</span></div>
+      <div class="block-btn block-btn-new" draggable="true" data-tipo="code_retos"><span class="b-ico material-symbols-rounded">compare_arrows</span><span class="b-name">Retos de eficiencia · Secundaria</span></div>
+      <div class="form-note" style="margin-top:14px;">
+        🖼️ Puedes añadir <strong>imágenes de stock</strong> a cualquier pregunta o bloque.
+        Siempre se muestra la <strong>fuente</strong> bajo la imagen, en la web y en la app.
+      </div>
+      <div class="form-note" style="margin-top:10px;">
+        💻 Con <strong>Placeta Junior Code</strong> los niños programan a Candela 👧 con
+        bloques y la llevan hasta la estrella ⭐. Puedes crear <strong>varios ejercicios
+        progresivos</strong> en la misma actividad.
+      </div>
+    </aside>
+
+    <!-- Lienzo -->
+    <div id="canvas" class="studio-canvas">
+      <div id="canvas-empty" class="canvas-empty">Arrastra bloques aquí 👇</div>
+      <!-- Los bloques se insertan aquí -->
+    </div>
+  </div>
+
+  <!-- Lluvia de confeti al acabar los juegos -->
+  <div id="confetti" class="hidden"></div>
+
+  <!-- Modal: imagen de stock -->
+  <div id="img-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <h3>🖼️ Añadir imagen</h3>
+      <p class="m-sub">Busca imágenes libres o <strong>pictogramas ARASAAC</strong> para tus preguntas y bloques, o pega tu propia URL. La fuente se muestra siempre bajo la imagen (web y app).</p>
+      <label>Buscar imágenes</label>
+      <input id="img-search" type="text" placeholder="Ej: planeta, perro, comer…" />
+      <div class="sound-api-config"><input id="unsplash-key" type="password" placeholder="Unsplash Access Key"><button id="unsplash-key-save" class="btn btn-outline" type="button">Guardar local</button></div>
+      <p id="unsplash-status" class="form-note">Puedes buscar en Unsplash API. La autoría se añadirá automáticamente.</p>
+      <div class="prov-chips" id="img-prov">
+        <button class="chip-cat active" data-prov="todos">Todas</button>
+        <button class="chip-cat" data-prov="picsum">📷 Picsum</button>
+        <button class="chip-cat" data-prov="unsplash">🖼️ Unsplash</button>
+        <button class="chip-cat" data-prov="arasaac">🧩 Pictogramas</button>
+      </div>
+      <div id="stock-thumbs" class="galeria"></div>
+      <label>O pega tu propia URL</label>
+      <input id="img-url" type="url" placeholder="https://…" />
+      <label>Fuente (cita / autoría)</label>
+      <input id="img-fuente" type="text" placeholder="Ej: NASA · imagen de dominio público" />
+      <label>Texto alternativo (alt) <span style="font-weight:400;color:#666;">· accesibilidad</span></label>
+      <input id="img-alt" type="text" placeholder="Describe la imagen para accesibilidad…" />
+      <div class="m-actions">
+        <button id="img-cancel" class="btn btn-outline" type="button">Cancelar</button>
+        <button id="img-ok" class="btn btn-purple" type="button">Usar imagen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: vista previa -->
+  <div id="preview-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <h3>👁️ Vista previa</h3>
+      <p class="m-sub">Así se verá tu actividad en la web y en la app.</p>
+      <div id="preview-content"></div>
+      <div class="m-actions">
+        <button id="preview-close" class="btn btn-outline" type="button">Cerrar</button>
+      </div>
+    </div>
+  </div>
+  <div id="sound-modal" class="modal-overlay hidden">
+    <div class="modal sound-library-modal">
+      <h3>🔊 Biblioteca de sonidos libres</h3>
+      <p class="m-sub">Busca sonidos en Freesound API v2. Se mostrará siempre creador, licencia y enlace de origen.</p>
+      <div class="sound-api-config"><input id="freesound-token" type="password" placeholder="Token Freesound API v2"><button id="freesound-token-save" class="btn btn-outline">Guardar token local</button></div>
+      <div class="sound-search"><input id="freesound-query" placeholder="Ej.: campana, pasos, pájaro…"><button id="freesound-search" class="btn btn-purple">Buscar</button></div>
+      <p id="freesound-status" class="form-note">Necesitas un API token de Freesound. Se guarda solo en este navegador.</p>
+      <div id="sound-library" class="sound-library"></div>
+      <div class="m-actions"><button id="sound-close" class="btn btn-outline" type="button">Cerrar</button></div>
+    </div>
+  </div>
+
+  <!-- Modal: datos de la actividad -->
+  <div id="meta-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <h3>📋 Datos de la actividad</h3>
+      <p class="m-sub">Rellena la ficha. La enviarás al Filtro de Placeta Junior para su revisión.</p>
+      <label>Título *</label>
+      <input id="m-titulo" type="text" placeholder="Ej: El sistema solar" />
+      <label>Descripción *</label>
+      <textarea id="m-descripcion" rows="2" placeholder="¿De qué va?"></textarea>
+      <label>🖼️ Pictograma ARASAAC (opcional)</label>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input id="m-pictograma" type="url" placeholder="https://static.arasaac.org/pictograms/…png" style="flex:1;" />
+        <button id="m-pictograma-buscar" class="btn btn-purple" type="button" style="white-space:nowrap;">🔎 Buscar</button>
+      </div>
+      <div id="m-pictograma-preview" style="margin-top:8px;display:none;text-align:center;">
+        <img alt="Pictograma elegido" style="width:96px;height:96px;object-fit:contain;border:2px solid var(--pj-gray-200);border-radius:14px;background:#fff;" />
+        <button id="m-pictograma-quitar" class="btn btn-outline" type="button" style="display:block;margin:8px auto 0;font-size:12px;">✖ Quitar pictograma</button>
+      </div>
+      <div class="row2" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div>
+          <label>Categoría *</label>
+          <select id="m-categoria">
+            <option value="Matemáticas">Matemáticas</option>
+            <option value="Lengua">Lengua</option>
+            <option value="Ciencias">Ciencias</option>
+            <option value="Geografía">Geografía</option>
+            <option value="Tecnología">Tecnología</option>
+            <option value="Lógica">Lógica</option>
+            <option value="Cultura">Cultura</option>
+            <option value="General">General</option>
+          </select>
+        </div>
+        <div>
+          <label>Tipo</label>
+          <select id="m-tipo">
+            <option value="test">Test</option>
+            <option value="sopa_letras">Sopa de letras</option>
+            <option value="relacionar_conceptos">Relacionar conceptos</option>
+            <option value="relacionar_imagenes">Relacionar imágenes</option>
+            <option value="completar_frases">Completar frases</option>
+            <option value="ordenar_elementos">Ordenar elementos</option>
+            <option value="verdadero_falso">Verdadero o falso</option>
+            <option value="logica">Lógica</option>
+            <option value="arrastrar">Arrastrar y colocar</option>
+            <option value="buscar">Busca y encuentra</option>
+            <option value="detective">Candela Detective</option>
+            <option value="laboratorio">Laboratorio</option>
+            <option value="construccion">Construye</option>
+            <option value="presupuesto">Tienda de Candela</option>
+            <option value="exploracion">Exploración</option>
+            <option value="simulacion">Simulador</option>
+            <option value="historia_interactiva">Historia interactiva</option>
+            <option value="memoria">Memoria</option>
+            <option value="sonido">Sonido</option>
+            <option value="codigo_secreto">Código secreto</option>
+            <option value="escape_room">Escape room</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+      </div>
+      <div class="row2" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div>
+          <label>Edad recomendada</label>
+          <input id="m-edad" type="text" value="6-12" />
+          <p id="m-edad-note" class="form-note" style="margin-top:6px;"></p>
+        </div>
+        <div>
+          <label>Dificultad</label>
+          <select id="m-dificultad">
+            <option value="facil">Fácil</option>
+            <option value="media" selected>Media</option>
+            <option value="dificil">Difícil</option>
+          </select>
+        </div>
+      </div>
+      <div class="row2" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div>
+          <label>Tiempo estimado (min)</label>
+          <input id="m-tiempo" type="number" min="1" value="10" />
+        </div>
+        <div>
+          <label>¿Quién publica? *</label>
+          <select id="m-titular">
+            <option value="interno" selected>🙂 Anónimo (Placeta Junior)</option>
+            <option value="entidad_eip">🏛️ Entidad (EIP)</option>
+            <option value="profesor">👨‍🏫 Profesor (Google)</option>
+          </select>
+        </div>
+      </div>
+      <div class="m-precios">
+        <p class="form-note" style="margin:2px 0 6px;">💰 <strong>Precios y recompensa</strong> (Pz · IVA incluido). El Filtro puede ajustarlos al aprobar.</p>
+        <div class="row2" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+          <div>
+            <label>Precio licencia (Pz)</label>
+            <input id="m-precio-licencia" type="number" min="0" value="0" placeholder="0" />
+          </div>
+          <div>
+            <label>Precio intento (Pz)</label>
+            <input id="m-precio-intento" type="number" min="0" value="0" placeholder="0" />
+          </div>
+          <div>
+            <label>Recompensa (Pz)</label>
+            <input id="m-recompensa" type="number" min="0" value="0" placeholder="0" />
+          </div>
+        </div>
+        <div class="row2" style="display:flex;gap:16px;margin-top:8px;">
+          <label class="check"><input id="m-subvencionada" type="checkbox"> 🎁 Subvencionada (gratis para el niño)</label>
+          <label class="check"><input id="m-destacada" type="checkbox"> ⭐ Destacada</label>
+          <label class="check"><input id="m-reto-semanal" type="checkbox"> 🏆 ¿Es un reto semanal?</label>
+        </div>
+        <div class="row2" style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div><label>Fecha de finalización del reto</label><input id="m-fecha-fin-reto" type="datetime-local" /></div>
+          <div><label>Vídeo horizontal (URL)</label><input id="m-video-horizontal" type="url" placeholder="https://…" /></div>
+          <div><label>Vídeo vertical (URL)</label><input id="m-video-vertical" type="url" placeholder="https://…" /></div>
+          <label class="check"><input id="m-video-activo" type="checkbox"> 🎬 Mostrar vídeo emergente al entrar</label>
+        </div>
+      </div>
+      <div id="m-identidad"></div>
+      <div class="m-info">
+        <p class="form-note">💡 Todo el contenido va a <strong>junior (Placeta Junior)</strong>.</p>
+        <p class="form-note">🏛️ Las entidades usan su <strong>EIP</strong> · 👨‍🏫 los profesores inician sesión con <strong>Google u otro proveedor</strong> (sin DIP) · 🙂 o publica como <strong>anónimo</strong>.</p>
+      </div>
+      <div class="m-actions">
+        <button id="meta-cancel" class="btn btn-outline" type="button">Cancelar</button>
+        <button id="meta-ok" class="btn btn-green" type="button">Enviar a revisión 🚀</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="links">
+      <a href="/">Actividades</a>
+      <a href="/studio">Placeta Junior Studio</a>
+      <a href="/info">Info</a>
+    </div>
+    <p>© 2026 Placeta Junior · Grupo de La Placeta · <a href="https://laplaceta.org" target="_blank" rel="noopener">laplaceta.org</a></p>
+  </footer>
+
+  <script src="js/avisos.js"></script>
+  <script src="js/sonidos.js"></script>
+  <script src="js/pictogramas.js"></script>
+  <script src="js/mapa-mundi.js"></script>
+  <script src="js/code-engine.js"></script>
+  <script src="js/modalidades.js?v=20260921"></script>
+  <script src="js/studio.js?v=20260902-final"></script>
+</body>
+</html>
