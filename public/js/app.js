@@ -260,19 +260,59 @@ function generarCaratulasEn(cont) {
   });
 }
 
+function obtenerMapaVisitasLocal() {
+  try {
+    const valor = localStorage.getItem('pj-visitas-actividad');
+    if (!valor) return {};
+    const parsed = JSON.parse(valor);
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function visitasLocalActividad(id) {
+  if (!id) return 0;
+  const mapa = obtenerMapaVisitasLocal();
+  const valor = Number(mapa[id] || 0);
+  return Number.isFinite(valor) ? valor : 0;
+}
+
+function registrarVisitaActividad(id) {
+  if (!id) return;
+  try {
+    const mapa = obtenerMapaVisitasLocal();
+    const anterior = Number(mapa[id] || 0);
+    mapa[id] = anterior + 1;
+    localStorage.setItem('pj-visitas-actividad', JSON.stringify(mapa));
+
+    const act = TODAS.find(x => x.id === id);
+    if (act) {
+      const base = Number(act.visitas ?? act.visitas_count ?? act.views ?? act.estadisticas?.visitas ?? act.estadisticas?.visitas_totales ?? act.estadisticas?.veces_realizada ?? 0) || 0;
+      const total = base + 1;
+      act.visitas = total;
+      if (act.estadisticas) act.estadisticas.visitas = total;
+      else act.estadisticas = { visitas: total };
+    }
+  } catch (e) {
+    // El navegador puede bloquear localStorage; la actividad sigue abriéndose.
+  }
+}
+
 function cardActividad(a) {
   const bloqueada = esBloqueada(a);
   const tieneUnidades = obtenerUnidadesActividad(a).length > 0;
   const color = categoriaColor(a.categoria);
   const enCurso = window.PJPartidas ? PJPartidas.estaEnCurso(a.id) : false;
   const completada = window.PJPartidas ? PJPartidas.estaCompletada(a.id) : false;
-  const visitas = Number(a.visitas ?? a.visitas_count ?? a.views ?? a.estadisticas?.visitas ?? a.estadisticas?.visitas_totales ?? a.estadisticas?.veces_realizada ?? 0) || 0;
+  const visitasBase = Number(a.visitas ?? a.visitas_count ?? a.views ?? a.estadisticas?.visitas ?? a.estadisticas?.visitas_totales ?? a.estadisticas?.veces_realizada ?? 0) || 0;
+  const visitas = visitasBase + visitasLocalActividad(a.id);
   // Solo mostramos "Hecha"; el botón "Continuar" ya indica una partida en curso.
   const badgeProg = completada
     ? '<span class="badge-tag badge-free badge-prog"><span class="material-symbols-rounded b-ico">task_alt</span>Hecha</span>'
     : '';
   return `
-    <div class="card" data-color="${color}" onclick="verInfo('${a.id}')" role="button" tabindex="0" aria-label="Ver detalles de ${escapeHtml(a.titulo)}">
+    <div class="card" data-color="${color}" data-actividad-id="${escapeHtml(a.id)}" onclick="verInfo('${a.id}')" role="button" tabindex="0" aria-label="Ver detalles de ${escapeHtml(a.titulo)}">
       ${coverHTML(a, badgeProg)}
       <h3>${escapeHtml(a.titulo)}</h3>
       <div class="card-foot">
@@ -887,6 +927,7 @@ async function abrirActividad(id, bloqueada) {
     } catch (e) { /* sin almacenamiento */ }
     const data = await apiGet(url);
     if (data.actividad) {
+      registrarVisitaActividad(data.actividad.id);
       if (esBloqueada(data.actividad)) { mostrarBloqueoPlacetas(); return; }
       // Las actividades organizadas en diapositivas/unidades NUNCA se
       // reproducen todas juntas: se abre el selector de unidad para jugar
@@ -895,7 +936,7 @@ async function abrirActividad(id, bloqueada) {
         cerrarDetalle();
         if (!TODAS.some(x => x.id === data.actividad.id)) TODAS.push(data.actividad);
         const unidades = obtenerUnidadesActividad(data.actividad);
-        abrirUnidad(data.actividad.id, unidadInicialGuardada(data.actividad.id, unidades));
+        abrirUnidad(data.actividad.id, unidadInicialGuardada(data.actividad.id, unidades), false);
         return;
       }
       // La navegación a una actividad siempre cierra la vista anterior.
@@ -918,12 +959,13 @@ async function abrirActividad(id, bloqueada) {
 
 // Abre únicamente una unidad: su estado local y su puntuación quedan aislados
 // de las demás unidades de la misma actividad.
-async function abrirUnidad(id, indice) {
+async function abrirUnidad(id, indice, registrarVisita = true) {
   try {
     const data = await apiGet(`/actividades/${id}`);
     const a = data.actividad;
     if (!a) throw new Error('Actividad no encontrada');
     if (esBloqueada(a)) { mostrarBloqueoPlacetas(); return; }
+    if (registrarVisita) registrarVisitaActividad(a.id);
     const unidades = obtenerUnidadesActividad(a), u = unidades[Number(indice)];
     if (!u) throw new Error('Unidad no encontrada');
     const unidadIndex = Number(indice);
