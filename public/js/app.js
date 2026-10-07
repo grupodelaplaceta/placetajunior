@@ -309,6 +309,32 @@ function obtenerMapaVisitasLocal() {
   }
 }
 
+async function sincronizarVisitaActividadServidor(id) {
+  if (!id) return;
+  const payload = { id, ts: Date.now(), origen: 'web' };
+  const endpoints = [
+    `${API_BASE}/visitas/actividad`,
+    `${API_BASE}/estadisticas/visita`,
+    `${API_BASE}/actividad/visita`,
+    `${API_BASE}/visitas`
+  ];
+  for (const endpoint of endpoints) {
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) return;
+      if (res.status === 404 || res.status === 405) continue;
+      return;
+    } catch (e) {
+      // El endpoint puede no existir en esta web estática. Se conserva la visita local.
+    }
+  }
+}
+
 function visitasLocalActividad(id) {
   if (!id) return 0;
   const mapa = obtenerMapaVisitasLocal();
@@ -332,6 +358,8 @@ function registrarVisitaActividad(id) {
       if (act.estadisticas) act.estadisticas.visitas = total;
       else act.estadisticas = { visitas: total };
     }
+
+    sincronizarVisitaActividadServidor(id);
   } catch (e) {
     // El navegador puede bloquear localStorage; la actividad sigue abriéndose.
   }
