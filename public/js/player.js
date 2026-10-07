@@ -31,47 +31,117 @@ function esc(s) {
 }
 
 function mostrarSelectorEscritura() {
+  const esHome = document.body.classList.contains('pj-home') || window.location.pathname === '/' || window.location.pathname.endsWith('/index.html');
   const anterior = document.getElementById('pj-escritura-popup');
+  const intro = document.getElementById('pj-intro');
   if (anterior) anterior.remove();
+  if (intro) intro.remove();
+  if (!esHome && !document.body.dataset.forceLocaleDialog) {
+    return;
+  }
+
+  function obtenerIdiomaGuardado() {
+    try {
+      const s = JSON.parse(localStorage.getItem('junior_acc_web') || '{}');
+      const val = String(s && s.idioma || 'es').trim().slice(0, 2).toLowerCase();
+      return ['es', 'ca', 'eu', 'en', 'val'].includes(val) ? val : 'es';
+    } catch (e) {
+      return 'es';
+    }
+  }
+
   const popup = document.createElement('div');
   popup.id = 'pj-escritura-popup';
   popup.className = 'pj-escritura-popup';
   popup.setAttribute('role', 'dialog');
   popup.setAttribute('aria-modal', 'true');
   popup.setAttribute('aria-labelledby', 'pj-escritura-titulo');
-  popup.innerHTML = `<div class="pj-escritura-card">
-    <div class="pj-escritura-burbuja" aria-hidden="true">🌍 A a</div>
-    <p class="pj-escritura-kicker">ANTES DE EMPEZAR</p>
-    <h2 id="pj-escritura-titulo">ELIGE EL IDIOMA</h2>
-    <div class="pj-escritura-idiomas" aria-label="Idiomas disponibles">
-      <button type="button" class="pj-escritura-opcion pj-idioma" data-idioma="es"><img src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Flag_of_Spain.svg" alt="Español" /><strong>ES</strong><small>Español</small></button>
-      <button type="button" class="pj-escritura-opcion pj-idioma" data-idioma="ca"><img src="https://upload.wikimedia.org/wikipedia/commons/c/ce/Flag_of_Catalonia.svg" alt="Català" /><strong>CA</strong><small>Català</small></button>
-      <button type="button" class="pj-escritura-opcion pj-idioma" data-idioma="eu"><img src="https://upload.wikimedia.org/wikipedia/commons/2/27/Flag_of_the_Basque_Country.svg" alt="Euskara" /><strong>EU</strong><small>Euskara</small></button>
-      <button type="button" class="pj-escritura-opcion pj-idioma" data-idioma="en"><img src="https://upload.wikimedia.org/wikipedia/commons/a/ae/Flag_of_the_United_Kingdom.svg" alt="English" /><strong>EN</strong><small>English</small></button>
+  popup.innerHTML = `
+    <div class="pj-escritura-card">
+      <button type="button" class="pj-escritura-close" aria-label="Cerrar selector de idioma">×</button>
+      <div class="pj-escritura-burbuja" aria-hidden="true">🌍</div>
+      <p class="pj-escritura-kicker">Antes de empezar</p>
+      <h2 id="pj-escritura-titulo">Elige el idioma</h2>
+
+      <div class="pj-escritura-step is-active" data-step="idioma">
+        <div class="pj-escritura-idiomas" aria-label="Idiomas disponibles">
+          <button type="button" class="pj-escritura-opcion pj-idioma active" data-idioma="es"><img src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Flag_of_Spain.svg" alt="Español" /><strong>ES</strong><small>Español</small></button>
+          <button type="button" class="pj-escritura-opcion pj-idioma" data-idioma="ca"><img src="https://upload.wikimedia.org/wikipedia/commons/c/ce/Flag_of_Catalonia.svg" alt="Català" /><strong>CA</strong><small>Català</small></button>
+          <button type="button" class="pj-escritura-opcion pj-idioma" data-idioma="eu"><img src="https://upload.wikimedia.org/wikipedia/commons/2/27/Flag_of_the_Basque_Country.svg" alt="Euskara" /><strong>EU</strong><small>Euskara</small></button>
+          <button type="button" class="pj-escritura-opcion pj-idioma" data-idioma="en"><img src="https://upload.wikimedia.org/wikipedia/commons/a/ae/Flag_of_the_United_Kingdom.svg" alt="English" /><strong>EN</strong><small>English</small></button>
+        </div>
+      </div>
+
+      <div class="pj-escritura-step" data-step="letras">
+        <p class="pj-escritura-subtitulo">¿Cómo quieres ver las letras?</p>
+        <div class="pj-escritura-opciones">
+          <button type="button" class="pj-escritura-opcion pj-escritura-mayus"><strong>ABC</strong><span>Mayúsculas</span></button>
+          <button type="button" class="pj-escritura-opcion pj-escritura-minus"><strong>abc</strong><span>Minúsculas</span></button>
+        </div>
+        <div class="pj-escritura-actions compact">
+          <button type="button" class="pj-escritura-back">Volver</button>
+        </div>
+      </div>
+
+      <p class="pj-escritura-legal">Estas preferencias se guardan en este navegador para que todas las actividades de Placeta Junior usen el mismo idioma y formato de letras.</p>
     </div>
-    <p class="pj-escritura-subtitulo">¿CÓMO QUIERES VER LAS LETRAS?</p>
-    <div class="pj-escritura-opciones">
-      <button type="button" class="pj-escritura-opcion pj-escritura-mayus"><strong>ABC</strong><span>MAYÚSCULAS</span></button>
-      <button type="button" class="pj-escritura-opcion pj-escritura-minus"><strong>abc</strong><span>MINÚSCULAS</span></button>
-    </div>
-    <p class="pj-escritura-legal">Estas preferencias se guardan en este navegador para que todas las actividades de Placeta Junior usen el mismo idioma y formato de letras.</p>
-  </div>`;
+  `;
+
+  const originalBodyOverflow = document.body.style.overflow;
+  document.body.style.overflow = 'hidden';
   document.body.appendChild(popup);
-  let idiomaElegido = 'es';
+
+  const idiomaGrid = popup.querySelector('.pj-escritura-idiomas');
+  if (idiomaGrid) {
+    idiomaGrid.style.cssText = 'display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:8px; width:min(430px, 92%); margin:0 auto 14px;';
+  }
+  popup.querySelectorAll('.pj-escritura-opcion').forEach((btn) => {
+    btn.style.cssText = 'width:100%; max-width:100%; min-height:86px; aspect-ratio:1/1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; text-align:center; border-radius:12px; border:2px solid rgba(83,95,130,0.12); background:#fff;';
+  });
+  const card = popup.querySelector('.pj-escritura-card');
+  if (card) {
+    card.style.cssText = 'position:relative; width:min(92vw, 760px); height:min(72vh, 560px); max-height:min(72vh, 560px); overflow:hidden; background:linear-gradient(180deg, #fffefc 0%, #f4f1ff 100%); border:3px solid #f5d861; border-radius:30px; box-shadow:0 24px 55px rgba(52,26,120,.18); padding:18px 18px 20px; color:#1f2937;';
+  }
+
+  let idiomaElegido = obtenerIdiomaGuardado();
+  let paso = 'idioma';
+
+  const cambiarPaso = (nuevoPaso) => {
+    paso = nuevoPaso;
+    popup.querySelectorAll('.pj-escritura-step').forEach((step) => {
+      step.classList.toggle('is-active', step.dataset.step === nuevoPaso);
+    });
+  };
+
   const cerrar = (mayusculas) => {
     if (window.__juniorSetIdioma) window.__juniorSetIdioma(idiomaElegido);
     if (window.__juniorSetMayusculas) window.__juniorSetMayusculas(mayusculas);
     popup.remove();
-    renderPantalla();
+    document.body.style.overflow = originalBodyOverflow;
+    const hayActividadActiva = Array.isArray(pantallas) && pantallas.length > 0 && typeof pantallas[pantallaIdx] !== 'undefined';
+    if (hayActividadActiva && typeof renderPantalla === 'function') renderPantalla();
   };
+  const cerrarSinGuardar = () => {
+    popup.remove();
+    document.body.style.overflow = originalBodyOverflow;
+  };
+
+  popup.querySelector('.pj-escritura-close')?.addEventListener('click', cerrarSinGuardar);
+
+  const idiomaBoton = popup.querySelector(`[data-idioma="${idiomaElegido}"]`);
+  if (idiomaBoton) idiomaBoton.classList.add('active');
   popup.querySelectorAll('.pj-idioma').forEach((btn) => {
     btn.addEventListener('click', () => {
       idiomaElegido = btn.dataset.idioma || 'es';
       popup.querySelectorAll('.pj-idioma').forEach((el) => el.classList.toggle('active', el === btn));
+      cambiarPaso('letras');
     });
   });
-  popup.querySelector('.pj-escritura-mayus').addEventListener('click', () => cerrar(true));
-  popup.querySelector('.pj-escritura-minus').addEventListener('click', () => cerrar(false));
+
+  popup.querySelector('.pj-escritura-back')?.addEventListener('click', () => cambiarPaso('idioma'));
+  popup.querySelector('.pj-escritura-mayus')?.addEventListener('click', () => cerrar(true));
+  popup.querySelector('.pj-escritura-minus')?.addEventListener('click', () => cerrar(false));
+
   popup.querySelector('.pj-idioma')?.focus();
 }
 // ── Reparación de URLs de imagen ─────────────────────────────────────
