@@ -38,10 +38,10 @@ function mostrarSelectorEscritura() {
     <p class="pj-escritura-kicker">ANTES DE EMPEZAR</p>
     <h2 id="pj-escritura-titulo">ELIGE EL IDIOMA</h2>
     <div class="pj-escritura-idiomas" aria-label="Idiomas disponibles">
-      <button type="button" class="pj-escritura-opcion pj-idioma" data-idioma="es"><span aria-hidden="true">🇪🇸</span><strong>ES</strong><small>Español</small></button>
-      <button type="button" class="pj-escritura-opcion pj-idioma" data-idioma="ca"><span aria-hidden="true">🇦🇩</span><strong>CA</strong><small>Català</small></button>
-      <button type="button" class="pj-escritura-opcion pj-idioma" data-idioma="eu"><span aria-hidden="true">🇪🇺</span><strong>EU</strong><small>Euskara</small></button>
-      <button type="button" class="pj-escritura-opcion pj-idioma" data-idioma="en"><span aria-hidden="true">🇬🇧</span><strong>EN</strong><small>English</small></button>
+      <button type="button" class="pj-escritura-opcion pj-idioma" data-idioma="es"><img src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Flag_of_Spain.svg" alt="Español" /><strong>ES</strong><small>Español</small></button>
+      <button type="button" class="pj-escritura-opcion pj-idioma" data-idioma="ca"><img src="https://upload.wikimedia.org/wikipedia/commons/c/ce/Flag_of_Catalonia.svg" alt="Català" /><strong>CA</strong><small>Català</small></button>
+      <button type="button" class="pj-escritura-opcion pj-idioma" data-idioma="eu"><img src="https://upload.wikimedia.org/wikipedia/commons/2/27/Flag_of_the_Basque_Country.svg" alt="Euskara" /><strong>EU</strong><small>Euskara</small></button>
+      <button type="button" class="pj-escritura-opcion pj-idioma" data-idioma="en"><img src="https://upload.wikimedia.org/wikipedia/commons/a/ae/Flag_of_the_United_Kingdom.svg" alt="English" /><strong>EN</strong><small>English</small></button>
     </div>
     <p class="pj-escritura-subtitulo">¿CÓMO QUIERES VER LAS LETRAS?</p>
     <div class="pj-escritura-opciones">

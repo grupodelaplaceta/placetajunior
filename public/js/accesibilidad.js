@@ -111,9 +111,13 @@
   }
   function abrirConfiguracionInicial() {
     if (guardado) return;
+    const esHome = document.body.classList.contains('pj-home') || window.location.pathname === '/' || window.location.pathname.endsWith('/index.html');
+    if (!esHome) return;
     if (!document.getElementById('pj-escritura-popup') && typeof window.mostrarSelectorEscritura === 'function') {
       window.setTimeout(() => {
-        if (!document.getElementById('pj-escritura-popup') && !guardado) window.mostrarSelectorEscritura();
+        if (!document.getElementById('pj-escritura-popup') && !guardado && (document.body.classList.contains('pj-home') || window.location.pathname === '/' || window.location.pathname.endsWith('/index.html'))) {
+          window.mostrarSelectorEscritura();
+        }
       }, 300);
     }
   }
