@@ -150,6 +150,24 @@ body.pj-home {
   min-width: 0;
   white-space: nowrap;
 }
+.pj-home .btn-icon {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  padding: 0;
+  border-radius: 50%;
+}
+.pj-home .btn-icon .material-symbols-rounded {
+  font-size: 22px;
+}
+
+.pj-intro.is-hidden,
+.pj-loading.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .2s ease, visibility .2s ease;
+}
 
 /* ── Popup de idioma / letras ── */
 .pj-escritura-popup {
@@ -330,8 +348,21 @@ body.pj-home {
 }
 
 @media (max-width: 880px) {
-  .pj-home .nav-inner { flex-wrap: wrap; }
-  .pj-home .nav-toggle-btn { display: flex; margin-left: auto; }
+  .pj-home .nav-inner {
+    flex-wrap: wrap;
+    row-gap: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  .pj-home .brand {
+    order: 1;
+    flex: 1 1 auto;
+  }
+  .pj-home .nav-toggle-btn {
+    display: flex;
+    order: 2;
+    margin-left: auto;
+  }
   .pj-home .nav-links {
     order: 4;
     width: 100%;
@@ -345,10 +376,12 @@ body.pj-home {
   .pj-home .nav-links a { text-align: center; padding: 12px; }
   .pj-home .nav-toggle:checked ~ .nav-inner .nav-links { display: flex; }
   .pj-home .nav-cta {
+    order: 3;
     margin-left: 0;
-    width: 100%;
+    width: auto;
     justify-content: flex-end;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    gap: 6px;
   }
   .pj-home .nav-cta .btn {
     padding: 7px 10px;
@@ -362,11 +395,15 @@ body.pj-home {
     padding-right: 12px;
   }
   .pj-home .nav-cta {
-    justify-content: center;
+    width: 100%;
+    justify-content: space-between;
   }
   .pj-home .nav-cta .btn {
-    flex: 1 1 120px;
+    flex: 1 1 auto;
     min-width: 0;
+  }
+  .pj-home .btn-icon {
+    flex: 0 0 44px;
   }
 }
 

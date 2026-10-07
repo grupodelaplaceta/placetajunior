@@ -30,6 +30,20 @@ function esc(s) {
   return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
+function ocultarIntroInicial() {
+  const intro = document.getElementById('pj-intro');
+  const loading = document.getElementById('pj-loading');
+  const ocultar = (el) => {
+    if (!el) return;
+    el.classList.add('is-hidden');
+    window.setTimeout(() => {
+      if (el && el.parentNode) el.remove();
+    }, 220);
+  };
+  ocultar(intro);
+  ocultar(loading);
+}
+
 function mostrarSelectorEscritura() {
   const esHome = document.body.classList.contains('pj-home') || window.location.pathname === '/' || window.location.pathname.endsWith('/index.html');
   const anterior = document.getElementById('pj-escritura-popup');
@@ -144,6 +158,20 @@ function mostrarSelectorEscritura() {
 
   popup.querySelector('.pj-idioma')?.focus();
 }
+
+window.addEventListener('DOMContentLoaded', function () {
+  const esHome = document.body.classList.contains('pj-home') || window.location.pathname === '/' || window.location.pathname.endsWith('/index.html');
+  if (!esHome) return;
+
+  const popupActual = document.getElementById('pj-escritura-popup');
+  if (popupActual) return;
+
+  window.setTimeout(() => {
+    if (!document.getElementById('pj-escritura-popup')) {
+      ocultarIntroInicial();
+    }
+  }, 260);
+});
 // ── Reparación de URLs de imagen ─────────────────────────────────────
 // Algunas actividades (generadas con IA) guardan la URL de la imagen como
 // un enlace Markdown partido por el ':' de la propia URL. Ejemplo real:
