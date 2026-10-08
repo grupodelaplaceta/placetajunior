@@ -381,7 +381,7 @@ function abrirJuego(act) {
     bloquesJuego.forEach((raw, bi) => { const b=adaptarInteractivo(raw);
       if (PJ_JUEGOS_MATES_AVENTURA.has(b.tipo)) {
         pantallas.push({ tipo: 'mates_aventura', bi });
-        kpEstado.push(window.PJMatesAventura.crearEstado(b));
+        kpEstado.push(window.MATES_AVENTURA.createState());
       } else if (PJ_JUEGOS_MAT.has(b.tipo)) {
         pantallas.push({ tipo: 'juego_matematico', bi });
         kpEstado.push(crearEstadoJuegoMatematico(b));
@@ -715,7 +715,7 @@ function renderPantalla() {
   else if (s.tipo === 'meca') cuerpo = screenMeca(s, est);
   else if (s.tipo === 'nb') cuerpo = screenNB(s, est);
   else if (s.tipo === 'juego_matematico') cuerpo = screenJuegoMatematico(s, est);
-  else if (s.tipo === 'mates_aventura') cuerpo = PJMatesAventura.render(bloquesJuego[s.bi], s.bi, est);
+  else if (s.tipo === 'mates_aventura') cuerpo = MATES_AVENTURA.render(bloquesJuego[s.bi], s.bi, est);
   else if (s.tipo === 'code') cuerpo = screenCode(s, est);
   else if (s.tipo === 'code_explica') cuerpo = screenCodeExplica(s);
   else if (s.tipo === 'interactivo') cuerpo = screenInteractive(s, est);
@@ -1302,22 +1302,6 @@ function screenInteractive(s, est) {
   else if(tipo==='arrastrar') body+=`<p>Elige una categoría para colocar los elementos:</p><div class="kp-drop-zones">${(d.zonas||[]).map(z=>`<button class="kp-zone" onclick="kpResponderInteractivo(${s.bi},'${esc(z)}')">${esc(z)}</button>`).join('')}</div>`;
   else body+=`${(d.pistas||[]).map((p,i)=>`<div class="kp-hint">Pista ${i+1}: ${esc(p)}</div>`).join('')}<div class="kp-opts">${opts.map((o,i)=>`<button class="kp-opt" onclick="kpResponderInteractivo(${s.bi},'${esc(o)}',${i})">${esc(o)}</button>`).join('')}</div>`;
   return body+((est.respondida)?`<div class="kp-msg ${est.acierto?'ok':'bad'}">${est.acierto?'¡Muy bien! 🎉':'Prueba otra vez 💪'}</div>`:'')+'</div>';
-}
-function pjMatesResponder(bi, action, value) {
-  const state = kpEstado[pantallaIdx], block = bloquesJuego[bi];
-  if (!window.PJMatesAventura || !state || !block) return;
-  const input = document.querySelector(`[data-pj-ma-value="${bi}"]`);
-  const answer = ['estimate', 'cut'].includes(action) ? Number(input?.value) : value;
-  const result = PJMatesAventura.responder(block, state, action, answer);
-  if (result === true) kpScore.verdes++;
-  else if (result === false) kpScore.rojos++;
-  renderPantalla();
-}
-function pjMatesReintentar(bi) {
-  const block = bloquesJuego[bi];
-  if (!block || !window.PJMatesAventura) return;
-  kpEstado[pantallaIdx] = PJMatesAventura.crearEstado(block);
-  renderPantalla();
 }
 function kpResponderInteractivo(bi,val,pos){const e=kpEstado[pantallaIdx],d=bloquesJuego[bi].datos||{};if(e.respondida)return;if(d.solucion){e.seleccion=e.seleccion||[];e.seleccion.push(val);if(e.seleccion.length<d.solucion.length){renderPantalla();return;}}const good=d.correcta!==undefined?(pos!==undefined?Number(pos)===Number(d.correcta):String(val).toLowerCase()===String(d.correcta).toLowerCase()):d.respuesta?String(val).toLowerCase()===String(d.respuesta).toLowerCase():d.respuestas?Object.values(d.respuestas).includes(val):(d.correctas||[]).includes(val)||((d.opciones||[])[pos]||'').split('|')[2]==='1';e.respondida=true;e.acierto=good;if(good)kpScore.verdes++;else kpScore.rojos++;renderPantalla();}
 function kpBuscarObjeto(bi,i){const e=kpEstado[pantallaIdx],d=bloquesJuego[bi].datos||{};e.seleccion=e.seleccion||[];if(!e.seleccion.includes(i))e.seleccion.push(i);if(e.seleccion.length>=Number(d.objetivo||1)){e.respondida=true;e.acierto=e.seleccion.filter(k=>String((d.objetos||[])[k]).split('|')[2]==='1').length>=Number(d.objetivo||1);if(e.acierto)kpScore.verdes++;else kpScore.rojos++;}renderPantalla();}
