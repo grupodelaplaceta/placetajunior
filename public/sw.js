@@ -6,7 +6,7 @@
    ═══════════════════════════════════════════════════════════════════ */
 // Versionar la caché fuerza la actualización del reproductor y estilos en
 // dispositivos que ya visitaron la web.
-const CACHE = 'placetajunior-assets-v6';
+const CACHE = 'placetajunior-assets-v7';
 
 const ASSETS = [
   '/css/styles.css',
@@ -18,7 +18,7 @@ const ASSETS = [
   '/js/avisos.js',
   '/js/accesibilidad.js',
   '/js/mapa-mundi.js',
-  '/js/progreso.js',
+  '/js/mates-aventura.js',
   '/js/topojson-client.min.js',
   '/js/colecciones.js',
   '/js/modalidades.js',

@@ -8,6 +8,7 @@ let pantallaIdx = 0;
 let kpEstado = [];
 let bloquesJuego = [];
 const PJ_JUEGOS_MAT = new Set(['carrera_matematica','batalla_matematica','tienda_matematica','batalla_fracciones','escape_room_matematico','detective_matematico','arquitectos','invasion_alienigena','pizzeria_fracciones','numero_misterioso']);
+const PJ_JUEGOS_MATES_AVENTURA = new Set(['mates_pixel','mates_balanza','mates_arcade','mates_rio','mates_monstruo','mates_fracciones','mates_estimacion','mates_ninja','mates_robots','mates_slime','mates_templo','mates_topo']);
 let pjJuegoTimer = null;
 function adaptarInteractivo(b) {
   if (b && PJ_JUEGOS_MAT.has(b.tipo)) {
@@ -23,8 +24,6 @@ let kpCelebrado = false;
 let actividadActual = null;   // actividad que se está jugando (para guardar progreso)
 let dipGuardado = '';
 try { dipGuardado = localStorage.getItem('pj-dip') || ''; } catch (e) { /* sin almacenamiento */ }
-let msgGuardar = '';
-let guardandoDIP = false;
 
 function esc(s) {
   return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -380,7 +379,10 @@ function abrirJuego(act) {
     }
   } else {
     bloquesJuego.forEach((raw, bi) => { const b=adaptarInteractivo(raw);
-      if (PJ_JUEGOS_MAT.has(b.tipo)) {
+      if (PJ_JUEGOS_MATES_AVENTURA.has(b.tipo)) {
+        pantallas.push({ tipo: 'mates_aventura', bi });
+        kpEstado.push(window.PJMatesAventura.crearEstado(b));
+      } else if (PJ_JUEGOS_MAT.has(b.tipo)) {
         pantallas.push({ tipo: 'juego_matematico', bi });
         kpEstado.push(crearEstadoJuegoMatematico(b));
       } else if (b.tipo === 'test') {
@@ -694,7 +696,6 @@ function verificarVerticales(root) {
 function renderPantalla() {
   const s = pantallas[pantallaIdx];
   const est = kpEstado[pantallaIdx] || {};
-  const progNivel = (window.PJProgreso ? PJProgreso.estado().nivel : 1);
   let cuerpo = '';
   if (s.tipo === 'portada') cuerpo = screenPortada(s);
   else if (s.tipo === 'texto') cuerpo = screenTexto(s, est);
@@ -714,10 +715,11 @@ function renderPantalla() {
   else if (s.tipo === 'meca') cuerpo = screenMeca(s, est);
   else if (s.tipo === 'nb') cuerpo = screenNB(s, est);
   else if (s.tipo === 'juego_matematico') cuerpo = screenJuegoMatematico(s, est);
+  else if (s.tipo === 'mates_aventura') cuerpo = PJMatesAventura.render(bloquesJuego[s.bi], s.bi, est);
   else if (s.tipo === 'code') cuerpo = screenCode(s, est);
   else if (s.tipo === 'code_explica') cuerpo = screenCodeExplica(s);
   else if (s.tipo === 'interactivo') cuerpo = screenInteractive(s, est);
-  else if (s.tipo === 'final') { cuerpo = screenFinal(s); if (!kpCelebrado) { kpCelebrado = true; if (window.PJProgreso) { PJProgreso.sumar(kpScore.verdes, kpScore.rojos); try { window.dispatchEvent(new CustomEvent('pj:progreso')); } catch (e) { /* ok */ } } lluviaConfetti(); if (window.pjSonido) pjSonido.victoria(); } }
+  else if (s.tipo === 'final') { cuerpo = screenFinal(s); if (!kpCelebrado) { kpCelebrado = true; lluviaConfetti(); if (window.pjSonido) pjSonido.victoria(); } }
   ocultarFeedback();
   destruirMapas();
   // Guardar la partida localmente (retomar más tarde)
@@ -743,7 +745,6 @@ function renderPantalla() {
         <div class="kp-progress-track"><div class="kp-progress-bar" style="width:${pct}%"></div></div>
       </div>
       <div class="kp-score-chips" aria-label="Resultado">
-        <span class="kp-chip-level" title="Tu nivel"><span class="material-symbols-rounded" aria-hidden="true">emoji_events</span> Nv ${progNivel}</span>
         <span class="kp-chip-score ok"><span class="material-symbols-rounded">check_circle</span>${kpScore.verdes}</span>
         <span class="kp-chip-score bad"><span class="material-symbols-rounded">cancel</span>${kpScore.rojos}</span>
       </div>
@@ -1154,7 +1155,7 @@ function crearEstadoJuegoMatematico(b) {
     }
   } else if (tipo === 'detective_matematico') { const opciones = d.opciones || []; preguntas.push({ historia: d.historia || '', pistas: d.pistas || [], opciones, correcta: typeof d.correcta === 'string' ? Math.max(0, opciones.indexOf(d.correcta)) : Number(d.correcta || 0) }); }
   else if (tipo === 'numero_misterioso') preguntas.push(pjCrearNumeroMisterioso(d));
-  return { tipo, preguntas, indice: 0, aciertos: 0, respondidas: 0, vidasJugador: Number(d.vidasJugador || 4), vidasRival: Number(d.vidasEnemigo || 3), tiempo: Math.max(0, Number(d.timeLimit || d.tiempoMaximo || 0)), terminado: false, victoria: null, recompensa: d.rewards || b.rewards || { xp: 100, coins: 20 }, premiado: false, seleccion: [], pistasResueltas: [], problemaEscape: 0, habitacion: 0 };
+  return { tipo, preguntas, indice: 0, aciertos: 0, respondidas: 0, vidasJugador: Number(d.vidasJugador || 4), vidasRival: Number(d.vidasEnemigo || 3), tiempo: Math.max(0, Number(d.timeLimit || d.tiempoMaximo || 0)), terminado: false, victoria: null, seleccion: [], pistasResueltas: [], problemaEscape: 0, habitacion: 0 };
 }
 function iniciarTimerJuegoMatematico(e) {
   clearInterval(pjJuegoTimer); pjJuegoTimer = null;
@@ -1163,7 +1164,6 @@ function iniciarTimerJuegoMatematico(e) {
 }
 function pjFinalizarJuego(e, victoria) {
   e.terminado = true; e.victoria = !!victoria; clearInterval(pjJuegoTimer); pjJuegoTimer = null;
-  if (victoria && !e.premiado) { e.premiado = true; if (window.PJProgreso?.recompensar) { window.PJProgreso.recompensar(e.recompensa, e.tipo); window.dispatchEvent(new CustomEvent('pj:progreso')); } }
 }
 function pjResponderJuego(bi, respuesta) {
   const e = kpEstado[pantallaIdx], q = e.preguntas[e.indice];
@@ -1251,7 +1251,7 @@ function screenJuegoMatematico(s, e) {
   let html = `<div class="kp-screen pj-math-game"><div class="kp-qt">${esc(b.titulo || titulos[tipo])}</div><p>${esc(b.instrucciones || d.instrucciones || '')}</p>`;
   if (e.terminado) {
     const detalle = tipo === 'batalla_matematica' && !e.victoria ? 'La partida ha terminado. Tu progreso se conserva.' : `Aciertos: ${e.aciertos} de ${e.respondidas || e.aciertos}.`;
-    html += `<div class="pj-game-result ${e.victoria?'is-win':'is-loss'}"><strong>${e.victoria?'¡Reto superado!':'Partida terminada'}</strong><span>${esc(detalle)}</span>${e.victoria?`<span>⭐ ${Number(e.recompensa.xp||0)} XP · 🪙 ${Number(e.recompensa.coins||0)} monedas</span>`:`<button class="kp-btn" onclick="pjReintentarJuego(${s.bi})">Volver a intentarlo</button>`}</div>`;
+    html += `<div class="pj-game-result ${e.victoria?'is-win':'is-loss'}"><strong>${e.victoria?'¡Reto superado!':'Partida terminada'}</strong><span>${esc(detalle)}</span>${e.victoria?'':`<button class="kp-btn" onclick="pjReintentarJuego(${s.bi})">Volver a intentarlo</button>`}</div>`;
   } else if (['carrera_matematica','batalla_matematica','invasion_alienigena'].includes(tipo)) {
     const q = e.preguntas[e.indice] || {};
     html += tipo === 'batalla_matematica' ? `<div class="pj-battle-status"><span>🧙 ${'❤️'.repeat(Math.max(0,e.vidasJugador))}</span><span>👹 ${'❤️'.repeat(Math.max(0,e.vidasRival))}</span></div>` : `<div class="pj-race-status">${tipo==='carrera_matematica'?'🏎️':'👽'} ${e.aciertos} / ${e.preguntas.length} · ⏱ ${e.tiempo || 'sin límite'} s</div>`;
@@ -1302,6 +1302,22 @@ function screenInteractive(s, est) {
   else if(tipo==='arrastrar') body+=`<p>Elige una categoría para colocar los elementos:</p><div class="kp-drop-zones">${(d.zonas||[]).map(z=>`<button class="kp-zone" onclick="kpResponderInteractivo(${s.bi},'${esc(z)}')">${esc(z)}</button>`).join('')}</div>`;
   else body+=`${(d.pistas||[]).map((p,i)=>`<div class="kp-hint">Pista ${i+1}: ${esc(p)}</div>`).join('')}<div class="kp-opts">${opts.map((o,i)=>`<button class="kp-opt" onclick="kpResponderInteractivo(${s.bi},'${esc(o)}',${i})">${esc(o)}</button>`).join('')}</div>`;
   return body+((est.respondida)?`<div class="kp-msg ${est.acierto?'ok':'bad'}">${est.acierto?'¡Muy bien! 🎉':'Prueba otra vez 💪'}</div>`:'')+'</div>';
+}
+function pjMatesResponder(bi, action, value) {
+  const state = kpEstado[pantallaIdx], block = bloquesJuego[bi];
+  if (!window.PJMatesAventura || !state || !block) return;
+  const input = document.querySelector(`[data-pj-ma-value="${bi}"]`);
+  const answer = ['estimate', 'cut'].includes(action) ? Number(input?.value) : value;
+  const result = PJMatesAventura.responder(block, state, action, answer);
+  if (result === true) kpScore.verdes++;
+  else if (result === false) kpScore.rojos++;
+  renderPantalla();
+}
+function pjMatesReintentar(bi) {
+  const block = bloquesJuego[bi];
+  if (!block || !window.PJMatesAventura) return;
+  kpEstado[pantallaIdx] = PJMatesAventura.crearEstado(block);
+  renderPantalla();
 }
 function kpResponderInteractivo(bi,val,pos){const e=kpEstado[pantallaIdx],d=bloquesJuego[bi].datos||{};if(e.respondida)return;if(d.solucion){e.seleccion=e.seleccion||[];e.seleccion.push(val);if(e.seleccion.length<d.solucion.length){renderPantalla();return;}}const good=d.correcta!==undefined?(pos!==undefined?Number(pos)===Number(d.correcta):String(val).toLowerCase()===String(d.correcta).toLowerCase()):d.respuesta?String(val).toLowerCase()===String(d.respuesta).toLowerCase():d.respuestas?Object.values(d.respuestas).includes(val):(d.correctas||[]).includes(val)||((d.opciones||[])[pos]||'').split('|')[2]==='1';e.respondida=true;e.acierto=good;if(good)kpScore.verdes++;else kpScore.rojos++;renderPantalla();}
 function kpBuscarObjeto(bi,i){const e=kpEstado[pantallaIdx],d=bloquesJuego[bi].datos||{};e.seleccion=e.seleccion||[];if(!e.seleccion.includes(i))e.seleccion.push(i);if(e.seleccion.length>=Number(d.objetivo||1)){e.respondida=true;e.acierto=e.seleccion.filter(k=>String((d.objetos||[])[k]).split('|')[2]==='1').length>=Number(d.objetivo||1);if(e.acierto)kpScore.verdes++;else kpScore.rojos++;}renderPantalla();}
@@ -1614,15 +1630,6 @@ function pintarSel(idx) {
     cell.classList.toggle('sel', inSel && !isFound);
   });
 }
-function maxPuntosDePartida() {
-  return pantallas.reduce((total, x) => {
-    if (['portada', 'texto', 'final'].includes(x.tipo)) return total;
-    const b = x.bi != null ? bloquesJuego[x.bi] : null;
-    if (b?.tipo === 'clasificar_palabras') return total + datosClasificar(b.datos || b).items.length;
-    return total + 1;
-  }, 0);
-}
-
 function screenFinal(s) {
   const maxPuntos = pantallas.reduce((total, x) => {
     if (['portada', 'texto', 'final'].includes(x.tipo)) return total;
@@ -1653,53 +1660,9 @@ function screenFinal(s) {
         <div class="kp-score-item rojos"><span class="kp-score-num">🔴</span>${kpScore.rojos} <small>puntos rojos</small></div>
       </div>
       <div class="kp-reward"><span class="material-symbols-rounded kp-reward-ico" aria-hidden="true">redeem</span> <strong>${recompensa} Pz</strong> ${recompensaMax > 0 ? `de ${recompensaMax} Pz máximas` : ''}</div>
-      <div class="kp-save">
-        <h4><span class="material-symbols-rounded" aria-hidden="true">save</span> Guardar mi progreso</h4>
-        <p class="kp-save-sub">En la web el progreso es local. Guarda con tu DIP para sumar los puntos y recibir ${recompensa} Pz.</p>
-        <div class="kp-save-row">
-          <input id="kp-dip" type="text" inputmode="text" autocomplete="off"
-            placeholder="Tu DIP (ej: 11111111D)" value="${esc(dipGuardado)}" maxlength="20">
-          <button class="kp-btn" onclick="guardarProgreso()" ${guardandoDIP ? 'disabled' : ''}>${guardandoDIP ? 'Guardando…' : '<span class="material-symbols-rounded" aria-hidden="true">save</span> Guardar'}</button>
-        </div>
-        <div id="kp-msg" class="kp-msg ${msgGuardar.startsWith('✅') ? 'ok' : (msgGuardar ? 'bad' : '')}">${msgGuardar}</div>
-      </div>
       ${acciones}
       <div class="kp-hint">💪 ¡Sigue así, campeón!</div>
     </div>`;
-}
-
-// Guardar el progreso (puntos verdes/rojos) con el DIP del junior
-async function guardarProgreso() {
-  const inp = document.getElementById('kp-dip');
-  if (!inp) return;
-  const dip = inp.value.trim();
-  if (!dip) { msgGuardar = '❌ Escribe tu DIP para guardar.'; renderPantalla(); return; }
-  if (!actividadActual || !actividadActual.id) { msgGuardar = '❌ No se puede guardar: actividad sin id.'; renderPantalla(); return; }
-  guardandoDIP = true;
-  renderPantalla();
-  const respuestas = [];
-  for (let i = 0; i < kpScore.verdes; i++) respuestas.push({ idx: i, correcta: true });
-  for (let i = 0; i < kpScore.rojos; i++) respuestas.push({ idx: kpScore.verdes + i, correcta: false });
-  try {
-    const res = await fetch(`${API_BASE}/actividades/${actividadActual.id}/realizar`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ dip, respuestas, puntos_verdes: kpScore.verdes, puntos_rojos: kpScore.rojos, resultado_id: `${actividadActual.id}:final${actividadActual._unidadIndex != null ? `:unidad:${actividadActual._unidadIndex}` : ''}`, puntos_maximos: maxPuntosDePartida(), resultado_final: true, unidad: actividadActual._unidadIndex != null ? actividadActual._unidadIndex : undefined, recompensa_unidad: actividadActual._unidadIndex != null ? Number(actividadActual.recompensa || 0) : undefined })
-    });
-    const data = await res.json().catch(() => ({}));
-    if (res.ok && data.success) {
-      dipGuardado = dip;
-      try { localStorage.setItem('pj-dip', dip); } catch (e) { /* sin almacenamiento */ }
-      const extra = data.recompensa !== undefined ? ` · +${data.recompensa} Pz` : '';
-      msgGuardar = `✅ ¡Guardado! ${kpScore.verdes} verdes y ${kpScore.rojos} rojos sumados${extra}.`;
-    } else {
-      msgGuardar = `❌ ${data.error || 'No se pudo guardar. Comprueba tu DIP.'}`;
-    }
-  } catch (e) {
-    msgGuardar = '❌ Error de conexión. Inténtalo otra vez.';
-  }
-  guardandoDIP = false;
-  renderPantalla();
 }
 function lluviaConfetti() {
   const cont = document.getElementById('confetti');
@@ -2681,7 +2644,6 @@ async function kpCodeEjecutar() {
     if (t.moneda) {
       kpScore.verdes++;
       monedasCogidas++;
-      if (window.PJProgreso) { PJProgreso.sumar(1, 0); try { window.dispatchEvent(new CustomEvent('pj:progreso')); } catch (e) { /* ok */ } }
     }
     await new Promise(res => setTimeout(res, 360));
   }
@@ -2799,7 +2761,7 @@ async function canjearPuntos(tipo) {
   const puntos = tipo === 'rojos' ? kpScore.rojos : kpScore.verdes;
   const msg = document.getElementById('kp-redeem-msg');
   if (!msg) return;
-  if (!dip) { msg.className = 'kp-msg bad'; msg.textContent = 'Guarda primero tu progreso con tu DIP.'; return; }
+  if (!dip) { msg.className = 'kp-msg bad'; msg.textContent = 'Necesitas un DIP guardado para canjear puntos.'; return; }
   if (puntos < 10) { msg.className = 'kp-msg bad'; msg.textContent = `Necesitas 10 puntos ${tipo}.`; return; }
   const canje = Math.floor(puntos / 10) * 10;
   msg.className = 'kp-msg'; msg.textContent = 'Procesando canje…';

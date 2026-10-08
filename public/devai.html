@@ -125,6 +125,18 @@
       { "tipo": "sonido", "datos": { "audio_url": "", "opciones": ["perro","gato"], "respuesta": "perro" } },
       { "tipo": "codigo_secreto", "datos": { "pistas": ["La primera cifra es 4."], "contraseña": "46" } },
       { "tipo": "escape_room", "datos": { "pruebas": [ { "pregunta": "¿Cuánto es 2 + 2?", "opciones": ["3","4"], "correcta": 1 } ], "contraseña": "SALIDA" } },
+      { "tipo": "mates_pixel", "titulo": "Cohete de píxeles", "datos": { "operaciones": [ { "a": 3, "b": 4, "op": "+", "respuesta": 7 } ] } },
+      { "tipo": "mates_balanza", "titulo": "Equilibra la balanza", "datos": { "pesosIzquierda": [3,4], "opciones": [7,8,5] } },
+      { "tipo": "mates_arcade", "titulo": "Globos matemáticos", "datos": { "preguntas": [ { "a": 6, "b": 7, "op": "×", "correcta": 42, "opciones": [42,36,49] } ], "vidas": 3 } },
+      { "tipo": "mates_rio", "titulo": "Salto del río", "datos": { "inicio": 0, "salto": 5, "saltos": 8 } },
+      { "tipo": "mates_monstruo", "titulo": "Monstruo glotón", "datos": { "objetivo": 243 } },
+      { "tipo": "mates_fracciones", "titulo": "Compás fraccionado", "datos": { "numerador": 1, "denominador": 2, "piezas": [ { "n": 1, "d": 2 }, { "n": 1, "d": 4 }, { "n": 1, "d": 8 } ] } },
+      { "tipo": "mates_estimacion", "titulo": "Diana numérica", "datos": { "objetivo": 68, "maximo": 100, "margen": 5 } },
+      { "tipo": "mates_ninja", "titulo": "Corte ninja", "datos": { "numerador": 1, "denominador": 2, "margenPorcentaje": 5 } },
+      { "tipo": "mates_robots", "titulo": "Chip correcto", "datos": { "entrada": 7, "salida": 21, "chips": [ { "label": "+14", "op": "+", "n": 14 }, { "label": "×2", "op": "×", "n": 2 } ] } },
+      { "tipo": "mates_slime", "titulo": "Matraz de slime", "datos": { "objetivoLitros": 1.5 } },
+      { "tipo": "mates_templo", "titulo": "Espejo del templo", "datos": { "anguloObjetivo": 45, "angulos": [0,30,45,60,90] } },
+      { "tipo": "mates_topo", "titulo": "Mapa del tesoro", "datos": { "columnas": 6, "filas": 6, "columna": 4, "fila": 3 } },
       { "tipo": "code_blocks", "titulo": "Haz llegar a Candela a la estrella", "lenguaje": "placeta_blocks", "objetivo_texto": "Programa a Candela para llegar a la estrella", "ejercicios": [ { "titulo": "Avanza 1 casilla", "explicacion": "Pulsa el bloque AVANZAR una vez.", "objetivo_texto": "Lleva a Candela hasta la estrella (1,0).", "bloques_permitidos": ["avanzar"], "escenario": { "tipo": "cuadricula", "ancho": 6, "alto": 6, "obstaculos": [], "monedas": [] }, "inicio": { "x": 0, "y": 0, "direccion": "derecha" }, "objetivo": { "posicion": { "x": 1, "y": 0 }, "max_pasos": 4 }, "pistas": ["Añade 1 bloque AVANZAR."] }, { "titulo": "Esquiva la roca", "explicacion": "Ahora hay una roca. Usa GIRAR para esquivarla.", "objetivo_texto": "Lleva a Candela hasta la estrella (3,1).", "bloques_permitidos": ["avanzar", "girar"], "escenario": { "tipo": "cuadricula", "ancho": 6, "alto": 6, "obstaculos": [{"x": 2, "y": 0}], "monedas": [] }, "inicio": { "x": 0, "y": 0, "direccion": "derecha" }, "objetivo": { "posicion": { "x": 3, "y": 1 }, "max_pasos": 10 }, "pistas": ["Avanza, gira, pasa y vuelve."] } ] }
     ]
   }
@@ -144,7 +156,8 @@ Reglas:
 - En mapa_espana, escribe "modo": "comunidades" o "provincias" y en "objetivos" nombres en español (p. ej. "Asturias", "Toledo", "Castilla y León"). NUNCA añadas listas ni pistas que revelen dónde está la respuesta: el niño debe localizarla mirando el mapa.
 - ESQUEMAS SEGUROS: para sustituir imágenes usa un bloque `esquema` con `esquema.elementos`. Solo puedes usar `texto`, `rectangulo`, `circulo` y `linea`, con colores hexadecimales y medidas numéricas. No escribas HTML, SVG, JavaScript, CSS, URLs, imágenes, iframes ni fuentes externas. Para información al pulsar, añade únicamente `accion: {"tipo":"popup", "titulo":"...", "contenido":"..."}` al elemento: la plataforma crea el popup y aplica accesibilidad y tipografías propias.
 - En calculo_mental, "operacion" puede ser "suma", "resta", "multiplicacion" o "division" (cada "suma" puede sobrescribirla con su propio "op"). "vertical": true muestra la cuenta en vertical (suma/resta) y, en las sumas, "llevadas": true pinta las llevadas encima de cada columna.
-- JUEGOS MATEMÁTICOS: también puedes crear bloques interactivos con tipo "carrera_matematica", "batalla_matematica", "tienda_matematica", "batalla_fracciones", "escape_room_matematico", "detective_matematico", "arquitectos", "invasion_alienigena", "pizzeria_fracciones" o "numero_misterioso". Configura cada juego con un objeto "datos": "difficulty" (1-4), "questions", "timeLimit", "operations" (addition/subtraction/multiplication/division o sus nombres en español), "minNumber", "maxNumber", "answerOptions" y "rewards": {"xp":100,"coins":20}. Tienda: "productos" [{"emoji":"🍎","nombre":"Manzana","precio":2.5}], "compra" [{"producto":0,"cantidad":1}], "pagaCon" y "discountPct" (nivel avanzado). Fracciones: "numerador", "denominador", "sumandos" (p. ej. [{"numerador":1,"denominador":4},{"numerador":2,"denominador":4}]) y "questions". Escape: "habitaciones" con "pruebas" (pregunta, opciones, correcta, cifra) y "codigo"; cada habitación se puede añadir como datos sin programarla. Detective: "historia", "pistas", "opciones", "correcta". Arquitectos: "perimetro" o "condicion":"area" con "area". Número misterioso: "minNumber", "maxNumber", "numeroSecreto", "pistas" y "opciones". El progreso común conserva puntos, XP, monedas, victorias, medallas y habilidades dominadas; perder una batalla nunca borra progreso.
+- JUEGOS MATEMÁTICOS: puedes usar "carrera_matematica", "batalla_matematica", "tienda_matematica", "batalla_fracciones", "escape_room_matematico", "detective_matematico", "arquitectos", "invasion_alienigena", "pizzeria_fracciones" y "numero_misterioso". Configura sus datos con preguntas, operaciones, límites, opciones, pistas y soluciones. Tienda: "productos", "compra", "pagaCon" y "discountPct". Fracciones: "numerador", "denominador", "sumandos" y "questions". Escape: "habitaciones" con "pruebas" y "codigo". Detective: "historia", "pistas", "opciones" y "correcta". Arquitectos: "perimetro" o "condicion":"area" con "area". Número misterioso: "minNumber", "maxNumber", "numeroSecreto", "pistas" y "opciones".
+- MATES AVENTURA: estos 12 tipos son bloques nativos del motor de actividades (no requieren una página ni una sección separada): "mates_pixel" ("operaciones": [{"a":3,"b":4,"op":"+","respuesta":7}]), "mates_balanza" ("pesosIzquierda", "opciones"), "mates_arcade" ("preguntas": [{"a":6,"b":7,"op":"×","correcta":42,"opciones":[42,36,49]}], "vidas"), "mates_rio" ("inicio", "salto", "saltos"), "mates_monstruo" ("objetivo"), "mates_fracciones" ("numerador", "denominador", "piezas": [{"n":1,"d":2}]), "mates_estimacion" ("objetivo", "maximo", "margen"), "mates_ninja" ("numerador", "denominador", "margenPorcentaje"), "mates_robots" ("entrada", "salida", "chips": [{"label":"+14","op":"+","n":14}]), "mates_slime" ("objetivoLitros"), "mates_templo" ("anguloObjetivo", "angulos") y "mates_topo" ("columnas", "filas", "columna", "fila").
 - No generes bloques de tipo "problemas" temporalmente. El formato "calculo_mental" sí está permitido.
 - Para lenguaje usa "construir_frase", "clasificar_palabras", "completar_palabra", "cazador_errores" y "lectura_interactiva" con sus estructuras de ejemplo.
 - Escribe en español, adáptalo a la edad indicada y numera bien los bloques.
@@ -178,6 +191,21 @@ Reglas:
         <button class="btn btn-outline" onclick="plantillaJuego('invasion_alienigena')">👽 Invasión</button>
         <button class="btn btn-outline" onclick="plantillaJuego('pizzeria_fracciones')">🍕 Pizzería</button>
         <button class="btn btn-outline" onclick="plantillaJuego('numero_misterioso')">🔎 Número misterioso</button>
+      </div>
+      <h3>🚀 Mates Aventura</h3>
+      <div class="row">
+        <button class="btn btn-outline" onclick="plantillaJuego('mates_pixel')">🟦 Pixel</button>
+        <button class="btn btn-outline" onclick="plantillaJuego('mates_balanza')">⚖️ Balanza</button>
+        <button class="btn btn-outline" onclick="plantillaJuego('mates_arcade')">🎈 Arcade</button>
+        <button class="btn btn-outline" onclick="plantillaJuego('mates_rio')">🐸 Río</button>
+        <button class="btn btn-outline" onclick="plantillaJuego('mates_monstruo')">👾 Monstruo</button>
+        <button class="btn btn-outline" onclick="plantillaJuego('mates_fracciones')">🎵 Fracciones</button>
+        <button class="btn btn-outline" onclick="plantillaJuego('mates_estimacion')">🎯 Estimación</button>
+        <button class="btn btn-outline" onclick="plantillaJuego('mates_ninja')">🥷 Ninja</button>
+        <button class="btn btn-outline" onclick="plantillaJuego('mates_robots')">🤖 Robots</button>
+        <button class="btn btn-outline" onclick="plantillaJuego('mates_slime')">🧪 Slime</button>
+        <button class="btn btn-outline" onclick="plantillaJuego('mates_templo')">🪞 Templo</button>
+        <button class="btn btn-outline" onclick="plantillaJuego('mates_topo')">🗺️ Topografía</button>
       </div>
     </div>
 
@@ -269,18 +297,32 @@ Reglas:
     }
     function plantillaJuego(tipo) {
       const plantillas = {
-        carrera_matematica: { titulo:'Carrera matemática', instrucciones:'Resuelve las operaciones y llega a la meta.', datos:{ questions:10, timeLimit:60, operations:['multiplicacion'], minNumber:1, maxNumber:12, answerOptions:3, rewards:{xp:100,coins:20} } },
-        batalla_matematica: { titulo:'Batalla matemática', instrucciones:'Acierta para atacar. Si fallas, el enemigo contraataca.', datos:{ questions:10, operations:['division'], minNumber:1, maxNumber:12, vidasJugador:4, vidasEnemigo:3, rewards:{xp:100,coins:20} } },
-        tienda_matematica: { titulo:'La tienda de Candela', instrucciones:'Calcula el total y el cambio de tu compra.', datos:{ nivel:'inicial', productos:[{emoji:'🍎',nombre:'Manzana',precio:2},{emoji:'🥛',nombre:'Leche',precio:3},{emoji:'🍕',nombre:'Pizza',precio:7}], compra:[{producto:0},{producto:2}], pagaCon:20, rewards:{xp:60,coins:10} } },
-        batalla_fracciones: { titulo:'Batalla de fracciones', instrucciones:'Compara las fracciones usando los dibujos.', datos:{ questions:10, dificultad:1, representacionVisual:true, rewards:{xp:80,coins:15} } },
-        escape_room_matematico: { titulo:'Escape room matemático', instrucciones:'Resuelve las pistas y escribe el código de cada puerta.', datos:{ habitaciones:[{titulo:'La biblioteca', pruebas:[{pregunta:'¿Cuánto es 24 ÷ 6?',opciones:['4','6','8'],correcta:0,cifra:'4'},{pregunta:'¿Cuánto es 15 + 7?',opciones:['21','22','23'],correcta:1,cifra:'2'},{pregunta:'¿Cuánto es 3 × 5?',opciones:['12','15','18'],correcta:1,cifra:'1'},{pregunta:'¿Cuánto es 18 − 6?',opciones:['10','12','14'],correcta:1,cifra:'5'}],codigo:'4215'}], rewards:{xp:120,coins:25} } },
-        detective_matematico: { titulo:'Detectives matemáticos', instrucciones:'Lee la historia, cruza las pistas y descubre quién tiene más cromos.', datos:{ historia:'Ana, Pablo y Luis tienen 8, 12 y 15 cromos.', pistas:['Pablo tiene más cromos que Ana.','Luis tiene menos cromos que Pablo.','Ana tiene 12 cromos.'], opciones:['Ana','Pablo','Luis'], correcta:1, rewards:{xp:70,coins:12} } },
-        arquitectos: { titulo:'Arquitectos: el rectángulo', instrucciones:'Elige las medidas de un rectángulo con el perímetro pedido.', datos:{ perimetro:20, rewards:{xp:80,coins:15} } },
-        invasion_alienigena: { titulo:'Invasión alienígena', instrucciones:'Selecciona el alienígena que lleva el resultado correcto.', datos:{ questions:10, timeLimit:45, operations:['multiplicacion'], minNumber:2, maxNumber:12, answerOptions:3, rewards:{xp:100,coins:20} } },
-        pizzeria_fracciones: { titulo:'Pizzería de fracciones', instrucciones:'Sirve al cliente la fracción de pizza que ha pedido.', datos:{ numerador:3, denominador:8, rewards:{xp:60,coins:10} } },
-        numero_misterioso: { titulo:'Número misterioso', instrucciones:'Usa las pistas para encontrar el número secreto.', datos:{ minNumber:20, maxNumber:50, numeroSecreto:35, pistas:['Soy mayor que 20.','Soy menor que 50.','Soy múltiplo de 5.','Soy impar.'], opciones:[25,30,35,40], rewards:{xp:60,coins:10} } }
+        carrera_matematica: { titulo:'Carrera matemática', instrucciones:'Resuelve las operaciones y llega a la meta.', datos:{ questions:10, timeLimit:60, operations:['multiplicacion'], minNumber:1, maxNumber:12, answerOptions:3 } },
+        batalla_matematica: { titulo:'Batalla matemática', instrucciones:'Acierta para atacar. Si fallas, el enemigo contraataca.', datos:{ questions:10, operations:['division'], minNumber:1, maxNumber:12, vidasJugador:4, vidasEnemigo:3 } },
+        tienda_matematica: { titulo:'La tienda de Candela', instrucciones:'Calcula el total y el cambio de tu compra.', datos:{ nivel:'inicial', productos:[{emoji:'🍎',nombre:'Manzana',precio:2},{emoji:'🥛',nombre:'Leche',precio:3},{emoji:'🍕',nombre:'Pizza',precio:7}], compra:[{producto:0},{producto:2}], pagaCon:20 } },
+        batalla_fracciones: { titulo:'Batalla de fracciones', instrucciones:'Compara las fracciones usando los dibujos.', datos:{ questions:10, dificultad:1, representacionVisual:true } },
+        escape_room_matematico: { titulo:'Escape room matemático', instrucciones:'Resuelve las pistas y escribe el código de cada puerta.', datos:{ habitaciones:[{titulo:'La biblioteca', pruebas:[{pregunta:'¿Cuánto es 24 ÷ 6?',opciones:['4','6','8'],correcta:0,cifra:'4'},{pregunta:'¿Cuánto es 15 + 7?',opciones:['21','22','23'],correcta:1,cifra:'2'},{pregunta:'¿Cuánto es 3 × 5?',opciones:['12','15','18'],correcta:1,cifra:'1'},{pregunta:'¿Cuánto es 18 − 6?',opciones:['10','12','14'],correcta:1,cifra:'5'}],codigo:'4215'}] } },
+        detective_matematico: { titulo:'Detectives matemáticos', instrucciones:'Lee la historia, cruza las pistas y descubre quién tiene más cromos.', datos:{ historia:'Ana, Pablo y Luis tienen 8, 12 y 15 cromos.', pistas:['Pablo tiene más cromos que Ana.','Luis tiene menos cromos que Pablo.','Ana tiene 12 cromos.'], opciones:['Ana','Pablo','Luis'], correcta:1 } },
+        arquitectos: { titulo:'Arquitectos: el rectángulo', instrucciones:'Elige las medidas de un rectángulo con el perímetro pedido.', datos:{ perimetro:20 } },
+        invasion_alienigena: { titulo:'Invasión alienígena', instrucciones:'Selecciona el alienígena que lleva el resultado correcto.', datos:{ questions:10, timeLimit:45, operations:['multiplicacion'], minNumber:2, maxNumber:12, answerOptions:3 } },
+        pizzeria_fracciones: { titulo:'Pizzería de fracciones', instrucciones:'Sirve al cliente la fracción de pizza que ha pedido.', datos:{ numerador:3, denominador:8 } },
+        numero_misterioso: { titulo:'Número misterioso', instrucciones:'Usa las pistas para encontrar el número secreto.', datos:{ minNumber:20, maxNumber:50, numeroSecreto:35, pistas:['Soy mayor que 20.','Soy menor que 50.','Soy múltiplo de 5.','Soy impar.'], opciones:[25,30,35,40] } }
       };
-      const plantilla = plantillas[tipo];
+      const matesAventura = {
+        mates_pixel: { titulo:'Pixel matemático', instrucciones:'Resuelve operaciones para revelar un dibujo por filas.', datos:{} },
+        mates_balanza: { titulo:'Balanza', instrucciones:'Elige el peso que equilibra la balanza.', datos:{ pesosIzquierda:[3,4], opciones:[7,8,5] } },
+        mates_arcade: { titulo:'Arcade de globos', instrucciones:'Acierta el resultado antes de perder tus vidas.', datos:{ preguntasTotal:8, vidas:3 } },
+        mates_rio: { titulo:'Salto del río', instrucciones:'Completa la serie saltando con la misma regla.', datos:{ inicio:0, salto:5, saltos:8 } },
+        mates_monstruo: { titulo:'Monstruo glotón', instrucciones:'Combina centenas, decenas y unidades para alimentar al monstruo.', datos:{ objetivo:243 } },
+        mates_fracciones: { titulo:'Ritmo de fracciones', instrucciones:'Combina piezas para completar la fracción objetivo.', datos:{ numerador:1, denominador:2, piezas:[{n:1,d:2},{n:1,d:4},{n:1,d:8}] } },
+        mates_estimacion: { titulo:'Estimación', instrucciones:'Estima dónde cae el número en la recta.', datos:{ objetivo:68, maximo:100, margen:5 } },
+        mates_ninja: { titulo:'Corte ninja', instrucciones:'Calcula el porcentaje de figura que debe medir el corte.', datos:{ numerador:1, denominador:2, margenPorcentaje:5 } },
+        mates_robots: { titulo:'Robots matemáticos', instrucciones:'Elige la operación que transforma la entrada en la salida.', datos:{ entrada:7, salida:21, chips:[{label:'+14',op:'+',n:14},{label:'×2',op:'×',n:2},{label:'−3',op:'−',n:3}] } },
+        mates_slime: { titulo:'Matraz de slime', instrucciones:'Llena el matraz sin pasarte de la marca.', datos:{ objetivoLitros:1.5 } },
+        mates_templo: { titulo:'Espejo del templo', instrucciones:'Elige el ángulo para dirigir el rayo a la joya.', datos:{ anguloObjetivo:45, angulos:[0,30,45,60,90,120,135,150] } },
+        mates_topo: { titulo:'Mapa del tesoro', instrucciones:'Encuentra la coordenada indicada en la cuadrícula.', datos:{ columnas:6, filas:6, columna:4, fila:3 } }
+      };
+      const plantilla = plantillas[tipo] || matesAventura[tipo];
       if (!plantilla) return;
       const bloque = { tipo, titulo: plantilla.titulo, instrucciones: plantilla.instrucciones, datos: plantilla.datos };
       $('codigo').value = JSON.stringify({ titulo: plantilla.titulo, descripcion:'Actividad educativa Placeta Junior', categoria:'Matemáticas', edad_recomendada:'6-12', dificultad:'media', tiempo_estimado:10, recompensa:0, contenido:{version:2,bloques:[bloque]} }, null, 2);
@@ -511,6 +553,7 @@ Reglas:
         else if (b.tipo === 'mapa_mundi') n += (b.paises || []).filter(p => p && window.MAPA_MUNDI && MAPA_MUNDI.paises[p]).length;
         else if (b.tipo === 'mapa_espana') n += (b.objetivos || []).filter(Boolean).length;
         else if (b.tipo === 'code_blocks') n += ((b.ejercicios && b.ejercicios.length) || (b.objetivo && b.objetivo.posicion ? 1 : 0));
+        else if (['mates_pixel','mates_balanza','mates_arcade','mates_rio','mates_monstruo','mates_fracciones','mates_estimacion','mates_ninja','mates_robots','mates_slime','mates_templo','mates_topo'].includes(b.tipo)) n += 1;
       }
       return n;
     }

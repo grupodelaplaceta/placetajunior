@@ -478,27 +478,6 @@ body.pj-home {
 .pj-home .cta-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 6px; }
 .pj-home .cta-row .btn { font-size: 17px; padding: 14px 26px; }
 
-/* ── Insignia de nivel (progreso local, como la app) ── */
-.pj-home .nivel-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 6px;
-  padding: 8px 14px;
-  background: #fff;
-  border: 2px solid var(--pj-purple);
-  border-radius: var(--r-pill);
-  font-weight: 700;
-  font-size: 13px;
-  color: var(--pj-purple);
-}
-.pj-home .nivel-badge[hidden] { display: none; }
-.pj-home .nivel-badge .nb-ico { color: var(--pj-orange); font-size: 18px; }
-.pj-home .nivel-badge .nb-nivel { font-family: var(--font-head); text-transform: uppercase; letter-spacing: .5px; }
-.pj-home .nivel-badge .nb-bar { width: 64px; height: 8px; border-radius: 999px; background: #E5E7EB; overflow: hidden; }
-.pj-home .nivel-badge .nb-fill { display: block; height: 100%; background: var(--pj-green); border-radius: 999px; }
-.pj-home .nivel-badge .nb-sub { font-size: 11px; color: var(--pj-muted); }
-
 /* ── Secciones ── */
 .pj-home .section { max-width: 1200px; margin: 0 auto; padding: 30px 20px 10px; }
 .pj-home .section-head { margin-bottom: 8px; }
@@ -791,7 +770,6 @@ body.pj-home {
 .pj-home .cover-play, .pj-home .info-btn { box-shadow: none; border: 2px solid var(--accent, var(--pj-purple)); }
 .pj-home .cover-emoji { text-shadow: none; }
 .pj-home .modal { box-shadow: none; border: 3px solid var(--pj-purple); }
-.pj-home .nivel-badge { box-shadow: none; }
 .pj-home .section-head h2, .pj-home .cat-title { letter-spacing: -0.03em; }
 .pj-home .card h3 { letter-spacing: -0.02em; }
 .pj-home .chip, .pj-home .badge-tag { letter-spacing: 0; }
@@ -1753,7 +1731,6 @@ body.pj-home.mostrando-juego #player-content { min-height: 100%; }
   .pj-home .hero-inner { gap: 22px; }
   .pj-home .hero-copy { order: 1; }
   .pj-home .hero-carousel { order: 2; }
-  .pj-home .nivel-badge { order: 3; }
   .pj-home .hero { padding-top: 36px; }
   .pj-home .hero-shapes .shape { width: 100px; height: 100px; opacity: .2; }
 }
