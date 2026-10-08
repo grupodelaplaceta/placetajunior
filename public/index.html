@@ -8,9 +8,9 @@
   <link rel="canonical" href="https://junior.laplaceta.org/" />
   <link rel="alternate" hreflang="es" href="https://junior.laplaceta.org/" />
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"Placeta Junior","url":"https://junior.laplaceta.org/","parentOrganization":{"@type":"Organization","name":"Grupo de La Placeta","url":"https://laplaceta.org"}}</script>
-  <link rel="stylesheet" href="css/styles.css?v=20261007-games" />
-  <link rel="stylesheet" href="css/home.css?v=20260831-ui" />
-  <link rel="stylesheet" href="css/redesign.css?v=20260831-ui2" />
+  <link rel="stylesheet" href="css/styles.css?v=20261007-games-2" />
+  <link rel="stylesheet" href="css/home.css?v=20261007-home-intro-fix" />
+  <link rel="stylesheet" href="css/redesign.css?v=20261007-redesign-fix" />
   <link rel="icon" type="image/png" href="favijunior.png" />
   <link rel="preconnect" href="https://admin-placeta.vercel.app" crossorigin />
   <link rel="preload" as="image" href="img/bannerpj-16x9.jpg" fetchpriority="high" />
@@ -53,8 +53,11 @@
         <a href="/info">Para familias</a>
       </nav>
       <div class="nav-cta">
-        <a class="btn btn-primary" href="#actividades"><span class="material-symbols-rounded">play_arrow</span> Jugar ahora</a>
-        <button class="btn btn-secondary" type="button" onclick="abrirCodigoActividad()"><span class="material-symbols-rounded">key</span> Tengo un código</button>
+        <button id="juniorTopbarLocaleBtn" class="btn btn-secondary btn-icon" type="button" aria-label="Cambiar idioma" title="Cambiar idioma">
+          <span class="material-symbols-rounded" aria-hidden="true">language</span>
+        </button>
+        <a class="btn btn-primary" href="#actividades"><span class="material-symbols-rounded">play_arrow</span> <span data-i18n="cta_jugar_ahora">Jugar ahora</span></a>
+        <button class="btn btn-secondary" type="button" onclick="abrirCodigoActividad()"><span class="material-symbols-rounded">key</span> <span data-i18n="cta_codigo">Tengo un código</span></button>
       </div>
     </div>
   </header>  </div>
@@ -69,17 +72,17 @@
     <div class="hero-inner">
       <h1 class="sr-only">Placeta Junior</h1>
       <div class="hero-copy">
-        <span class="hero-eyebrow"><span class="material-symbols-rounded">waving_hand</span> ¡Hola, explorador!</span>
-        <h2>Tu próxima aventura<br /><em>empieza aquí</em></h2>
-        <p>Elige un reto, juega a tu ritmo y descubre algo nuevo. No pasa nada si te equivocas: aquí se aprende jugando.</p>
+        <span class="hero-eyebrow" data-i18n="hero_hola"><span class="material-symbols-rounded">waving_hand</span> ¡Hola, explorador!</span>
+        <h2><span data-i18n="hero_tu_proxima">Tu próxima aventura</span><br /><em data-i18n="hero_empieza">empieza aquí</em></h2>
+        <p data-i18n="hero_desc">Elige un reto, juega a tu ritmo y descubre algo nuevo. No pasa nada si te equivocas: aquí se aprende jugando.</p>
         <div class="cta-row">
-          <a class="btn btn-primary btn-large" href="#actividades"><span class="material-symbols-rounded">play_arrow</span> Empezar a jugar</a>
-          <a class="btn btn-ghost" href="#actividades"><span class="material-symbols-rounded">explore</span> Ver aventuras</a>
+          <a class="btn btn-primary btn-large" href="#actividades"><span class="material-symbols-rounded">play_arrow</span> <span data-i18n="cta_empezar">Empezar a jugar</span></a>
+          <a class="btn btn-ghost" href="#actividades"><span class="material-symbols-rounded">explore</span> <span data-i18n="cta_ver_aventuras">Ver aventuras</span></a>
         </div>
         <div class="hero-highlights" aria-label="Ventajas de Placeta Junior">
-          <span><span class="material-symbols-rounded">bolt</span> Retos cortos</span>
-          <span><span class="material-symbols-rounded">favorite</span> A tu ritmo</span>
-          <span><span class="material-symbols-rounded">devices</span> En cualquier pantalla</span>
+          <span><span class="material-symbols-rounded">bolt</span> <span data-i18n="hero_retos">Retos cortos</span></span>
+          <span><span class="material-symbols-rounded">favorite</span> <span data-i18n="hero_ritmo">A tu ritmo</span></span>
+          <span><span class="material-symbols-rounded">devices</span> <span data-i18n="hero_pantallas">En cualquier pantalla</span></span>
         </div>
       </div>
       <div class="hero-carousel" data-carousel aria-label="Galería de Placeta Junior">
@@ -90,61 +93,34 @@
         </div>
         <div class="hero-carousel-dots" aria-hidden="true"><span class="is-active"></span></div>
       </div>
-      <div id="nivel-badge" class="nivel-badge" hidden></div>
     </div>
   </section>
 
   <main>
-    <section class="section pj-progress-section" id="mi-progreso">
-      <div class="section-head">
-        <span class="section-kicker"><span class="material-symbols-rounded">person</span> Mi espacio</span>
-        <h2>Mi perfil y progreso</h2>
-      </div>
-      <nav class="pj-progress-tabs" aria-label="Secciones de mi progreso">
-        <a href="#mi-perfil">Mi perfil</a><a href="#mis-logros">Mis logros</a><a href="#habilidades-dominadas">Habilidades</a>
-      </nav>
-      <div id="mi-perfil" class="pj-progress-block" aria-label="Resumen de perfil">
-        <div class="pj-progress-stats">
-          <div><span>Nivel</span><strong id="pj-profile-level">1</strong><div class="pj-xp-track"><span id="pj-profile-xp-fill"></span></div></div>
-          <div><span>Experiencia</span><strong id="pj-profile-xp">0 XP</strong><small id="pj-profile-xp-next">100 XP para el siguiente nivel</small></div>
-          <div><span>Monedas</span><strong id="pj-profile-coins">0</strong></div>
-          <div><span>Victorias</span><strong id="pj-profile-wins">0</strong></div>
-          <div><span>Respuestas correctas</span><strong id="pj-profile-correct">0</strong></div>
-          <div><span>Respuestas por revisar</span><strong id="pj-profile-missed">0</strong></div>
-        </div>
-      </div>
-      <div id="mis-logros" class="pj-progress-block">
-        <h3>Mis logros</h3><div id="pj-profile-medals" class="pj-progress-tags">Aún no hay medallas.</div>
-      </div>
-      <div id="habilidades-dominadas" class="pj-progress-block">
-        <h3>Habilidades dominadas</h3><div id="pj-profile-skills" class="pj-progress-tags">Sigue practicando para desbloquear habilidades.</div>
-      </div>
-    </section>
-
     <section class="section" id="actividades">
       <div class="section-head">
-        <span class="section-kicker"><span class="material-symbols-rounded">rocket_launch</span> Elige tu aventura</span>
-        <h2>Actividades</h2>
-        <p>Hay una aventura para cada curiosidad. ¿Cuál te apetece hoy?</p>
+        <span class="section-kicker"><span class="material-symbols-rounded">rocket_launch</span> <span data-i18n="section_elegir">Elige tu aventura</span></span>
+        <h2 data-i18n="section_actividades">Actividades</h2>
+        <p data-i18n="section_desc">Hay una aventura para cada curiosidad. ¿Cuál te apetece hoy?</p>
       </div>
       <div id="error-banner" class="error-banner hidden"></div>
 
       <div class="edad-filter" role="group" aria-label="Filtrar actividades por edad">
-        <button type="button" class="ef-btn active" data-edad="todas" onclick="setFiltroEdad('todas', this)">Todas</button>
-        <button type="button" class="ef-btn" data-edad="0-5" onclick="setFiltroEdad('0-5', this)">3-5 años</button>
-        <button type="button" class="ef-btn" data-edad="6-8" onclick="setFiltroEdad('6-8', this)">6-8 años</button>
-        <button type="button" class="ef-btn" data-edad="9-12" onclick="setFiltroEdad('9-12', this)">9-12 años</button>
-        <button type="button" class="ef-btn" data-edad="13+" onclick="setFiltroEdad('13+', this)">12+ años</button>
+        <button type="button" class="ef-btn active" data-edad="todas" onclick="setFiltroEdad('todas', this)" data-i18n="filter_todas">Todas</button>
+        <button type="button" class="ef-btn" data-edad="0-5" onclick="setFiltroEdad('0-5', this)" data-i18n="filter_0_5">3-5 años</button>
+        <button type="button" class="ef-btn" data-edad="6-8" onclick="setFiltroEdad('6-8', this)" data-i18n="filter_6_8">6-8 años</button>
+        <button type="button" class="ef-btn" data-edad="9-12" onclick="setFiltroEdad('9-12', this)" data-i18n="filter_9_12">9-12 años</button>
+        <button type="button" class="ef-btn" data-edad="13+" onclick="setFiltroEdad('13+', this)" data-i18n="filter_13">12+ años</button>
         <span class="ef-count" id="edad-count"></span>
       </div>
 
       <nav class="collection-shortcuts" aria-label="Colecciones por etapa">
-        <a href="/colecciones/infantil"><span class="material-symbols-rounded" aria-hidden="true">child_care</span><span><strong>Infantil</strong><small>3-5 años</small></span></a>
-        <a href="/colecciones/primaria"><span class="material-symbols-rounded" aria-hidden="true">school</span><span><strong>Primaria</strong><small>6-12 años</small></span></a>
-        <a href="/colecciones/secundaria"><span class="material-symbols-rounded" aria-hidden="true">science</span><span><strong>Secundaria</strong><small>12+ años</small></span></a>
+        <a href="/colecciones/infantil"><span class="material-symbols-rounded" aria-hidden="true">child_care</span><span><strong data-i18n="stage_infantil">Infantil</strong><small data-i18n="stage_0_5">3-5 años</small></span></a>
+        <a href="/colecciones/primaria"><span class="material-symbols-rounded" aria-hidden="true">school</span><span><strong data-i18n="stage_primaria">Primaria</strong><small data-i18n="stage_6_12">6-12 años</small></span></a>
+        <a href="/colecciones/secundaria"><span class="material-symbols-rounded" aria-hidden="true">science</span><span><strong data-i18n="stage_secundaria">Secundaria</strong><small data-i18n="stage_13">12+ años</small></span></a>
       </nav>
 
-      <h3 class="cat-title" data-color="red"><span class="t-ico material-symbols-rounded">local_fire_department</span> Populares</h3>
+      <h3 class="cat-title" data-color="red"><span class="t-ico material-symbols-rounded">local_fire_department</span> <span data-i18n="populars">Populares</span></h3>
       <div id="populares-row" class="h-row"><div class="loader"></div></div>
 
       <div id="categorias"></div>
@@ -177,21 +153,21 @@
     <div class="footer-inner">
       <img class="footer-logo" src="img/PJ-BLANCO-LOGO.png" alt="Placeta Junior" />
       <div class="footer-links">
-        <a href="/">Actividades</a>
+        <a href="/" data-i18n="footer_actividades">Actividades</a>
         Placeta Junior
-        <a href="/info">Info</a>
+        <a href="/info" data-i18n="footer_info">Info</a>
         <a href="https://laplaceta.org" target="_blank" rel="noopener">laplaceta.org</a>
       </div>
-      <p class="footer-copy">© 2026 Placeta Junior · Grupo de La Placeta</p>
+      <p class="footer-copy" data-i18n="footer_copy">© 2026 Placeta Junior · Grupo de La Placeta</p>
     </div>
   </footer>
 
   <!-- Navegación inferior (móvil, apariencia de app) -->
   <nav class="pj-bottom-nav" aria-label="Navegación principal">
-    <a href="/" class="is-active" aria-label="Inicio"><span class="material-symbols-rounded">home</span><span>Inicio</span></a>
-    <a href="#actividades" aria-label="Jugar"><span class="material-symbols-rounded">play_circle</span><span>Jugar</span></a>
-    <button type="button" onclick="abrirCodigoActividad()" aria-label="Tengo un código"><span class="material-symbols-rounded">key</span><span>Código</span></button>
-    <a href="/info" aria-label="Para familias"><span class="material-symbols-rounded">family_restroom</span><span>Familias</span></a>
+    <a href="/" class="is-active" aria-label="Inicio"><span class="material-symbols-rounded">home</span><span data-i18n="nav_inicio_mobile">Inicio</span></a>
+    <a href="#actividades" aria-label="Jugar"><span class="material-symbols-rounded">play_circle</span><span data-i18n="nav_jugar_mobile">Jugar</span></a>
+    <button type="button" onclick="abrirCodigoActividad()" aria-label="Tengo un código"><span class="material-symbols-rounded">key</span><span data-i18n="nav_codigo_mobile">Código</span></button>
+    <a href="/info" aria-label="Para familias"><span class="material-symbols-rounded">family_restroom</span><span data-i18n="nav_familias_mobile">Familias</span></a>
   </nav>
 
   <!-- Lluvia de confeti al acabar los juegos -->
@@ -203,7 +179,6 @@
   <script src="js/avisos.js?v=20260820"></script>
   <script src="js/sonidos.js?v=20260829-ui"></script>
   <script src="js/mapa-mundi.js?v=20260902-espana"></script>
-  <script src="js/progreso.js?v=20261007-games"></script>
   <script src="js/partidas.js?v=20260822"></script>
   <script src="js/music.js?v=20260822"></script>
   <script src="js/code-engine.js?v=20260822"></script>
@@ -212,67 +187,89 @@
   <script src="js/player.js?v=20261008-fixes"></script>
   <script src="js/accesibilidad.js?v=20260902-ico"></script>
   <script>
-    // Intro corta de marca: deja que la página respire antes del cargador real.
-    (function () {
-      const intro = document.getElementById('pj-intro');
-      if (!intro) return;
-      window.setTimeout(() => intro.classList.add('pj-intro-out'), 320);
-      window.setTimeout(() => intro.remove(), 620);
-    }());
+    window.PJ_UI_TEXT = {
+      es: {
+        nav_inicio: 'Inicio', nav_aventuras: 'Aventuras', nav_familias: 'Para familias', nav_idioma: 'Idioma',
+        cta_jugar_ahora: 'Jugar ahora', cta_codigo: 'Tengo un código',
+        hero_hola: '¡Hola, explorador!', hero_tu_proxima: 'Tu próxima aventura', hero_empieza: 'empieza aquí',
+        hero_desc: 'Elige un reto, juega a tu ritmo y descubre algo nuevo. No pasa nada si te equivocas: aquí se aprende jugando.',
+        cta_empezar: 'Empezar a jugar', cta_ver_aventuras: 'Ver aventuras',
+        hero_retos: 'Retos cortos', hero_ritmo: 'A tu ritmo', hero_pantallas: 'En cualquier pantalla',
+        section_elegir: 'Elige tu aventura', section_actividades: 'Actividades', section_desc: 'Hay una aventura para cada curiosidad. ¿Cuál te apetece hoy?',
+        filter_todas: 'Todas', filter_0_5: '3-5 años', filter_6_8: '6-8 años', filter_9_12: '9-12 años', filter_13: '12+ años',
+        stage_infantil: 'Infantil', stage_0_5: '3-5 años', stage_primaria: 'Primaria', stage_6_12: '6-12 años', stage_secundaria: 'Secundaria', stage_13: '12+ años',
+        populars: 'Populares',
+        footer_actividades: 'Actividades', footer_info: 'Info', footer_copy: '© 2026 Placeta Junior · Grupo de La Placeta',
+        nav_inicio_mobile: 'Inicio', nav_jugar_mobile: 'Jugar', nav_codigo_mobile: 'Código', nav_familias_mobile: 'Familias'
+      },
+      ca: {
+        nav_inicio: 'Inici', nav_aventuras: 'Aventures', nav_familias: 'Per a famílies', nav_idioma: 'Idioma',
+        cta_jugar_ahora: 'Jugar ara', cta_codigo: 'Tinc un codi',
+        hero_hola: '¡Hola, explorador!', hero_tu_proxima: 'La teva propera aventura', hero_empieza: 'comença aquí',
+        hero_desc: 'Tria un repte, juga al teu ritme i descobreix alguna cosa nova. No passa res si t’equivoques: aquí s’aprèn jugant.',
+        cta_empezar: 'Començar a jugar', cta_ver_aventuras: 'Veure aventures',
+        hero_retos: 'Reptes curts', hero_ritmo: 'Al teu ritme', hero_pantallas: 'En qualsevol pantalla',
+        section_elegir: 'Tria la teva aventura', section_actividades: 'Activitats', section_desc: 'Hi ha una aventura per a cada curiositat. Quina et ve de gust avui?',
+        filter_todas: 'Totes', filter_0_5: '3-5 anys', filter_6_8: '6-8 anys', filter_9_12: '9-12 anys', filter_13: '12+ anys',
+        stage_infantil: 'Infantil', stage_0_5: '3-5 anys', stage_primaria: 'Primària', stage_6_12: '6-12 anys', stage_secundaria: 'Secundària', stage_13: '12+ anys',
+        populars: 'Populars',
+        footer_actividades: 'Activitats', footer_info: 'Informació', footer_copy: '© 2026 Placeta Junior · Grupo de La Placeta',
+        nav_inicio_mobile: 'Inici', nav_jugar_mobile: 'Jugar', nav_codigo_mobile: 'Codi', nav_familias_mobile: 'Famílies'
+      },
+      eu: {
+        nav_inicio: 'Hasiera', nav_aventuras: 'Abenturak', nav_familias: 'Familientzat', nav_idioma: 'Hizkuntza',
+        cta_jugar_ahora: 'Jolastu orain', cta_codigo: 'Kodea daukat',
+        hero_hola: 'Kaixo, esploratzailea!', hero_tu_proxima: 'Zure hurrengo abentura', hero_empieza: 'hemen hasten da',
+        hero_desc: 'Aukeratu erronka, jolastu zure erritmoan eta ezagutu zerbait berria. Ez da arazorik oker egitea: hemen jolasten ikasten da.',
+        cta_empezar: 'Jolasteari ekin', cta_ver_aventuras: 'Abenturak ikusi',
+        hero_retos: 'Erronka laburrak', hero_ritmo: 'Zure erritmoan', hero_pantallas: 'Edozein pantailatan',
+        section_elegir: 'Aukeratu zure abentura', section_actividades: 'Jarduerak', section_desc: 'Abentura bat dago interes bakoitzerako. Zein gustatzen zaizu gaur?',
+        filter_todas: 'Guztiak', filter_0_5: '3-5 urte', filter_6_8: '6-8 urte', filter_9_12: '9-12 urte', filter_13: '12+ urte',
+        stage_infantil: 'Haurtzaroa', stage_0_5: '3-5 urte', stage_primaria: 'Lehen hezkuntza', stage_6_12: '6-12 urte', stage_secundaria: 'Bigarren hezkuntza', stage_13: '12+ urte',
+        populars: 'Popularrak',
+        footer_actividades: 'Jarduerak', footer_info: 'Info', footer_copy: '© 2026 Placeta Junior · Grupo de La Placeta',
+        nav_inicio_mobile: 'Hasiera', nav_jugar_mobile: 'Jolastu', nav_codigo_mobile: 'Kodea', nav_familias_mobile: 'Familia'
+      },
+      en: {
+        nav_inicio: 'Home', nav_aventuras: 'Adventures', nav_familias: 'For families', nav_idioma: 'Language',
+        cta_jugar_ahora: 'Play now', cta_codigo: 'I have a code',
+        hero_hola: 'Hi, explorer!', hero_tu_proxima: 'Your next adventure', hero_empieza: 'starts here',
+        hero_desc: 'Choose a challenge, play at your own pace and discover something new. It is fine to make mistakes: here you learn by playing.',
+        cta_empezar: 'Start playing', cta_ver_aventuras: 'See adventures',
+        hero_retos: 'Short challenges', hero_ritmo: 'At your own pace', hero_pantallas: 'On any screen',
+        section_elegir: 'Choose your adventure', section_actividades: 'Activities', section_desc: 'There is an adventure for every curiosity. Which one do you fancy today?',
+        filter_todas: 'All', filter_0_5: '3-5 years', filter_6_8: '6-8 years', filter_9_12: '9-12 years', filter_13: '12+ years',
+        stage_infantil: 'Early years', stage_0_5: '3-5 years', stage_primaria: 'Primary', stage_6_12: '6-12 years', stage_secundaria: 'Secondary', stage_13: '12+ years',
+        populars: 'Popular',
+        footer_actividades: 'Activities', footer_info: 'Info', footer_copy: '© 2026 Placeta Junior · Grupo de La Placeta',
+        nav_inicio_mobile: 'Home', nav_jugar_mobile: 'Play', nav_codigo_mobile: 'Code', nav_familias_mobile: 'Families'
+      }
+    };
 
-    // Carrusel preparado para incorporar nuevas fotos en .hero-carousel-track.
-    (function () {
-      const carousel = document.querySelector('[data-carousel]');
-      if (!carousel) return;
-      const dots = carousel.querySelector('.hero-carousel-dots');
-      let slides = [];
-      let current = 0;
-      let timer;
-      const show = (next) => {
-        if (!slides.length) return;
-        slides[current].classList.remove('is-active');
-        current = (next + slides.length) % slides.length;
-        slides[current].classList.add('is-active');
-        [...dots.children].forEach((dot, i) => dot.classList.toggle('is-active', i === current));
-      };
-      const start = () => { window.clearInterval(timer); if (slides.length > 1) timer = window.setInterval(() => show(current + 1), 5000); };
-      const iniciar = () => {
-        slides = [...carousel.querySelectorAll('.hero-slide')];
-        current = 0;
-        dots.innerHTML = slides.map((_, i) => `<span class="${i === 0 ? 'is-active' : ''}" aria-hidden="true"></span>`).join('');
-        start();
-      };
-      carousel.addEventListener('mouseenter', () => window.clearInterval(timer));
-      carousel.addEventListener('mouseleave', start);
-      carousel.addEventListener('carousel:reload', iniciar);
-      iniciar();
-    }());
-
-    // La app consume este mismo fichero, así que el carrusel se mantiene
-    // sincronizado sin tener que publicar una APK por cada cambio.
-    fetch('/carousel.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : null).then(data => {
-      const slides = data?.slides || [];
-      const track = document.getElementById('hero-carousel-track');
-      if (!track || !slides.length) return;
-      const safeUrl = value => { try { const u = new URL(String(value || ''), location.href); return /^https?:$/.test(u.protocol) ? u.href : ''; } catch (_) { return ''; } };
-      const safeAttr = value => String(value || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
-      track.innerHTML = slides.map(s => {
-        const image = safeAttr(s.image);
-        const alt = safeAttr(s.alt || 'Placeta Junior');
-        const href = safeUrl(s.link);
-        const content = `<img src="${image}" alt="${alt}" />`;
-        return `<figure class="hero-slide">${href ? `<a href="${safeAttr(href)}" target="_blank" rel="noopener noreferrer" aria-label="${alt}">${content}</a>` : content}</figure>`;
-      }).join('');
-      track.firstElementChild?.classList.add('is-active');
-      document.querySelector('[data-carousel]')?.dispatchEvent(new Event('carousel:reload'));
-    }).catch(() => {});
-
-    // Modo offline (como la app): service worker que cachea la web y las actividades
-    if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('sw.js').catch(function () { /* sin SW */ });
-      });
+    function getUiLanguage() {
+      try {
+        const raw = JSON.parse(localStorage.getItem('junior_acc_web') || '{}');
+        const chosen = String(raw && raw.idioma || 'es').toLowerCase();
+        return ['es', 'ca', 'eu', 'en', 'val'].includes(chosen) ? chosen : 'es';
+      } catch (_) { return 'es'; }
     }
+
+    window.PJApplyUiTranslation = function (lang) {
+      const current = ['es', 'ca', 'eu', 'en', 'val'].includes(String(lang || '').toLowerCase()) ? String(lang || '').toLowerCase() : getUiLanguage();
+      const dict = window.PJ_UI_TEXT[current] || window.PJ_UI_TEXT.es;
+      window.__juniorLocale = current;
+      document.documentElement.lang = current;
+      document.querySelectorAll('[data-i18n]').forEach((node) => {
+        const value = dict[node.dataset.i18n];
+        if (value !== undefined) {
+          node.textContent = value;
+        }
+      });
+    };
+
+    window.addEventListener('DOMContentLoaded', function () {
+      window.PJApplyUiTranslation(getUiLanguage());
+    });
   </script>
 </body>
 </html>

@@ -24,6 +24,44 @@ function escapeHtml(str) {
   }[c]));
 }
 
+function obtenerPreferenciaPdf() {
+  try {
+    const raw = JSON.parse(localStorage.getItem('pj-pdf-config') || '{}');
+    const mayusculas = !!(raw && raw.mayusculas);
+    const modo = raw && raw.modo === 'marcar' ? 'marcar' : 'escribir';
+    return { mayusculas, modo };
+  } catch (e) {
+    return { mayusculas: false, modo: 'escribir' };
+  }
+}
+
+function guardarPreferenciaPdf(pref) {
+  try {
+    const next = {
+      mayusculas: !!(pref && pref.mayusculas),
+      modo: pref && pref.modo === 'marcar' ? 'marcar' : 'escribir'
+    };
+    localStorage.setItem('pj-pdf-config', JSON.stringify(next));
+  } catch (e) { /* sin almacenamiento */ }
+}
+
+function normalizarTextoPdf(texto, mayusculas) {
+  const s = String(texto ?? '');
+  return mayusculas ? s.toUpperCase() : s.toLowerCase();
+}
+
+function cajaEscrituraPdf(pref, label = 'Respuesta') {
+  const linea = pref.modo === 'marcar'
+    ? '<span class="ws-check">☐</span> <span class="ws-check">☐</span> <span class="ws-check">☐</span> <span class="ws-check">☐</span>'
+    : '<span class="ws-line-fill">______________________________</span>';
+  return `<div class="ws-answer-box ${pref.modo === 'marcar' ? 'ws-answer-mark' : 'ws-answer-write'}"><strong>${esc(normalizarTextoPdf(label, pref.mayusculas))}</strong><br>${linea}</div>`;
+}
+
+function tieneTipoMatematicas(tipo = '') {
+  const t = String(tipo || '').toLowerCase();
+  return /(mate|matem|calculo|suma|resta|multiplic|division|divisi|fraccio|numero|operac|problema)/.test(t);
+}
+
 // ── Reparación de URLs de imagen ─────────────────────────────────────
 // Algunas actividades (generadas con IA) guardan la URL de la imagen como
 // un enlace Markdown partido por el ':' de la propia URL (p. ej. el ':' de
@@ -260,19 +298,87 @@ function generarCaratulasEn(cont) {
   });
 }
 
+function obtenerMapaVisitasLocal() {
+  try {
+    const valor = localStorage.getItem('pj-visitas-actividad');
+    if (!valor) return {};
+    const parsed = JSON.parse(valor);
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+async function sincronizarVisitaActividadServidor(id) {
+  if (!id) return;
+  const payload = { id, ts: Date.now(), origen: 'web' };
+  const endpoints = [
+    `${API_BASE}/visitas/actividad`,
+    `${API_BASE}/estadisticas/visita`,
+    `${API_BASE}/actividad/visita`,
+    `${API_BASE}/visitas`
+  ];
+  for (const endpoint of endpoints) {
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) return;
+      if (res.status === 404 || res.status === 405) continue;
+      return;
+    } catch (e) {
+      // El endpoint puede no existir en esta web estática. Se conserva la visita local.
+    }
+  }
+}
+
+function visitasLocalActividad(id) {
+  if (!id) return 0;
+  const mapa = obtenerMapaVisitasLocal();
+  const valor = Number(mapa[id] || 0);
+  return Number.isFinite(valor) ? valor : 0;
+}
+
+function registrarVisitaActividad(id) {
+  if (!id) return;
+  try {
+    const mapa = obtenerMapaVisitasLocal();
+    const anterior = Number(mapa[id] || 0);
+    mapa[id] = anterior + 1;
+    localStorage.setItem('pj-visitas-actividad', JSON.stringify(mapa));
+
+    const act = TODAS.find(x => x.id === id);
+    if (act) {
+      const base = Number(act.visitas ?? act.visitas_count ?? act.views ?? act.estadisticas?.visitas ?? act.estadisticas?.visitas_totales ?? act.estadisticas?.veces_realizada ?? 0) || 0;
+      const total = base + 1;
+      act.visitas = total;
+      if (act.estadisticas) act.estadisticas.visitas = total;
+      else act.estadisticas = { visitas: total };
+    }
+
+    sincronizarVisitaActividadServidor(id);
+  } catch (e) {
+    // El navegador puede bloquear localStorage; la actividad sigue abriéndose.
+  }
+}
+
 function cardActividad(a) {
   const bloqueada = esBloqueada(a);
   const tieneUnidades = obtenerUnidadesActividad(a).length > 0;
   const color = categoriaColor(a.categoria);
   const enCurso = window.PJPartidas ? PJPartidas.estaEnCurso(a.id) : false;
   const completada = window.PJPartidas ? PJPartidas.estaCompletada(a.id) : false;
-  const visitas = Number(a.visitas ?? a.visitas_count ?? a.views ?? a.estadisticas?.visitas ?? a.estadisticas?.visitas_totales ?? a.estadisticas?.veces_realizada ?? 0) || 0;
+  const visitasBase = Number(a.visitas ?? a.visitas_count ?? a.views ?? a.estadisticas?.visitas ?? a.estadisticas?.visitas_totales ?? a.estadisticas?.veces_realizada ?? 0) || 0;
+  const visitas = visitasBase + visitasLocalActividad(a.id);
   // Solo mostramos "Hecha"; el botón "Continuar" ya indica una partida en curso.
   const badgeProg = completada
     ? '<span class="badge-tag badge-free badge-prog"><span class="material-symbols-rounded b-ico">task_alt</span>Hecha</span>'
     : '';
   return `
-    <div class="card" data-color="${color}" onclick="verInfo('${a.id}')" role="button" tabindex="0" aria-label="Ver detalles de ${escapeHtml(a.titulo)}">
+    <div class="card" data-color="${color}" data-actividad-id="${escapeHtml(a.id)}" onclick="verInfo('${a.id}')" role="button" tabindex="0" aria-label="Ver detalles de ${escapeHtml(a.titulo)}">
       ${coverHTML(a, badgeProg)}
       <h3>${escapeHtml(a.titulo)}</h3>
       <div class="card-foot">
@@ -357,7 +463,7 @@ function verInfo(id) {
         ${unidades.length ? '<span class="detail-select-hint">Puedes empezar desde una diapositiva</span>' : (bloqueada
           ? '<span class="chip red">🔒 De pago (no subvencionada)</span>'
           : '')}
-        <button class="btn btn-outline btn-lg" onclick="descargarPdf('${a.id}')"><span class="material-symbols-rounded">download</span> Descargar PDF</button>
+        <button class="btn btn-outline btn-lg" onclick="mostrarSelectorPdf('${a.id}')"><span class="material-symbols-rounded">download</span> Descargar PDF</button>
       </div>
     </div>`;
   document.body.classList.add('mostrando-detalle');
@@ -528,10 +634,84 @@ function generarPdfCode(a) {
   return cuerpo;
 }
 
+function mostrarSelectorPdf(id) {
+  const anterior = document.getElementById('pj-pdf-popup');
+  if (anterior) anterior.remove();
+  const pref = obtenerPreferenciaPdf();
+  const popup = document.createElement('div');
+  popup.id = 'pj-pdf-popup';
+  popup.className = 'pj-modal';
+  popup.innerHTML = `
+    <div class="pj-modal-card pj-pdf-card">
+      <button type="button" class="pj-modal-close" onclick="this.closest('#pj-pdf-popup')?.remove()" aria-label="Cerrar">×</button>
+      <span class="material-symbols-rounded pj-pdf-icon" aria-hidden="true">print</span>
+      <h2>Ficha para imprimir</h2>
+      <p>Elige cómo quieres la hoja de trabajo: con letras mayúsculas o minúsculas y lista para escribir o marcar.</p>
+      <div class="pj-pdf-section">
+        <strong>Letra</strong>
+        <div class="pj-pdf-grid">
+          <button type="button" class="pj-escritura-opcion ${pref.mayusculas ? 'active' : ''}" data-pdf-case="mayus"><strong>ABC</strong><span>Mayúsculas</span></button>
+          <button type="button" class="pj-escritura-opcion ${!pref.mayusculas ? 'active' : ''}" data-pdf-case="minus"><strong>abc</strong><span>Minúsculas</span></button>
+        </div>
+      </div>
+      <div class="pj-pdf-section">
+        <strong>Formato</strong>
+        <div class="pj-pdf-grid">
+          <button type="button" class="pj-escritura-opcion ${pref.modo === 'escribir' ? 'active' : ''}" data-pdf-modo="escribir"><strong>✍️</strong><span>Para escribir</span></button>
+          <button type="button" class="pj-escritura-opcion ${pref.modo === 'marcar' ? 'active' : ''}" data-pdf-modo="marcar"><strong>☑️</strong><span>Para marcar</span></button>
+        </div>
+      </div>
+      <button type="button" class="btn btn-primary" data-pdf-confirm="1">Generar PDF</button>
+    </div>`;
+  document.body.appendChild(popup);
+
+  let casePref = pref.mayusculas ? 'mayus' : 'minus';
+  let modoPref = pref.modo;
+  popup.querySelectorAll('[data-pdf-case]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      casePref = btn.dataset.pdfCase || 'minus';
+      popup.querySelectorAll('[data-pdf-case]').forEach((el) => el.classList.toggle('active', el === btn));
+    });
+  });
+  popup.querySelectorAll('[data-pdf-modo]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      modoPref = btn.dataset.pdfModo || 'escribir';
+      popup.querySelectorAll('[data-pdf-modo]').forEach((el) => el.classList.toggle('active', el === btn));
+    });
+  });
+  popup.querySelector('[data-pdf-confirm]').addEventListener('click', () => {
+    const next = { mayusculas: casePref === 'mayus', modo: modoPref === 'marcar' ? 'marcar' : 'escribir' };
+    guardarPreferenciaPdf(next);
+    popup.remove();
+    descargarPdf(id, next);
+  });
+}
+
 // Worksheet imprimible en PDF A4 (ventana de impresión del navegador)
-async function descargarPdf(id) {
+async function descargarPdf(id, pref = null) {
   const a = TODAS.find(x => x.id === id) || null;
   if (!a) return;
+  const opciones = pref || obtenerPreferenciaPdf();
+  const styleId = 'pj-pdf-inline-style';
+  if (!document.getElementById(styleId)) {
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = `
+      .pj-pdf-card { max-width: 520px; }
+      .pj-pdf-section { margin-top: 1rem; text-align:left; }
+      .pj-pdf-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0.8rem; margin-top:0.75rem; }
+      .pj-escritura-opcion { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.3rem; min-height:4.2rem; border:1px solid rgba(75,85,99,0.2); border-radius:14px; background:#fff; color:#111827; font: inherit; cursor:pointer; }
+      .pj-escritura-opcion.active { border-color: #3A00E1; background: #efe8ff; box-shadow: inset 0 0 0 1px #3A00E1; }
+      .pj-pdf-icon { font-size:2.4rem; color:#3A00E1; margin-bottom:0.5rem; }
+      .ws-answer-box { margin: 0.7rem 0; padding: 0.75rem; border: 1px dashed #6b7280; border-radius: 10px; background: #f9fafb; font-size: 0.85rem; }
+      .ws-answer-mark .ws-check { display:inline-block; width:1.3rem; height:1.3rem; margin-right:0.35rem; border:1px solid #374151; border-radius:4px; text-align:center; line-height:1.2; }
+      .ws-answer-write .ws-line-fill { display:inline-block; min-width:14rem; border-bottom:2px solid #374151; padding-bottom:0.15rem; }
+      .ws-line-math { display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; }
+      .ws-math-ops { display:flex; flex-wrap:wrap; gap:0.6rem; margin:0.5rem 0; }
+      .ws-math-box { border:1px solid #cbd5e1; border-radius:8px; padding:0.5rem 0.7rem; background:#fff; }
+    `;
+    document.head.appendChild(style);
+  }
   // Reconstruye las URLs de imagen guardadas partidas como enlace Markdown.
   pjSaneaImagenes(a);
   const cargaPdf = document.createElement('div');
@@ -544,23 +724,24 @@ async function descargarPdf(id) {
   const bloques = (a.contenido && a.contenido.bloques) || [];
   const unidadesPdf = obtenerUnidadesActividad(a);
   const wsImg = (url, fuente) => url
-    ? `<div class="ws-img"><img src="${esc(url)}" alt=""><span class="ws-fuente">${esc(fuente || 'Imagen')}</span></div>`
+    ? `<div class="ws-img"><img src="${esc(url)}" alt=""><span class="ws-fuente">${esc(normalizarTextoPdf(fuente || 'Imagen', opciones.mayusculas))}</span></div>`
     : '';
   let cuerpo = '';
   if (esCode) {
     cuerpo = generarPdfCode(a);
   }
+  const textoPdf = (valor, fallback = '') => normalizarTextoPdf(valor ?? fallback, opciones.mayusculas);
   const imprimirBloque = (b) => {
     b = { ...b, imagen_url: b.imagen_url || b.imagenUrl || b.imagen || b.image_url || b.imageUrl || '' };
     if (b.tipo === 'test' && b.preguntas && b.preguntas.length) {
-      cuerpo += '<div class="ws-sec ws-test"><h4>Preguntas</h4>';
+      cuerpo += '<div class="ws-sec ws-test"><h4>' + esc(textoPdf('Preguntas')) + '</h4>';
       b.preguntas.forEach((p, k) => {
-        const opts = (p.opciones || []).map((o, oi) => '<span class="ws-opt">' + ('ABCDEFGH'[oi] || '') + ') ' + esc(o) + '</span>').join(' ');
-        cuerpo += '<div class="ws-q"><span class="ws-n">' + (k + 1) + '.</span> ' + esc(p.pregunta || '') + wsImg(p.imagen_url || p.pictograma, p.fuente) + '<div class="ws-opts">' + opts + '</div></div>';
+        const opts = (p.opciones || []).map((o, oi) => '<span class="ws-opt">' + ('ABCDEFGH'[oi] || '') + ') ' + esc(textoPdf(o)) + '</span>').join(' ');
+        cuerpo += '<div class="ws-q"><span class="ws-n">' + (k + 1) + '.</span> ' + esc(textoPdf(p.pregunta || '')) + wsImg(p.imagen_url || p.pictograma, p.fuente) + '<div class="ws-opts">' + opts + '</div></div>';
       });
       cuerpo += '</div>';
     } else if (b.tipo === 'texto' && (((b.contenido || '').trim()) || b.imagen_url)) {
-      cuerpo += '<div class="ws-sec"><h4>' + esc(b.titulo || 'Aprende') + '</h4>' + wsImg(b.imagen_url, b.fuente) + '<div class="ws-richtext">' + formatearTextoJugador(obtenerContenidoTextoPJ(b)) + '</div></div>';
+      cuerpo += '<div class="ws-sec"><h4>' + esc(textoPdf(b.titulo || 'Aprende')) + '</h4>' + wsImg(b.imagen_url, b.fuente) + '<div class="ws-richtext">' + formatearTextoJugador(obtenerContenidoTextoPJ(b)) + '</div>' + cajaEscrituraPdf(opciones, 'respuesta') + '</div>';
     } else if (b.tipo === 'sopa_letras' && b.palabras && b.palabras.length) {
       let gridHtml = '';
       if (typeof generarSopa === 'function') {
@@ -578,54 +759,69 @@ async function descargarPdf(id) {
         }
         gridHtml += '</table>';
       }
-      cuerpo += '<div class="ws-sec ws-sopa"><h4>Sopa de letras</h4>' + wsImg(b.imagen_url, b.fuente) + '<p class="ws-words">' + b.palabras.map(esc).join(' · ') + '</p>' + gridHtml + '<p class="ws-hint">Busca y rodea las palabras.</p></div>';
+      const palabras = (b.palabras || []).map((p) => textoPdf(p, '')).join(' · ');
+      cuerpo += '<div class="ws-sec ws-sopa"><h4>' + esc(textoPdf('Sopa de letras')) + '</h4>' + wsImg(b.imagen_url, b.fuente) + '<p class="ws-words">' + esc(palabras) + '</p>' + gridHtml + '<p class="ws-hint">' + esc(textoPdf('Busca y rodea las palabras.')) + '</p>' + cajaEscrituraPdf(opciones, 'palabras') + '</div>';
     } else if (b.tipo === 'relacionar' && b.pares && b.pares.length) {
       const modo = b.modo || 'emparejar';
       const der = (typeof shuffleArr === 'function' ? shuffleArr(b.pares.map((p) => p.der || '')) : b.pares.map((p) => p.der || ''));
       const izqHtml = b.pares.map((p) => {
         const img = (modo === 'escribir' && p.izq_img) ? `<div class="ws-item-img"><img src="${esc(p.izq_img)}" alt=""></div>` : '';
-        return '<div class="ws-item">' + img + esc(p.izq || '') + '</div>';
+        return '<div class="ws-item">' + img + esc(textoPdf(p.izq || '')) + '</div>';
       }).join('');
-      cuerpo += '<div class="ws-sec ws-rel"><h4>Relaciona cada pareja (dibuja una línea)</h4>' + wsImg(b.imagen_url, b.fuente) + '<div class="ws-cols"><div class="ws-col">' + izqHtml + '</div><div class="ws-col">' + der.map((t) => '<div class="ws-item">' + esc(t) + '</div>').join('') + '</div></div></div>';
+      cuerpo += '<div class="ws-sec ws-rel"><h4>' + esc(textoPdf('Relaciona cada pareja (dibuja una línea)')) + '</h4>' + wsImg(b.imagen_url, b.fuente) + '<div class="ws-cols"><div class="ws-col">' + izqHtml + '</div><div class="ws-col">' + der.map((t) => '<div class="ws-item">' + esc(textoPdf(t)) + '</div>').join('') + '</div></div>' + cajaEscrituraPdf(opciones, 'solución') + '</div>';
     } else if (b.tipo === 'ordenar' && b.items && b.items.length) {
-      cuerpo += '<div class="ws-sec"><h4>Ordena los pasos (numéralos del 1 al N)</h4>' + wsImg(b.imagen_url, b.fuente);
-      b.items.forEach((it, k) => { cuerpo += '<div class="ws-line"><span class="ws-n">' + (k + 1) + '.</span> ____ ' + esc(it) + '</div>'; });
-      cuerpo += '</div>';
+      cuerpo += '<div class="ws-sec"><h4>' + esc(textoPdf('Ordena los pasos (numéralos del 1 al N)')) + '</h4>' + wsImg(b.imagen_url, b.fuente);
+      b.items.forEach((it, k) => { cuerpo += '<div class="ws-line"><span class="ws-n">' + (k + 1) + '.</span> ____ ' + esc(textoPdf(it)) + '</div>'; });
+      cuerpo += cajaEscrituraPdf(opciones, 'orden') + '</div>';
     } else if (b.tipo === 'completar' && b.frases && b.frases.length) {
-      cuerpo += '<div class="ws-sec"><h4>Completa las frases</h4>' + wsImg(b.imagen_url, b.fuente);
-      b.frases.forEach((f, k) => { cuerpo += '<div class="ws-line"><span class="ws-n">' + (k + 1) + '.</span> ' + esc((f.texto || '').replace(/___/g, '______')) + '</div>'; });
-      cuerpo += '</div>';
+      cuerpo += '<div class="ws-sec"><h4>' + esc(textoPdf('Completa las frases')) + '</h4>' + wsImg(b.imagen_url, b.fuente);
+      b.frases.forEach((f, k) => { cuerpo += '<div class="ws-line"><span class="ws-n">' + (k + 1) + '.</span> ' + esc(textoPdf((f.texto || '').replace(/___/g, '______'))) + '</div>'; });
+      cuerpo += cajaEscrituraPdf(opciones, 'respuesta') + '</div>';
+    } else if (tieneTipoMatematicas(b.tipo) || Array.isArray(b.operaciones) || Array.isArray(b.ejercicios) || Array.isArray(b.problemas) || (Array.isArray(b.items) && b.items.some(it => (typeof it === 'object') && ('a' in it || 'op' in it || 'valor' in it)))) {
+      const operaciones = Array.isArray(b.operaciones) ? b.operaciones : (Array.isArray(b.ejercicios) ? b.ejercicios : (Array.isArray(b.problemas) ? b.problemas : (Array.isArray(b.items) ? b.items : [])));
+      const renderMathExpr = (it) => {
+        if (!it || typeof it !== 'object') return esc(textoPdf(String(it ?? '')));
+        const a = it.a ?? it.izquierda ?? it.num1 ?? it.numero1 ?? it.valor1 ?? it.left ?? 0;
+        const op = it.op ?? it.operador ?? it.signo ?? it.operator ?? '+';
+        const bVal = it.b ?? it.derecha ?? it.num2 ?? it.numero2 ?? it.valor2 ?? it.right ?? 0;
+        return `${esc(textoPdf(String(a)))} ${esc(textoPdf(String(op)))} ${esc(textoPdf(String(bVal)))} = ______`;
+      };
+      cuerpo += '<div class="ws-sec"><h4>' + esc(textoPdf('Matemáticas')) + '</h4>' + wsImg(b.imagen_url, b.fuente);
+      if (operaciones.length) {
+        cuerpo += '<div class="ws-math-ops">' + operaciones.map((it, k) => '<div class="ws-math-box"><span class="ws-n">' + (k + 1) + '.</span> ' + renderMathExpr(it) + '</div>').join('') + '</div>';
+      }
+      cuerpo += cajaEscrituraPdf(opciones, 'resultados') + '</div>';
     } else if (b.tipo === 'calculo_mental' && b.sumas && b.sumas.length) {
-      cuerpo += '<div class="ws-sec"><h4>Cálculo mental</h4>' + wsImg(b.imagen_url, b.fuente);
+      cuerpo += '<div class="ws-sec"><h4>' + esc(textoPdf('Cálculo mental')) + '</h4>' + wsImg(b.imagen_url, b.fuente);
       b.sumas.forEach((s2, k) => { cuerpo += '<div class="ws-line"><span class="ws-n">' + (k + 1) + '.</span> ' + (Number(s2.a) || 0) + ' + ' + (Number(s2.b) || 0) + ' = ______</div>'; });
-      cuerpo += '</div>';
+      cuerpo += cajaEscrituraPdf(opciones, 'resultado') + '</div>';
     } else if (b.tipo === 'mapa_mundi' && b.paises && b.paises.length) {
       const recon = (b.paises || []).map(p => String(p).trim()).filter(Boolean).filter(p => window.MAPA_MUNDI && MAPA_MUNDI.paises[p]);
-      cuerpo += '<div class="ws-sec ws-mapa"><h4>Localiza en el mapamundi</h4>' + wsImg(b.imagen_url, b.fuente) + '<div class="ws-map-wrap" data-mapa="1" data-paises="' + esc(JSON.stringify(recon)) + '"></div><p class="ws-words">' + recon.map(esc).join(' · ') + '</p><p class="ws-hint">Busca cada país en el mapamundi y señálalo.</p></div>';
+      cuerpo += '<div class="ws-sec ws-mapa"><h4>' + esc(textoPdf('Localiza en el mapamundi')) + '</h4>' + wsImg(b.imagen_url, b.fuente) + '<div class="ws-map-wrap" data-mapa="1" data-paises="' + esc(JSON.stringify(recon)) + '"></div><p class="ws-words">' + esc(recon.map((p) => textoPdf(p)).join(' · ')) + '</p><p class="ws-hint">' + esc(textoPdf('Busca cada país en el mapamundi y señálalo.')) + '</p>' + cajaEscrituraPdf(opciones, 'países') + '</div>';
     } else if (b.tipo === 'mapa_espana' && b.objetivos && b.objetivos.length) {
       const modoPdf = b.modo === 'comunidades' ? 'comunidades autónomas' : 'provincias';
-      cuerpo += '<div class="ws-sec ws-mapa"><h4>Localiza en el mapa de España (' + modoPdf + ')</h4>' + wsImg(b.imagen_url, b.fuente) + '<p class="ws-words">' + b.objetivos.map(esc).join(' · ') + '</p><p class="ws-hint">Colorea o numera cada zona en un mapa de España.</p></div>';
-      b.objetivos.forEach((o, k) => { cuerpo += '<div class="ws-line"><span class="ws-n">' + (k + 1) + '.</span> ' + esc(o) + '</div>'; });
+      cuerpo += '<div class="ws-sec ws-mapa"><h4>' + esc(textoPdf('Localiza en el mapa de España (' + modoPdf + ')')) + '</h4>' + wsImg(b.imagen_url, b.fuente) + '<p class="ws-words">' + esc(b.objetivos.map((o) => textoPdf(o)).join(' · ')) + '</p><p class="ws-hint">' + esc(textoPdf('Colorea o numera cada zona en un mapa de España.')) + '</p>' + cajaEscrituraPdf(opciones, 'zonas') + '</div>';
+      b.objetivos.forEach((o, k) => { cuerpo += '<div class="ws-line"><span class="ws-n">' + (k + 1) + '.</span> ' + esc(textoPdf(o)) + '</div>'; });
     } else if (b.tipo === 'esquema') {
       const esquema = b.esquema || b.escena || b;
       const elementos = Array.isArray(esquema.elementos) ? esquema.elementos : [];
       const etiquetas = elementos.map(e => e.texto || e.aria_label || e.accion?.titulo).filter(Boolean);
-      cuerpo += '<div class="ws-sec ws-esquema"><h4>' + esc(b.titulo || 'Esquema interactivo') + '</h4>' + wsImg(b.imagen_url, b.fuente) + '<p class="ws-hint">Observa el esquema y escribe qué representa cada elemento señalado.</p>' + (etiquetas.length ? '<div class="ws-words">Elementos: ' + etiquetas.map(esc).join(' · ') + '</div>' : '') + '<div class="ws-answer-box">Respuesta y explicación:<br><br>____________________________________________________________________<br><br>____________________________________________________________________<br><br>____________________________________________________________________</div></div>';
+      cuerpo += '<div class="ws-sec ws-esquema"><h4>' + esc(textoPdf(b.titulo || 'Esquema interactivo')) + '</h4>' + wsImg(b.imagen_url, b.fuente) + '<p class="ws-hint">' + esc(textoPdf('Observa el esquema y escribe qué representa cada elemento señalado.')) + '</p>' + (etiquetas.length ? '<div class="ws-words">' + esc(textoPdf('Elementos')) + ': ' + etiquetas.map((it) => textoPdf(it)).map(esc).join(' · ') + '</div>' : '') + cajaEscrituraPdf(opciones, 'respuesta y explicación') + '</div>';
     } else if (b.tipo) {
       const titulo = b.titulo || b.nombre || String(b.tipo).replace(/_/g, ' ');
       const instrucciones = b.instrucciones || b.descripcion || b.texto || '';
-      cuerpo += '<div class="ws-sec"><h4>' + esc(titulo) + '</h4>' + (instrucciones ? '<div class="ws-richtext">' + formatearTextoJugador(instrucciones) + '</div>' : '') + '<p class="ws-hint">Actividad para realizar en papel: sigue las instrucciones y completa el espacio.</p><div class="ws-answer-box">Respuesta:<br><br>____________________________________________________________________<br><br>____________________________________________________________________</div></div>';
+      cuerpo += '<div class="ws-sec"><h4>' + esc(textoPdf(titulo)) + '</h4>' + (instrucciones ? '<div class="ws-richtext">' + formatearTextoJugador(instrucciones) + '</div>' : '') + '<p class="ws-hint">' + esc(textoPdf('Actividad para realizar en papel: sigue las instrucciones y completa el espacio.')) + '</p>' + cajaEscrituraPdf(opciones, 'respuesta') + '</div>';
     }
   };
   if (unidadesPdf.length) {
     unidadesPdf.forEach((n, i) => {
-      cuerpo += '<div class="ws-unit"><div class="ws-unit-header">__PJ_UNIT_HEADER__</div><h3>Unidad ' + (i + 1) + (n.titulo ? ' — ' + esc(n.titulo) : '') + '</h3>';
+      cuerpo += '<div class="ws-unit"><div class="ws-unit-header">__PJ_UNIT_HEADER__</div><h3>' + esc(textoPdf('Unidad ' + (i + 1))) + (n.titulo ? ' — ' + esc(textoPdf(n.titulo)) : '') + '</h3>';
       const desc = obtenerContenidoTextoPJ(n);
       if (desc) cuerpo += '<div class="ws-richtext ws-unit-desc">' + formatearTextoJugador(desc) + '</div>';
       let nb = Array.isArray(n.bloques) ? n.bloques : (n.contenido && Array.isArray(n.contenido.bloques) ? n.contenido.bloques : []);
       if (!nb.length && n.contenido && n.contenido.tipo) nb = [n.contenido];
       nb.forEach(imprimirBloque);
-      if (Number(n.recompensa || 0)) cuerpo += '<p class="ws-reward">Recompensa de la unidad: +' + Number(n.recompensa) + ' Pz</p>';
+      if (Number(n.recompensa || 0)) cuerpo += '<p class="ws-reward">' + esc(textoPdf('Recompensa de la unidad: +')) + Number(n.recompensa) + ' Pz</p>';
       cuerpo += '</div>';
     });
   } else {
@@ -640,20 +836,18 @@ async function descargarPdf(id) {
     if (url) portada = `<div class="ws-cover"><img src="${url}" alt="${esc(a.titulo)}"></div>`;
   }
   const ws = document.getElementById('print-worksheet');
-  cuerpo = cuerpo.replaceAll('__PJ_UNIT_HEADER__', `${portada}<div class="ws-meta">Nombre y apellidos: ________________________________&nbsp;&nbsp; Fecha: _______________&nbsp;&nbsp; Puntos: ________</div>`);
-  // El color de la asignatura acompaña a toda la ficha imprimible.
+  cuerpo = cuerpo.replaceAll('__PJ_UNIT_HEADER__', `${portada}<div class="ws-meta">${esc(textoPdf('Nombre y apellidos'))}: ________________________________&nbsp;&nbsp; ${esc(textoPdf('Fecha'))}: _______________&nbsp;&nbsp; ${esc(textoPdf('Puntos'))}: ________</div>`);
   ws.dataset.color = categoriaColor(a.categoria || '');
   ws.innerHTML = `
     <div class="ws-head">
       <div class="ws-brand"><img class="ws-logo" src="img/PJ-COLOR-LOGO.png" alt="Placeta Junior" /></div>
-      <h1>${esc(a.titulo)}</h1>
-      <p>${esc(a.categoria)} · Edad ${esc(a.edad_recomendada || '6-12')} · Dificultad ${esc(a.dificultad || 'media')}</p>
+      <h1>${esc(textoPdf(a.titulo))}</h1>
+      <p>${esc(textoPdf(a.categoria || 'general'))} · ${esc(textoPdf('Edad'))} ${esc(a.edad_recomendada || '6-12')} · ${esc(textoPdf('Dificultad'))} ${esc(a.dificultad || 'media')}</p>
     </div>
     ${portada}
-    <div class="ws-meta">Nombre: _______________&nbsp;&nbsp; Fecha: _______________&nbsp;&nbsp; Puntos: ________</div>
+    <div class="ws-meta">${esc(textoPdf('Nombre'))}: _______________&nbsp;&nbsp; ${esc(textoPdf('Fecha'))}: _______________&nbsp;&nbsp; ${esc(textoPdf('Puntos'))}: ________</div>
     ${cuerpo}
-    <div class="ws-foot">© Placeta Junior 2026 · junior.laplaceta.org · Prohibida su comercialización · Solo para uso personal y docente.</div>`;
-  // Dibuja el mapamundi (world-atlas) en los bloques de mapa_mundi
+    <div class="ws-foot">© Placeta Junior 2026 · junior.laplaceta.org · ${esc(textoPdf('Prohibida su comercialización'))} · ${esc(textoPdf('Solo para uso personal y docente'))}.</div>`;
   const mapaEls = ws.querySelectorAll('[data-mapa="1"]');
   for (const el of mapaEls) {
     let paises = [];
@@ -663,15 +857,12 @@ async function descargarPdf(id) {
       ? '<img src="' + url + '" alt="Mapamundi">'
       : '<div class="ws-msg">Mapamundi no disponible.</div>';
   }
-  // No lanzar la impresión hasta que navegador haya descargado y decodificado
-  // todas las imágenes remotas (incluidas las de Wikimedia).
   await Promise.all([...ws.querySelectorAll('img')].map(img => new Promise(resolve => {
     img.loading = 'eager';
     if (img.complete && img.naturalWidth > 0) return resolve();
     img.onload = img.onerror = () => resolve();
     setTimeout(resolve, 8000);
   })));
-  // Asegurar que las tipografías nuevas (Fredoka One / Outfit) estén cargadas para imprimir
   try {
     if (document.fonts && document.fonts.load) {
       await Promise.all([
@@ -893,6 +1084,7 @@ async function abrirActividad(id, bloqueada) {
     } catch (e) { /* sin almacenamiento */ }
     const data = await apiGet(url);
     if (data.actividad) {
+      registrarVisitaActividad(data.actividad.id);
       if (esBloqueada(data.actividad)) { mostrarBloqueoPlacetas(); return; }
       // Las actividades organizadas en diapositivas/unidades NUNCA se
       // reproducen todas juntas: se abre el selector de unidad para jugar
@@ -901,7 +1093,7 @@ async function abrirActividad(id, bloqueada) {
         cerrarDetalle();
         if (!TODAS.some(x => x.id === data.actividad.id)) TODAS.push(data.actividad);
         const unidades = obtenerUnidadesActividad(data.actividad);
-        abrirUnidad(data.actividad.id, unidadInicialGuardada(data.actividad.id, unidades));
+        abrirUnidad(data.actividad.id, unidadInicialGuardada(data.actividad.id, unidades), false);
         return;
       }
       // La navegación a una actividad siempre cierra la vista anterior.
@@ -924,12 +1116,13 @@ async function abrirActividad(id, bloqueada) {
 
 // Abre únicamente una unidad: su estado local y su puntuación quedan aislados
 // de las demás unidades de la misma actividad.
-async function abrirUnidad(id, indice) {
+async function abrirUnidad(id, indice, registrarVisita = true) {
   try {
     const data = await apiGet(`/actividades/${id}`);
     const a = data.actividad;
     if (!a) throw new Error('Actividad no encontrada');
     if (esBloqueada(a)) { mostrarBloqueoPlacetas(); return; }
+    if (registrarVisita) registrarVisitaActividad(a.id);
     const unidades = obtenerUnidadesActividad(a), u = unidades[Number(indice)];
     if (!u) throw new Error('Unidad no encontrada');
     const unidadIndex = Number(indice);

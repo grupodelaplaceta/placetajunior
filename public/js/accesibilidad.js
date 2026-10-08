@@ -18,6 +18,17 @@
   let idioma = 'es';
   const KEY = 'junior_acc_web';
   let guardado = false;
+
+  function idiomaElegidoGuardado() {
+    try {
+      const s = JSON.parse(localStorage.getItem(KEY) || '{}');
+      const val = String((s && s.idioma) || '').trim().slice(0, 2).toLowerCase();
+      return ['es', 'ca', 'eu', 'en', 'val'].includes(val);
+    } catch (e) {
+      return false;
+    }
+  }
+
   function cargarGuardado() {
     try {
       const s = JSON.parse(localStorage.getItem(KEY) || '{}');
@@ -31,6 +42,10 @@
         idioma = s.idioma || 'es';
       }
     } catch (e) { /* ok */ }
+    if (!idiomaElegidoGuardado()) {
+      guardado = false;
+      idioma = 'es';
+    }
   }
   cargarGuardado();
   window.__juniorAudio = audio;
@@ -49,6 +64,7 @@
     mayus = !!valor;
     guardar();
     aplicar();
+    if (window.PJApplyUiTranslation) window.PJApplyUiTranslation(idioma);
   };
 
   window.__juniorSetIdioma = function (valor) {
@@ -56,6 +72,7 @@
     idioma = ['es', 'ca', 'eu', 'en', 'val'].includes(nuevo) ? nuevo : 'es';
     guardar();
     aplicar();
+    if (window.PJApplyUiTranslation) window.PJApplyUiTranslation(idioma);
   };
 
   const synth = window.speechSynthesis || null;
@@ -100,27 +117,51 @@
     '<button type="button" class="acc-toggle" id="accSonido"><span class="acc-ico material-symbols-rounded">volume_up</span> Sonidos</button>' +
     '<button type="button" class="acc-toggle" id="accLeer"><span class="acc-ico material-symbols-rounded">record_voice_over</span> Leer</button>';
 
+  const localeBtn = document.getElementById('juniorTopbarLocaleBtn');
+
   document.body.appendChild(btn);
   document.body.appendChild(panel);
 
   btn.addEventListener('click', () => { panel.hidden = !panel.hidden; if (window.pjSonido) pjSonido.clic(); });
+  if (localeBtn) {
+    localeBtn.addEventListener('click', () => {
+      if (typeof window.mostrarSelectorEscritura === 'function') {
+        const popupActual = document.getElementById('pj-escritura-popup');
+        if (popupActual) popupActual.remove();
+        window.mostrarSelectorEscritura();
+        if (window.pjSonido) pjSonido.clic();
+      }
+    });
+  }
 
   function guardar() {
     guardado = true;
     try { localStorage.setItem(KEY, JSON.stringify({ mayus, audio, grande, contraste, sonido, idioma })); } catch (e) { /* ok */ }
   }
   function abrirConfiguracionInicial() {
-    if (guardado) return;
     const esHome = document.body.classList.contains('pj-home') || window.location.pathname === '/' || window.location.pathname.endsWith('/index.html');
     if (!esHome) return;
+    const necesitaIdioma = !idiomaElegidoGuardado();
+    if (!necesitaIdioma && guardado) return;
     if (!document.getElementById('pj-escritura-popup') && typeof window.mostrarSelectorEscritura === 'function') {
       window.setTimeout(() => {
-        if (!document.getElementById('pj-escritura-popup') && !guardado && (document.body.classList.contains('pj-home') || window.location.pathname === '/' || window.location.pathname.endsWith('/index.html'))) {
+        const sigueSiendoHome = document.body.classList.contains('pj-home') || window.location.pathname === '/' || window.location.pathname.endsWith('/index.html');
+        if (!document.getElementById('pj-escritura-popup') && sigueSiendoHome) {
           window.mostrarSelectorEscritura();
         }
-      }, 300);
+      }, 250);
     }
   }
+
+  window.__juniorEnsureHomeLanguagePopup = function () {
+    const esHome = document.body.classList.contains('pj-home') || window.location.pathname === '/' || window.location.pathname.endsWith('/index.html');
+    if (!esHome) return;
+    const necesitaIdioma = !idiomaElegidoGuardado();
+    if (!necesitaIdioma && guardado) return;
+    if (!document.getElementById('pj-escritura-popup') && typeof window.mostrarSelectorEscritura === 'function') {
+      window.mostrarSelectorEscritura();
+    }
+  };
   function refrescar() {
     document.getElementById('accMayus').classList.toggle('on', mayus);
     document.getElementById('accAudio').classList.toggle('on', audio);
