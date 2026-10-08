@@ -3,6 +3,25 @@ const MATES_AVENTURA_MARKUP = "<main class=\"ma-main\">\n<svg width=\"0\" height
 
 function inicializarJuegoMates(root, config, onComplete) {
   const documentRef = root.ownerDocument;
+  const gameSections = {
+    mates_pixel: 'g1',
+    mates_balanza: 'g2',
+    mates_arcade: 'g5',
+    mates_rio: 'g6',
+    mates_monstruo: 'g7',
+    mates_fracciones: 'g8',
+    mates_estimacion: 'g9',
+    mates_ninja: 'g10',
+    mates_robots: 'g11',
+    mates_slime: 'g12',
+    mates_templo: 'g13',
+    mates_topo: 'g14'
+  };
+  const gameSection = config && gameSections[config.tipo];
+  if (!gameSection) throw new Error('Tipo de actividad de Mates Aventura no reconocido.');
+  if (!config.datos || typeof config.datos !== 'object' || Array.isArray(config.datos)) {
+    throw new Error('Los datos de la actividad de Mates Aventura no son válidos.');
+  }
   const fail = error => { throw error; };
   const timeoutIds = new Set(), intervalIds = new Set(), frameIds = new Set(), eventListeners = [];
   let disposed = false;
@@ -361,7 +380,7 @@ initUI();[pNew,bNew,rNew,mNew,fNew,eNew,ninjaNew,robNew,slimeNew,temploNew,topoN
   const resultOf = (a, op, b) => op === '+' ? a + b : op === '−' ? a - b : op === '×' ? a * b : a / b;
 
     $('#tabs').hidden = true;
-    root.querySelectorAll('.game').forEach(section => section.classList.toggle('on', section.id === game[0]));
+    root.querySelectorAll('.game').forEach(section => section.classList.toggle('on', section.id === gameSection));
 
     switch (config.tipo) {
       case 'mates_pixel': {
