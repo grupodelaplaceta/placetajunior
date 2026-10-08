@@ -440,7 +440,13 @@ function abrirJuego(act) {
     document.body.classList.add('mostrando-juego');
   }
   asegurarFeedback();
-  mostrarSelectorEscritura();
+  let preferenciasGuardadas = false;
+  try {
+    const preferencias = JSON.parse(localStorage.getItem('junior_acc_web') || 'null');
+    preferenciasGuardadas = !!preferencias && typeof preferencias === 'object';
+  } catch (e) { /* sin preferencias guardadas */ }
+  if (preferenciasGuardadas) renderPantalla();
+  else mostrarSelectorEscritura();
   try { if (act && act.id && !location.search.includes('jugar=')) history.pushState(null, '', '/?jugar=' + encodeURIComponent(act.id)); } catch (e) { /* sin historial */ }
 }
 

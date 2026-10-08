@@ -539,6 +539,7 @@ async function descargarPdf(id) {
   cargaPdf.innerHTML = '<div class="pj-pdf-loading-card"><span class="loader"></span><strong>Preparando tu ficha…</strong><small>Cargando imágenes y unidades</small></div>';
   document.body.appendChild(cargaPdf);
   if (window.pjSonido) pjSonido.clic();
+  try {
   const esCode = a.tipo === 'code_blocks' || (a.contenido && a.contenido.tipo === 'code_blocks');
   const bloques = (a.contenido && a.contenido.bloques) || [];
   const unidadesPdf = obtenerUnidadesActividad(a);
@@ -681,6 +682,11 @@ async function descargarPdf(id) {
   } catch (e) { /* sin tipografías web */ }
   cargaPdf.remove();
   window.print();
+  } catch (error) {
+    cargaPdf.remove();
+    console.error('No se pudo preparar la ficha PDF:', error);
+    juniorAviso('No se pudo preparar el PDF. Inténtalo de nuevo.', 'error');
+  }
 }
 
 // Dibuja el mapamundi (world-atlas) en un canvas para la ficha PDF

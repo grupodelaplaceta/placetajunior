@@ -231,8 +231,38 @@ Reglas:
   </div>
 
   <script>
-    const API_BASE = 'https://admin-placeta.vercel.app/api/junior';
+    const API_BASE = (window.PJ_API_BASE || '/api/junior').replace(/\/$/, '');
     function $(id) { return document.getElementById(id); }
+    function parsearCodigoJSON() {
+      const texto = $('codigo').value.trim();
+      const limpio = texto.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '');
+      let error;
+      try {
+        const obj = JSON.parse(limpio);
+        if (!obj || typeof obj !== 'object' || Array.isArray(obj)) throw new Error('El JSON debe ser un objeto.');
+        return obj;
+      } catch (e) { error = e; }
+
+      const inicio = limpio.indexOf('{');
+      if (inicio >= 0) {
+        let profundidad = 0, cadena = false, escape = false;
+        for (let i = inicio; i < limpio.length; i++) {
+          const c = limpio[i];
+          if (cadena) {
+            if (escape) escape = false;
+            else if (c === '\\') escape = true;
+            else if (c === '"') cadena = false;
+          } else if (c === '"') cadena = true;
+          else if (c === '{') profundidad++;
+          else if (c === '}' && --profundidad === 0) {
+            const obj = JSON.parse(limpio.slice(inicio, i + 1));
+            if (!obj || typeof obj !== 'object' || Array.isArray(obj)) throw error;
+            return obj;
+          }
+        }
+      }
+      throw error;
+    }
     function plantilla(tipo) {
       const p = { construir_frase: { tipo, titulo:'Constructor de frases', instrucciones:'Ordena las palabras para formar una frase.', palabras:['come','El','gato','pescado'], respuesta:'El gato come pescado' }, clasificar_palabras: { tipo, titulo:'Clasificador de palabras', instrucciones:'Clasifica cada palabra.', categorias:['Sustantivo','Verbo','Adjetivo'], elementos:[{texto:'perro',categoria:'Sustantivo'},{texto:'correr',categoria:'Verbo'},{texto:'azul',categoria:'Adjetivo'}] }, completar_palabra: { tipo, titulo:'Completa la palabra', modo:'opciones', ejercicios:[{texto:'El ca__o corre por el parque.',respuesta:'rr',opciones:['r','rr','rrr']}] }, cazador_errores: { tipo, titulo:'Cazador de errores', instrucciones:'Encuentra la palabra incorrecta.', texto:'Ayer fuimos al parque y vimos un pajaro.', errores:[{incorrecto:'pajaro',correcto:'pájaro'}] }, lectura_interactiva: { tipo, titulo:'Lectura interactiva', escenas:[{texto:'Candela encuentra una caja misteriosa.',opciones:[{texto:'Abrir la caja',siguiente:1},{texto:'Buscar ayuda',siguiente:1}]},{texto:'Dentro hay una sorpresa. ¡Fin!',opciones:[]}] }, dinero_euro: { tipo, titulo:'Billetes y monedas de euro', instrucciones:'Forma la cantidad exacta.', objetivo:7.35, monedas:[.01,.02,.05,.10,.20,.50,1,2], billetes:[5,10,20] } }[tipo];
       $('codigo').value = JSON.stringify({ titulo: p.titulo, descripcion: 'Actividad educativa Placeta Junior', contenido: { version: 2, bloques: [p] } }, null, 2); $('titulo').value=p.titulo; $('descripcion').value='Actividad educativa Placeta Junior'; $('codigo').focus();
@@ -375,7 +405,7 @@ Reglas:
       detectarCampos();
       const m = $('mensaje'); m.textContent = ''; m.className = '';
       let obj;
-      try { obj = JSON.parse($('codigo').value); }
+      try { obj = parsearCodigoJSON(); }
       catch (e) { aviso('❌ El código no es JSON válido: ' + e.message, true); return; }
       if (pjSaneaImagenes(obj) > 0) $('codigo').value = JSON.stringify(obj, null, 2);
       const contenido = (obj.contenido && typeof obj.contenido === 'object') ? obj.contenido : obj;
@@ -457,7 +487,7 @@ Reglas:
     // y mismas animaciones que verá el alumno.
     function previsualizarMotor() {
       let obj;
-      try { obj = JSON.parse($('codigo').value); } catch (e) { aviso('❌ El código no es JSON válido: ' + e.message, true); return true; }
+      try { obj = parsearCodigoJSON(); } catch (e) { aviso('❌ El código no es JSON válido: ' + e.message, true); return true; }
       const contenido = obj.contenido && typeof obj.contenido === 'object' ? obj.contenido : { version: 2, bloques: obj.bloques || [] };
       const activity = { id: 'preview-' + Date.now(), titulo: obj.titulo || 'Mi actividad', descripcion: obj.descripcion || '', categoria: obj.categoria || 'General', edad_recomendada: obj.edad_recomendada || '6-12', dificultad: obj.dificultad || 'media', contenido };
       const previewJson = JSON.stringify(activity);
@@ -489,7 +519,7 @@ Reglas:
       detectarCampos();
       const m = $('mensaje'); m.textContent = ''; m.className = '';
       let obj;
-      try { obj = JSON.parse($('codigo').value); }
+      try { obj = parsearCodigoJSON(); }
       catch (e) { aviso('❌ El código no es JSON válido: ' + e.message, true); return; }
       if (pjSaneaImagenes(obj) > 0) $('codigo').value = JSON.stringify(obj, null, 2);
        const contenido = (obj.contenido && typeof obj.contenido === 'object') ? obj.contenido : { version: 2, bloques: obj.bloques || [] };
@@ -526,7 +556,10 @@ Reglas:
         const res = await fetch(API_BASE + '/actividades', {
           method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
         });
-        const data = await res.json().catch(() => ({}));
+        const respuesta = await res.text();
+        let data;
+        try { data = JSON.parse(respuesta); }
+        catch (e) { throw new Error('La API devolvió una respuesta no JSON (HTTP ' + res.status + ').'); }
         if (res.ok && data.success) {
           m.className = 'ok';
           m.textContent = '✅ ¡Publicada! ' + (data.mensaje || 'Enviada a revisión del Filtro de Placeta Junior.');
@@ -556,7 +589,9 @@ Reglas:
       try { obj = JSON.parse($('codigo').value); }
       catch (e) { return; }
       if (!obj || typeof obj !== 'object') return;
-      const bloques = (obj.contenido && obj.contenido.bloques) || obj.bloques || [];
+      const contenido = obj.contenido && typeof obj.contenido === 'object' ? obj.contenido : obj;
+      const bloques = Array.isArray(contenido.bloques) ? contenido.bloques : [];
+      const niveles = Array.isArray(contenido.niveles) ? contenido.niveles : (Array.isArray(contenido.diapositivas) ? contenido.diapositivas : []);
 
       // Rellena cada campo solo si viene definido en el JSON
       const rellenar = (sel, val) => {
@@ -595,7 +630,7 @@ Reglas:
         if (el) el.classList.toggle('falta', vacio);
         if (vacio) falta.push(nombre);
       });
-      if (!Array.isArray(bloques) || !bloques.length) falta.push('bloques en contenido');
+      if (!bloques.length && !niveles.length) falta.push('bloques o niveles en contenido');
 
       const ahora = Date.now();
       if (cambiados > 0 || falta.length || ahora - ultimoAvisoDetect > 2500) {
@@ -607,7 +642,7 @@ Reglas:
             info.innerHTML = '⚠️ Código detectado (' + (cambiados || 'sin cambios') + ' campo/s rellenado/s). Faltan por rellenar para enviar: <b>' + falta.join(', ') + '</b>.';
           } else {
             info.style.color = 'var(--pj-green)';
-            info.innerHTML = '✅ Código detectado: ' + bloques.length + ' bloque(s) y campos listos. Pulsa <b>🚀 Publicar a revisión</b>.';
+            info.innerHTML = '✅ Código detectado: ' + (bloques.length || niveles.length) + (niveles.length ? ' nivel(es)' : ' bloque(s)') + ' y campos listos. Pulsa <b>🚀 Publicar a revisión</b>.';
           }
         }
       }
@@ -690,7 +725,7 @@ Reglas:
       const path = el.getAttribute('data-alt-path');
       if (!path) return;
       try {
-        const obj = JSON.parse($('codigo').value);
+        const obj = parsearCodigoJSON();
         const parts = path.split('.');
         let cur = obj;
         for (let i = 0; i < parts.length - 1; i++) {
@@ -709,7 +744,7 @@ Reglas:
       const path = el.getAttribute('data-meta-path');
       if (!path) return;
       try {
-        const obj = JSON.parse($('codigo').value);
+        const obj = parsearCodigoJSON();
         const parts = path.split('.');
         let cur = obj;
         for (let i = 0; i < parts.length - 1; i++) {
