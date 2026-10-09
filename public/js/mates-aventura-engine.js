@@ -129,7 +129,7 @@ function inicializarJuegoMates(root, config, onComplete) {
 const $=s=>root.querySelector(s),R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a,sh=a=>a.sort(()=>Math.random()-.5);
 let ac,snd=true,ST=0;
 function tone(f,d=.15,t='sine',s=0,v=.08){if(!snd||window.pjSonido?.isMuted())return;try{ac=ac||new AudioContext();const o=ac.createOscillator(),g=ac.createGain(),n=ac.currentTime;o.type=t;o.frequency.setValueAtTime(f,n);if(s)o.frequency.exponentialRampToValueAtTime(s,n+d);g.gain.setValueAtTime(v,n);g.gain.exponentialRampToValueAtTime(.001,n+d);o.connect(g);g.connect(ac.destination);o.start();o.stop(n+d)}catch(e){}}
-const notifyAnswer=correct=>root.host.dispatchEvent(new CustomEvent('pj-mates-answer',{bubbles:true,detail:{activityType:config.tipo,correct}}));
+const notifyAnswer=correct=>{if(typeof window.pjRegistrarRespuestaActividad==='function')window.pjRegistrarRespuestaActividad(correct)};
 const playSound=(name,fallback)=>{if(window.pjSonido&&typeof window.pjSonido[name]==='function')window.pjSonido[name]();else fallback()};
 const ok=()=>{notifyAnswer(true);playSound('exito',()=>{tone(660,.1);setTimeout(()=>tone(880,.18),90);setTimeout(()=>tone(1100,.2),200)})},bad=()=>{notifyAnswer(false);playSound('error',()=>tone(220,.3,'sawtooth',110))},boing=()=>playSound('pop',()=>tone(250,.35,'sine',700)),mech=()=>playSound('golpe',()=>{tone(120,.08,'square');setTimeout(()=>tone(90,.12,'square'),80)});
 const STAR='<svg viewBox="0 0 24 24" width="20" height="20" style="vertical-align:-4px"><path d="M12 2l3 7 7.5.6-5.7 4.9 1.8 7.3L12 17.8 5.4 21.8l1.8-7.3L1.5 9.6 9 9z" fill="#ffc928" stroke="#d99100" stroke-width="1.5" stroke-linejoin="round"/></svg>';
@@ -451,6 +451,7 @@ soundButton.onclick=()=>{snd=window.pjSonido?window.pjSonido.isMuted():!snd;if(w
 updateSoundButton();
 const settingIds=['p-lvl','p-art','a-t','r-rule','r-min','m-max','m-cnt','e-m','tp-mode'];
 settingIds.forEach(id=>{const control=$('#'+id),label=control?.closest('label');if(label)label.hidden=true});
+['p-new','r-new'].forEach(id=>{const control=$('#'+id);if(control)control.hidden=true});
 $('#e-m').closest('.row')?.querySelector('.mut')?.remove();
 root.querySelectorAll('.row').forEach(row=>{const labels=[...row.querySelectorAll('label')];if(labels.length&&labels.every(label=>label.hidden)&&!row.querySelector('button:not([hidden])'))row.hidden=true});
 

@@ -26,17 +26,18 @@ const MATES_AVENTURA_TEXTS = {
   'Slime de capacidad': ['Slime de capacitat', 'Slimearen edukiera', 'Slime capacity'],
   'Templo de espejos': ['Temple de miralls', 'Ispiluen tenplua', 'Mirror temple'],
   'Topo en la cuadrícula': ['Talp a la quadrícula', 'Satorra sareta batean', 'Mole on the grid'],
-  'Resuelve las operaciones para descubrir el dibujo.': ['Resol les operacions per descobrir el dibuix.', 'Ebatzi eragiketak irudia aurkitzeko.', 'Solve the operations to reveal the picture.'],
-  'Equilibra la balanza colocando las pesas adecuadas.': ['Equilibra la balança col·locant les peses adequades.', 'Oreka ezazu balantza pisu egokiak jarriz.', 'Balance the scale by placing the right weights.'],
-  'Resuelve cada operación y elige el globo con la respuesta correcta.': ['Resol cada operació i tria el globus amb la resposta correcta.', 'Ebatzi eragiketa bakoitza eta aukeratu erantzun zuzena duen globoa.', 'Solve each problem and choose the balloon with the correct answer.'],
-  'Ayuda a la rana a cruzar el río siguiendo la serie numérica.': ['Ajuda la granota a travessar el riu seguint la sèrie numèrica.', 'Lagundu igelari ibaia zeharkatzen, zenbaki-segidari jarraituz.', 'Help the frog cross the river by following the number pattern.'],
-  'Alimenta al monstruo con la cantidad exacta.': ['Alimenta el monstre amb la quantitat exacta.', 'Eman munstroari kantitate zehatza.', 'Feed the monster the exact amount.'],
-  'Completa el compás con las fracciones que forman el objetivo.': ['Completa el compàs amb les fraccions que formen l’objectiu.', 'Osatu konpasa helburuko zatikiekin.', 'Complete the measure with fractions that make the target.'],
-  'Calcula una estimación y dispara a la respuesta más cercana.': ['Calcula una estimació i dispara a la resposta més pròxima.', 'Egin estimazioa eta jaurti erantzun hurbilenera.', 'Estimate the value and shoot the closest answer.'],
-  'Elige los chips que transforman la entrada en la salida.': ['Tria els xips que transformen l’entrada en l’eixida.', 'Aukeratu sarrera irteera bihurtzen duten txipak.', 'Choose the chips that transform the input into the output.'],
-  'Llena el recipiente hasta alcanzar la capacidad objetivo.': ['Ompli el recipient fins a arribar a la capacitat objectiu.', 'Bete ontzia edukiera-helburura iritsi arte.', 'Fill the container to reach the target capacity.'],
-  'Gira el espejo hasta dirigir la luz hacia la salida.': ['Gira l’espill fins a dirigir la llum cap a l’eixida.', 'Biratu ispilua argia irteerarantz bideratzeko.', 'Turn the mirror to direct the light to the exit.'],
-  'Encuentra el tesoro siguiendo las coordenadas.': ['Troba el tresor seguint les coordenades.', 'Aurkitu altxorra koordenatuei jarraituz.', 'Find the treasure using the coordinates.'],
+  'Resuelve las operaciones para descubrir el dibujo.': ['Resol les operacions per descobrir el dibuix.', 'Ebatzi eragiketak marrazkia aurkitzeko.', 'Solve the sums to reveal the picture.'],
+  'Equilibra la balanza colocando las pesas adecuadas.': ['Equilibra la balança amb les peses correctes.', 'Oreka ezazu balantza pisu egokiak erabiliz.', 'Balance the scale with the right weights.'],
+  'Resuelve cada operación y elige el globo con la respuesta correcta.': ['Resol l’operació i tria el globus amb la resposta correcta.', 'Ebatzi eragiketa eta aukeratu erantzun zuzena duen globoa.', 'Solve the problem and choose the balloon with the right answer.'],
+  'Ayuda a la rana a cruzar el río siguiendo la serie numérica.': ['Ajuda la granota a travessar el riu seguint els nombres.', 'Lagundu igelari ibaia zeharkatzen, zenbakiak jarraituz.', 'Help the frog cross the river by following the numbers.'],
+  'Alimenta al monstruo con la cantidad exacta.': ['Dona al monstre la quantitat exacta.', 'Eman munstroari kopuru zehatza.', 'Feed the monster the right amount.'],
+  'Completa el compás con las fracciones que forman el objetivo.': ['Completa el compàs amb les fraccions indicades.', 'Osatu konpasa adierazitako zatikiekin.', 'Complete the measure with the given fractions.'],
+  'Calcula una estimación y dispara a la respuesta más cercana.': ['Calcula aproximadament i dispara al resultat més pròxim.', 'Kalkulatu gutxi gorabehera eta jaurti emaitza hurbilenera.', 'Estimate the answer and shoot the closest target.'],
+  'Corta la figura para obtener la fracción indicada.': ['Talla la figura per obtindre la fracció indicada.', 'Ebaki irudia eskatutako zatikia lortzeko.', 'Cut the shape to make the given fraction.'],
+  'Elige los chips que transforman la entrada en la salida.': ['Tria els xips per transformar l’entrada en l’eixida.', 'Aukeratu sarrera irteera bihurtzeko txipak.', 'Choose the chips that change the input into the output.'],
+  'Llena el recipiente hasta alcanzar la capacidad objetivo.': ['Ompli el recipient fins a la marca.', 'Bete ontzia markaraino.', 'Fill the container to the line.'],
+  'Gira el espejo hasta dirigir la luz hacia la salida.': ['Gira l’espill i porta la llum fins a l’eixida.', 'Biratu ispilua argia irteerara eramateko.', 'Turn the mirror to guide the light to the exit.'],
+  'Encuentra el tesoro siguiendo las coordenadas.': ['Troba el tresor amb les coordenades.', 'Aurkitu altxorra amb les coordenades.', 'Find the treasure using coordinates.'],
   '¡Actividad completada!': ['Activitat completada!', 'Jarduera osatuta!', 'Activity complete!'],
   Continuar: ['Continua', 'Jarraitu', 'Continue'],
   'Mates Aventura': ['Mates Aventura', 'Matematika Abentura', 'Math Adventure'],
@@ -328,8 +329,12 @@ function matesAventuraRender(block, index, state) {
     mates_templo: 'Gira el espejo hasta dirigir la luz hacia la salida.',
     mates_topo: 'Encuentra el tesoro siguiendo las coordenadas.'
   };
-  const instructions = block.instrucciones || block.instruccion || block.enunciado ||
+  const locale = matesAventuraLocale();
+  const prompt = block.instrucciones || block.instruccion || block.enunciado ||
     defaultInstructions[block.tipo];
+  const instructions = prompt && typeof prompt === 'object' && !Array.isArray(prompt)
+    ? prompt[locale] || prompt[locale === 'val' ? 'ca' : locale === 'ca' ? 'val' : 'es'] || prompt.es || Object.values(prompt).find(value => typeof value === 'string')
+    : matesAventuraTranslate(prompt);
   if (!title) return `<p class="pj-error">${matesAventuraEscape(matesAventuraTranslate('Tipo de actividad de Mates Aventura no reconocido.'))}</p>`;
   if (state.completado) {
     return `<section class="pj-ma-card pj-ma-finished">
@@ -364,21 +369,6 @@ document.addEventListener('pj-mates-complete', event => {
   if (pantallas[pantallaIdx + 1]?.tipo === 'final') kpCelebrado = true;
   if (pantallaIdx < pantallas.length - 1) pantallaNext();
   else renderPantalla();
-});
-
-document.addEventListener('pj-mates-answer', event => {
-  if (!(event.target instanceof HTMLElement) || event.target.localName !== 'pj-mates-aventura') return;
-  const screen = pantallas[pantallaIdx];
-  const activity = screen?.tipo === 'mates_aventura' ? bloquesJuego[screen.bi] : null;
-  if (!activity || activity.tipo !== event.detail?.activityType) return;
-
-  if (event.detail.correct) kpScore.verdes++;
-  else kpScore.rojos++;
-  const values = document.querySelectorAll('#player-content .kp-score-value');
-  if (values.length >= 2) {
-    values[0].textContent = kpScore.verdes;
-    values[1].textContent = kpScore.rojos;
-  }
 });
 
 window.MATES_AVENTURA = {

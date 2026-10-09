@@ -20,6 +20,16 @@ function adaptarInteractivo(b) {
   const d={...b}; if(Array.isArray(d.destinos)&&!d.zonas)d.zonas=d.destinos.map(x=>x.id||x.texto); if(d.instruccion&&!d.instrucciones)d.instrucciones=d.instruccion; if(Array.isArray(d.elementos)&&b.tipo==='buscar')d.objetos=d.elementos.map(x=>`${x.texto||x.nombre||''}|${x.texto||x.nombre||''}|${x.correcto?'1':'0'}`); b.datos=d; return b;
 }
 let kpScore = { verdes: 0, rojos: 0 };
+window.pjRegistrarRespuestaActividad = function (correcta) {
+  if (typeof correcta !== 'boolean') return;
+  if (correcta) kpScore.verdes++;
+  else kpScore.rojos++;
+
+  const verdes = document.querySelector('#player-content #pj-score-verdes');
+  const rojos = document.querySelector('#player-content #pj-score-rojos');
+  if (verdes) verdes.textContent = kpScore.verdes;
+  if (rojos) rojos.textContent = kpScore.rojos;
+};
 let kpCelebrado = false;
 let actividadActual = null;   // actividad que se está jugando (para guardar progreso)
 let dipGuardado = '';
@@ -745,8 +755,8 @@ function renderPantalla() {
         <div class="kp-progress-track"><div class="kp-progress-bar" style="width:${pct}%"></div></div>
       </div>
       <div class="kp-score-chips" aria-label="Resultado">
-        <span class="kp-chip-score ok"><span class="material-symbols-rounded">check_circle</span><span class="kp-score-value">${kpScore.verdes}</span></span>
-        <span class="kp-chip-score bad"><span class="material-symbols-rounded">cancel</span><span class="kp-score-value">${kpScore.rojos}</span></span>
+        <span class="kp-chip-score ok" aria-label="Aciertos" title="Aciertos"><span class="material-symbols-rounded">check_circle</span><span class="kp-score-value" id="pj-score-verdes">${kpScore.verdes}</span></span>
+        <span class="kp-chip-score bad" aria-label="Errores" title="Errores"><span class="material-symbols-rounded">cancel</span><span class="kp-score-value" id="pj-score-rojos">${kpScore.rojos}</span></span>
       </div>
     </div>
     <div class="kp-nav-row">
