@@ -26,6 +26,17 @@ const MATES_AVENTURA_TEXTS = {
   'Slime de capacidad': ['Slime de capacitat', 'Slimearen edukiera', 'Slime capacity'],
   'Templo de espejos': ['Temple de miralls', 'Ispiluen tenplua', 'Mirror temple'],
   'Topo en la cuadrícula': ['Talp a la quadrícula', 'Satorra sareta batean', 'Mole on the grid'],
+  'Resuelve las operaciones para descubrir el dibujo.': ['Resol les operacions per descobrir el dibuix.', 'Ebatzi eragiketak irudia aurkitzeko.', 'Solve the operations to reveal the picture.'],
+  'Equilibra la balanza colocando las pesas adecuadas.': ['Equilibra la balança col·locant les peses adequades.', 'Oreka ezazu balantza pisu egokiak jarriz.', 'Balance the scale by placing the right weights.'],
+  'Resuelve cada operación y elige el globo con la respuesta correcta.': ['Resol cada operació i tria el globus amb la resposta correcta.', 'Ebatzi eragiketa bakoitza eta aukeratu erantzun zuzena duen globoa.', 'Solve each problem and choose the balloon with the correct answer.'],
+  'Ayuda a la rana a cruzar el río siguiendo la serie numérica.': ['Ajuda la granota a travessar el riu seguint la sèrie numèrica.', 'Lagundu igelari ibaia zeharkatzen, zenbaki-segidari jarraituz.', 'Help the frog cross the river by following the number pattern.'],
+  'Alimenta al monstruo con la cantidad exacta.': ['Alimenta el monstre amb la quantitat exacta.', 'Eman munstroari kantitate zehatza.', 'Feed the monster the exact amount.'],
+  'Completa el compás con las fracciones que forman el objetivo.': ['Completa el compàs amb les fraccions que formen l’objectiu.', 'Osatu konpasa helburuko zatikiekin.', 'Complete the measure with fractions that make the target.'],
+  'Calcula una estimación y dispara a la respuesta más cercana.': ['Calcula una estimació i dispara a la resposta més pròxima.', 'Egin estimazioa eta jaurti erantzun hurbilenera.', 'Estimate the value and shoot the closest answer.'],
+  'Elige los chips que transforman la entrada en la salida.': ['Tria els xips que transformen l’entrada en l’eixida.', 'Aukeratu sarrera irteera bihurtzen duten txipak.', 'Choose the chips that transform the input into the output.'],
+  'Llena el recipiente hasta alcanzar la capacidad objetivo.': ['Ompli el recipient fins a arribar a la capacitat objectiu.', 'Bete ontzia edukiera-helburura iritsi arte.', 'Fill the container to reach the target capacity.'],
+  'Gira el espejo hasta dirigir la luz hacia la salida.': ['Gira l’espill fins a dirigir la llum cap a l’eixida.', 'Biratu ispilua argia irteerarantz bideratzeko.', 'Turn the mirror to direct the light to the exit.'],
+  'Encuentra el tesoro siguiendo las coordenadas.': ['Troba el tresor seguint les coordenades.', 'Aurkitu altxorra koordenatuei jarraituz.', 'Find the treasure using the coordinates.'],
   '¡Actividad completada!': ['Activitat completada!', 'Jarduera osatuta!', 'Activity complete!'],
   Continuar: ['Continua', 'Jarraitu', 'Continue'],
   'Mates Aventura': ['Mates Aventura', 'Matematika Abentura', 'Math Adventure'],
@@ -303,6 +314,22 @@ function matesAventuraEscape(value) {
 function matesAventuraRender(block, index, state) {
   const originalTitle = block.titulo || MATES_AVENTURA_JUEGOS[block.tipo];
   const title = originalTitle && matesAventuraTranslate(originalTitle);
+  const defaultInstructions = {
+    mates_pixel: 'Resuelve las operaciones para descubrir el dibujo.',
+    mates_balanza: 'Equilibra la balanza colocando las pesas adecuadas.',
+    mates_arcade: 'Resuelve cada operación y elige el globo con la respuesta correcta.',
+    mates_rio: 'Ayuda a la rana a cruzar el río siguiendo la serie numérica.',
+    mates_monstruo: 'Alimenta al monstruo con la cantidad exacta.',
+    mates_fracciones: 'Completa el compás con las fracciones que forman el objetivo.',
+    mates_estimacion: 'Calcula una estimación y dispara a la respuesta más cercana.',
+    mates_ninja: 'Corta la figura para obtener la fracción indicada.',
+    mates_robots: 'Elige los chips que transforman la entrada en la salida.',
+    mates_slime: 'Llena el recipiente hasta alcanzar la capacidad objetivo.',
+    mates_templo: 'Gira el espejo hasta dirigir la luz hacia la salida.',
+    mates_topo: 'Encuentra el tesoro siguiendo las coordenadas.'
+  };
+  const instructions = block.instrucciones || block.instruccion || block.enunciado ||
+    defaultInstructions[block.tipo];
   if (!title) return `<p class="pj-error">${matesAventuraEscape(matesAventuraTranslate('Tipo de actividad de Mates Aventura no reconocido.'))}</p>`;
   if (state.completado) {
     return `<section class="pj-ma-card pj-ma-finished">
@@ -314,9 +341,10 @@ function matesAventuraRender(block, index, state) {
   const config = matesAventuraEscape(JSON.stringify({
     tipo: block.tipo,
     titulo: title,
+    enunciado: instructions,
     datos: block.datos && typeof block.datos === 'object' ? block.datos : {}
   }));
-  return `<section class="pj-ma-card pj-ma-native"><h2 class="pj-ma-native-title">${matesAventuraEscape(title)}</h2><pj-mates-aventura data-config="${config}"></pj-mates-aventura></section>`;
+  return `<section class="pj-ma-card pj-ma-native"><pj-mates-aventura data-config="${config}"></pj-mates-aventura></section>`;
 }
 
 function matesAventuraCreateState() {
@@ -331,9 +359,26 @@ document.addEventListener('pj-mates-complete', event => {
   if (!activity || !state || state.completado || activity.tipo !== event.detail?.activityType) return;
 
   state.completado = true;
-  kpScore.verdes++;
+  if (window.pjSonido) pjSonido.victoria();
+  if (typeof lluviaConfetti === 'function') lluviaConfetti();
+  if (pantallas[pantallaIdx + 1]?.tipo === 'final') kpCelebrado = true;
   if (pantallaIdx < pantallas.length - 1) pantallaNext();
   else renderPantalla();
+});
+
+document.addEventListener('pj-mates-answer', event => {
+  if (!(event.target instanceof HTMLElement) || event.target.localName !== 'pj-mates-aventura') return;
+  const screen = pantallas[pantallaIdx];
+  const activity = screen?.tipo === 'mates_aventura' ? bloquesJuego[screen.bi] : null;
+  if (!activity || activity.tipo !== event.detail?.activityType) return;
+
+  if (event.detail.correct) kpScore.verdes++;
+  else kpScore.rojos++;
+  const values = document.querySelectorAll('#player-content .kp-score-value');
+  if (values.length >= 2) {
+    values[0].textContent = kpScore.verdes;
+    values[1].textContent = kpScore.rojos;
+  }
 });
 
 window.MATES_AVENTURA = {

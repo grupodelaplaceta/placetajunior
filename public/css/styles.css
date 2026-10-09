@@ -2248,9 +2248,8 @@ h1, h2, h3, h4, h5,
 .pj-game-result strong { font-size: 1.4rem; }
 .pj-game-result.is-win { border: 2px solid #16817a; }
 
-.pj-ma-card { width: min(100%, 1000px); margin: 12px auto; overflow: hidden; border: 2px solid #d8d1ee; border-radius: 22px; background: #fff; box-shadow: 0 8px 24px rgba(34, 20, 80, .1); }
+.pj-ma-card { width: min(100%, 1000px); margin: 12px auto; overflow: hidden; border: 0; border-radius: 0; background: #fff; box-shadow: none; }
 .pj-ma-native { padding: 0; }
-.pj-ma-native-title { margin: 0; padding: 14px 18px 0; color: var(--pj-ink); font-size: 1rem; font-weight: 800; }
 pj-mates-aventura { display: block; width: 100%; }
 .pj-ma-finished { display: grid; justify-items: center; gap: 12px; padding: 28px 18px; color: #27204a; text-align: center; }
 .pj-ma-finished h3, .pj-ma-finished p { margin: 0; }

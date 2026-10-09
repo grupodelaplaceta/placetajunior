@@ -745,8 +745,8 @@ function renderPantalla() {
         <div class="kp-progress-track"><div class="kp-progress-bar" style="width:${pct}%"></div></div>
       </div>
       <div class="kp-score-chips" aria-label="Resultado">
-        <span class="kp-chip-score ok"><span class="material-symbols-rounded">check_circle</span>${kpScore.verdes}</span>
-        <span class="kp-chip-score bad"><span class="material-symbols-rounded">cancel</span>${kpScore.rojos}</span>
+        <span class="kp-chip-score ok"><span class="material-symbols-rounded">check_circle</span><span class="kp-score-value">${kpScore.verdes}</span></span>
+        <span class="kp-chip-score bad"><span class="material-symbols-rounded">cancel</span><span class="kp-score-value">${kpScore.rojos}</span></span>
       </div>
     </div>
     <div class="kp-nav-row">
@@ -1164,6 +1164,11 @@ function iniciarTimerJuegoMatematico(e) {
 }
 function pjFinalizarJuego(e, victoria) {
   e.terminado = true; e.victoria = !!victoria; clearInterval(pjJuegoTimer); pjJuegoTimer = null;
+  if (e.victoria) {
+    if (window.pjSonido) pjSonido.victoria();
+    lluviaConfetti();
+    if (pantallas[pantallaIdx + 1]?.tipo === 'final') kpCelebrado = true;
+  }
 }
 function pjResponderJuego(bi, respuesta) {
   const e = kpEstado[pantallaIdx], q = e.preguntas[e.indice];

@@ -50,11 +50,23 @@ function inicializarJuegoMates(root, config, onComplete) {
   };
   try {
     const brandFonts = `
-      :host{font:500 17px/1.35 var(--font-body,'Plus Jakarta Sans',system-ui,sans-serif)}
+      :host{font:500 17px/1.35 var(--font-body,'Plus Jakarta Sans',system-ui,sans-serif);background:#fff;color:#25243a}
+      .ma-main{background:#fff}
+      .card{background:#fff}
+      header{align-items:flex-start}
+      header h1{margin:0}
+      #stars{display:none}
+      .ma-instruction{margin:4px 0 12px;color:#4b5563;font:500 1rem/1.5 var(--font-body,system-ui,sans-serif)}
       h1,#q,.btn,nav button,#stars{font-family:var(--font-head,'HandlyCasual',cursive)}
     `;
     const styles = MATES_AVENTURA_STYLES.replace(/^@import[^;]+;\s*/, '') + brandFonts;
     root.innerHTML = `<style>${styles}</style>${MATES_AVENTURA_MARKUP}`;
+    const heading = root.querySelector('#ttl');
+    root.querySelector('#tabs').hidden = true;
+    const instruction = documentRef.createElement('p');
+    instruction.className = 'ma-instruction';
+    instruction.textContent = config.enunciado || '';
+    heading.closest('header').after(instruction);
     const sourceText = new WeakMap(), sourceAttributes = new WeakMap();
     const locale = () => window.MATES_AVENTURA?.locale
       ? window.MATES_AVENTURA.locale()
@@ -116,8 +128,10 @@ function inicializarJuegoMates(root, config, onComplete) {
     applyLocale();
 const $=s=>root.querySelector(s),R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a,sh=a=>a.sort(()=>Math.random()-.5);
 let ac,snd=true,ST=0;
-function tone(f,d=.15,t='sine',s=0,v=.08){if(!snd)return;try{ac=ac||new AudioContext();const o=ac.createOscillator(),g=ac.createGain(),n=ac.currentTime;o.type=t;o.frequency.setValueAtTime(f,n);if(s)o.frequency.exponentialRampToValueAtTime(s,n+d);g.gain.setValueAtTime(v,n);g.gain.exponentialRampToValueAtTime(.001,n+d);o.connect(g);g.connect(ac.destination);o.start();o.stop(n+d)}catch(e){}}
-const ok=()=>{tone(660,.1);setTimeout(()=>tone(880,.18),90);setTimeout(()=>tone(1100,.2),200)},bad=()=>tone(220,.3,'sawtooth',110),boing=()=>tone(250,.35,'sine',700),mech=()=>{tone(120,.08,'square');setTimeout(()=>tone(90,.12,'square'),80)};
+function tone(f,d=.15,t='sine',s=0,v=.08){if(!snd||window.pjSonido?.isMuted())return;try{ac=ac||new AudioContext();const o=ac.createOscillator(),g=ac.createGain(),n=ac.currentTime;o.type=t;o.frequency.setValueAtTime(f,n);if(s)o.frequency.exponentialRampToValueAtTime(s,n+d);g.gain.setValueAtTime(v,n);g.gain.exponentialRampToValueAtTime(.001,n+d);o.connect(g);g.connect(ac.destination);o.start();o.stop(n+d)}catch(e){}}
+const notifyAnswer=correct=>root.host.dispatchEvent(new CustomEvent('pj-mates-answer',{bubbles:true,detail:{activityType:config.tipo,correct}}));
+const playSound=(name,fallback)=>{if(window.pjSonido&&typeof window.pjSonido[name]==='function')window.pjSonido[name]();else fallback()};
+const ok=()=>{notifyAnswer(true);playSound('exito',()=>{tone(660,.1);setTimeout(()=>tone(880,.18),90);setTimeout(()=>tone(1100,.2),200)})},bad=()=>{notifyAnswer(false);playSound('error',()=>tone(220,.3,'sawtooth',110))},boing=()=>playSound('pop',()=>tone(250,.35,'sine',700)),mech=()=>playSound('golpe',()=>{tone(120,.08,'square');setTimeout(()=>tone(90,.12,'square'),80)});
 const STAR='<svg viewBox="0 0 24 24" width="20" height="20" style="vertical-align:-4px"><path d="M12 2l3 7 7.5.6-5.7 4.9 1.8 7.3L12 17.8 5.4 21.8l1.8-7.3L1.5 9.6 9 9z" fill="#ffc928" stroke="#d99100" stroke-width="1.5" stroke-linejoin="round"/></svg>';
 const star=(n=1)=>{ST+=n;hdr()};
 const say=(id,t,c)=>{const e=$(id);e.className='msg '+(c||'');e.textContent=t};
@@ -138,8 +152,8 @@ const cf=h=>cfS(h);
 const ART={cohete:['...rr...','..rwwr..','..rwwr..','..wbbw..','..wwww..','.rwwwwr.','rr.yy.rr','...oo...'],dino:['...ggg..','...gwgg.','...gggg.','g..gg...','gg.ggg..','.gggggg.','..gggg..','..g..g..']};
 const PAL={'.':'#26345a',r:'#e53935',w:'#e0e6ee',b:'#42a5f5',y:'#ffd54f',o:'#ff8a3d',g:'#4caf50'};
 let P={cells:[],sel:-1,done:0};
-function genOp(l){if(l=='mix')l=['sum','sub','mul'][R(0,2)];let a,b;if(l=='sum'){a=R(2,30);b=R(2,30);return[a+' + '+b,a+b]}if(l=='sub'){a=R(10,40);b=R(1,a);return[a+' − '+b,a-b]}a=R(2,9);b=R(2,9);return[a+' × '+b,a*b]}
-function pNew(){P.cells=[...ART[$('#p-art').value].join('')].map(c=>{const[t,a]=genOp($('#p-lvl').value);return{c,t,a,d:false}});P.done=0;$('#grid').innerHTML=P.cells.map((c,i)=>`<div class="cell" data-i="${i}">${c.t}</div>`).join('');say('#pmsg','');pSel(0)}
+function genOp(){const data=config.datos||{},difficulty=String(data.dificultad||'media').toLowerCase(),levels={facil:10,'fácil':10,media:30,medio:30,dificil:100,'difícil':100},max=Number(data.maximoNumero??levels[difficulty]??30),types=Array.isArray(data.tiposOperacion)&&data.tiposOperacion.length?data.tiposOperacion:['+'],raw=String(types[R(0,types.length-1)]).toLowerCase(),op=({'+':'+',suma:'+','sum':'+','-':'−','−':'−',resta:'−',sub:'−','*':'×','×':'×',multiplicacion:'×','multiplicación':'×',mul:'×','/':'÷','÷':'÷',division:'÷','división':'÷'})[raw];let a,b;if(op==='+'){a=R(2,max);b=R(2,max);return[a+' + '+b,a+b]}if(op==='−'){a=R(1,max);b=R(1,a);return[a+' − '+b,a-b]}if(op==='×'){a=R(2,Math.min(12,max));b=R(2,Math.min(12,max));return[a+' × '+b,a*b]}b=R(2,Math.min(12,max));a=b*R(1,Math.max(1,Math.floor(max/b)));return[a+' ÷ '+b,a/b]}
+function pNew(){P.cells=[...ART[$('#p-art').value].join('')].map(c=>{const[t,a]=genOp();return{c,t,a,d:false}});P.done=0;$('#grid').innerHTML=P.cells.map((c,i)=>`<div class="cell" data-i="${i}">${c.t}</div>`).join('');say('#pmsg','');pSel(0)}
 function pSel(i){P.sel=i;root.querySelectorAll('.cell').forEach((e,k)=>e.classList.toggle('sel',k==i));$('#opbox').textContent=i<0?'Listo':P.cells[i].t+' = ?';$('#ans').value='';$('#pprog').textContent=`Celdas pintadas: ${P.done} de 64`;if(i>=0)$('#ans').focus({preventScroll:true})}
 $('#grid').onclick=e=>{const i=e.target.dataset.i;if(i!=null&&!P.cells[i].d)pSel(+i)};
 function pCheck(){if(P.sel<0||$('#ans').value==='')return;const c=P.cells[P.sel],el=root.querySelectorAll('.cell')[P.sel];
@@ -171,10 +185,10 @@ const BAL=h=>`<svg viewBox="0 0 70 100"><path d="M35 86q-7 5 0 12" stroke="#555"
 function genQ(t){if(t=='mix')t=['half','add','mul'][R(0,2)];let q,a;if(t=='half'){if(Math.random()<.5){const n=2*R(2,50);q='Mitad de '+n;a=n/2}else{const n=R(2,40);q='Doble de '+n;a=n*2}}else if(t=='add'){const x=R(5,40),y=R(2,x);if(Math.random()<.5){q=x+' + '+y;a=x+y}else{q=x+' − '+y;a=x-y}}else{const x=R(2,9),y=R(2,9);q=x+' × '+y;a=x*y}return[q,a]}
 let motorQuestions=null;
 function round(){const ar=$('#arena');A.b.forEach(b=>b.el.remove());A.b=[];const custom=motorQuestions?.[A.sc];let q,a,options;if(custom){q=custom.pregunta||`${custom.a} ${custom.op||'+'} ${custom.b}`;a=Number(custom.correcta??custom.respuesta??(custom.op==='×'?custom.a*custom.b:custom.op==='−'?custom.a-custom.b:custom.op==='÷'?custom.a/custom.b:custom.a+custom.b));options=custom.opciones||[]}else{[q,a]=genQ($('#a-t').value);options=[]}$('#q').textContent=q+' = ?';const o=new Set([a,...options.map(Number)]);while(o.size<5){const d=a+R(-10,10);if(d>=0&&d!=a)o.add(d)}const sp=(ar.clientWidth-62)/4,sl=sh([0,1,2,3,4]),hs=sh([350,8,45,140,200,280]);[...o].slice(0,5).forEach((v,i)=>{const el=documentRef.createElement('button');el.className='bub';el.innerHTML=BAL(hs[i])+`<span>${v}</span>`;ar.appendChild(el);const b={el,v,ok:v==a,x:sl[i]*sp,y:ar.clientHeight+i*60+R(0,30),vy:.6+Math.min(A.sc,25)*.035};el.onclick=()=>pop(b);A.b.push(b)})}
-function pop(b){if(!A.on)return;if(b.ok){ok();cfS($('#arena'),b.x+31,b.y+40);A.sc++;star();hud();round()}else{boing();b.el.classList.remove('bo');void b.el.offsetWidth;b.el.classList.add('bo');b.y+=60;hit()}}
+function pop(b){if(!A.on)return;if(b.ok){ok();cfS($('#arena'),b.x+31,b.y+40);A.sc++;star();hud();round()}else{bad();b.el.classList.remove('bo');void b.el.offsetWidth;b.el.classList.add('bo');b.y+=60;hit()}}
 function hit(){A.hp--;hud();if(A.hp<=0)end()}
 function hud(){$('#a-hud').innerHTML=[0,1,2].map(i=>HEART(i<A.hp)).join('')+`<span style="margin-left:8px">${STAR} ${A.sc}</span>`}
-function end(){A.on=false;cancelAnimationFrame(A.raf);$('#ovt').textContent=`¡Fin! ${A.sc} aciertos`;$('#over').style.display='flex';bad()}
+function end(){A.on=false;cancelAnimationFrame(A.raf);$('#ovt').textContent=`¡Fin! ${A.sc} aciertos`;$('#over').style.display='flex';playSound('error',()=>tone(220,.3,'sawtooth',110))}
 function loop(){if(!A.on)return;A.b.forEach(b=>{b.y-=b.vy;b.el.style.transform=`translate(${b.x}px,${b.y}px)`});const c=A.b.find(b=>b.ok);if(c&&c.y<-90){bad();hit();if(A.on)round()}A.raf=requestAnimationFrame(loop)}
 function startA(){stopArcade();A={on:true,b:[],hp:Number(config.datos?.vidas)||3,sc:0,raf:0};motorQuestions=config.datos?.preguntas||null;$('#over').style.display='none';hud();round();loop()}
 function stopArcade(){A.on=false;cancelAnimationFrame(A.raf)}
@@ -430,7 +444,15 @@ if(good){ok();gp();cf($('#g14'));say('#tp-msg','¡Tesoro encontrado!','good')}
 else{bad();rp();mk(fx,cx,cy,`<g transform="rotate(${ang})"><path d="M26 0H64M54 -9L66 0L54 9" stroke="#e5484d" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round" class="pls"/></g>`);setTimeout(()=>{mk(fx,OX+TP.c*CS+CS/2,OY+TP.r*RS+RS/2,`<rect x="${-CS/2+2}" y="${-RS/2+2}" width="${CS-4}" height="${RS-4}" rx="8" fill="none" stroke="#ffd23f" stroke-width="4" stroke-dasharray="7 5" class="pls"/>`)},900);say('#tp-msg','Casi. Mira la flecha: el tesoro estaba hacia allí','badc')}
 setTimeout(topoNew,3600)},850)});
 
-initUI();[pNew,bNew,rNew,mNew,fNew,eNew,ninjaNew,robNew,slimeNew,temploNew,topoNew].forEach(f=>{try{f()}catch(e){console.error(e)}});
+initUI();heading.textContent=config.titulo||'';root.querySelector('#tabs')?.remove();[pNew,bNew,rNew,mNew,fNew,eNew,ninjaNew,robNew,slimeNew,temploNew,topoNew].forEach(f=>{try{f()}catch(e){console.error(e)}});
+const soundButton=$('#mute');
+const updateSoundButton=()=>{snd=window.pjSonido?!window.pjSonido.isMuted():snd;soundButton.setAttribute('aria-pressed',String(snd));soundButton.title=snd?'Sonido activado':'Sonido silenciado';soundButton.innerHTML=SPK(snd)+' Sonido '+(snd?'activado':'silenciado')};
+soundButton.onclick=()=>{snd=window.pjSonido?window.pjSonido.isMuted():!snd;if(window.pjSonido)window.pjSonido.setMuted(!snd);updateSoundButton()};
+updateSoundButton();
+const settingIds=['p-lvl','p-art','a-t','r-rule','r-min','m-max','m-cnt','e-m','tp-mode'];
+settingIds.forEach(id=>{const control=$('#'+id),label=control?.closest('label');if(label)label.hidden=true});
+$('#e-m').closest('.row')?.querySelector('.mut')?.remove();
+root.querySelectorAll('.row').forEach(row=>{const labels=[...row.querySelectorAll('label')];if(labels.length&&labels.every(label=>label.hidden)&&!row.querySelector('button:not([hidden])'))row.hidden=true});
 
   const data = config.datos;
   let arcadeGoal = 5;
@@ -454,6 +476,15 @@ initUI();[pNew,bNew,rNew,mNew,fNew,eNew,ninjaNew,robNew,slimeNew,temploNew,topoN
 
     switch (config.tipo) {
       case 'mates_pixel': {
+        if (data.dificultad != null && !['facil','fácil','media','medio','dificil','difícil'].includes(String(data.dificultad).toLowerCase())) throw new Error('"dificultad" debe ser "facil", "media" o "dificil"');
+        if (data.maximoNumero != null) {
+          const maximum = number(data.maximoNumero, 'maximoNumero', 2, 1000);
+          if (!Number.isInteger(maximum)) throw new Error('"maximoNumero" debe ser un número entero');
+        }
+        if (data.tiposOperacion != null) {
+          if (!Array.isArray(data.tiposOperacion) || !data.tiposOperacion.length) throw new Error('"tiposOperacion" debe ser una lista de operadores');
+          data.tiposOperacion.forEach(value => { if (!operation(value)) throw new Error(`operador no reconocido: ${value}`); });
+        }
         if (data.dibujo) {
           if (!Object.hasOwn(ART, data.dibujo)) throw new Error('"dibujo" debe ser "cohete" o "dino"');
           $('#p-art').value = data.dibujo;
@@ -499,6 +530,10 @@ initUI();[pNew,bNew,rNew,mNew,fNew,eNew,ninjaNew,robNew,slimeNew,temploNew,topoN
         break;
       }
       case 'mates_arcade': {
+        if (data.tipoReto != null) {
+          if (!['mix', 'half', 'add', 'mul'].includes(data.tipoReto)) throw new Error('"tipoReto" debe ser "mix", "half", "add" o "mul"');
+          $('#a-t').value = data.tipoReto;
+        }
         if (data.vidas != null) number(data.vidas, 'vidas', 1, 10);
         if (Array.isArray(data.preguntas) && data.preguntas.length) {
           data.preguntas = data.preguntas.map((item, index) => {
@@ -518,7 +553,8 @@ initUI();[pNew,bNew,rNew,mNew,fNew,eNew,ninjaNew,robNew,slimeNew,temploNew,topoN
           });
         }
         arcadeGoal = data.objetivoAciertos == null ? data.preguntas?.length || 5 : number(data.objetivoAciertos, 'objetivoAciertos', 1, 100);
-        $('#a-go').textContent = 'EMPEZAR';
+        $('#a-go').hidden = true;
+        startA();
         break;
       }
       case 'mates_rio': {
@@ -540,6 +576,11 @@ initUI();[pNew,bNew,rNew,mNew,fNew,eNew,ninjaNew,robNew,slimeNew,temploNew,topoN
         break;
       }
       case 'mates_monstruo': {
+        if (data.maximo != null) $('#m-max').value = String(number(data.maximo, 'maximo', 1, 999));
+        if (data.contador != null) {
+          if (typeof data.contador !== 'boolean') throw new Error('"contador" debe ser true o false');
+          $('#m-cnt').checked = data.contador;
+        }
         mNew();
         if (data.objetivo != null) {
           M.t = number(data.objetivo, 'objetivo', 1, 999);
@@ -693,11 +734,13 @@ initUI();[pNew,bNew,rNew,mNew,fNew,eNew,ninjaNew,robNew,slimeNew,temploNew,topoN
         break;
       }
       case 'mates_topo': {
+        const mode = data.modo == null ? 'xy' : data.modo;
+        if (!['xy', 'cf'].includes(mode)) throw new Error('"modo" debe ser "xy" o "cf"');
         TN = data.columnas == null ? 6 : number(data.columnas, 'columnas', 1, 10);
         TR = data.filas == null ? 6 : number(data.filas, 'filas', 1, 10);
         CS = 300 / TN;
         RS = 300 / TR;
-        $('#tp-mode').value = 'xy';
+        $('#tp-mode').value = mode;
         topoNew();
         if (data.columna != null || data.fila != null) {
           TP.c = data.columna == null ? R(1, TN) - 1 : number(data.columna, 'columna', 1, TN) - 1;

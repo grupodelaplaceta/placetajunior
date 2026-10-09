@@ -6,10 +6,11 @@
    ═══════════════════════════════════════════════════════════════════ */
 // Versionar la caché fuerza la actualización del reproductor y estilos en
 // dispositivos que ya visitaron la web.
-const CACHE = 'placetajunior-assets-v9';
+const CACHE = 'placetajunior-assets-v10';
 
 const ASSETS = [
   '/css/styles.css',
+  '/css/info-redesign.css?v=20261009-info-editorial',
   '/css/home.css',
   '/css/leaflet.css',
   '/js/app.js',
