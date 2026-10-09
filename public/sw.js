@@ -6,7 +6,7 @@
    ═══════════════════════════════════════════════════════════════════ */
 // Versionar la caché fuerza la actualización del reproductor y estilos en
 // dispositivos que ya visitaron la web.
-const CACHE = 'placetajunior-assets-v12';
+const CACHE = 'placetajunior-assets-v13';
 
 const ASSETS = [
   '/css/styles.css',

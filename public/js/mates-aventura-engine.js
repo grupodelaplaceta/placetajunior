@@ -50,14 +50,29 @@ function inicializarJuegoMates(root, config, onComplete) {
   };
   try {
     const brandFonts = `
-      :host{font:500 17px/1.35 var(--font-body,'Plus Jakarta Sans',system-ui,sans-serif);background:#fff;color:#25243a}
+      :host{font:500 clamp(16px,1.5vw,19px)/1.45 var(--font-body,'Plus Jakarta Sans',system-ui,sans-serif);background:#fff;color:#25243a}
       .ma-main{background:#fff}
       .card{background:#fff}
-      header{align-items:flex-start}
-      header h1{margin:0}
+      .ma-main{width:100%;max-width:1120px;margin-inline:auto;padding:clamp(12px,2vw,24px)}
+      .card{padding:clamp(14px,2vw,24px);border:1px solid #e5e7eb;border-radius:20px;box-shadow:none}
+      header{align-items:center;flex-wrap:wrap;gap:12px}
+      header h1{margin:0;font-size:clamp(1.25rem,2.8vw,1.75rem);line-height:1.2;overflow-wrap:anywhere}
       #stars{display:none}
-      .ma-instruction{margin:4px 0 12px;color:#4b5563;font:500 1rem/1.5 var(--font-body,system-ui,sans-serif)}
-      h1,#q,.btn,nav button,#stars{font-family:var(--font-head,'HandlyCasual',cursive)}
+      .ma-instruction{max-width:72ch;margin:6px 0 16px;color:#4b5563;font:500 clamp(1rem,1.6vw,1.125rem)/1.55 var(--font-body,system-ui,sans-serif)}
+      .btn,.tapb,.fn{min-height:44px;font-size:clamp(1rem,1.5vw,1.125rem)}
+      .btn.big{padding:10px 20px;font-size:clamp(1.05rem,1.7vw,1.3rem)}
+      .mut,.lbl,.scale{font-size:clamp(.9rem,1.2vw,1rem);line-height:1.4}
+      .msg{min-height:1.4em;font-size:clamp(1rem,1.8vw,1.25rem);line-height:1.4;overflow-wrap:anywhere}
+      #q{max-width:calc(100% - 24px);font-size:clamp(1.35rem,3.2vw,2rem);line-height:1.2;overflow-wrap:anywhere}
+      @media(max-width:520px){
+        .ma-main{padding:12px}
+        .card{padding:12px;border-radius:16px}
+        .ma-instruction{margin:6px 2px 14px}
+        .btn,.tapb,.fn{min-height:48px}
+        #q{max-width:calc(100% - 16px);font-size:clamp(1.2rem,6vw,1.5rem)}
+      }
+      h1,#q,#stars{font-family:var(--font-head,'HandlyCasual',cursive)}
+      .btn,nav button{font-family:var(--font-body,'Plus Jakarta Sans',system-ui,sans-serif)}
     `;
     const styles = MATES_AVENTURA_STYLES.replace(/^@import[^;]+;\s*/, '') + brandFonts;
     root.innerHTML = `<style>${styles}</style>${MATES_AVENTURA_MARKUP}`;
@@ -451,7 +466,7 @@ soundButton.onclick=()=>{snd=window.pjSonido?window.pjSonido.isMuted():!snd;if(w
 updateSoundButton();
 const settingIds=['p-lvl','p-art','a-t','r-rule','r-min','m-max','m-cnt','e-m','tp-mode'];
 settingIds.forEach(id=>{const control=$('#'+id),label=control?.closest('label');if(label)label.hidden=true});
-['p-new','r-new'].forEach(id=>{const control=$('#'+id);if(control)control.hidden=true});
+['p-new','r-new','r-stop'].forEach(id=>{const control=$('#'+id);if(control)control.hidden=true});
 $('#e-m').closest('.row')?.querySelector('.mut')?.remove();
 root.querySelectorAll('.row').forEach(row=>{const labels=[...row.querySelectorAll('label')];if(labels.length&&labels.every(label=>label.hidden)&&!row.querySelector('button:not([hidden])'))row.hidden=true});
 
