@@ -22,7 +22,7 @@
   function idiomaElegidoGuardado() {
     try {
       const s = JSON.parse(localStorage.getItem(KEY) || '{}');
-      const val = String((s && s.idioma) || '').trim().slice(0, 2).toLowerCase();
+      const val = String((s && s.idioma) || '').trim().toLowerCase();
       return ['es', 'ca', 'eu', 'en', 'val'].includes(val);
     } catch (e) {
       return false;
@@ -68,11 +68,12 @@
   };
 
   window.__juniorSetIdioma = function (valor) {
-    const nuevo = String(valor || 'es').trim().slice(0, 2).toLowerCase();
+    const nuevo = String(valor || 'es').trim().toLowerCase();
     idioma = ['es', 'ca', 'eu', 'en', 'val'].includes(nuevo) ? nuevo : 'es';
     guardar();
     aplicar();
     if (window.PJApplyUiTranslation) window.PJApplyUiTranslation(idioma);
+    window.dispatchEvent(new CustomEvent('pj:idioma-cambiado', { detail: { idioma } }));
   };
 
   const synth = window.speechSynthesis || null;

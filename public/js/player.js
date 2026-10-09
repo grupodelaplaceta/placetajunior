@@ -56,7 +56,7 @@ function mostrarSelectorEscritura() {
   function obtenerIdiomaGuardado() {
     try {
       const s = JSON.parse(localStorage.getItem('junior_acc_web') || '{}');
-      const val = String(s && s.idioma || 'es').trim().slice(0, 2).toLowerCase();
+      const val = String(s && s.idioma || 'es').trim().toLowerCase();
       return ['es', 'ca', 'eu', 'en', 'val'].includes(val) ? val : 'es';
     } catch (e) {
       return 'es';

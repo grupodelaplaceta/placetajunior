@@ -34,16 +34,86 @@ function inicializarJuegoMates(root, config, onComplete) {
   const requestAnimationFrame = callback => { let id; id = window.requestAnimationFrame(time => { frameIds.delete(id); if (!disposed) callback(time); }); frameIds.add(id); return id; };
   const cancelAnimationFrame = id => { frameIds.delete(id); window.cancelAnimationFrame(id); };
   const listen = (type, callback, options) => { root.addEventListener(type, callback, options); eventListeners.push([type, callback, options]); };
+  let translationObserver = null;
+  let languageChangeListener = null;
+  let storageChangeListener = null;
   const cleanup = () => {
     if (disposed) return;
     disposed = true;
+    translationObserver?.disconnect();
+    if (languageChangeListener) window.removeEventListener('pj:idioma-cambiado', languageChangeListener);
+    if (storageChangeListener) window.removeEventListener('storage', storageChangeListener);
     timeoutIds.forEach(nativeClearTimeout);
     intervalIds.forEach(nativeClearInterval);
     frameIds.forEach(id => window.cancelAnimationFrame(id));
     eventListeners.forEach(([type, callback, options]) => root.removeEventListener(type, callback, options));
   };
   try {
-    root.innerHTML = `<style>${MATES_AVENTURA_STYLES}</style>${MATES_AVENTURA_MARKUP}`;
+    const brandFonts = `
+      :host{font:500 17px/1.35 var(--font-body,'Plus Jakarta Sans',system-ui,sans-serif)}
+      h1,#q,.btn,nav button,#stars{font-family:var(--font-head,'HandlyCasual',cursive)}
+    `;
+    const styles = MATES_AVENTURA_STYLES.replace(/^@import[^;]+;\s*/, '') + brandFonts;
+    root.innerHTML = `<style>${styles}</style>${MATES_AVENTURA_MARKUP}`;
+    const sourceText = new WeakMap(), sourceAttributes = new WeakMap();
+    const locale = () => window.MATES_AVENTURA?.locale
+      ? window.MATES_AVENTURA.locale()
+      : ['es', 'ca', 'eu', 'en', 'val'].includes(documentRef.documentElement.lang) ? documentRef.documentElement.lang : 'es';
+    const translate = value => window.MATES_AVENTURA?.translate
+      ? window.MATES_AVENTURA.translate(value, locale())
+      : value;
+    const localizeTextNode = node => {
+      const previous = sourceText.get(node);
+      const current = node.data;
+      const source = previous && previous.rendered === current ? previous.source : current;
+      const leading = source.match(/^\s*/)[0], trailing = source.match(/\s*$/)[0];
+      const rendered = leading + translate(source.trim()) + trailing;
+      sourceText.set(node, { source, rendered });
+      if (rendered !== current) node.data = rendered;
+    };
+    const localizeAttribute = (element, name) => {
+      const values = sourceAttributes.get(element) || new Map();
+      const previous = values.get(name);
+      const current = element.getAttribute(name);
+      const source = previous && previous.rendered === current ? previous.source : current;
+      if (source == null) return;
+      const rendered = translate(source);
+      values.set(name, { source, rendered });
+      sourceAttributes.set(element, values);
+      if (rendered !== current) element.setAttribute(name, rendered);
+    };
+    const localizeSubtree = node => {
+      if (node.nodeType === 3) {
+        localizeTextNode(node);
+        return;
+      }
+      const walker = documentRef.createTreeWalker(node, documentRef.defaultView.NodeFilter.SHOW_TEXT);
+      while (walker.nextNode()) localizeTextNode(walker.currentNode);
+      if (node.nodeType === 1 && node.matches('*')) {
+        ['aria-label', 'title', 'placeholder'].forEach(name => localizeAttribute(node, name));
+      }
+      node.querySelectorAll?.('*').forEach(element => ['aria-label', 'title', 'placeholder'].forEach(name => localizeAttribute(element, name)));
+    };
+    const applyLocale = () => localizeSubtree(root);
+    languageChangeListener = applyLocale;
+    window.addEventListener('pj:idioma-cambiado', languageChangeListener);
+    storageChangeListener = event => {
+      if (event.key === 'junior_acc_web') applyLocale();
+    };
+    window.addEventListener('storage', storageChangeListener);
+    translationObserver = new MutationObserver(records => records.forEach(record => {
+      if (record.type === 'characterData') localizeTextNode(record.target);
+      else if (record.type === 'attributes') localizeAttribute(record.target, record.attributeName);
+      else record.addedNodes.forEach(localizeSubtree);
+    }));
+    translationObserver.observe(root, {
+      subtree: true,
+      childList: true,
+      characterData: true,
+      attributes: true,
+      attributeFilter: ['aria-label', 'title', 'placeholder']
+    });
+    applyLocale();
 const $=s=>root.querySelector(s),R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a,sh=a=>a.sort(()=>Math.random()-.5);
 let ac,snd=true,ST=0;
 function tone(f,d=.15,t='sine',s=0,v=.08){if(!snd)return;try{ac=ac||new AudioContext();const o=ac.createOscillator(),g=ac.createGain(),n=ac.currentTime;o.type=t;o.frequency.setValueAtTime(f,n);if(s)o.frequency.exponentialRampToValueAtTime(s,n+d);g.gain.setValueAtTime(v,n);g.gain.exponentialRampToValueAtTime(.001,n+d);o.connect(g);g.connect(ac.destination);o.start();o.stop(n+d)}catch(e){}}
@@ -688,7 +758,10 @@ class MatesAventuraMotorGame extends HTMLElement {
     } catch (error) {
       console.error('No se pudo iniciar Mates Aventura en el motor:', error);
       root.innerHTML = '<style>:host{display:block;padding:20px;color:#7b1d2a;font:700 16px/1.5 system-ui}</style><p role="alert"></p>';
-      root.querySelector('[role="alert"]').textContent = `No se pudo configurar esta actividad: ${error.message}`;
+      const prefix = window.MATES_AVENTURA?.translate
+        ? window.MATES_AVENTURA.translate('No se pudo configurar esta actividad')
+        : 'No se pudo configurar esta actividad';
+      root.querySelector('[role="alert"]').textContent = `${prefix}: ${error.message}`;
     }
   }
 
