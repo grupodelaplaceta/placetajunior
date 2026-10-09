@@ -472,7 +472,6 @@ root.querySelectorAll('.row').forEach(row=>{const labels=[...row.querySelectorAl
   })[String(value || '+').toLowerCase()];
   const resultOf = (a, op, b) => op === '+' ? a + b : op === '−' ? a - b : op === '×' ? a * b : a / b;
 
-    $('#tabs').hidden = true;
     root.querySelectorAll('.game').forEach(section => section.classList.toggle('on', section.id === gameSection));
 
     switch (config.tipo) {
