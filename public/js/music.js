@@ -10,7 +10,7 @@
   const SEMITONO = Math.pow(2, 1 / 12); // ≈1.0595 → +1 semitono
 
   const CANCIONES = {
-    dia: 'sounds/Día.mp3',
+    dia: 'sounds/Dia.mp3',
     noche: 'sounds/Noche.mp3',
     coding: 'sounds/Coding.mp3',
     animales: 'sounds/Animales.mp3',

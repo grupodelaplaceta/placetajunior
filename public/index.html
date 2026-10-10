@@ -244,8 +244,7 @@ details{padding:0 16px;margin-bottom:8px}summary{padding:10px 0;font-size:16px}
 #play #g{margin:12px;border-radius:26px;box-shadow:0 0 0 4px var(--card),0 12px 26px -14px rgba(60,10,140,.55)}
 @media(max-width:420px){#play #bar{gap:6px;padding:14px 8px 8px}#play #gi{display:none}#play .b{min-width:40px;height:40px;padding:0 10px}}
 .sndb{padding:0;width:40px;justify-content:center}
-.ag{white-space:nowrap}
-.cover .cfb{position:absolute;inset:0;display:grid;place-items:center;color:var(--c);opacity:.55}.cover .cfb .ic{width:38%;height:auto;max-height:70%;stroke-width:1.6}
+.ag{white-space:nowrap} footer .lgl a{font-size:14px;opacity:.92}footer p a{color:#fff;text-underline-offset:3px}footer p a:hover{color:var(--y,#FFD21F)} @media(max-width:560px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:18px}.grid .card{padding:8px;border-radius:20px}.grid .card .cover{aspect-ratio:16/10;border-radius:14px}.grid .gt{font-size:15px;gap:6px;line-height:1.15}.grid .gt .ib{width:26px;height:26px;flex:none}.grid .gt .ib .ic{width:15px;height:15px}.grid .play{padding:7px 8px;font-size:14px;gap:5px;min-height:0}.grid .play .ic{width:15px;height:15px}} .card{position:relative}.infb{position:absolute;top:18px;right:18px;z-index:2;width:34px;height:34px;border-radius:50%;border:0;background:#fffe;color:var(--purple);display:grid;place-items:center;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.25)}.infb .ic{width:20px;height:20px}.infb:hover{background:var(--yellow);color:#1D1744} .cover .cfb{position:absolute;inset:0;display:grid;place-items:center;color:var(--c);opacity:.55}.cover .cfb .ic{width:38%;height:auto;max-height:70%;stroke-width:1.6}
 #actp{position:fixed;inset:0;z-index:200;background:var(--bg)}#actp iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:var(--bg)}
 </style>
 </head>
@@ -256,6 +255,7 @@ details{padding:0 16px;margin-bottom:8px}summary{padding:10px 0;font-size:16px}
 <dialog id="cd" aria-labelledby="ct"></dialog>
 <div id="live" class="sr" aria-live="polite" style="position:absolute;left:-9999px"></div>
 <div id="play" role="dialog" aria-modal="true"><div id="bar"><button class="b" id="pjb" type="button"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M15 4l-8 8 8 8" stroke="currentColor" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div id="gi" style="width:44px;height:44px;flex:none" aria-hidden="true"></div><div id="t"></div><button class="b" id="rp" type="button"></button><button class="b" id="mu" type="button"></button><div class="b sc"><span id="st" style="width:22px;height:22px" aria-hidden="true"></span><span id="n">0</span></div></div><div id="g"></div></div>
+<script src="js/music.js"></script>
 <script>
 (function(){
 const PJ={onBack:null,nm:n=>n,ins:(n,d)=>d,vl:()=>'ca',tx:t=>t};
@@ -306,13 +306,13 @@ const to=(f,ms)=>{const t=setTimeout(f,ms);CL.push(()=>clearTimeout(t))};
    un sonido sintetizado equivalente, así que nada se queda mudo. */
 const MX='https://assets.mixkit.co/sfx/preview/mixkit-',TJ='https://tonejs.github.io/audio/';
 const SU={
-click:MX+'select-click-1109.mp3',
-tap:MX+'game-click-1114.mp3',
-close:MX+'mouse-click-close-1113.mp3',
-beep:MX+'positive-interface-beep-221.mp3',
-good:MX+'unlock-game-notification-253.mp3',
-win:MX+'winning-chimes-2015.mp3',
-lose:MX+'retro-arcade-lose-2027.mp3',
+click:'sounds/clic.wav',
+tap:'sounds/pop.wav',
+close:'sounds/abrir.wav',
+beep:'sounds/letra.wav',
+good:'sounds/exito.wav',
+win:'sounds/victoria.wav',
+lose:'sounds/error.wav',
 jump:MX+'quick-jump-arcade-game-239.mp3',
 gong:TJ+'berklee/gong_1.mp3'};
 function tone0(f,d=.3,ty='sine',v=.15,f2){if(mute)return;try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();const t=ac.currentTime,o=ac.createOscillator(),g=ac.createGain();o.type=ty;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+d)}catch(e){}}
@@ -653,7 +653,7 @@ code:["Tengo un código","Tinc un codi","I have a code"],hi:["¡Hola, explorador
 h1a:["Tu próxima aventura","La teva pròxima aventura","Your next adventure"],h1b:["empieza aquí","comença aquí","starts here"],
 lead:["Elige un reto, juega a tu ritmo y descubre algo nuevo. No pasa nada si te equivocas: aquí se aprende jugando.","Tria un repte, juga al teu ritme i descobreix alguna cosa nova. No passa res si t'equivoques: aquí s'aprèn jugant.","Pick a challenge, play at your own pace and discover something new. Mistakes are fine: here we learn by playing."],
 play:["Empezar a jugar","Començar a jugar","Start playing"],yrs:["años","anys","years"],st:["Juegos y actividades","Jocs i activitats","Games and activities"],
-fa:["Edad","Edat","Age"],fs:["Asignatura","Assignatura","Subject"],aa:["Todas las edades","Totes les edats","All ages"],as:["Todas las asignaturas","Totes les assignatures","All subjects"],inf:["Infantil · 3-5 años","Infantil · 3-5 anys","Early years · 3-5"],pick:["Elegir","Triar","Choose"],rep:["Ver instrucciones","Veure instruccions","Show instructions"],snd:["Sonido","So","Sound"],slide:["Diapositiva","Diapositiva","Slide"],load:["Cargando actividades…","Carregant activitats…","Loading activities…"],err:["No se pudieron cargar las actividades. Inténtalo de nuevo en unos instantes.","No s'han pogut carregar les activitats. Torna-ho a provar d'aquí a una estona.","Activities could not be loaded. Please try again shortly."],cerr:["Código no válido","Codi no vàlid","Invalid code"],cused:["Este código ya se ha usado en esta sesión.","Aquest codi ja s'ha fet servir en aquesta sessió.","This code was already used in this session."],nores:["No hay actividades con este filtro.","No hi ha activitats amb aquest filtre.","No activities match this filter."],pop:["Populares","Populars","Popular"],
+fa:["Edad","Edat","Age"],fs:["Asignatura","Assignatura","Subject"],aa:["Todas las edades","Totes les edats","All ages"],as:["Todas las asignaturas","Totes les assignatures","All subjects"],inf:["Infantil · 3-5 años","Infantil · 3-5 anys","Early years · 3-5"],pick:["Elegir","Triar","Choose"],rep:["Ver instrucciones","Veure instruccions","Show instructions"],snd:["Sonido","So","Sound"],slide:["Diapositiva","Diapositiva","Slide"],load:["Cargando actividades…","Carregant activitats…","Loading activities…"],err:["No se pudieron cargar las actividades. Inténtalo de nuevo en unos instantes.","No s'han pogut carregar les activitats. Torna-ho a provar d'aquí a una estona.","Activities could not be loaded. Please try again shortly."],cerr:["Código no válido","Codi no vàlid","Invalid code"],cused:["Este código ya se ha usado en esta sesión.","Aquest codi ja s'ha fet servir en aquesta sessió.","This code was already used in this session."],inf2:["Información y PDF","Informació i PDF","Info and PDF"],lgA:["Aviso legal","Avís legal","Legal notice"],lgP:["Privacidad","Privadesa","Privacy"],lgT:["Términos","Termes","Terms"],lgC:["Cookies","Cookies","Cookies"],nores:["No hay actividades con este filtro.","No hi ha activitats amb aquest filtre.","No activities match this filter."],pop:["Populares","Populars","Popular"],
 all:["Todas","Totes","All"],see:["Ver todo","Veure-ho tot","See all"],acts:["actividades","activitats","activities"],
 back:["Volver","Tornar","Back"],jug:["Jugar","Jugar","Play"],prev:["Anterior","Anterior","Previous"],next:["Siguiente","Següent","Next"],skip:["Saltar al contenido","Saltar al contingut","Skip to content"],
 ph2:["Aquí se carga la actividad","Aquí es carrega l'activitat","The activity loads here"],views:["visualizaciones","visualitzacions","views"],
@@ -701,7 +701,7 @@ function sj(id){return SJ.filter(function(s){return s[0]===id})[0]}
 function okA(a){if(FA==='all')return true;var r=FR[FA];return a[4]!==null&&a[4]>=r[0]&&a[4]<=r[1]}
 function thumb(img,gif,icn){return '<div class="cover" aria-hidden="true">'+(!img&&icn?'<span class="cfb">'+ic(icn)+'</span>':'')+(img?'<img class="th" src="'+img+'" alt="" loading="lazy">':'')+(gif?'<img class="gif" data-src="'+gif+'" alt="">':'')+'</div>'}
 function card(a){var s=sj(a[1]),n=s[3][li];
-return '<a class="card" style="--c:'+s[2]+'" href="#/a/'+a[0]+'">'+thumb(a[7],a[8],a[2])+'<h3>'+a[3][li]+'</h3><div class="meta"><span class="pill">'+n+'</span>'+(a[4]===null?'':'<span class="ag">'+(a[5]>a[4]?a[4]+'-'+a[5]:a[4]+'+')+'<span class="sr"> '+t('yrs')+'</span></span>')+'<span class="views">'+ic('eye')+a[6]+'<span class="sr"> '+t('views')+'</span></span></div><span class="play">'+ic('play')+t('jug')+'</span></a>'}
+return '<a class="card" style="--c:'+s[2]+'" href="#/a/'+a[0]+'">'+thumb(a[7],a[8],a[2])+'<button type="button" class="infb" data-a="info" data-v="'+a[0]+'" aria-label="'+t('inf2')+'">'+ic('info')+'</button><h3>'+a[3][li]+'</h3><div class="meta"><span class="pill">'+n+'</span>'+(a[4]===null?'':'<span class="ag">'+(a[5]>a[4]?a[4]+'-'+a[5]:a[4]+'+')+'<span class="sr"> '+t('yrs')+'</span></span>')+'<span class="views">'+ic('eye')+a[6]+'<span class="sr"> '+t('views')+'</span></span></div><span class="play">'+ic('play')+t('jug')+'</span></a>'}
 var GIMG={}; // miniatura 16:9 y GIF de preview por juego: GIMG['Nom en català']=['miniatura.jpg','preview.gif'] · también GIMG.col / GIMG.puz para las tarjetas de grupo
 var GRP=[
 {ic:'brush',h:340,n:["Pintar y dibujar","Pintar i dibuixar","Paint and draw"],f:function(g){return(g.cat===0&&!/^Pinta /.test(g.n))||g.n==='Píxel art'},ch:'col'},
@@ -731,7 +731,7 @@ return '<header class="top"><div class="wrap bar"><a class="logo" href="#/" aria
 '<div class="lang"><button class="rb" data-a="menu" aria-haspopup="true" aria-expanded="false" aria-label="'+t('wl')+'">'+FL[S.l]+S.l.toUpperCase()+'</button><div class="menu" id="lm">'+L.map(function(l){return '<button data-a="lang" data-v="'+l+'" aria-pressed="'+(l===S.l)+'">'+FL[l]+LN[l]+'</button>'}).join('')+'<hr><button data-a="case" data-v="uc" aria-pressed="'+(S.c==='uc')+'">'+t('uc')+'</button><button data-a="case" data-v="lc" aria-pressed="'+(S.c==='lc')+'">'+t('lc')+'</button></div></div>'+
 '<button class="rb sndb" data-a="snd" aria-pressed="'+(S.s!==0)+'" aria-label="'+t('snd')+'">'+ic(S.s!==0?'vol':'mutei')+'</button>'+
 '<button class="btn b-wh" data-a="code" aria-label="'+t('code')+'">'+ic('key')+'<span>'+t('code')+'</span></button></div></header>'}
-function footer(){return '<footer><div class="wrap"><img class="fl" src="'+LOGO+'" alt="Placeta Junior"><nav aria-label="Footer"><a href="#/actividades">'+t('n2')+'</a><a href="#/juegos">'+t('n3')+'</a><a href="#/familias">'+t('n4')+'</a><a href="#/info">'+t('n5')+'</a><a href="https://laplaceta.org">laplaceta.org</a></nav><p>© 2026 Placeta Junior · Grupo de La Placeta</p></div></footer>'}
+function footer(){return '<footer><div class="wrap"><img class="fl" src="'+LOGO+'" alt="Placeta Junior"><nav aria-label="Footer"><a href="#/actividades">'+t('n2')+'</a><a href="#/juegos">'+t('n3')+'</a><a href="#/familias">'+t('n4')+'</a><a href="#/info">'+t('n5')+'</a><a href="https://laplaceta.org">laplaceta.org</a></nav><nav class="lgl" aria-label="Legal"><a href="aviso-legal.html">'+t('lgA')+'</a><a href="privacidad.html">'+t('lgP')+'</a><a href="terminos.html">'+t('lgT')+'</a><a href="cookies.html">'+t('lgC')+'</a></nav><p>© 2026 Placeta Junior · Grupo de La Placeta · NIF G27566900 · <a href="mailto:junta@laplaceta.org">junta@laplaceta.org</a></p></div></footer>'}
 function slides(){return '<div class="photo"><div class="slides" role="group" aria-roledescription="carousel" aria-label="Placeta Junior">'+HS.map(function(u,i){return '<div class="slide'+(i===hx?' on':'')+'" role="group" aria-roledescription="slide" aria-label="'+(i+1)+' / '+HS.length+'">'+(u?'<img src="'+u+'" alt="'+(HA[i]||'').replace(/"/g,'&quot;')+'"'+(i?' loading="lazy"':'')+'>':'')+'</div>'}).join('')+'</div><div class="dots">'+HS.map(function(u,i){return '<button data-a="slide" data-v="'+i+'" aria-label="'+t('slide')+' '+(i+1)+'" aria-current="'+(i===hx)+'"></button>'}).join('')+'</div></div>'}
 function setSlide(i){hx=i;document.querySelectorAll('.slide').forEach(function(s,k){s.classList.toggle('on',k===i)});document.querySelectorAll('.dots button').forEach(function(b,k){b.setAttribute('aria-current',k===i)})}
 function startHero(){clearInterval(ht);if(HS.length>1&&!matchMedia('(prefers-reduced-motion:reduce)').matches)ht=setInterval(function(){setSlide((hx+1)%HS.length)},5500)}
@@ -747,26 +747,27 @@ return '<section class="games sec" style="flex:1"><div class="wrap">'+crumb('#/j
 function crumb(h){return '<a class="crumb" data-a="back" href="'+h+'">'+ic('al')+t('back')+'</a>'}
 function subj(id){var s=sj(id),l=s?A.filter(function(a){return a[1]===id}):A.slice();var hs=s||['todas','flame','#C2560A',[t('pop'),t('pop'),t('pop')]];
 return '<section class="sec"><div class="wrap">'+crumb('#/actividades')+'<div class="sh" style="--c:'+hs[2]+'"><span class="ib">'+ic(hs[1])+'</span><h1 style="font-size:22px;margin:0;flex:1">'+hs[3][li]+'</h1><span style="font:400 14px var(--f1);color:var(--mute);padding:0 10px">'+l.length+' '+t('acts')+'</span></div><div class="grid" style="margin-top:14px">'+l.map(card).join('')+'</div></div></section>'}
-function openAct(id){var a=A.filter(function(x){return x[0]===id})[0],o=document.getElementById('actp');if(o&&o.dataset.id===id)return;if(o)o.remove();
-o=document.createElement('div');o.id='actp';o.dataset.id=id;o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');
-o.innerHTML='<iframe src="jugar.html?jugar='+encodeURIComponent(id)+'" title="'+(a?a[3][li].replace(/"/g,'&quot;'):'Placeta Junior')+'" allow="fullscreen; autoplay; microphone" allowfullscreen></iframe>';
+function openAct(id,m){m=m||'a';var a=A.filter(function(x){return x[0]===id})[0],o=document.getElementById('actp');if(o&&o.dataset.id===m+id)return;if(o)o.remove();
+o=document.createElement('div');o.id='actp';o.dataset.id=m+id;o.setAttribute('role','dialog');o.setAttribute('aria-modal','true');
+o.innerHTML='<iframe src="jugar.html?'+(m==='i'?'id':'jugar')+'='+encodeURIComponent(id)+'" title="'+(a?a[3][li].replace(/"/g,'&quot;'):'Placeta Junior')+'" allow="fullscreen; autoplay; microphone" allowfullscreen></iframe>';
 document.body.appendChild(o);document.body.style.overflow='hidden';if(a)document.title=a[3][li]+' · Placeta Junior'}
+function musica(g,a){try{if(!window.PJMusic)return;PJMusic.setSonido(S.s!==0&&g===null&&a===null)}catch(e){}}
 function closeAct(){var o=document.getElementById('actp');if(o){o.remove();document.body.style.overflow=''}}
 window.addEventListener('message',function(e){if(e.origin!==location.origin||!e.data||!e.data.pjClose)return;if(stack.length>1)history.back();else location.hash='#/actividades'});
 function snap(){return {y:window.scrollY,tr:[].map.call(document.querySelectorAll('.track[id]'),function(el){return [el.id,el.scrollLeft]})}}
-function route(nv,rest){var p=(location.hash.replace(/^#/,'')||'/').split('/').filter(Boolean),v,r,name='page',anc=null,gi=null,ai=null,skip=false;
+function route(nv,rest){var p=(location.hash.replace(/^#/,'')||'/').split('/').filter(Boolean),v,r,name='page',anc=null,gi=null,ai=null,am='a',skip=false;
 if(!p[0]){name='home';r='#/'}else if(p[0]==='actividades'){name='home';r='#/actividades';anc='#actividades'}
 else if(['familias','families','info'].indexOf(p[0])>-1){name='home';r='#/';anc=p[0]==='info'?'#info':'#familias'}
 else if(p[0]==='juegos'){name='games';v=jocs();r='#/juegos'}
 else if(p[0]==='jp'){name='pick'+p[1];v=pick(p[1]);r='#/juegos'}
 else if(p[0]==='j'&&/^\d+$/.test(p[1]||'')){gi=+p[1];r='#/juegos';if(cur==='games'||cur.indexOf('pick')===0){name=cur;skip=true}else{name='games';v=jocs()}}
-else if(p[0]==='a'&&p[1]){ai=decodeURIComponent(p[1]);r='#/actividades';if(cur){name=cur;skip=true}else{name='home'}}else if(p[0]==='s'){v=subj(p[1]);r='#/actividades'}else{name='home';r='#/'}
-if(gi===null&&PJG.isOpen())PJG.close();if(ai===null)closeAct();
+else if((p[0]==='a'||p[0]==='i')&&p[1]){ai=decodeURIComponent(p[1]);am=p[0];r='#/actividades';if(cur){name=cur;skip=true}else{name='home'}}else if(p[0]==='s'){v=subj(p[1]);r='#/actividades'}else{name='home';r='#/'}
+if(gi===null&&PJG.isOpen())PJG.close();if(ai===null)closeAct();musica(gi,ai);
 if(skip){}
 else if((name==='home'||name==='games')&&cur===name){document.querySelectorAll('.mn a').forEach(function(a){if(a.getAttribute('href')===r)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')})}
 else{$('#root').innerHTML=header(r)+'<main id="main" tabindex="-1">'+(name==='home'?home():v)+'</main>'+footer();$('#sk').textContent=t('skip');cur=name;clearInterval(ht);if(name==='home')startHero()}
 var h1=$('main h1');document.title=(h1&&name!=='home'?h1.textContent+' · ':'')+'Placeta Junior';
-if(ai!==null){openAct(ai);return}
+if(ai!==null){openAct(ai,am);return}
 if(gi!==null){if(!PJG.isOpen())PJG.open(gi);document.title=PJG.nm(PJG.list[gi].n)+' · Placeta Junior';return}
 if(rest){window.scrollTo({top:rest.y,behavior:'instant'});(rest.tr||[]).forEach(function(x){var el=document.getElementById(x[0]);if(el)el.scrollLeft=x[1]})}
 else if(anc)$(anc).scrollIntoView();else window.scrollTo({top:0,behavior:'instant'});
@@ -781,6 +782,7 @@ if(!b){if(m&&!e.target.closest('.lang'))m.classList.remove('open');return}
 var a=b.dataset.a,v=b.dataset.v;
 if(a==='menu'){var o=m.classList.toggle('open');b.setAttribute('aria-expanded',o)}
 else if(a==='lang'){S.l=v;apply(true)}else if(a==='case'){S.c=v;apply(true)}
+else if(a==='info'){e.preventDefault();e.stopPropagation();location.hash='#/i/'+encodeURIComponent(v)}
 else if(a==='snd'){S.s=S.s===0?1:0;apply(true);if(S.s!==0)PJG.sfx('good',{v:.5})}
 else if(a==='back'){if(stack.length>1){e.preventDefault();history.back()}}
 else if(a==='fa'){FA=v;document.querySelectorAll('[data-a=fa]').forEach(function(x){x.setAttribute('aria-pressed',x.dataset.v===FA)});$('#acts').innerHTML=actRows()}
@@ -815,6 +817,7 @@ function cue(el){if(el.matches('.chip,.opt,.dots button,.arr button,.menu button
 document.addEventListener('click',function(e){var el=e.target.closest&&e.target.closest(SEL);if(!el)return;if(!wm){wm=1;PJG.warm()}var c=cue(el);PJG.sfx(c[0],c[1])},true);
 document.addEventListener('mouseover',function(e){if(!matchMedia('(hover:hover)').matches||!wm)return;var el=e.target.closest&&e.target.closest('a.card,.tile,.age,.game,.pick,.btn,.chip,.mn a');if(!el||(e.relatedTarget&&el.contains(e.relatedTarget)))return;var n=Date.now();if(n-lh<90)return;lh=n;PJG.sfx('click',{v:.1,r:1.8})})})();
 stack.push({h:location.hash||'#/'});
+(function(){var q=new URLSearchParams(location.search),j=q.get('jugar'),i=q.get('id');if(j||i)history.replaceState(null,'',location.pathname+'#/'+(j?'a/'+encodeURIComponent(j):'i/'+encodeURIComponent(i)))})();
 apply();if(first)$('#wd').showModal();
 loadHero();
 loadActs().then(function(){var s2=snap();cur='';route(false,s2)});

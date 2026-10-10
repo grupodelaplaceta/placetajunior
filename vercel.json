@@ -10,6 +10,10 @@
     { "src": "/familias-docentes(?:/.*)?", "status": 308, "headers": { "Location": "/#/familias" } },
     { "src": "/colecciones(?:/.*)?", "status": 308, "headers": { "Location": "/#/actividades" } },
     { "src": "/jugar", "dest": "/public/jugar.html" },
+    { "src": "/aviso-legal", "dest": "/public/aviso-legal.html" },
+    { "src": "/privacidad", "dest": "/public/privacidad.html" },
+    { "src": "/terminos", "dest": "/public/terminos.html" },
+    { "src": "/cookies", "dest": "/public/cookies.html" },
     { "src": "/studio", "dest": "/public/studio.html" },
     { "src": "/devai", "dest": "/public/devai.html" },
     { "src": "/(.*)", "dest": "/public/$1" }
