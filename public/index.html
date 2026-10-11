@@ -816,6 +816,10 @@ if(stack.length>1&&stack[stack.length-2].h===nh){stack.pop();rest=stack[stack.le
 route(true,rest)});
 PJG.onBack(function(){document.body.style.overflow='';if(stack.length>1)history.back();else location.hash='#/juegos'});
 PJG.onMute(function(m){S.s=m?0:1;try{localStorage.setItem('pj2',JSON.stringify(S))}catch(e){}document.querySelectorAll('[data-a=snd]').forEach(function(b){b.setAttribute('aria-pressed',!m);b.innerHTML=ic(m?'mutei':'vol')})});
+(function(){
+function completarDocentes(){var p=document.querySelector('.teacher-page');if(!p||p.querySelector('.infantil-intro'))return;var h=li===1?'Jocs per a Educació Infantil · iniciació a la informàtica':li===2?'Early-years games · introduction to computing':'Juegos para Educación Infantil · iniciación a la informática';var d=li===1?'Propostes senzilles per familiaritzar-se amb instruccions, patrons, interacció amb el ratolí o la pantalla tàctil i resolució de reptes.':li===2?'Simple activities to explore instructions, patterns, mouse or touchscreen interaction and problem solving.':'Propuestas sencillas para familiarizarse con instrucciones, patrones, interacción con el ratón o la pantalla táctil y resolución de retos.';var x=document.createElement('div');x.className='teach infantil-intro';x.innerHTML='<div><h3>'+h+'</h3><p>'+d+'</p></div>';var first=p.querySelector('.fam');if(first)first.insertAdjacentElement('afterend',x)}
+new MutationObserver(completarDocentes).observe(document.getElementById('root'),{childList:true,subtree:true});
+})();
 (function(){var SEL='a.card,.tile,.age,.game,.pick,.btn,.rb,.chip,.opt,.mn a,.arr button,.dots button,.crumb,summary,.logo,.menu button,footer nav a,.skip',lh=0,wm=0;
 function cue(el){if(el.matches('.chip,.opt,.dots button,.arr button,.menu button'))return['tap',{r:1.1}];if(el.matches('.crumb'))return['close',{}];if(el.matches('summary'))return['tap',{r:.9}];return['click',{}]}
 document.addEventListener('click',function(e){var el=e.target.closest&&e.target.closest(SEL);if(!el)return;if(!wm){wm=1;PJG.warm()}var c=cue(el);PJG.sfx(c[0],c[1])},true);
