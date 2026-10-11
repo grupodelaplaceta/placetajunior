@@ -1043,7 +1043,8 @@ async function cargarTodo() {
 function renderPopulares() {
   const row = document.getElementById('populares-row');
   const ordenadas = [...TODAS].filter(a => edadCumple(a, filtroEdad)).sort((a, b) =>
-    (b.estadisticas?.veces_realizada || 0) - (a.estadisticas?.veces_realizada || 0)
+    (Number(b.visitas ?? b.estadisticas?.visitas ?? b.estadisticas?.veces_realizada ?? 0) || 0) -
+    (Number(a.visitas ?? a.estadisticas?.visitas ?? a.estadisticas?.veces_realizada ?? 0) || 0)
   ).slice(0, 10);
   row.innerHTML = ordenadas.length
     ? ordenadas.map(cardActividad).join('')
