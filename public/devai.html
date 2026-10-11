@@ -62,16 +62,20 @@
     @media (max-width: 760px) { .grid2 { grid-template-columns: 1fr; } }
   </style>
   <script src="js/mapa-mundi.js"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/tools.css?v=1" />
+<link rel="stylesheet" href="css/devai-skin.css?v=1" />
 </head>
-<body>
-  <div class="topbar">
-    <span class="logo">🤖 DevAI · Placeta Junior</span>
-    <span class="tag">oculto /devai</span>
-    <span style="flex:1"></span>
-    <a href="/studio" style="color:#fff;font-size:13px;">→ Studio</a>
-  </div>
+<body class="tool devai">
+  <header class="tb"><div class="tb-in">
+  <a href="/" aria-label="Placeta Junior · Inicio"><img class="tb-logo" src="img/PJ-BLANCO-LOGO.png" alt="Placeta Junior" width="100" height="44"></a>
+  <span class="tb-name"><span class="t">DevAI</span><span class="tb-tag">oculto /devai</span></span>
+  <span class="tb-sp"></span>
+  <nav class="tb-nav" aria-label="Navegación"><a href="/">Inicio</a><a href="/studio">Studio</a><a href="/devai" class="on" aria-current="page">DevAI</a></nav>
+</div></header>
 
-  <div class="wrap">
+<div class="wrap">
     <div class="card">
       <h2>1️⃣ Genera la actividad con IA</h2>
       <p class="sub">Copia este prompt en cualquier IA (ChatGPT, Claude, Gemini…), pega tu idea y pídele que responda <b>solo el JSON</b>. Luego pégalo en el paso 3.</p>
