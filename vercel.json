@@ -9,6 +9,7 @@
     { "src": "/info", "status": 308, "headers": { "Location": "/#/info" } },
     { "src": "/familias-docentes(?:/.*)?", "status": 308, "headers": { "Location": "/#/familias" } },
     { "src": "/colecciones(?:/.*)?", "status": 308, "headers": { "Location": "/#/actividades" } },
+    { "src": "/halloween/?", "status": 307, "headers": { "Location": "/#/halloween" } },
     { "src": "/jugar", "dest": "/public/jugar.html" },
     { "src": "/aviso-legal", "dest": "/public/aviso-legal.html" },
     { "src": "/privacidad", "dest": "/public/privacidad.html" },
