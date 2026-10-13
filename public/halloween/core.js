@@ -23,7 +23,9 @@
   var GAME_IDS = C.games.map(function (g) { return g.id; });
   var BASKET_IDS = C.baskets.map(function (b) { return b.id; });
   var GHOST_IDS = C.ghosts.map(function (g) { return g.id; });
-  var NL = C.levels.count;
+  function ent(id) { for (var i = 0; i < C.games.length; i++) if (C.games[i].id === id) { var g = C.games[i], a = C.ages[g.age]; return { id: g.id, game: g.game, age: g.age, price: g.price, offset: a.offset, count: a.count, stage: a.stage, lives: a.lives }; } return null; }
+  function count(id) { var e = ent(id); return e ? e.count : 0; }
+  var MAXN = 0; Object.keys(C.ages).forEach(function (k) { MAXN = Math.max(MAXN, C.ages[k].count); });
 
   function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 
@@ -38,12 +40,15 @@
     bText: ['10 minijuegos con niveles para todas las edades. ¡Juega, gana caramelos y descubre fantasmas!', '10 minijocs amb nivells per a totes les edats. Juga, guanya caramels i descobreix fantasmes!', '10 mini-games with levels for all ages. Play, win candies and discover ghosts!'],
     bBtn: ['¡A jugar!', 'A jugar!', "Let's play!"],
     infTitle: ['¡Halloween!', 'Halloween!', 'Halloween!'],
-    infText: ['Toca aquí y juega con calabazas y fantasmas', 'Toca ací i juga amb carabasses i fantasmes', 'Tap here and play with pumpkins and ghosts'],
+    infText: ['Toca aquí: juegos de Halloween para peques', 'Toca ací: jocs de Halloween per als més petits', 'Tap here: Halloween games for little ones'],
     title: ['Halloween', 'Halloween', 'Halloween'],
     sub: ['Minijuegos con niveles para todas las edades. Gana caramelos y desbloquea más cosas.', 'Minijocs amb nivells per a totes les edats. Guanya caramels i desbloqueja més coses.', 'Mini-games with levels for all ages. Win candies and unlock more things.'],
     back: ['Volver', 'Tornar', 'Back'],
     candies: ['Caramelos', 'Caramels', 'Candies'],
     how1: ['Juega', 'Juga', 'Play'], how2: ['Gana caramelos', 'Guanya caramels', 'Win candies'], how3: ['Desbloquea', 'Desbloqueja', 'Unlock'],
+    tInf: ['Infantil', 'Infantil', 'Early years'], tPri: ['Primaria', 'Primària', 'Primary'],
+    secInf: ['Juegos sencillos para los más pequeños: sin prisa y sin perder.', 'Jocs senzills per als més petits: sense pressa i sense perdre.', 'Simple games for the little ones: no rush and no losing.'],
+    secPri: ['Juegos con retos para Primaria: ¡cuidado con las vidas!', 'Jocs amb reptes per a Primària: compte amb les vides!', 'Challenge games for Primary: watch your lives!'],
     tGames: ['Juegos', 'Jocs', 'Games'], tBaskets: ['Cestas', 'Cistelles', 'Baskets'], tGhosts: ['Fantasmas', 'Fantasmes', 'Ghosts'],
     free: ['Gratis', 'Gratis', 'Free'],
     level: ['Nivel', 'Nivell', 'Level'],
@@ -161,7 +166,7 @@
         var lv = r.levels[id];
         if (!lv || typeof lv !== 'object') return;
         var o = {};
-        for (var n = 1; n <= NL; n++) { var s = clampInt(lv[n], 0, 3); if (s > 0) o[n] = s; }
+        for (var n = 1; n <= count(id); n++) { var s = clampInt(lv[n], 0, 3); if (s > 0) o[n] = s; }
         if (Object.keys(o).length) d.levels[id] = o;
       });
     }
@@ -197,7 +202,7 @@
     gameUnlocked: function (id) { return store.price('game', id) === 0 || !!data.games[id]; },
     stars: function (id, n) { return (data.levels[id] && data.levels[id][n]) || 0; },
     levelOpen: function (id, n) { return n === 1 || store.stars(id, n - 1) > 0; },
-    levelsDone: function (id) { var c = 0; for (var n = 1; n <= NL; n++) if (store.stars(id, n) > 0) c++; return c; },
+    levelsDone: function (id) { var c = 0; for (var n = 1; n <= count(id); n++) if (store.stars(id, n) > 0) c++; return c; },
     /* Compra atómica: comprueba saldo y que no esté ya adquirido. */
     buy: function (kind, id) {
       return mutate(function (d) {
@@ -216,9 +221,9 @@
     settle: function (run, res) {
       if (!run || run.closed) return null;
       run.closed = true;
-      var R = C.rewards, L = run.level - 1;
+      var R = C.rewards, L = run.level - 1; // run.level = dificultad interna; run.n = nivel del juego
       return mutate(function (d) {
-        var prev = (d.levels[run.game] && d.levels[run.game][run.level]) || 0;
+        var prev = (d.levels[run.game] && d.levels[run.game][run.n]) || 0;
         var f = prev > 0 ? R.replayFactor : 1;
         var n = run.correct * R.perCorrect[L];
         var stars = res.win ? clampInt(res.stars, 1, 3) : 0;
@@ -228,13 +233,13 @@
         n = Math.min(n, R.maxPerRun);
         d.candies = clampInt(d.candies + n, 0, 999999);
         var firstWin = res.win && prev === 0;
-        if (stars > prev) { d.levels[run.game] = d.levels[run.game] || {}; d.levels[run.game][run.level] = stars; }
+        if (stars > prev) { d.levels[run.game] = d.levels[run.game] || {}; d.levels[run.game][run.n] = stars; }
         return { earned: n, stars: stars, firstWin: firstWin, best: Math.max(prev, stars) };
       });
     },
     /* Caramelos que se muestran durante la partida (misma fórmula). */
     live: function (run) {
-      var prev = store.stars(run.game, run.level);
+      var prev = store.stars(run.game, run.n);
       var n = Math.floor(run.correct * C.rewards.perCorrect[run.level - 1] * (prev > 0 ? C.rewards.replayFactor : 1));
       return (n === 0 && run.correct > 0) ? 1 : n;
     }
@@ -383,5 +388,5 @@
     document.head.appendChild(l);
   })();
 
-  window.PJHW = { C: C, t: t, lang: lang, esc: esc, art: ART, store: store, sfx: sfx, music: music, state: state, soundOn: soundOn, globalOn: globalOn, NL: NL, find: find };
+  window.PJHW = { C: C, t: t, lang: lang, esc: esc, art: ART, store: store, sfx: sfx, music: music, state: state, soundOn: soundOn, globalOn: globalOn, ent: ent, count: count, MAXN: MAXN, find: find };
 })();

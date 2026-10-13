@@ -11,9 +11,9 @@
   'use strict';
   var H = window.PJHW;
   if (!H) return;
-  var C = H.C, t = H.t, esc = H.esc, A = H.art, store = H.store, sfx = H.sfx, music = H.music, NL = H.NL;
+  var C = H.C, t = H.t, esc = H.esc, A = H.art, store = H.store, sfx = H.sfx, music = H.music;
 
-  var tab = 'games', ov = null, sheetEl = null, gamesLoading = null;
+  var tab = 'pri', ov = null, sheetEl = null, gamesLoading = null;
 
   var CARD = {
     truco:     { c: '#ff8a00', art: function () { return A.svg('door', '#7b4bd6') + A.svg('pumpkin', '', 'hw-s2'); } },
@@ -33,7 +33,9 @@
   var ICON_VOL = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 10v4h4l5 4V6L7 10z" fill="currentColor"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
   var ICON_MUTE = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 10v4h4l5 4V6L7 10z" fill="currentColor"/><path d="M16 9l5 6M21 9l-5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
 
-  function stageOf(n) { return C.levels.stage[n - 1]; }
+  function E(id) { return H.ent(id); }
+  function gk(id) { var e = E(id); return e ? e.game : id; }
+  function stageOf(id, n) { return E(id).stage[n - 1]; }
   function stars(n, max) {
     var s = ''; for (var i = 1; i <= (max || 3); i++) s += A.svg('star', i <= n ? '#ffc93c' : '#4b3b86', 'hw-star' + (i <= n ? ' on' : ''));
     return s;
@@ -47,21 +49,21 @@
       '<span class="hw-b-btn">' + esc(t('bBtn')) + ICON_PLAY + '</span></a></div></section>';
   }
   function infantil() {
-    return '<a class="hw-inf" href="#/halloween"><span class="hw-i-art" aria-hidden="true">' + A.svg('pumpkin', '', 'hw-i1') + A.svg('ghost', '', 'hw-i2') + A.svg('bat', '', 'hw-i3') + '</span>' +
+    return '<a class="hw-inf" href="#/halloween/infantil"><span class="hw-i-art" aria-hidden="true">' + A.svg('pumpkin', '', 'hw-i1') + A.svg('ghost', '', 'hw-i2') + A.svg('bat', '', 'hw-i3') + '</span>' +
       '<span class="hw-i-txt"><b>' + esc(t('infTitle')) + '</b><small>' + esc(t('infText')) + '</small></span>' +
       '<span class="hw-i-go" aria-hidden="true">' + ICON_PLAY + '</span></a>';
   }
 
   /* ═════════ Página ═════════ */
   function gameCard(g) {
-    var id = g.id, open = store.gameUnlocked(id), done = store.levelsDone(id), dots = '';
-    for (var n = 1; n <= NL; n++) dots += '<i class="' + (store.stars(id, n) > 0 ? 'on' : '') + '"></i>';
-    return '<button type="button" class="hw-gc' + (open ? '' : ' is-lock') + '" data-hw="game" data-id="' + id + '" style="--gc:' + CARD[id].c + '" aria-label="' + esc(t('g.' + id + '.n')) + (open ? '' : ' · ' + esc(t('locked'))) + '">' +
-      '<span class="hw-gc-art">' + CARD[id].art() + (open ? '' : '<span class="hw-lockb">' + A.svg('lock') + '</span>') + '</span>' +
-      '<span class="hw-gc-t">' + esc(t('g.' + id + '.n')) + '</span>' +
-      '<span class="hw-gc-d">' + esc(t('g.' + id + '.d')) + '</span>' +
+    var id = g.id, k = g.game, open = store.gameUnlocked(id), done = store.levelsDone(id), dots = '';
+    for (var n = 1; n <= E(id).count; n++) dots += '<i class="' + (store.stars(id, n) > 0 ? 'on' : '') + '"></i>';
+    return '<button type="button" class="hw-gc' + (open ? '' : ' is-lock') + '" data-hw="game" data-id="' + id + '" style="--gc:' + CARD[k].c + '" aria-label="' + esc(t('g.' + k + '.n')) + (open ? '' : ' · ' + esc(t('locked'))) + '">' +
+      '<span class="hw-gc-art">' + CARD[k].art() + (open ? '' : '<span class="hw-lockb">' + A.svg('lock') + '</span>') + '</span>' +
+      '<span class="hw-gc-t">' + esc(t('g.' + k + '.n')) + '</span>' +
+      '<span class="hw-gc-d">' + esc(t('g.' + k + '.d')) + '</span>' +
       '<span class="hw-gc-f">' + (open
-        ? '<span class="hw-dots" aria-hidden="true">' + dots + '</span><span class="hw-prog">' + esc(t('done', done, NL)) + '</span>'
+        ? '<span class="hw-dots" aria-hidden="true">' + dots + '</span><span class="hw-prog">' + esc(t('done', done, E(id).count)) + '</span>'
         : '<span class="hw-price">' + A.svg('candy', '#ff4d6d') + '<b>' + g.price + '</b></span><span class="hw-prog">' + esc(t('unlock')) + '</span>') +
       '</span></button>';
   }
@@ -83,11 +85,12 @@
     if (tab === 'ghosts') {
       return '<p class="hw-count">' + esc(t('ghostsCount', store.data().ghosts.length, C.ghosts.length)) + '</p><div class="hw-grid hw-grid-sm">' + C.ghosts.map(ghostCard).join('') + '</div>';
     }
-    return '<div class="hw-grid">' + C.games.map(gameCard).join('') + '</div>';
+    var age = tab === 'inf' ? 'inf' : 'pri';
+    return '<p class="hw-count">' + esc(t(age === 'inf' ? 'secInf' : 'secPri')) + '</p><div class="hw-grid">' + C.games.filter(function (g) { return g.age === age; }).map(gameCard).join('') + '</div>';
   }
   function pageInner() {
     var d = store.data();
-    var tabs = [['games', 'tGames'], ['baskets', 'tBaskets'], ['ghosts', 'tGhosts']].map(function (x) {
+    var tabs = [['inf', 'tInf'], ['pri', 'tPri'], ['baskets', 'tBaskets'], ['ghosts', 'tGhosts']].map(function (x) {
       return '<button type="button" role="tab" class="hw-tab" data-hw="tab" data-v="' + x[0] + '" aria-selected="' + (tab === x[0]) + '">' + esc(t(x[1])) + '</button>';
     }).join('');
     return '<div class="hw-hero"><span class="hw-stars" aria-hidden="true"></span><div class="wrap hw-hero-in">' +
@@ -100,7 +103,11 @@
       '<div class="wrap hw-main"><div class="hw-tabs" role="tablist">' + tabs + '</div>' + panel() +
       '<p class="hw-note">' + esc(t(store.ok() ? 'note' : 'noStore')) + '</p></div>';
   }
-  function page() { return '<section class="hw" id="hw-page">' + pageInner() + '</section>'; }
+  function page() {
+    var p = (location.hash.replace(/^#/, '')).split('/').filter(Boolean);
+    if (p[1] === 'infantil') tab = 'inf';
+    return '<section class="hw" id="hw-page">' + pageInner() + '</section>';
+  }
   function refresh() { var el = document.getElementById('hw-page'); if (el) { var y = window.scrollY; el.innerHTML = pageInner(); window.scrollTo(0, y); } }
 
   /* ═════════ Hojas modales (confirmaciones y selector de nivel) ═════════ */
@@ -119,7 +126,7 @@
 
   function levelSheet(id) {
     var groups = {}, order = [];
-    for (var n = 1; n <= NL; n++) { var s = stageOf(n); if (!groups[s]) { groups[s] = []; order.push(s); } groups[s].push(n); }
+    for (var n = 1; n <= E(id).count; n++) { var s = stageOf(id, n); if (!groups[s]) { groups[s] = []; order.push(s); } groups[s].push(n); }
     var body = order.map(function (s) {
       return '<div class="hw-lvg hw-st-' + s + '"><h3>' + esc(t('st_' + s)) + '</h3><div class="hw-lvrow">' + groups[s].map(function (n) {
         var open = store.levelOpen(id, n);
@@ -127,13 +134,13 @@
           '<span class="hw-lv-n">' + (open ? n : A.svg('lock')) + '</span><span class="hw-lv-s">' + stars(store.stars(id, n)) + '</span></button>';
       }).join('') + '</div></div>';
     }).join('');
-    showSheet({ title: t('g.' + id + '.n'), art: CARD[id].art(), body: '<p class="hw-sub">' + esc(t('pickLevel')) + '</p>' + body, buttons: btn(t('cancel'), 'data-hw="sheet-close"', 'hw-ghost') });
+    showSheet({ title: t('g.' + gk(id) + '.n'), art: CARD[gk(id)].art(), body: '<p class="hw-sub">' + esc(t('pickLevel')) + '</p>' + body, buttons: btn(t('cancel'), 'data-hw="sheet-close"', 'hw-ghost') });
   }
 
   function buyConfirm(kind, id) {
     var price = store.price(kind, id), d = store.data();
-    var name = kind === 'game' ? t('g.' + id + '.n') : kind === 'basket' ? t('b.' + id) : t('gh.' + id);
-    var art = kind === 'game' ? CARD[id].art() : kind === 'basket' ? A.basket(id) : A.ghostSilhouette('hw-sil');
+    var name = kind === 'game' ? t('g.' + gk(id) + '.n') : kind === 'basket' ? t('b.' + id) : t('gh.' + id);
+    var art = kind === 'game' ? CARD[gk(id)].art() : kind === 'basket' ? A.basket(id) : A.ghostSilhouette('hw-sil');
     if (d.candies < price) {
       showSheet({ title: name, art: art, body: '<p>' + esc(t('needMore', price - d.candies)) + '</p>', buttons: btn(t('ok'), 'data-hw="sheet-close"') });
       sfx('bad'); return;
@@ -188,7 +195,7 @@
   function bodyEl() { return ov && ov.el.querySelector('#hwp-body'); }
   function updateBar() {
     if (!ov) return;
-    ov.el.querySelector('.hwp-sub').textContent = t('level') + ' ' + ov.n + ' · ' + t('stS_' + stageOf(ov.n));
+    ov.el.querySelector('.hwp-sub').textContent = t('level') + ' ' + ov.n + ' · ' + t('stS_' + stageOf(ov.id, ov.n));
     ov.el.querySelector('#hwp-mute').innerHTML = (H.soundOn() ? ICON_VOL : ICON_MUTE);
     ov.el.querySelector('#hwp-mute').setAttribute('aria-label', t(H.soundOn() ? 'musicOn' : 'musicOff'));
   }
@@ -210,9 +217,9 @@
   function openOverlay(id, n) {
     closeOverlay();
     var el = document.createElement('div');
-    el.id = 'hw-play'; el.className = 'hwp'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', t('g.' + id + '.n'));
+    el.id = 'hw-play'; el.className = 'hwp'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', t('g.' + gk(id) + '.n'));
     el.innerHTML = '<div class="hwp-bar"><button type="button" class="hwp-b" data-hw="exit" aria-label="' + esc(t('exit')) + '">' + ICON_BACK + '</button>' +
-      '<div class="hwp-title"><b>' + esc(t('g.' + id + '.n')) + '</b><small class="hwp-sub"></small></div>' +
+      '<div class="hwp-title"><b>' + esc(t('g.' + gk(id) + '.n')) + '</b><small class="hwp-sub"></small></div>' +
       '<div class="hwp-hearts" id="hwp-hearts" role="img"></div>' +
       '<div class="hwp-cd" aria-live="off">' + A.svg('candy', '#ff4d6d') + '<b id="hwp-n">0</b></div>' +
       '<button type="button" class="hwp-b" id="hwp-mute" data-hw="mute"></button></div>' +
@@ -244,9 +251,9 @@
     if (!ov) return;
     teardownCtx(); stopSpeak();
     ov.run = null; updateHud(); updateHearts(); updateBar();
-    var how = t('g.' + ov.id + '.h');
-    bodyEl().innerHTML = '<div class="hwp-intro"><div class="hwp-intro-art">' + CARD[ov.id].art() + '</div><h2>' + esc(t('g.' + ov.id + '.n')) + '</h2>' +
-      '<p class="hwp-lvl hw-st-' + stageOf(ov.n) + '">' + esc(t('level')) + ' ' + ov.n + ' · ' + esc(t('st_' + stageOf(ov.n))) + '</p>' +
+    var how = t('g.' + gk(ov.id) + '.h');
+    bodyEl().innerHTML = '<div class="hwp-intro"><div class="hwp-intro-art">' + CARD[gk(ov.id)].art() + '</div><h2>' + esc(t('g.' + gk(ov.id) + '.n')) + '</h2>' +
+      '<p class="hwp-lvl hw-st-' + stageOf(ov.id, ov.n) + '">' + esc(t('level')) + ' ' + ov.n + ' · ' + esc(t('st_' + stageOf(ov.id, ov.n))) + '</p>' +
       '<p class="hwp-how">' + esc(how) + '</p><div class="hwp-intro-btns">' +
       (window.speechSynthesis ? '<button type="button" class="hw-btn hw-ghost" data-hw="listen">' + ICON_VOL + esc(t('listen')) + '</button>' : '') +
       '<button type="button" class="hw-btn hw-primary hw-big" data-hw="start">' + ICON_PLAY + esc(t('start')) + '</button></div></div>';
@@ -317,8 +324,8 @@
   function startRun() {
     if (!ov) return;
     teardownCtx(); stopSpeak();
-    var G = H.games[ov.id], lv = G.noLives ? 0 : C.levels.lives[ov.n - 1];
-    ov.run = { game: ov.id, level: ov.n, correct: 0, mistakes: 0, closed: false, lives: lv, maxLives: lv };
+    var en = E(ov.id), G = H.games[en.game], lv = G.noLives ? 0 : en.lives[ov.n - 1];
+    ov.run = { game: ov.id, n: ov.n, level: en.offset + ov.n, correct: 0, mistakes: 0, closed: false, lives: lv, maxLives: lv };
     bodyEl().innerHTML = '<div class="hwg" id="hwg"></div>';
     ov.ctx = makeCtx(ov.run, bodyEl().querySelector('#hwg'));
     updateHud(); updateHearts(); updateBar();
@@ -329,15 +336,15 @@
   function showResult(out, win, st) {
     if (!ov) return;
     teardownCtx();
-    var d = store.data(), n = ov.n, next = win && n < NL;
-    var msg = win ? (n >= NL && out && out.firstWin ? t('allDone') : t('win')) : t('lose');
+    var d = store.data(), n = ov.n, NLc = E(ov.id).count, next = win && n < NLc;
+    var msg = win ? (n >= NLc && out && out.firstWin ? t('allDone') : t('win')) : t('lose');
     bodyEl().innerHTML = '<div class="hwp-res' + (win ? ' is-win' : '') + '">' +
       '<div class="hwp-res-art">' + A.svg(win ? 'pumpkin' : 'ghost') + '</div>' +
       '<h2>' + esc(msg) + '</h2>' +
       (win ? '<div class="hwp-stars" aria-label="' + st + '/3">' + stars(st) + '</div>' : '') +
       '<div class="hwp-gain">' + A.svg('candy', '#ff4d6d') + '<b>' + esc(t('earned', out ? out.earned : 0)) + '</b></div>' +
       '<p class="hwp-bal">' + esc(t('candies')) + ': <b>' + d.candies + '</b></p>' +
-      (win && out && out.firstWin && n < NL ? '<p class="hw-ok">' + esc(t('newLevel', n + 1)) + '</p>' : '') +
+      (win && out && out.firstWin && n < NLc ? '<p class="hw-ok">' + esc(t('newLevel', n + 1)) + '</p>' : '') +
       '<div class="hwp-res-btns">' + (next ? btn(t('next'), 'data-hw="next"', 'hw-primary hw-big') : '') +
       btn(t('retry'), 'data-hw="retry"', next ? 'hw-ghost' : 'hw-primary hw-big') + btn(t('exit'), 'data-hw="exit"', 'hw-ghost') + '</div></div>';
     var f = bodyEl().querySelector('.hw-btn'); if (f) f.focus();
@@ -361,7 +368,7 @@
     var mode = 'page';
     if (p[1] === 'g') {
       var id = p[2], n = parseInt(p[3], 10);
-      var valid = H.find(C.games, id) && n >= 1 && n <= NL && store.gameUnlocked(id) && store.levelOpen(id, n);
+      var valid = H.find(C.games, id) && n >= 1 && n <= H.count(id) && store.gameUnlocked(id) && store.levelOpen(id, n);
       if (valid) {
         mode = 'game';
         if (!ov || ov.key !== id + '/' + n) { closeSheet(); openOverlay(id, n); }
@@ -396,9 +403,9 @@
       else if (a === 'sheet-close') { closeSheet(); }
       else if (a === 'exit') { if (ov && ov.run && !ov.run.closed) { try { store.settle(ov.run, { win: false, stars: 0 }); } catch (er) { /* ok */ } } leave(); }
       else if (a === 'mute') { H.state.userMuted = !H.state.userMuted; music.refresh(); updateBar(); }
-      else if (a === 'listen') { speak(t('g.' + ov.id + '.h')); }
+      else if (a === 'listen') { speak(t('g.' + gk(ov.id) + '.h')); }
       else if (a === 'start' || a === 'retry') { stopSpeak(); H.state.started = true; startRun(); }
-      else if (a === 'next') { if (ov && ov.n < NL) { ov.n++; ov.key = ov.id + '/' + ov.n; try { history.replaceState(null, '', '#/halloween/g/' + ov.id + '/' + ov.n); } catch (er) { /* ok */ } startRun(); } }
+      else if (a === 'next') { if (ov && ov.n < E(ov.id).count) { ov.n++; ov.key = ov.id + '/' + ov.n; try { history.replaceState(null, '', '#/halloween/g/' + ov.id + '/' + ov.n); } catch (er) { /* ok */ } startRun(); } }
       return;
     }
     if (sheetEl && e.target === sheetEl) closeSheet();

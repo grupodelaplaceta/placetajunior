@@ -26,17 +26,17 @@ window.PJHW_CONFIG = {
     exts: ['mp3', 'ogg', 'wav', 'm4a', 'aac', 'webm']
   },
 
-  /* ── Niveles (iguales para los 10 minijuegos) ────────────────────
-     6 niveles: 1-2 Infantil · 3-4 Primaria inicial · 5-6 Primaria superior.
-     lives: vidas por nivel (0 = sin límite, no se puede perder). */
-  levels: {
-    count: 6,
-    stage: ['inf', 'inf', 'pri1', 'pri1', 'pri2', 'pri2'],
-    lives: [0, 0, 3, 3, 3, 3]
+  /* ── Edades: Infantil y Primaria son juegos SEPARADOS ─────────────
+     offset : dificultad interna de partida (1-2 Infantil, 3-6 Primaria).
+     count  : niveles que ve el niño en cada juego.
+     lives  : vidas por nivel (0 = sin límite, no se puede perder). */
+  ages: {
+    inf: { offset: 0, count: 2, stage: ['inf', 'inf'], lives: [0, 0] },
+    pri: { offset: 2, count: 4, stage: ['pri1', 'pri1', 'pri2', 'pri2'], lives: [3, 3, 3, 3] }
   },
 
   /* ── Recompensas (caramelos) ─────────────────────────────────────
-     perCorrect : caramelos por acierto, según nivel.
+     perCorrect : caramelos por acierto, según la dificultad interna (1-6).
      completion : bonus al superar el nivel.
      stars      : bonus extra por 2 y 3 estrellas.
      replayFactor: multiplicador si el nivel ya estaba superado.
@@ -49,18 +49,27 @@ window.PJHW_CONFIG = {
     maxPerRun: 120
   },
 
-  /* ── Minijuegos y precio de desbloqueo (0 = gratis desde el inicio) */
+  /* ── Minijuegos y precio de desbloqueo (0 = gratis desde el inicio)
+     id: único · game: mecánica (truco, atrapa, memoria, fabrica, fantasma,
+     parejas, calabaza, escobas, pociones, laberinto) · age: inf | pri */
   games: [
-    { id: 'truco',     price: 0 },
-    { id: 'atrapa',    price: 0 },
-    { id: 'memoria',   price: 0 },
-    { id: 'fabrica',   price: 40 },
-    { id: 'fantasma',  price: 60 },
-    { id: 'parejas',   price: 60 },
-    { id: 'calabaza',  price: 80 },
-    { id: 'escobas',   price: 100 },
-    { id: 'pociones',  price: 120 },
-    { id: 'laberinto', price: 150 }
+    { id: 'i-truco',     game: 'truco',     age: 'inf', price: 0 },
+    { id: 'i-atrapa',    game: 'atrapa',    age: 'inf', price: 0 },
+    { id: 'i-memoria',   game: 'memoria',   age: 'inf', price: 0 },
+    { id: 'i-fantasma',  game: 'fantasma',  age: 'inf', price: 30 },
+    { id: 'i-parejas',   game: 'parejas',   age: 'inf', price: 40 },
+    { id: 'i-laberinto', game: 'laberinto', age: 'inf', price: 60 },
+
+    { id: 'p-truco',     game: 'truco',     age: 'pri', price: 0 },
+    { id: 'p-atrapa',    game: 'atrapa',    age: 'pri', price: 0 },
+    { id: 'p-memoria',   game: 'memoria',   age: 'pri', price: 0 },
+    { id: 'p-fabrica',   game: 'fabrica',   age: 'pri', price: 40 },
+    { id: 'p-fantasma',  game: 'fantasma',  age: 'pri', price: 60 },
+    { id: 'p-parejas',   game: 'parejas',   age: 'pri', price: 60 },
+    { id: 'p-calabaza',  game: 'calabaza',  age: 'pri', price: 80 },
+    { id: 'p-escobas',   game: 'escobas',   age: 'pri', price: 100 },
+    { id: 'p-pociones',  game: 'pociones',  age: 'pri', price: 120 },
+    { id: 'p-laberinto', game: 'laberinto', age: 'pri', price: 150 }
   ],
 
   /* ── Cestas alternativas (la «clasica» es gratis) ─────────────── */

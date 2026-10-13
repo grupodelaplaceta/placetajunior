@@ -3,6 +3,12 @@
 Evento temporal, aislado del resto de Junior. Todo lo exclusivo está en esta carpeta
 (`public/halloween/`) más 5 enganches mínimos y protegidos.
 
+## Catálogo: Infantil y Primaria son juegos separados
+- **Infantil** (`#/halloween/infantil`, acceso desde Juegos de Infantil): 6 juegos propios, 2 niveles cada uno, sin vidas (no se puede perder).
+- **Primaria** (`#/halloween`, banner de la portada): 10 juegos, 4 niveles cada uno, con vidas.
+- Cada uno tiene su propio progreso y precio (`config.js` → `ages` y `games`). Comparten la mecánica, no el contenido.
+- Estilo gráfico: ilustraciones SVG con contorno y colores planos; **sin degradados** (ni en SVG ni en CSS).
+
 ## Archivos exclusivos
 | Archivo | Para qué |
 |---|---|
