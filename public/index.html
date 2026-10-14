@@ -696,7 +696,7 @@ if(b){id=b[0];icn=b[1];col=b[2]}else{id='x-'+cat.toLowerCase().replace(/[^a-z0-9
 var m=String(x.edad_recomendada||'').match(/\d+/g),mn=m?+m[0]:null,mx=m&&m[1]?+m[1]:mn;
 var st=x.estadisticas||{},v=Number(x.visitas!=null?x.visitas:x.visitas_count!=null?x.visitas_count:x.views!=null?x.views:st.visitas!=null?st.visitas:st.visitas_totales!=null?st.visitas_totales:st.veces_realizada||0)||0;
 var pr=x.portada_url||x.portadaUrl||(x.contenido&&(x.contenido.__rspPortadaUrl||x.contenido.__rsp_portada_url))||'';
-var tr=x.traducciones||{},loc=S&&S.l||'es',ti=String((tr[loc]&&tr[loc].titulo)||x.titulo||'');return {a:[String(x.id),id,icn,[ti,ti,ti],mn,mx,v,pr||'',''],cat:cat,id:id,icn:icn,col:col}}
+var tr=(x.traducciones&&typeof x.traducciones==='object'?x.traducciones:(x.contenido&&x.contenido.traducciones&&typeof x.contenido.traducciones==='object'?x.contenido.traducciones:{})),loc=String((S&&S.l)||'es').toLowerCase(),clave=Object.keys(tr).find(function(k){return String(k).toLowerCase()===(loc==='va'?'val':loc)}),ti=String((clave&&tr[clave]&&tr[clave].titulo)||x.titulo||'');return {a:[String(x.id),id,icn,[ti,ti,ti],mn,mx,v,pr||'',''],cat:cat,id:id,icn:icn,col:col}}
 function loadActs(){return fetch(API+'/actividades?solo_publicas=1',{cache:'no-store',headers:{Accept:'application/json'}}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){
 var l=(d.actividades||[]).map(mapAct),seen={},xs=0;A=l.map(function(o){return o.a});
 SJ=[];SB.forEach(function(b){if(l.some(function(o){return o.id===b[0]})){var nm=l.filter(function(o){return o.id===b[0]})[0].cat;SJ.push([b[0],b[1],b[2],[nm,nm,nm]]);seen[b[0]]=1}});
