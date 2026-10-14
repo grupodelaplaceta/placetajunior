@@ -405,7 +405,7 @@ function cambiarPestanaDetalle(tab, nombre) {
 
 // Página de DETALLE de la actividad (a pantalla completa, no popup)
 function verInfo(id) {
-  const a = TODAS.find(x => x.id === id);
+  const a = pjAplicarTraduccionActividad(TODAS.find(x => x.id === id));
   if (!a) return;
   if (window.pjSonido) pjSonido.abrir();
   const bloqueada = esBloqueada(a);
