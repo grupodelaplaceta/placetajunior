@@ -1075,7 +1075,8 @@ function pjIdiomaActivo() {
   try {
     const accesibilidad = JSON.parse(localStorage.getItem('junior_acc_web') || '{}');
     const estado = JSON.parse(localStorage.getItem('pj2') || '{}');
-    return String(accesibilidad.idioma || estado.l || window.__juniorLocale || 'es').trim().toLowerCase();
+    const valor = String(window.__juniorLocale || accesibilidad.idioma || estado.l || 'es').trim().toLowerCase();
+    return valor === 'va' ? 'val' : valor;
   } catch (_) { return String(window.__juniorLocale || 'es').trim().toLowerCase(); }
 }
 
@@ -1087,7 +1088,8 @@ function pjAplicarTraduccionActividad(actividad) {
   };
   const idioma = pjIdiomaActivo();
   if (!idioma || idioma === 'es') return actividad;
-  const traduccion = traducciones[idioma];
+  const clave = Object.keys(traducciones).find((key) => String(key).trim().toLowerCase() === idioma);
+  const traduccion = clave ? traducciones[clave] : null;
   if (!traduccion || typeof traduccion !== 'object') return actividad;
   const resultado = { ...actividad };
   ['titulo', 'descripcion', 'categoria', 'portadaUrl', 'miniaturaUrl'].forEach((campo) => {
