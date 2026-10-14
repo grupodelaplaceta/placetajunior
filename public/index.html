@@ -248,6 +248,9 @@ details{padding:0 16px;margin-bottom:8px}summary{padding:10px 0;font-size:16px}
 .ag{white-space:nowrap} footer .lgl a{font-size:14px;opacity:.92}footer p a{color:#fff;text-underline-offset:3px}footer p a:hover{color:var(--y,#FFD21F)} @media(max-width:560px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:18px}.grid .card{padding:8px;border-radius:20px}.grid .card .cover{aspect-ratio:16/10;border-radius:14px}.grid .gt{font-size:15px;gap:6px;line-height:1.15}.grid .gt .ib{width:26px;height:26px;flex:none}.grid .gt .ib .ic{width:15px;height:15px}.grid .play{padding:7px 8px;font-size:14px;gap:5px;min-height:0}.grid .play .ic{width:15px;height:15px}} .card{position:relative}.infb{position:absolute;top:18px;right:18px;z-index:2;width:34px;height:34px;border-radius:50%;border:0;background:#fffe;color:var(--purple);display:grid;place-items:center;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.25)}.infb .ic{width:20px;height:20px}.infb:hover{background:var(--yellow);color:#1D1744} .cover .cfb{position:absolute;inset:0;display:grid;place-items:center;color:var(--c);opacity:.55}.cover .cfb .ic{width:38%;height:auto;max-height:70%;stroke-width:1.6}
 #actp{position:fixed;inset:0;z-index:200;background:var(--bg)}#actp iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:var(--bg)}
 </style>
+<style>
+.lang-ribbon{position:absolute;top:10px;right:-30px;z-index:3;transform:rotate(45deg);min-width:112px;padding:5px 8px;background:var(--yellow,#FFD21F);color:#1D1744;font-size:11px;font-weight:800;line-height:1;text-align:center;box-shadow:0 2px 5px rgba(0,0,0,.25);pointer-events:none}
+</style>
 </head>
 <body>
 <a class="skip" href="#main" id="sk"></a>
@@ -684,21 +687,21 @@ dt:["¿Tienes un código?","Tens un codi?","Do you have a code?"],dp:["Escribe e
 cancel:["Cancelar","Cancel·lar","Cancel"],e0:["Escribe un código para continuar.","Escriu un codi per continuar.","Type a code to continue."],ok:["Código recibido. Buscando…","Codi rebut. Buscant…","Code received. Looking…"]};
 function t(k){return T[k][li]}
 var SJ=[];
-var A=[],ST='load';
+var A=[],ACT_META={},ST='load';
 var CAP=9,FA='all',FS='all',FR={'6-8':[6,8],'9-12':[9,12],'12+':[12,99]},rid=0,cur='',stack=[],HS=['img/bannerpj-16x9.jpg','img/2.jpg'],HA=['Placeta Junior','¿Qué aprenderás hoy?'],hx=0,ht=null;
 // Imágenes 16:9: actividades A[i][7]=miniatura, A[i][8]=GIF hover · juegos GIMG (ver más abajo) · HS=diapositivas del hero
 try{history.scrollRestoration='manual'}catch(e){}
 
 var API=(window.PJ_API_BASE||(location.hostname==='junior.laplaceta.org'?'/api/junior':'https://rsp.laplaceta.org/api/junior')).replace(/\/$/,'');
 var SB=[['mates','calc','#2563EB',/mate|calc|n[uú]mer|aritm|l[oó]gic/i],['ciencias','flask','#15803D',/cien|natur|medio|bio|f[ií]sic|qu[ií]mic/i],['lengua','chat','#C2560A',/leng|lect|idiom|ingl|castell|valenc|catal|literat/i],['mundo','globe','#C42A6E',/geo|hist|social|mundo|cultur/i],['tecno','code','#6D28D9',/tecn|code|program|inform|digital|rob[oó]t/i],['arte','pal','#DB2777',/arte|m[uú]s|pl[aá]st|dibuj/i]],XC=['#0E7490','#B45309','#7C3AED','#BE123C','#047857'];
-function mapAct(x){var cat=String(x.categoria||'').trim()||'Otras',b=SB.filter(function(r){return r[3].test(cat)})[0],id,icn,col;
+function mapAct(x){var tr=(x.traducciones&&typeof x.traducciones==='object'?x.traducciones:(x.contenido&&x.contenido.traducciones&&typeof x.contenido.traducciones==='object'?x.contenido.traducciones:{})),loc=String((S&&S.l)||'es').toLowerCase(),clave=Object.keys(tr).find(function(k){return String(k).toLowerCase()===(loc==='va'?'val':loc)}),tx=clave&&tr[clave]||{},cat=String(tx.categoria||tx.asignatura||tx.materia||tx.subject||x.categoria||'').trim()||'Otras',b=SB.filter(function(r){return r[3].test(cat)})[0],id,icn,col;
 if(b){id=b[0];icn=b[1];col=b[2]}else{id='x-'+cat.toLowerCase().replace(/[^a-z0-9]+/g,'-');icn='puzzle';col=null}
 var m=String(x.edad_recomendada||'').match(/\d+/g),mn=m?+m[0]:null,mx=m&&m[1]?+m[1]:mn;
 var st=x.estadisticas||{},v=Number(x.visitas!=null?x.visitas:x.visitas_count!=null?x.visitas_count:x.views!=null?x.views:st.visitas!=null?st.visitas:st.visitas_totales!=null?st.visitas_totales:st.veces_realizada||0)||0;
 var pr=x.portada_url||x.portadaUrl||(x.contenido&&(x.contenido.__rspPortadaUrl||x.contenido.__rsp_portada_url))||'';
-var tr=(x.traducciones&&typeof x.traducciones==='object'?x.traducciones:(x.contenido&&x.contenido.traducciones&&typeof x.contenido.traducciones==='object'?x.contenido.traducciones:{})),loc=String((S&&S.l)||'es').toLowerCase(),clave=Object.keys(tr).find(function(k){return String(k).toLowerCase()===(loc==='va'?'val':loc)}),ti=String((clave&&tr[clave]&&tr[clave].titulo)||x.titulo||'');return {a:[String(x.id),id,icn,[ti,ti,ti],mn,mx,v,pr||'',''],cat:cat,id:id,icn:icn,col:col}}
+var ti=String(tx.titulo||x.titulo||'');return {a:[String(x.id),id,icn,[ti,ti,ti],mn,mx,v,pr||'',''],cat:cat,id:id,icn:icn,col:col,traducida:!!clave,idioma:clave||''}}
 function loadActs(){return fetch(API+'/actividades?solo_publicas=1',{cache:'no-store',headers:{Accept:'application/json'}}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){
-var l=(d.actividades||[]).map(mapAct),seen={},xs=0;A=l.map(function(o){return o.a});
+var l=(d.actividades||[]).map(mapAct),seen={},xs=0;ACT_META={};l.forEach(function(o){ACT_META[String(o.a[0])]=o});A=l.map(function(o){return o.a});
 SJ=[];SB.forEach(function(b){if(l.some(function(o){return o.id===b[0]})){var nm=l.filter(function(o){return o.id===b[0]})[0].cat;SJ.push([b[0],b[1],b[2],[nm,nm,nm]]);seen[b[0]]=1}});
 l.forEach(function(o){if(!seen[o.id]){seen[o.id]=1;SJ.push([o.id,o.icn,XC[xs++%XC.length],[o.cat,o.cat,o.cat]])}});
 ST='ok'}).catch(function(){A=[];ST='err'})}
@@ -707,8 +710,8 @@ var u=sl.map(function(x){return String(x.image||'').replace(/^https?:\/\/junior\
 function sj(id){return SJ.filter(function(s){return s[0]===id})[0]}
 function okA(a){if(FA==='all')return true;var r=FR[FA];return a[4]!==null&&a[4]>=r[0]&&a[4]<=r[1]}
 function thumb(img,gif,icn){return '<div class="cover" aria-hidden="true">'+(!img&&icn?'<span class="cfb">'+ic(icn)+'</span>':'')+(img?'<img class="th" src="'+img+'" alt="" loading="lazy">':'')+(gif?'<img class="gif" data-src="'+gif+'" alt="">':'')+'</div>'}
-function card(a){var s=sj(a[1]),n=s[3][li];
-return '<a class="card" style="--c:'+s[2]+'" href="#/a/'+a[0]+'">'+thumb(a[7],a[8],a[2])+'<button type="button" class="infb" data-a="info" data-v="'+a[0]+'" aria-label="'+t('inf2')+'">'+ic('info')+'</button><h3>'+a[3][li]+'</h3><div class="meta"><span class="pill">'+n+'</span>'+(a[4]===null?'':'<span class="ag">'+(a[5]>a[4]?a[4]+'-'+a[5]:a[4]+'+')+'<span class="sr"> '+t('yrs')+'</span></span>')+'<span class="views">'+ic('eye')+a[6]+'<span class="sr"> '+t('views')+'</span></span></div><span class="play">'+ic('play')+t('jug')+'</span></a>'}
+function card(a){var s=sj(a[1]),n=s[3][li],meta=ACT_META[String(a[0])]||{},lang=String(meta.idioma||'').toLowerCase(),flag={es:'🇪🇸',ca:'🇦🇩',val:'🇪🇸',en:'🇬🇧',eu:'🇪🇺',fr:'🇫🇷'}[lang]||'🌐',ribbon=meta.traducida?'<span class="lang-ribbon" title="Traducida al '+lang+'">'+flag+' '+lang.toUpperCase()+'</span>':'';
+return '<a class="card" style="--c:'+s[2]+'" href="#/a/'+a[0]+'">'+thumb(a[7],a[8],a[2]).replace('</div>',ribbon+'</div>')+'<button type="button" class="infb" data-a="info" data-v="'+a[0]+'" aria-label="'+t('inf2')+'">'+ic('info')+'</button><h3>'+a[3][li]+'</h3><div class="meta"><span class="pill">'+n+'</span>'+(a[4]===null?'':'<span class="ag">'+(a[5]>a[4]?a[4]+'-'+a[5]:a[4]+'+')+'<span class="sr"> '+t('yrs')+'</span></span>')+'<span class="views">'+ic('eye')+a[6]+'<span class="sr"> '+t('views')+'</span></span></div><span class="play">'+ic('play')+t('jug')+'</span></a>'}
 var GIMG={}; // miniatura 16:9 y GIF de preview por juego: GIMG['Nom en català']=['miniatura.jpg','preview.gif'] · también GIMG.col / GIMG.puz para las tarjetas de grupo
 var GRP=[
 {ic:'brush',h:340,n:["Pintar y dibujar","Pintar i dibuixar","Paint and draw"],f:function(g){return(g.cat===0&&!/^Pinta /.test(g.n))||g.n==='Píxel art'},ch:'col'},
