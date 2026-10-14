@@ -1080,15 +1080,24 @@ function pjIdiomaActivo() {
   } catch (_) { return String(window.__juniorLocale || 'es').trim().toLowerCase(); }
 }
 
+function pjNormalizarIdioma(valor) {
+  const clave = String(valor || '').trim().toLowerCase().replace('_', '-');
+  if (['va', 'val', 'valencia', 'valenciano', 'valencian'].includes(clave)) return 'val';
+  if (['ca', 'catalan', 'català', 'catalan-es'].includes(clave)) return 'ca';
+  if (['es-es', 'español', 'castellano', 'spanish'].includes(clave)) return 'es';
+  if (['en-gb', 'english'].includes(clave)) return 'en';
+  return clave.split('-')[0];
+}
+
 function pjAplicarTraduccionActividad(actividad) {
   if (!actividad) return actividad;
   const traducciones = {
     ...(actividad.contenido?.traducciones && typeof actividad.contenido.traducciones === 'object' ? actividad.contenido.traducciones : {}),
     ...(actividad.traducciones && typeof actividad.traducciones === 'object' ? actividad.traducciones : {}),
   };
-  const idioma = pjIdiomaActivo();
+  const idioma = pjNormalizarIdioma(pjIdiomaActivo());
   if (!idioma || idioma === 'es') return actividad;
-  const clave = Object.keys(traducciones).find((key) => String(key).trim().toLowerCase() === idioma);
+  const clave = Object.keys(traducciones).find((key) => pjNormalizarIdioma(key) === idioma);
   const traduccion = clave ? traducciones[clave] : null;
   if (!traduccion || typeof traduccion !== 'object') return actividad;
   const resultado = { ...actividad };
