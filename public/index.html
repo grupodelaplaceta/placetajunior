@@ -249,7 +249,7 @@ details{padding:0 16px;margin-bottom:8px}summary{padding:10px 0;font-size:16px}
 #actp{position:fixed;inset:0;z-index:200;background:var(--bg)}#actp iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:var(--bg)}
 </style>
 <style>
-.lang-ribbon{position:absolute;top:10px;right:-30px;z-index:3;transform:rotate(45deg);min-width:112px;padding:5px 8px;background:var(--yellow,#FFD21F);color:#1D1744;font-size:11px;font-weight:800;line-height:1;text-align:center;box-shadow:0 2px 5px rgba(0,0,0,.25);pointer-events:none}
+.lang-ribbon{position:absolute;top:10px;left:-30px;z-index:3;transform:rotate(-45deg);min-width:138px;padding:5px 8px;color:#fff;font-size:11px;font-weight:800;line-height:1;text-align:center;text-shadow:0 1px 2px rgba(0,0,0,.35);box-shadow:0 2px 5px rgba(0,0,0,.25);pointer-events:none}.lang-ribbon.lang-es{background:#c60b1e}.lang-ribbon.lang-ca{background:#f4b400;color:#17365d;text-shadow:none}.lang-ribbon.lang-val{background:#f4b400;color:#17365d;text-shadow:none}.lang-ribbon.lang-en{background:#1f4e9d}.lang-ribbon.lang-eu{background:#1683c5}.lang-ribbon.lang-fr{background:#2446a8}
 </style>
 </head>
 <body>
@@ -710,7 +710,7 @@ var u=sl.map(function(x){return String(x.image||'').replace(/^https?:\/\/junior\
 function sj(id){return SJ.filter(function(s){return s[0]===id})[0]}
 function okA(a){if(FA==='all')return true;var r=FR[FA];return a[4]!==null&&a[4]>=r[0]&&a[4]<=r[1]}
 function thumb(img,gif,icn){return '<div class="cover" aria-hidden="true">'+(!img&&icn?'<span class="cfb">'+ic(icn)+'</span>':'')+(img?'<img class="th" src="'+img+'" alt="" loading="lazy">':'')+(gif?'<img class="gif" data-src="'+gif+'" alt="">':'')+'</div>'}
-function card(a){var s=sj(a[1]),n=s[3][li],meta=ACT_META[String(a[0])]||{},lang=String(meta.idioma||'').toLowerCase(),flag={es:'🇪🇸',ca:'🇦🇩',val:'🇪🇸',en:'🇬🇧',eu:'🇪🇺',fr:'🇫🇷'}[lang]||'🌐',ribbon=meta.traducida?'<span class="lang-ribbon" title="Traducida al '+lang+'">'+flag+' '+lang.toUpperCase()+'</span>':'';
+function card(a){var s=sj(a[1]),n=s[3][li],meta=ACT_META[String(a[0])]||{},lang=String(meta.idioma||'').toLowerCase(),names={es:'Español',ca:'Catalán',val:'Valenciano',en:'Inglés',eu:'Euskera',fr:'Francés'},name=names[lang]||lang.toUpperCase(),ribbon=meta.traducida?'<span class="lang-ribbon lang-'+lang+'" title="Traducida al '+name+'">'+name+'</span>':'';
 return '<a class="card" style="--c:'+s[2]+'" href="#/a/'+a[0]+'">'+thumb(a[7],a[8],a[2]).replace('</div>',ribbon+'</div>')+'<button type="button" class="infb" data-a="info" data-v="'+a[0]+'" aria-label="'+t('inf2')+'">'+ic('info')+'</button><h3>'+a[3][li]+'</h3><div class="meta"><span class="pill">'+n+'</span>'+(a[4]===null?'':'<span class="ag">'+(a[5]>a[4]?a[4]+'-'+a[5]:a[4]+'+')+'<span class="sr"> '+t('yrs')+'</span></span>')+'<span class="views">'+ic('eye')+a[6]+'<span class="sr"> '+t('views')+'</span></span></div><span class="play">'+ic('play')+t('jug')+'</span></a>'}
 var GIMG={}; // miniatura 16:9 y GIF de preview por juego: GIMG['Nom en català']=['miniatura.jpg','preview.gif'] · también GIMG.col / GIMG.puz para las tarjetas de grupo
 var GRP=[
