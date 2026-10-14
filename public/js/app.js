@@ -1071,6 +1071,33 @@ function renderCategorias() {
 }
 
 // Abrir y JUGAR la actividad publicada (reproductor de la web)
+function pjIdiomaActivo() {
+  try {
+    const accesibilidad = JSON.parse(localStorage.getItem('junior_acc_web') || '{}');
+    const estado = JSON.parse(localStorage.getItem('pj2') || '{}');
+    return String(accesibilidad.idioma || estado.l || window.__juniorLocale || 'es').trim().toLowerCase();
+  } catch (_) { return String(window.__juniorLocale || 'es').trim().toLowerCase(); }
+}
+
+function pjAplicarTraduccionActividad(actividad) {
+  if (!actividad) return actividad;
+  const traducciones = {
+    ...(actividad.contenido?.traducciones && typeof actividad.contenido.traducciones === 'object' ? actividad.contenido.traducciones : {}),
+    ...(actividad.traducciones && typeof actividad.traducciones === 'object' ? actividad.traducciones : {}),
+  };
+  const idioma = pjIdiomaActivo();
+  if (!idioma || idioma === 'es') return actividad;
+  const traduccion = traducciones[idioma];
+  if (!traduccion || typeof traduccion !== 'object') return actividad;
+  const resultado = { ...actividad };
+  ['titulo', 'descripcion', 'categoria', 'portadaUrl', 'miniaturaUrl'].forEach((campo) => {
+    if (typeof traduccion[campo] === 'string' && traduccion[campo].trim()) resultado[campo] = traduccion[campo];
+  });
+  if (typeof traduccion.portadaUrl === 'string' && traduccion.portadaUrl.trim()) resultado.portada_url = traduccion.portadaUrl;
+  if (traduccion.contenido && typeof traduccion.contenido === 'object') resultado.contenido = traduccion.contenido;
+  return resultado;
+}
+
 async function abrirActividad(id, bloqueada) {
   if (bloqueada) {
     mostrarBloqueoPlacetas();
@@ -1085,6 +1112,7 @@ async function abrirActividad(id, bloqueada) {
     } catch (e) { /* sin almacenamiento */ }
     const data = await apiGet(url);
     if (data.actividad) {
+      data.actividad = pjAplicarTraduccionActividad(data.actividad);
       registrarVisitaActividad(data.actividad.id);
       if (esBloqueada(data.actividad)) { mostrarBloqueoPlacetas(); return; }
       // Las actividades organizadas en diapositivas/unidades NUNCA se
@@ -1120,7 +1148,7 @@ async function abrirActividad(id, bloqueada) {
 async function abrirUnidad(id, indice, registrarVisita = true) {
   try {
     const data = await apiGet(`/actividades/${id}`);
-    const a = data.actividad;
+    const a = pjAplicarTraduccionActividad(data.actividad);
     if (!a) throw new Error('Actividad no encontrada');
     if (esBloqueada(a)) { mostrarBloqueoPlacetas(); return; }
     if (registrarVisita) registrarVisitaActividad(a.id);
