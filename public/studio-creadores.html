@@ -6,18 +6,35 @@
   <meta name="robots" content="noindex, nofollow" />
   <title>Crear actividad | Placeta Junior</title>
   <link rel="icon" href="/favijunior.png" />
+  <link rel="stylesheet" href="/css/education-nav.css" />
   <link rel="stylesheet" href="/studio-creadores.css" />
 </head>
 <body>
-  <header class="topbar">
-    <a class="brand" href="/" aria-label="Placeta Junior, inicio"><img src="/img/PJ-BLANCO-LOGO.png" alt="Placeta Junior" /></a>
-    <span class="brand-title">Placeta Junior Education</span>
-    <nav aria-label="Navegación"><a href="/#/educacion">Para educación</a><a href="/crear-actividad" aria-current="page">Crea una actividad</a><a href="/centros/panel">Mi cuenta</a></nav>
+  <header class="education-topbar">
+    <div class="education-topbar-inner">
+      <a class="education-brand" href="/" aria-label="Placeta Junior, inicio"><img src="/img/PJ-BLANCO-LOGO.png" alt="Placeta Junior" /></a>
+      <span class="education-brand-title">Placeta Junior Education</span>
+      <nav class="education-nav" aria-label="Navegación">
+        <a href="/#/educacion">Para educación</a>
+        <a href="/crear-actividad" aria-current="page">Studio</a>
+        <a href="/centros" data-nav-register>Alta de centro</a>
+        <span class="education-centers-nav"><a href="/centros/panel" data-requiere-sesion>Mis centros</a><a class="education-add-center" href="/centros?tipo=centro" data-nav-add-center hidden aria-label="Añadir otro centro" title="Añadir otro centro">+</a></span>
+      </nav>
+      <button class="education-signout" id="cerrar" data-nav-signout type="button" hidden>Salir</button>
+    </div>
   </header>
   <main>
     <section class="intro">
-      <div><p class="eyebrow">TU AULA, TUS IDEAS</p><h1>Crea una actividad <span>para aprender jugando.</span></h1><p class="intro-copy">Diseña el contenido para tu grupo. Placeta Junior acompaña el proceso hasta que esté listo para compartir.</p></div>
-      <div class="identity" id="identity"><span class="status-dot"></span><span id="identity-status">Comprobando cuenta…</span></div>
+      <div class="intro-copy-block"><p class="eyebrow">TU AULA, TUS IDEAS</p><h1>Crea una actividad <span>para aprender jugando.</span></h1><p class="intro-copy">Diseña el contenido para tu grupo. Placeta Junior acompaña el proceso hasta que esté listo para compartir.</p></div>
+      <div class="intro-aside">
+        <div class="identity" id="identity"><span class="status-dot"></span><span id="identity-status">Comprobando cuenta…</span></div>
+        <div class="studio-visual" aria-hidden="true">
+          <span class="studio-visual-spark">✦</span>
+          <div class="studio-visual-title"><span>✎</span><strong>IDEA DE AULA</strong><small>se convierte en actividad</small></div>
+          <div class="studio-visual-flow"><span>💡</span><i></i><span>🧩</span><i></i><span>🎉</span></div>
+          <div class="studio-visual-caption"><span>Explica</span><span>Practica</span><span>Aprende</span></div>
+        </div>
+      </div>
     </section>
     <section id="access-gate" class="access-gate" role="status" aria-live="polite">
       <h2 id="access-title">Comprobando permisos…</h2>
@@ -28,43 +45,62 @@
       </div>
     </section>
     <div id="creator-tools" hidden>
-      <section class="activity-metadata" aria-labelledby="activity-metadata-title">
-        <div class="section-heading compact"><div><p class="eyebrow">FICHA</p><h2 id="activity-metadata-title">Datos de la actividad</h2></div></div>
-        <div class="activity-meta-fields">
-          <div class="field"><label for="meta-title">Título</label><input id="meta-title" maxlength="160" autocomplete="off" /></div>
-          <div class="field"><label for="meta-description">Descripción</label><textarea id="meta-description" maxlength="2000" rows="2"></textarea></div>
-          <div class="field"><label for="meta-category">Materia</label><select id="meta-category"><option>General</option><option>Matemáticas</option><option>Lengua</option><option>Ciencias</option><option>Geografía</option><option>Tecnología</option><option>Lógica</option><option>Cultura</option></select></div>
-          <div class="field"><label for="meta-age">Edad recomendada</label><input id="meta-age" value="6-12" maxlength="20" /></div>
-          <div class="field"><label for="meta-difficulty">Dificultad</label><select id="meta-difficulty"><option value="facil">Fácil</option><option value="media" selected>Media</option><option value="dificil">Difícil</option></select></div>
+      <nav class="studio-menu" id="studio-menu" role="tablist" aria-label="Secciones de Studio">
+        <button type="button" role="tab" id="studio-tab-activities" aria-controls="studio-panel-activities" data-studio-view="activities" aria-selected="true"><span aria-hidden="true">▤</span>Mis actividades</button>
+        <button type="button" role="tab" id="studio-tab-create" aria-controls="studio-panel-create" data-studio-view="create" aria-selected="false"><span aria-hidden="true">✦</span>Crear actividad</button>
+        <button type="button" role="tab" id="studio-tab-edit" aria-controls="studio-panel-edit" data-studio-view="edit" aria-selected="false"><span aria-hidden="true">🧩</span>Personalizar</button>
+        <button type="button" role="tab" id="studio-tab-guide" aria-controls="studio-panel-guide" data-studio-view="guide" aria-selected="false"><span aria-hidden="true">ⓘ</span>Cómo funciona</button>
+      </nav>
+      <section class="studio-view saved-view" id="studio-panel-activities" role="tabpanel" aria-labelledby="studio-tab-activities" data-studio-panel="activities">
+        <div class="studio-view-heading"><div><p class="eyebrow">TU ESPACIO DE TRABAJO</p><h2 id="saved-title">Mis actividades</h2><p>Guarda varias propuestas en este dispositivo y organiza cada una por centro.</p></div><button id="new-activity" class="new-activity-button" type="button"><span aria-hidden="true">＋</span>Nueva actividad</button></div>
+        <div class="saved-toolbar"><label for="managed-center">Gestionar para</label><select id="managed-center" aria-label="Selecciona el centro para gestionar actividades"></select><span id="saved-count" aria-live="polite"></span></div>
+        <div class="saved-activities" id="saved-activities" aria-live="polite"></div>
+      </section>
+      <section class="studio-view create-view" id="studio-panel-create" role="tabpanel" data-studio-panel="create" hidden aria-labelledby="studio-tab-create">
+        <div class="studio-view-heading"><div><p class="eyebrow">PASO 1 · PREPARA TU IDEA</p><h2 id="activity-metadata-title">Cuéntanos qué vas a enseñar</h2><p>Empieza por la ficha y después elige una plantilla o crea tu propio recorrido.</p></div><span class="view-step-art" aria-hidden="true">✏️</span></div>
+        <div class="activity-metadata">
+          <div class="activity-meta-fields">
+            <div class="field"><label for="meta-title">Título de la actividad</label><input id="meta-title" maxlength="160" autocomplete="off" placeholder="Ej.: Los secretos del sistema solar" /></div>
+            <div class="field"><label for="meta-description">¿Qué aprenderá el grupo?</label><textarea id="meta-description" maxlength="2000" rows="2" placeholder="Describe el objetivo de aprendizaje con tus palabras."></textarea></div>
+            <div class="field"><label for="meta-category">Materia</label><select id="meta-category"><option>General</option><option>Matemáticas</option><option>Lengua</option><option>Ciencias</option><option>Geografía</option><option>Tecnología</option><option>Lógica</option><option>Cultura</option></select></div>
+            <div class="field"><label for="meta-age">Edad recomendada</label><input id="meta-age" value="6-12" maxlength="20" /></div>
+            <div class="field"><label for="meta-difficulty">Dificultad</label><select id="meta-difficulty"><option value="facil">Fácil</option><option value="media" selected>Media</option><option value="dificil">Difícil</option></select></div>
+          </div>
+        </div>
+        <section class="template-section" aria-labelledby="template-title">
+          <div class="section-heading"><div><p class="eyebrow">TU PUNTO DE PARTIDA</p><h2 id="template-title">Elige cómo empezar</h2></div><button id="blank-template" class="quiet-button" type="button">Empezar en blanco</button></div>
+          <div class="templates" id="templates"></div>
+        </section>
+        <div class="studio-next-row"><p>¿Ya has elegido? Puedes cambiar de plantilla más tarde.</p><button id="continue-to-edit" class="studio-next-button" type="button">Ir a personalizar <span aria-hidden="true">→</span></button></div>
+      </section>
+      <section class="studio-view edit-view" id="studio-panel-edit" role="tabpanel" data-studio-panel="edit" hidden aria-labelledby="studio-tab-edit">
+        <div class="studio-view-heading"><div><p class="eyebrow">PASO 2 · DALE FORMA</p><h2 id="editor-view-title">Personaliza tu actividad</h2><p>Añade bloques, edita su contenido y arrástralos para cambiar el orden.</p></div></div>
+        <section class="workspace" aria-label="Editor de actividad">
+          <aside class="toolbox">
+            <div class="section-heading compact"><div><p class="eyebrow">CONTENIDO</p><h2>Añade un bloque</h2></div></div>
+            <div class="block-palette" id="palette"></div>
+          </aside>
+          <section class="builder">
+            <div class="builder-top"><div><p class="eyebrow">TU LIENZO</p><h2 id="activity-title">Actividad sin título</h2></div><div class="builder-actions"><button id="undo-action" class="quiet-button history-button" type="button" disabled aria-label="Deshacer">↶ Deshacer</button><button id="redo-action" class="quiet-button history-button" type="button" disabled aria-label="Rehacer">↷ Rehacer</button><button id="preview-activity" class="quiet-button" type="button">Vista previa</button><button id="clear-draft" class="quiet-button" type="button">Vaciar lienzo</button></div></div>
+            <div class="canvas" id="canvas" aria-live="polite"></div>
+          </section>
+          <aside class="inspector">
+            <div class="section-heading compact"><div><p class="eyebrow">PERSONALIZACIÓN</p><h2>Propiedades</h2></div></div>
+            <div id="inspector-content" class="inspector-content"></div>
+          </aside>
+        </section>
+      </section>
+      <section class="studio-view guide-view" id="studio-panel-guide" role="tabpanel" data-studio-panel="guide" hidden aria-labelledby="studio-tab-guide">
+        <div class="review-process">
+          <div class="review-intro"><span class="review-spark" aria-hidden="true">✦</span><div><p class="eyebrow">HECHO EN EQUIPO</p><h2 id="review-title">Tu propuesta, cuidada antes de llegar al aula.</h2><p>Al enviarla, el equipo de Placeta Junior se ocupa de la revisión editorial. La guía está separada del espacio de creación.</p></div></div>
+          <ol class="review-steps">
+            <li><span aria-hidden="true">01</span><div><strong>Revisamos</strong><p>Leemos la actividad y comprobamos que sea clara, adecuada y coherente con su objetivo educativo.</p></div></li>
+            <li><span aria-hidden="true">02</span><div><strong>Verificamos</strong><p>Contrastamos el contenido y el funcionamiento de los ejercicios; si hace falta, te pediremos ajustes.</p></div></li>
+            <li><span aria-hidden="true">03</span><div><strong>Preparamos para compartir</strong><p>Según el caso, creamos una portada y las traducciones necesarias antes de incorporarla a Placeta Junior.</p></div></li>
+          </ol>
         </div>
       </section>
-      <section class="template-section" aria-labelledby="template-title">
-        <div class="section-heading"><div><p class="eyebrow">PUNTO DE PARTIDA</p><h2 id="template-title">Elige una plantilla</h2></div><button id="blank-template" class="quiet-button" type="button">Empezar en blanco</button></div>
-        <div class="templates" id="templates"></div>
-      </section>
-      <section class="review-process" aria-labelledby="review-title">
-        <div class="review-intro"><span class="review-spark" aria-hidden="true">✦</span><div><p class="eyebrow">HECHO EN EQUIPO</p><h2 id="review-title">Tu propuesta, cuidada antes de llegar al aula.</h2><p>Al enviarla, el equipo de Placeta Junior se ocupa de la revisión editorial.</p></div></div>
-        <ol class="review-steps">
-          <li><span aria-hidden="true">01</span><div><strong>Revisamos</strong><p>Leemos la actividad y comprobamos que sea clara, adecuada y coherente con su objetivo educativo.</p></div></li>
-          <li><span aria-hidden="true">02</span><div><strong>Verificamos</strong><p>Contrastamos el contenido y el funcionamiento de los ejercicios; si hace falta, te pediremos ajustes.</p></div></li>
-          <li><span aria-hidden="true">03</span><div><strong>Preparamos para compartir</strong><p>Según el caso, creamos una portada y las traducciones necesarias antes de incorporarla a Placeta Junior.</p></div></li>
-        </ol>
-      </section>
-      <section class="workspace" aria-label="Editor de actividad">
-        <aside class="toolbox">
-          <div class="section-heading compact"><div><p class="eyebrow">BLOQUES</p><h2>Añadir contenido</h2></div></div>
-          <div class="block-palette" id="palette"></div>
-        </aside>
-        <section class="builder">
-          <div class="builder-top"><div><p class="eyebrow">LIENZO</p><h2 id="activity-title">Actividad sin título</h2></div><div class="builder-actions"><button id="undo-action" class="quiet-button history-button" type="button" disabled aria-label="Deshacer">↶ Deshacer</button><button id="redo-action" class="quiet-button history-button" type="button" disabled aria-label="Rehacer">↷ Rehacer</button><button id="preview-activity" class="quiet-button" type="button">Vista previa</button><button id="clear-draft" class="quiet-button" type="button">Vaciar lienzo</button></div></div>
-          <div class="canvas" id="canvas" aria-live="polite"></div>
-        </section>
-        <aside class="inspector">
-          <div class="section-heading compact"><div><p class="eyebrow">EDICIÓN</p><h2>Propiedades</h2></div></div>
-          <div id="inspector-content" class="inspector-content"></div>
-        </aside>
-      </section>
-      <section class="submit-bar">
+      <section class="submit-bar" id="submit-bar" hidden>
         <div><strong id="draft-title">Actividad nueva</strong><span id="draft-summary">El borrador se guarda en este dispositivo.</span></div>
         <button id="submit-activity" class="submit-button" type="button"><span aria-hidden="true">↗</span> Enviar a revisión</button>
       </section>
@@ -76,6 +112,7 @@
     </div>
     <p id="notice" class="notice" role="status" aria-live="polite"></p>
   </main>
+  <script src="/centros/assets/education-nav.js" defer></script>
   <script src="/studio-creadores.js" defer></script>
 </body>
 </html>

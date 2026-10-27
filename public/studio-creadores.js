@@ -3,6 +3,7 @@
 
   const SESSION_KEY = 'pj27-sesion';
   const DRAFT_KEY = 'pj-studio-creadores-draft';
+  const DRAFTS_KEY = 'pj-studio-creadores-drafts-v1';
   const TYPES = [
     ['texto', 'Texto explicativo', '▤'], ['test', 'Preguntas tipo test', '?'],
     ['relacionar', 'Relacionar parejas', '↔'], ['completar', 'Completar frases', '✎'],
@@ -34,7 +35,7 @@
     ordenar: () => ({ tipo: 'ordenar', titulo: 'Ordena los pasos', items: ['Primer paso', 'Segundo paso', 'Tercer paso'] }),
     sopa_letras: () => ({ tipo: 'sopa_letras', titulo: 'Sopa de letras', palabras: ['SOL', 'LUNA'], pistas: [] })
   };
-  const state = { title: '', description: '', category: 'General', age: '6-12', difficulty: 'media', blocks: [], selected: -1, templates: [], identity: null, identityKind: 'docente', authorName: '', center: null, centers: [], docenteAprobado: false };
+  const state = { title: '', description: '', category: 'General', age: '6-12', difficulty: 'media', blocks: [], selected: -1, templates: [], identity: null, identityKind: 'docente', authorName: '', center: null, centers: [], docenteAprobado: false, drafts: [], currentDraftId: null };
   const $ = (id) => document.getElementById(id);
   const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const history = [];
@@ -89,15 +90,169 @@
     node.className = `notice ${kind || ''}`;
   }
 
-  function saveDraft() {
-    try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ title: state.title, description: state.description, category: state.category, age: state.age, difficulty: state.difficulty, blocks: state.blocks })); } catch (_) {}
+  function draftScope() {
+    return state.identityKind === 'centro' && state.center
+      ? `centro:${state.center.id}`
+      : `docente:${String(state.identity?.email || '').trim().toLowerCase()}`;
   }
 
-  function restoreDraft() {
+  function createDraftId() {
+    return globalThis.crypto?.randomUUID?.() || `draft-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  }
+
+  function hasDraftContent() {
+    return Boolean(state.title.trim() || state.description.trim() || state.blocks.length);
+  }
+
+  function currentDraftData() {
+    return {
+      id: state.currentDraftId,
+      scope: draftScope(),
+      title: state.title,
+      description: state.description,
+      category: state.category,
+      age: state.age,
+      difficulty: state.difficulty,
+      blocks: state.blocks,
+      updatedAt: new Date().toISOString()
+    };
+  }
+
+  function saveDraft() {
+    if (!state.currentDraftId && !hasDraftContent()) return;
+    if (!state.currentDraftId) state.currentDraftId = createDraftId();
+    const saved = currentDraftData();
+    const index = state.drafts.findIndex((draft) => draft.id === saved.id);
+    if (index >= 0) state.drafts[index] = saved;
+    else state.drafts.unshift(saved);
     try {
-      const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
-      if (saved && Array.isArray(saved.blocks)) Object.assign(state, saved, { selected: saved.blocks.length ? 0 : -1 });
-    } catch (_) { localStorage.removeItem(DRAFT_KEY); }
+      localStorage.setItem(DRAFTS_KEY, JSON.stringify(state.drafts));
+      localStorage.removeItem(DRAFT_KEY);
+      renderSavedActivities();
+    } catch (error) {
+      notice('No se pudo guardar la actividad en este dispositivo. Comprueba el espacio disponible.', 'error');
+    }
+  }
+
+  function restoreDraft(draft) {
+    const saved = draft || {};
+    Object.assign(state, {
+      title: saved.title || '',
+      description: saved.description || '',
+      category: saved.category || 'General',
+      age: saved.age || '6-12',
+      difficulty: saved.difficulty || 'media',
+      blocks: Array.isArray(saved.blocks) ? saved.blocks : [],
+      currentDraftId: saved.id || null,
+      selected: Array.isArray(saved.blocks) && saved.blocks.length ? 0 : -1
+    });
+    resetHistory();
+    paintCanvas();
+    renderSavedActivities();
+  }
+
+  function loadDrafts() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(DRAFTS_KEY) || '[]');
+      if (!Array.isArray(saved)) throw new Error('La lista de actividades guardadas no es válida.');
+      state.drafts = saved.filter((draft) => draft && typeof draft.id === 'string' && typeof draft.scope === 'string' && Array.isArray(draft.blocks));
+      const legacy = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+      if (legacy && Array.isArray(legacy.blocks)) {
+        state.drafts.unshift({ ...legacy, id: createDraftId(), scope: draftScope(), updatedAt: new Date().toISOString() });
+        localStorage.setItem(DRAFTS_KEY, JSON.stringify(state.drafts));
+        localStorage.removeItem(DRAFT_KEY);
+      }
+    } catch (error) {
+      notice('No se pudieron leer las actividades guardadas de este dispositivo.', 'error');
+      state.drafts = [];
+    }
+  }
+
+  function renderSavedActivities() {
+    const root = $('saved-activities');
+    if (!root) return;
+    const scope = $('managed-center')?.value || draftScope();
+    const drafts = state.drafts.filter((draft) => draft.scope === scope).sort((a, b) => String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')));
+    $('saved-count').textContent = `${drafts.length} ${drafts.length === 1 ? 'actividad guardada' : 'actividades guardadas'}`;
+    root.innerHTML = drafts.length ? drafts.map((draft) => {
+      const title = draft.title?.trim() || 'Actividad sin título';
+      const updated = draft.updatedAt ? new Date(draft.updatedAt).toLocaleDateString('es-ES') : '';
+      return `<article class="saved-activity${draft.id === state.currentDraftId ? ' is-current' : ''}"><span class="saved-activity-art" aria-hidden="true">✦</span><div class="saved-activity-copy"><strong>${esc(title)}</strong><small>${esc(draft.category || 'General')} · ${draft.blocks.length} bloques${updated ? ` · Guardada ${esc(updated)}` : ''}</small></div><button type="button" class="saved-open" data-open-draft="${esc(draft.id)}">Abrir</button><button type="button" class="saved-delete" data-delete-draft="${esc(draft.id)}" aria-label="Eliminar ${esc(title)}">×</button></article>`;
+    }).join('') : '<div class="saved-empty"><span aria-hidden="true">🪁</span><strong>Tu espacio está listo</strong><p>Aquí aparecerán las actividades que guardes para este centro.</p><button type="button" class="new-activity-button" data-create-first>＋ Crear mi primera actividad</button></div>';
+  }
+
+  function setupManagedCenters() {
+    const select = $('managed-center');
+    const choices = [
+      ...(state.docenteAprobado ? [{ value: 'docente', label: 'Mi espacio docente' }] : []),
+      ...state.centers.map((center) => ({ value: `centro:${center.id}`, label: center.nombre }))
+    ];
+    select.innerHTML = choices.map((choice) => `<option value="${esc(choice.value)}">${esc(choice.label)}</option>`).join('');
+    select.value = draftScope();
+  }
+
+  function setAuthorScope(value) {
+    saveDraft();
+    if (value === 'docente') {
+      state.identityKind = 'docente';
+      state.center = null;
+    } else {
+      state.identityKind = 'centro';
+      state.center = state.centers.find((center) => `centro:${center.id}` === value) || null;
+      if (!state.center) return;
+    }
+    const latest = state.drafts.filter((draft) => draft.scope === draftScope()).sort((a, b) => String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')))[0];
+    restoreDraft(latest);
+    $('managed-center').value = draftScope();
+    paintIdentity(state.identity?.email || '');
+    showStudioView('activities');
+  }
+
+  function startNewActivity() {
+    saveDraft();
+    restoreDraft(null);
+    paintTemplates('');
+    showStudioView('create');
+    $('meta-title').focus();
+  }
+
+  function openSavedDraft(id) {
+    const draft = state.drafts.find((item) => item.id === id && item.scope === draftScope());
+    if (!draft) return;
+    restoreDraft(draft);
+    paintTemplates('');
+    showStudioView('edit');
+  }
+
+  function deleteSavedDraft(id) {
+    const draft = state.drafts.find((item) => item.id === id && item.scope === draftScope());
+    if (!draft || !window.confirm(`¿Eliminar «${draft.title?.trim() || 'Actividad sin título'}» de este dispositivo?`)) return;
+    state.drafts = state.drafts.filter((item) => item.id !== id);
+    try {
+      localStorage.setItem(DRAFTS_KEY, JSON.stringify(state.drafts));
+      if (state.currentDraftId === id) restoreDraft(null);
+      renderSavedActivities();
+    } catch (error) {
+      notice('No se pudo eliminar la actividad guardada. Inténtalo de nuevo.', 'error');
+    }
+  }
+
+  function removeCurrentDraft() {
+    state.drafts = state.drafts.filter((draft) => draft.id !== state.currentDraftId);
+    state.currentDraftId = null;
+    try { localStorage.setItem(DRAFTS_KEY, JSON.stringify(state.drafts)); localStorage.removeItem(DRAFT_KEY); }
+    catch (error) { notice('La actividad se envió, pero no se pudo actualizar la lista de borradores.', 'error'); }
+  }
+
+  function showStudioView(name) {
+    document.querySelectorAll('[data-studio-panel]').forEach((panel) => { panel.hidden = panel.dataset.studioPanel !== name; });
+    document.querySelectorAll('[data-studio-view]').forEach((button) => {
+      const active = button.dataset.studioView === name;
+      button.setAttribute('aria-selected', String(active));
+      button.tabIndex = active ? 0 : -1;
+    });
+    $('submit-bar').hidden = name !== 'edit';
+    if (name === 'edit') $('activity-title').textContent = state.title || 'Actividad sin título';
   }
 
   function blockName(type) { return TYPES.find(([id]) => id === type)?.[1] || type; }
@@ -112,11 +267,15 @@
   }
 
   function paintTemplates(active) {
-    $('templates').innerHTML = TEMPLATES.map((item, index) => `<button type="button" class="template" data-template="${item.id}" aria-pressed="${active === item.id}"><span class="template-index">PLANTILLA 0${index + 1}</span><strong>${esc(item.title)}</strong><small>${esc(item.description)}</small></button>`).join('');
+    const visuals = { quiz: ['🎯', 'template-quiz'], parejas: ['🧩', 'template-pairs'], lectura: ['📚', 'template-reading'], vocabulario: ['🌿', 'template-vocabulary'] };
+    $('templates').innerHTML = TEMPLATES.map((item, index) => {
+      const [icon, style] = visuals[item.id];
+      return `<button type="button" class="template ${style}" data-template="${item.id}" aria-pressed="${active === item.id}"><span class="template-art" aria-hidden="true">${icon}</span><span class="template-copy"><span class="template-index">PLANTILLA 0${index + 1}</span><strong>${esc(item.title)}</strong><small>${esc(item.description)}</small></span><span class="template-arrow" aria-hidden="true">→</span></button>`;
+    }).join('');
   }
 
   function paintPalette() {
-    $('palette').innerHTML = TYPES.map(([type, name, icon]) => `<button type="button" draggable="true" class="palette-item" data-type="${type}"><span class="palette-icon">${icon}</span>${esc(name)}</button>`).join('');
+    $('palette').innerHTML = TYPES.map(([type, name, icon]) => `<button type="button" draggable="true" class="palette-item type-${type}" data-type="${type}"><span class="palette-icon">${icon}</span><span>${esc(name)}</span><span class="palette-add" aria-hidden="true">＋</span></button>`).join('');
   }
 
   function paintCanvas() {
@@ -146,6 +305,15 @@
     const root = $('inspector-content');
     const block = state.blocks[state.selected];
     if (!block) { root.innerHTML = '<p class="inspector-empty">Selecciona un bloque para editarlo. El título y la descripción se completan al enviar.</p>'; return; }
+    const typeArt = {
+      texto: ['▤', 'Lectura y explicación', 'Presenta el tema con tus propias palabras.'],
+      test: ['?', 'Pregunta y descubre', 'Escribe opciones breves y marca la respuesta correcta.'],
+      relacionar: ['↔', 'Conecta las ideas', 'Cada pareja une un concepto con su respuesta.'],
+      completar: ['✎', 'Completa el hueco', 'La respuesta debe encajar en el espacio de la frase.'],
+      ordenar: ['≡', 'Pasos en orden', 'Coloca cada paso en una línea, en el orden esperado.'],
+      sopa_letras: ['▦', 'Busca las palabras', 'Añade vocabulario y, si quieres, una pista para cada palabra.']
+    };
+    const art = typeArt[block.tipo] || ['✦', blockName(block.tipo), 'Personaliza este contenido.'];
     let fields = editorField('Título del bloque', 'titulo', block.titulo || '');
     if (block.tipo === 'texto') fields += editorField('Contenido', 'contenido', block.contenido, 'multiline', 8);
     else if (block.tipo === 'test') fields += `<div class="repeat-list">${(block.preguntas || []).map((item, index) => `<fieldset class="repeat-item"><legend>Pregunta ${index + 1}</legend>${fieldMarkup('Enunciado', 'preguntas', index, 'pregunta', item.pregunta)}<label class="field"><span>Opciones, una por línea</span><textarea data-collection="preguntas" data-index="${index}" data-key="opciones" data-mode="lines" rows="4">${esc((item.opciones || []).join('\n'))}</textarea></label><label class="field"><span>Índice correcto (empieza en 0)</span><input type="number" min="0" max="${Math.max(0, (item.opciones || []).length - 1)}" data-collection="preguntas" data-index="${index}" data-key="correcta" value="${Number(item.correcta) || 0}" /></label><button type="button" class="quiet-button" data-delete-row="preguntas" data-index="${index}">Eliminar pregunta</button></fieldset>`).join('')}</div><button type="button" class="add-row" data-add-row="preguntas">＋ Añadir pregunta</button>`;
@@ -156,7 +324,7 @@
       fields += editorField('Palabras (una por línea)', 'palabras', block.palabras, 'lines', 5);
       fields += editorField('Pistas (una por línea, opcional)', 'pistas', block.pistas, 'lines', 4);
     }
-    root.innerHTML = fields + '<p class="validation" id="field-error" aria-live="polite"></p>';
+    root.innerHTML = `<div class="inspector-type-card type-${esc(block.tipo)}"><span aria-hidden="true">${art[0]}</span><div><strong>${art[1]}</strong><small>${art[2]}</small></div></div>${fields}<p class="validation" id="field-error" aria-live="polite"></p>`;
   }
 
   function fieldMarkup(label, collection, index, key, value) {
@@ -313,14 +481,11 @@
     const authorName = state.identityKind === 'centro' ? state.center?.nombre : (state.authorName || email || 'Docente');
     const choices = [
       ...(state.docenteAprobado ? [`<option value="docente" ${state.identityKind === 'docente' ? 'selected' : ''}>Docente · ${esc(state.authorName || email || 'cuenta Google')}</option>`] : []),
-      ...state.centers.map((center) => `<option value="${esc(center.id)}" ${state.identityKind === 'centro' && state.center?.id === center.id ? 'selected' : ''}>Centro · ${esc(center.nombre)}</option>`)
+      ...state.centers.map((center) => `<option value="centro:${esc(center.id)}" ${state.identityKind === 'centro' && state.center?.id === center.id ? 'selected' : ''}>Centro · ${esc(center.nombre)}</option>`)
     ];
     root.innerHTML = `<span class="status-dot"></span><span id="identity-status">Autoría: ${esc(authorName)}</span>${state.centers.length ? `<label class="identity-select-label" for="identity-select">Publicar como</label><select id="identity-select" aria-label="Publicar como">${choices.join('')}</select>` : ''}`;
-    $('identity-select')?.addEventListener('change', (event) => {
-      if (event.target.value === 'docente') { state.identityKind = 'docente'; state.center = null; }
-      else { state.identityKind = 'centro'; state.center = state.centers.find((item) => item.id === event.target.value) || null; }
-      paintIdentity(email);
-    });
+    const managerSelect = $('managed-center');
+    if (managerSelect && [...managerSelect.options].some((option) => option.value === draftScope())) managerSelect.value = draftScope();
   }
 
   function countItems() {
@@ -365,11 +530,17 @@
         throw new Error(data.error || data.mensaje || `Error HTTP ${response.status}`);
       }
       notice(`Actividad enviada a revisión editorial como ${authorName}. ${data.mensaje || ''}`.trim(), 'success');
+      removeCurrentDraft();
+      state.title = '';
+      state.description = '';
+      state.category = 'General';
+      state.age = '6-12';
+      state.difficulty = 'media';
       state.blocks = [];
       state.selected = -1;
-      localStorage.removeItem(DRAFT_KEY);
       paintCanvas();
       resetHistory();
+      showStudioView('activities');
     } catch (error) { notice(error.message || 'No se pudo enviar la actividad.', 'error'); }
     finally { button.disabled = false; }
   }
@@ -377,11 +548,41 @@
   function initialize() {
     loadIdentity().then((authorized) => {
       if (!authorized) return;
-    restoreDraft();
+    loadDrafts();
+    setupManagedCenters();
+    const latestDraft = state.drafts.filter((draft) => draft.scope === draftScope()).sort((a, b) => String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')))[0];
+    restoreDraft(latestDraft);
     paintTemplates('');
     paintPalette();
     paintCanvas();
     recordHistory();
+    renderSavedActivities();
+    document.querySelectorAll('[data-studio-view]').forEach((button) => button.addEventListener('click', () => showStudioView(button.dataset.studioView)));
+    $('studio-menu').addEventListener('keydown', (event) => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+      const tabs = [...document.querySelectorAll('[data-studio-view]')];
+      const current = tabs.indexOf(event.target.closest('[data-studio-view]'));
+      if (current < 0) return;
+      event.preventDefault();
+      const next = event.key === 'Home' ? 0
+        : event.key === 'End' ? tabs.length - 1
+          : (current + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+      showStudioView(tabs[next].dataset.studioView);
+      tabs[next].focus();
+    });
+    $('managed-center').addEventListener('change', (event) => setAuthorScope(event.target.value));
+    $('identity').addEventListener('change', (event) => {
+      if (event.target.id === 'identity-select') setAuthorScope(event.target.value);
+    });
+    $('new-activity').addEventListener('click', startNewActivity);
+    $('saved-activities').addEventListener('click', (event) => {
+      const open = event.target.closest('[data-open-draft]');
+      const remove = event.target.closest('[data-delete-draft]');
+      if (open) openSavedDraft(open.dataset.openDraft);
+      if (remove) deleteSavedDraft(remove.dataset.deleteDraft);
+      if (event.target.closest('[data-create-first]')) startNewActivity();
+    });
+    $('continue-to-edit').addEventListener('click', () => showStudioView('edit'));
     $('templates').addEventListener('click', (event) => { const button = event.target.closest('[data-template]'); if (button) useTemplate(button.dataset.template); });
     $('blank-template').addEventListener('click', () => { recordHistory(); state.blocks = []; state.selected = -1; state.title = ''; state.description = ''; paintTemplates(''); paintCanvas(); recordHistory(); });
     $('undo-action').addEventListener('click', () => { recordHistory(); if (historyIndex > 0) restoreHistory(historyIndex - 1); });
@@ -450,6 +651,7 @@
         scheduleHistory();
         $('activity-title').textContent = state.title || 'Actividad sin título';
         $('draft-title').textContent = state.title || 'Actividad nueva';
+        saveDraft();
         saveDraft();
       });
     });

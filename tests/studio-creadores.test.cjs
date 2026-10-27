@@ -11,7 +11,8 @@ test('el editor de creación es la única ruta pública de Studio y redirige el 
   assert.ok(config.routes.some((route) => route.src === '/crear-actividad' && route.dest === '/public/studio-creadores.html'));
   assert.ok(config.routes.some((route) => route.src === '/studio/?$' && route.status === 308 && route.headers.Location === '/crear-actividad'));
   assert.ok(config.routes.some((route) => route.src === '/studio.html' && route.status === 308 && route.headers.Location === '/crear-actividad'));
-  assert.match(read('public/centros/panel.html'), /href="\/crear-actividad" data-requiere-sesion/);
+  assert.match(read('public/centros/panel.html'), /href="\/crear-actividad">Studio<\/a>/);
+  assert.match(read('public/centros/panel.html'), /data-nav-add-center hidden/);
 });
 
 test('el lienzo y el borrador solo se inicializan tras verificar permisos activos', () => {
@@ -21,7 +22,7 @@ test('el lienzo y el borrador solo se inicializan tras verificar permisos activo
   assert.match(html, /id="access-gate"/);
   assert.match(js, /data\.docenteAprobado === true/);
   assert.match(js, /org\.estado === 'activo' && String\(org\.rol\)\.toLowerCase\(\) === 'administrador'/);
-  assert.ok(js.indexOf('if (!authorized) return;') < js.indexOf('restoreDraft();'));
+  assert.ok(js.indexOf('if (!authorized) return;') < js.indexOf('loadDrafts();'));
   const handler = read('lib/centros/handlers.js');
   assert.match(handler, /docenteAprobado, solicitudes/);
   assert.match(handler, /res\.setHeader\('Cache-Control', 'no-store'\);\s+const u = await exigirUsuario\(req\)/);
@@ -30,12 +31,24 @@ test('el lienzo y el borrador solo se inicializan tras verificar permisos activo
 test('el editor incluye cuatro plantillas y editor visual para tipos comunes', () => {
   const html = read('public/studio-creadores.html');
   const js = read('public/studio-creadores.js');
+  assert.match(html, /class="studio-visual"/);
+  assert.match(html, /data-nav-register/);
+  assert.match(html, /data-nav-add-center hidden/);
+  assert.match(html, /role="tablist"/);
+  for (const view of ['activities', 'create', 'edit', 'guide']) assert.match(html, new RegExp(`data-studio-panel="${view}"`));
   for (const id of ['quiz', 'parejas', 'lectura', 'vocabulario']) assert.ok(js.includes(`id: '${id}'`));
   for (const id of ['texto', 'test', 'relacionar', 'completar', 'ordenar', 'sopa_letras']) assert.ok(js.includes(`['${id}'`));
   assert.match(html, /id="meta-title"/);
   assert.match(html, /id="preview-activity"/);
   assert.match(js, /data-add-row="preguntas"/);
   assert.match(js, /data-add-row="pares"/);
+  assert.match(js, /template-art/);
+  assert.match(js, /const DRAFTS_KEY = 'pj-studio-creadores-drafts-v1'/);
+  assert.match(js, /scope: draftScope\(\)/);
+  assert.match(js, /function renderSavedActivities\(\)/);
+  assert.match(js, /function setAuthorScope\(value\)/);
+  assert.match(js, /function deleteSavedDraft\(id\)/);
+  assert.match(js, /function paintInspector\(\)[\s\S]*?inspector-type-card type-/);
 });
 
 test('el lienzo permite deshacer, rehacer, duplicar y mover bloques', () => {

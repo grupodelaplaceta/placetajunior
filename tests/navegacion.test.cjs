@@ -49,9 +49,43 @@ test('el alta de docente individual se elige antes del formulario y conserva la 
   assert.ok(TIPOS_CENTRO.includes('primaria'), 'los tipos de centro siguen');
 });
 
+test('Studio, alta y mis centros comparten navegación y el alta de un segundo centro se inicia desde el botón +', () => {
+  const studio = leer('public/studio-creadores.html');
+  const registro = leer('public/centros/index.html');
+  const panel = leer('public/centros/panel.html');
+  const nav = leer('public/centros/assets/education-nav.js');
+  for (const html of [studio, registro, panel]) {
+    assert.ok(html.includes('class="education-topbar"'));
+    assert.match(html, /href="\/crear-actividad"[^>]*>Studio<\/a>/);
+    assert.ok(html.includes('href="/centros/panel" data-requiere-sesion'));
+    assert.ok(html.includes('href="/centros?tipo=centro" data-nav-add-center hidden'));
+    assert.ok(html.includes('/centros/assets/education-nav.js'));
+  }
+  assert.match(nav, /fetch\('\/api\/centros\/mi'/);
+  assert.match(nav, /data\.organizaciones\.length/);
+  assert.match(nav, /registerLink\.hidden = true/);
+  assert.match(nav, /addCenterLink\.hidden = false/);
+});
+
+test('las cuentas con centros vuelven al panel; el botón + abre el alta independiente', () => {
+  const app = leer('public/centros/assets/app.js');
+  assert.match(app, /async function paginaRegistro\(\)/);
+  assert.match(app, /tipoSolicitado !== 'centro' && tipoSolicitado !== 'docente'[\s\S]*?datos\.organizaciones\.length[\s\S]*?location\.replace\('\/centros\/panel'\)/);
+  assert.match(app, /href="\/centros\?tipo=centro" aria-label="Añadir otro centro"/);
+  assert.match(app, /href="\/centros\/panel\?org=/);
+});
+
 test('el script de la página principal es JavaScript válido', () => {
   const html = leer('public/index.html');
   const bloques = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]);
   assert.ok(bloques.length >= 1);
   for (const b of bloques) assert.doesNotThrow(() => new Function(b));
+});
+
+test('las tarjetas usan portada traducida y solo muestran la insignia del idioma activo', () => {
+  const html = leer('public/index.html');
+  assert.match(html, /var portadaTraducida=\[tx\.miniaturaUrl,tx\.miniatura_url,tx\.portadaUrl,tx\.portada_url/);
+  assert.match(html, /traducida:!!clave&&loc!=='es',idioma:clave&&loc!=='es'\?loc:''/);
+  assert.match(html, /ribbon=meta\.traducida&&lang===activeLang/);
+  assert.match(html, /ca:'Català'/);
 });

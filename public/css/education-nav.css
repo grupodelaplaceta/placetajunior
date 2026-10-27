@@ -1,0 +1,19 @@
+.education-topbar{position:sticky;top:0;z-index:20;color:#fff;background:linear-gradient(90deg,#4d0db3,#7a2be6);box-shadow:0 3px 14px rgba(60,10,140,.25)}
+.education-topbar::before{display:block;height:5px;background:linear-gradient(90deg,#ff4b4b 0 20%,#ff8a00 20% 40%,#ffd21f 40% 60%,#2fcb3b 60% 80%,#2e8bff 80%);content:""}
+.education-topbar-inner{display:flex;align-items:center;gap:12px;max-width:1400px;min-height:68px;margin:0 auto;padding:6px clamp(14px,4vw,48px)}
+.education-brand{display:flex;flex:none;align-items:center;text-decoration:none}
+.education-brand img{display:block;width:94px;height:auto;object-fit:contain}
+.education-brand-title{color:#fff;font:600 14px/1.2 "Fredoka","Arial Rounded MT Bold",system-ui,sans-serif}
+.education-nav{display:flex;align-items:center;justify-content:flex-end;gap:4px;flex:1}
+.education-nav a{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:40px;padding:8px 13px;border-radius:999px;color:#fff;text-decoration:none;font:500 13px/1.2 "Plus Jakarta Sans",system-ui,sans-serif;white-space:nowrap;transition:background .16s,transform .16s}
+.education-nav a:hover{background:#ffffff2e}
+.education-nav a[aria-current="page"]{background:#ffd21f;color:#1d1744;font-weight:800}
+.education-nav [hidden],.education-signout[hidden]{display:none!important}
+.education-centers-nav{display:inline-flex;align-items:center;gap:4px}
+.education-nav .education-add-center{width:37px;min-width:37px;height:37px;min-height:37px;padding:0;border:2px solid #ffd21f;background:#ffd21f;color:#1d1744;font:800 24px/1 "Plus Jakarta Sans",system-ui,sans-serif;box-shadow:0 3px 0 #c46500}
+.education-nav .education-add-center:hover{transform:translateY(-2px);background:#ffe067}
+.education-signout{flex:none;padding:9px 14px;border:1px solid #ffffff70;border-radius:999px;background:#ffffff20;color:#fff;font:600 12px "Plus Jakarta Sans",system-ui,sans-serif;cursor:pointer}
+.education-signout:hover{background:#ffffff35}
+.education-topbar a:focus-visible,.education-signout:focus-visible{outline:3px solid #2e8bff;outline-offset:3px}
+@media(max-width:760px){.education-topbar-inner{flex-wrap:wrap;gap:5px 10px;padding-block:8px}.education-brand img{width:76px}.education-brand-title{font-size:12px}.education-nav{order:3;justify-content:flex-start;flex-basis:100%;overflow-x:auto;padding:2px 0;scrollbar-width:thin}.education-nav a{min-height:37px;padding:7px 10px;font-size:12px}.education-signout{margin-left:auto}}
+@media(prefers-reduced-motion:reduce){.education-nav a,.education-signout{transition:none}}

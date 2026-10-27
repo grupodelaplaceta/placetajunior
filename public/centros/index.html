@@ -5,10 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Placeta Junior · Alta de centro educativo</title>
   <link rel="icon" href="/favijunior.png" />
+  <link rel="stylesheet" href="/css/education-nav.css" />
   <link rel="stylesheet" href="/css/pj-admin.css" />
 </head>
 <body data-pagina="registro">
-  <header class="top"><div class="wrap bar"><a class="logo" href="/" aria-label="Placeta Junior"><img src="/img/PJ-BLANCO-LOGO.png" alt="Placeta Junior" /></a><nav class="mn" aria-label="Menú"><a href="/#/educacion">Para educación</a><a href="/centros" aria-current="page">Alta de centro</a><a href="/centros/panel" data-requiere-sesion hidden>Mis centros</a></nav><button id="cerrar" class="b-wh" hidden>Salir</button></div></header>
+  <header class="education-topbar"><div class="education-topbar-inner">
+    <a class="education-brand" href="/" aria-label="Placeta Junior"><img src="/img/PJ-BLANCO-LOGO.png" alt="Placeta Junior" /></a><span class="education-brand-title">Placeta Junior Education</span>
+    <nav class="education-nav" aria-label="Navegación"><a href="/#/educacion">Para educación</a><a href="/crear-actividad">Studio</a><a href="/centros" data-nav-register aria-current="page">Alta de centro</a><span class="education-centers-nav"><a href="/centros/panel" data-requiere-sesion>Mis centros</a><a class="education-add-center" href="/centros?tipo=centro" data-nav-add-center hidden aria-label="Añadir otro centro" title="Añadir otro centro">+</a></span></nav>
+    <button class="education-signout" id="cerrar" data-nav-signout type="button" hidden>Salir</button>
+  </div></header>
   <main id="principal">
     <section id="cargando" class="tarjeta" role="status" aria-live="polite">
       <h1 id="titulo-cargando">Preparando el alta…</h1>
@@ -92,6 +97,7 @@
     </section>
   </main>
   <footer><div class="wrap"><p>© 2026 Placeta Junior · Grupo de La Placeta · <a href="/privacidad.html">Privacidad</a> · <a href="/aviso-legal.html">Aviso legal</a> · <a href="mailto:junta@laplaceta.org">junta@laplaceta.org</a></p></div></footer>
+  <script src="/centros/assets/education-nav.js"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="/centros/assets/app.js"></script>
 </body>

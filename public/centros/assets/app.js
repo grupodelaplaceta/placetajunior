@@ -224,6 +224,14 @@
       if (tipo) iniciarAlta(tipo);
     });
     const tipo = tipoAltaActual();
+    const tipoSolicitado = new URLSearchParams(location.search).get('tipo');
+    if (token() && tipoSolicitado !== 'centro' && tipoSolicitado !== 'docente') {
+      const datos = await api('/api/centros/mi');
+      if (datos.organizaciones.length) {
+        location.replace('/centros/panel');
+        return;
+      }
+    }
     if (!tipo) {
       ocultarCarga();
       $('#eleccion-alta').hidden = false;
@@ -276,7 +284,7 @@
       if (!datos) {
         const mi = await api('/api/centros/mi');
         contenido.innerHTML = mi.organizaciones.length
-          ? '<h1>Tus centros</h1>' + mi.organizaciones.map((o) => `<p><a href="/centros/panel?org=${encodeURIComponent(o.id)}">${esc(o.nombre)}</a></p>`).join('')
+          ? '<div class="centros-list-heading"><div><h1>Tus centros</h1><p class="nota">Abre un centro para consultar su actividad y configuración.</p></div><a class="add-center-card" href="/centros?tipo=centro" aria-label="Añadir otro centro"><span aria-hidden="true">+</span><strong>Añadir otro centro</strong></a></div><div class="centros-list-grid">' + mi.organizaciones.map((o) => `<a class="center-list-card" href="/centros/panel?org=${encodeURIComponent(o.id)}"><span class="center-list-mark" aria-hidden="true">${esc(String(o.nombre || 'C').slice(0, 1).toUpperCase())}</span><span><strong>${esc(o.nombre)}</strong><small>${esc(o.rol === 'administrador' ? 'Administrador' : 'Miembro')} · ${esc(o.estado)}</small></span><span class="center-list-arrow" aria-hidden="true">→</span></a>`).join('') + '</div>'
           : '<h1>Panel del centro</h1><p>Todavía no tienes ningún centro activo. Cuando se apruebe tu solicitud, aparecerá aquí.</p>';
         return;
       }

@@ -765,8 +765,9 @@ function mapAct(x){var tr=(x.traducciones&&typeof x.traducciones==='object'?x.tr
 if(b){id=b[0];icn=b[1];col=b[2]}else{id='x-'+cat.toLowerCase().replace(/[^a-z0-9]+/g,'-');icn='puzzle';col=null}
 var m=String(x.edad_recomendada||'').match(/\d+/g),mn=m?+m[0]:null,mx=m&&m[1]?+m[1]:mn;
 var st=x.estadisticas||{},v=Number(x.visitas!=null?x.visitas:x.visitas_count!=null?x.visitas_count:x.views!=null?x.views:st.visitas!=null?st.visitas:st.visitas_totales!=null?st.visitas_totales:st.veces_realizada||0)||0;
-var pr=x.portada_url||x.portadaUrl||(x.contenido&&(x.contenido.__rspPortadaUrl||x.contenido.__rsp_portada_url))||'';
-var ti=String(tx.titulo||x.titulo||'');return {a:[String(x.id),id,icn,[ti,ti,ti],mn,mx,v,pr||'',''],cat:cat,id:id,icn:icn,col:col,traducida:!!clave,idioma:clave||''}}
+var portadaTraducida=[tx.miniaturaUrl,tx.miniatura_url,tx.portadaUrl,tx.portada_url,tx.imagenUrl,tx.imagen_url].find(function(url){return typeof url==='string'&&url.trim()});
+var pr=portadaTraducida||x.miniatura_url||x.miniaturaUrl||x.portada_url||x.portadaUrl||(x.contenido&&(x.contenido.__rspPortadaUrl||x.contenido.__rsp_portada_url))||'';
+var ti=String(tx.titulo||x.titulo||'');return {a:[String(x.id),id,icn,[ti,ti,ti],mn,mx,v,pr||'',''],cat:cat,id:id,icn:icn,col:col,traducida:!!clave&&loc!=='es',idioma:clave&&loc!=='es'?loc:''}}
 function loadActs(){return fetch(API+'/actividades?solo_publicas=1',{cache:'no-store',headers:{Accept:'application/json'}}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){
 var l=(d.actividades||[]).map(mapAct),seen={},xs=0;ACT_META={};l.forEach(function(o){ACT_META[String(o.a[0])]=o});A=l.map(function(o){return o.a});
 SJ=[];SB.forEach(function(b){if(l.some(function(o){return o.id===b[0]})){var nm=l.filter(function(o){return o.id===b[0]})[0].cat;SJ.push([b[0],b[1],b[2],[nm,nm,nm]]);seen[b[0]]=1}});
@@ -777,7 +778,7 @@ var u=sl.map(function(x){return String(x.image||'').replace(/^https?:\/\/junior\
 function sj(id){return SJ.filter(function(s){return s[0]===id})[0]}
 function okA(a){if(FA==='all')return true;var r=FR[FA];return a[4]!==null&&a[4]>=r[0]&&a[4]<=r[1]}
 function thumb(img,gif,icn){return '<div class="cover" aria-hidden="true">'+(!img&&icn?'<span class="cfb">'+ic(icn)+'</span>':'')+(img?'<img class="th" src="'+img+'" alt="" loading="lazy">':'')+(gif?'<img class="gif" data-src="'+gif+'" alt="">':'')+'</div>'}
-function card(a){var s=sj(a[1]),n=s[3][li],meta=ACT_META[String(a[0])]||{},lang=String(meta.idioma||'').toLowerCase(),names={es:'Español',ca:'Catalán',val:'Valenciano',en:'Inglés',eu:'Euskera',fr:'Francés'},name=names[lang]||lang.toUpperCase(),ribbon=meta.traducida?'<span class="lang-ribbon lang-'+lang+'" title="Traducida al '+name+'">'+name+'</span>':'';
+function card(a){var s=sj(a[1]),n=s[3][li],meta=ACT_META[String(a[0])]||{},lang=pjNormLang(meta.idioma||''),activeLang=pjNormLang((S&&S.l)||'es'),names={es:'Español',ca:'Català',val:'Valenciano',en:'Inglés',eu:'Euskera',fr:'Francés'},name=names[lang]||lang.toUpperCase(),ribbon=meta.traducida&&lang===activeLang?'<span class="lang-ribbon lang-'+lang+'" title="Traducida al '+name+'">'+name+'</span>':'';
 return '<a class="card" style="--c:'+s[2]+'" href="#/a/'+a[0]+'">'+thumb(a[7],a[8],a[2]).replace('</div>',ribbon+'</div>')+'<button type="button" class="infb" data-a="info" data-v="'+a[0]+'" aria-label="'+t('inf2')+'">'+ic('info')+'</button><h3>'+a[3][li]+'</h3><div class="meta"><span class="pill">'+n+'</span>'+(a[4]===null?'':'<span class="ag">'+(a[5]>a[4]?a[4]+'-'+a[5]:a[4]+'+')+'<span class="sr"> '+t('yrs')+'</span></span>')+'<span class="views">'+ic('eye')+a[6]+'<span class="sr"> '+t('views')+'</span></span></div><span class="play">'+ic('play')+t('jug')+'</span></a>'}
 var GIMG=window.PJ_GIMG||{}; // miniatura 16:9 y GIF de preview por juego: GIMG['Nom en català']=['miniatura.jpg','preview.gif'] · también GIMG.col / GIMG.puz para las tarjetas de grupo
 var GRP=[
