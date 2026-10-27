@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Placeta Junior · Alta de centro educativo</title>
+  <link rel="icon" href="/favijunior.png" />
+  <link rel="stylesheet" href="/css/pj-admin.css" />
+</head>
+<body data-pagina="registro">
+  <header class="top"><div class="wrap bar"><a class="logo" href="/" aria-label="Placeta Junior"><img src="/img/PJ-BLANCO-LOGO.png" alt="Placeta Junior" /></a><nav class="mn" aria-label="Menú"><a href="/#/educacion">Para educación</a><a href="/centros" aria-current="page">Alta de centro</a><a href="/centros/panel" data-requiere-sesion hidden>Mis centros</a></nav><button id="cerrar" class="b-wh" hidden>Salir</button></div></header>
+  <main id="principal">
+    <section id="cargando" class="tarjeta" role="status" aria-live="polite">
+      <h1 id="titulo-cargando">Preparando el alta…</h1>
+      <p id="mensaje-cargando" class="nota">Estamos comprobando la configuración.</p>
+      <div id="acciones-error-carga" hidden>
+        <button type="button" id="reintentar-carga">Reintentar</button>
+        <button type="button" id="volver-carga" class="btn-volver">Elegir otra opción</button>
+      </div>
+    </section>
+
+    <section id="eleccion-alta" class="tarjeta" hidden>
+      <h1>¿Cómo quieres registrarte?</h1>
+      <p class="nota">Elige la opción que corresponda. Después iniciarás sesión y completarás el formulario.</p>
+      <div class="opciones-alta">
+        <button type="button" class="opcion-alta" data-tipo-alta="centro">
+          <span class="opcion-alta-icono" aria-hidden="true">🏫</span>
+          <span><strong>Centro educativo</strong><small>Escuela, colegio u otra organización educativa</small></span>
+        </button>
+        <button type="button" class="opcion-alta" data-tipo-alta="docente">
+          <span class="opcion-alta-icono" aria-hidden="true">👩‍🏫</span>
+          <span><strong>Docente individual</strong><small>Usaré Placeta Junior IO sin vincular un centro</small></span>
+        </button>
+      </div>
+    </section>
+
+    <section id="entrar" class="tarjeta" hidden>
+      <button type="button" id="volver-eleccion-login" class="btn-volver">← Cambiar tipo de alta</button>
+      <h1 id="titulo-login">Alta de centro</h1>
+      <p id="texto-login">Inicia sesión con tu cuenta de Google. Después completarás los datos de la solicitud.</p>
+      <div id="boton-google"></div>
+      <p id="error-google" class="error" role="alert"></p>
+    </section>
+
+    <section id="formulario" class="tarjeta" hidden>
+      <button type="button" id="volver-eleccion-formulario" class="btn-volver">← Cambiar tipo de alta</button>
+      <h1 id="titulo-formulario">Datos del centro</h1>
+      <p id="texto-formulario" class="nota">Todos los campos son obligatorios salvo el código oficial del centro. Revisa los datos antes de enviar.</p>
+      <form id="form-solicitud" novalidate>
+        <fieldset>
+          <legend id="leyenda-centro">El centro</legend>
+          <label id="etiqueta-nombre">Nombre del centro o del docente <input name="nombreCentro" required minlength="3" maxlength="160" autocomplete="organization" /></label>
+          <label id="tipo-centro-campo">Tipo de centro
+            <select name="tipoCentro" required>
+              <option value="">Elige una opción</option>
+              <option value="infantil">Educación Infantil</option>
+              <option value="primaria">Educación Primaria</option>
+              <option value="infantil_primaria">Infantil y Primaria</option>
+              <option value="secundaria">Secundaria</option>
+              <option value="otro">Otro</option>
+              <option value="docente" hidden>Docente individual (sin centro)</option>
+            </select></label>
+          <label>Ciudad <input name="ciudad" required minlength="2" maxlength="80" autocomplete="address-level2" /></label>
+          <label>Código oficial del centro (opcional) <input name="codigoCentroOficial" maxlength="20" /></label>
+        </fieldset>
+        <fieldset>
+          <legend id="leyenda-responsable">Persona responsable</legend>
+          <label>Nombre y apellidos <input name="responsableNombre" required minlength="2" maxlength="120" autocomplete="name" /></label>
+          <label>Cargo <input name="responsableCargo" required minlength="2" maxlength="80" placeholder="Por ejemplo: Directora" /></label>
+          <label>Teléfono de contacto <input name="telefono" required inputmode="tel" maxlength="20" autocomplete="tel" /></label>
+          <label>Correo de contacto del centro <input name="emailContacto" type="email" required maxlength="120" autocomplete="email" /></label>
+        </fieldset>
+        <fieldset>
+          <legend>Condiciones y privacidad</legend>
+          <p class="nota">Lee los documentos antes de aceptarlos.</p>
+          <label class="check"><input type="checkbox" name="aceptaCondiciones" required />
+            Acepto las <a href="/centros/docs/condiciones.html" target="_blank" rel="noopener">condiciones de uso para centros</a> (versión <span data-version="condiciones"></span>).</label>
+          <label class="check"><input type="checkbox" name="aceptaPrivacidad" required />
+            He leído la <a href="/centros/docs/privacidad.html" target="_blank" rel="noopener">información sobre protección de datos</a> (versión <span data-version="privacidad"></span>).</label>
+          <label class="check"><input type="checkbox" name="declaraVeracidad" required />
+            Declaro que los datos son veraces y que tengo autorización para dar de alta este centro.</label>
+        </fieldset>
+        <p><button type="submit" class="btn">Enviar solicitud</button></p>
+        <p id="aviso" class="aviso" role="status"></p>
+      </form>
+    </section>
+
+    <section id="estado" class="tarjeta" hidden>
+      <h1>Tus solicitudes</h1>
+      <div id="lista-solicitudes"></div>
+      <div id="enlaces-centro" class="centros-lista"></div>
+    </section>
+  </main>
+  <footer><div class="wrap"><p>© 2026 Placeta Junior · Grupo de La Placeta · <a href="/privacidad.html">Privacidad</a> · <a href="/aviso-legal.html">Aviso legal</a> · <a href="mailto:junta@laplaceta.org">junta@laplaceta.org</a></p></div></footer>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="/centros/assets/app.js"></script>
+</body>
+</html>

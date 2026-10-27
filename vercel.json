@@ -1,0 +1,185 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "public/**",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "api/*.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/centros(.*)",
+      "headers": {
+        "X-Content-Type-Options": "nosniff",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "X-Frame-Options": "DENY",
+        "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
+        "Content-Security-Policy": "default-src 'self'; script-src 'self' https://accounts.google.com/gsi/client; style-src 'self' https://accounts.google.com/gsi/style 'unsafe-hashes' 'sha256-RU4sU0AaS8IBGZx8XrGt/pa9A5SLA3dQszGeqT5L3Kw='; img-src 'self' data:; connect-src 'self' https://accounts.google.com/gsi/; frame-src https://accounts.google.com/gsi/; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+      },
+      "continue": true
+    },
+    {
+      "src": "/educacion(.*)",
+      "headers": {
+        "X-Content-Type-Options": "nosniff",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "X-Frame-Options": "DENY",
+        "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+      },
+      "continue": true
+    },
+    {
+      "src": "/api/junior/(.*)",
+      "dest": "https://rsp.laplaceta.org/api/junior/$1"
+    },
+    {
+      "src": "/api/config",
+      "dest": "/api/centros.js?ruta=config"
+    },
+    {
+      "src": "/api/centros/mi",
+      "dest": "/api/centros.js?ruta=mi"
+    },
+    {
+      "src": "/api/centros/solicitud",
+      "dest": "/api/centros.js?ruta=solicitud"
+    },
+    {
+      "src": "/api/creadores/actividades",
+      "dest": "/api/centros.js?ruta=crear-actividad"
+    },
+    {
+      "src": "/api/centros/([^/]+)/dispositivos/configuracion",
+      "dest": "/api/centros.js?ruta=config-dispositivos&orgId=$1"
+    },
+    {
+      "src": "/api/centros/([^/]+)/dispositivos/configuracion/guardar",
+      "dest": "/api/centros.js?ruta=guardar-config-dispositivos&orgId=$1"
+    },
+    {
+      "src": "/api/centros/([^/]+)/dispositivos/([^/]+)/desvincular",
+      "dest": "/api/centros.js?ruta=desvincular-dispositivo&orgId=$1&deviceId=$2"
+    },
+    {
+      "src": "/api/centros/([^/]+)/dispositivos",
+      "dest": "/api/centros.js?ruta=dispositivos&orgId=$1"
+    },
+    {
+      "src": "/api/centros/([^/]+)",
+      "dest": "/api/centros.js?ruta=org&orgId=$1"
+    },
+    {
+      "src": "/api/rsp/solicitudes",
+      "dest": "/api/centros.js?ruta=rsp-lista"
+    },
+    {
+      "src": "/api/rsp/solicitudes/([^/]+)",
+      "dest": "/api/centros.js?ruta=rsp-decision&id=$1"
+    },
+    {
+      "src": "/api/(admin|dispositivo)/(.*)",
+      "dest": "/api/educacion.js?ruta=$1/$2"
+    },
+    {
+      "src": "/",
+      "dest": "/public/index.html"
+    },
+    {
+      "src": "/info",
+      "status": 308,
+      "headers": {
+        "Location": "/#/info"
+      }
+    },
+    {
+      "src": "/familias-docentes(?:/.*)?",
+      "status": 308,
+      "headers": {
+        "Location": "/#/familias"
+      }
+    },
+    {
+      "src": "/colecciones(?:/.*)?",
+      "status": 308,
+      "headers": {
+        "Location": "/#/actividades"
+      }
+    },
+    {
+      "src": "/halloween/?",
+      "status": 307,
+      "headers": {
+        "Location": "/#/halloween"
+      }
+    },
+    {
+      "src": "/jugar",
+      "dest": "/public/jugar.html"
+    },
+    {
+      "src": "/aviso-legal",
+      "dest": "/public/aviso-legal.html"
+    },
+    {
+      "src": "/privacidad",
+      "dest": "/public/privacidad.html"
+    },
+    {
+      "src": "/terminos",
+      "dest": "/public/terminos.html"
+    },
+    {
+      "src": "/cookies",
+      "dest": "/public/cookies.html"
+    },
+    {
+      "src": "/studio/?$",
+      "status": 308,
+      "headers": {
+        "Location": "/crear-actividad"
+      }
+    },
+    {
+      "src": "/studio.html",
+      "status": 308,
+      "headers": {
+        "Location": "/crear-actividad"
+      }
+    },
+    {
+      "src": "/crear-actividad",
+      "dest": "/public/studio-creadores.html"
+    },
+    {
+      "src": "/devai",
+      "dest": "/public/devai.html"
+    },
+    {
+      "src": "/centros/?$",
+      "dest": "/public/centros/index.html"
+    },
+    {
+      "src": "/centros/panel/?$",
+      "dest": "/public/centros/panel.html"
+    },
+    {
+      "src": "/educacion$",
+      "status": 308,
+      "headers": {
+        "Location": "/educacion/"
+      }
+    },
+    {
+      "src": "/educacion/?$",
+      "dest": "/public/educacion/index.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/public/$1"
+    }
+  ]
+}

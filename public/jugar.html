@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Placeta Junior</title>
+  <link rel="stylesheet" href="css/styles.css?v=20261007-games-2" />
+  <link rel="stylesheet" href="css/home.css?v=20261007-home-intro-fix" />
+  <link rel="stylesheet" href="css/redesign.css?v=20261007-redesign-fix" />
+  <link rel="icon" type="image/png" href="favijunior.png" />
+  <link rel="preconnect" href="https://admin-placeta.vercel.app" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+
+  <meta name="robots" content="noindex" />
+  <style>#pj-back{position:fixed;top:max(10px,env(safe-area-inset-top));left:10px;z-index:9;display:none;align-items:center;gap:6px;border:0;border-radius:999px;background:#5B14C8;color:#fff;font:600 15px system-ui,sans-serif;padding:10px 16px;box-shadow:0 3px 0 rgba(0,0,0,.2);cursor:pointer}body:not(.mostrando-juego):not(.mostrando-detalle) #pj-back{display:flex}.hidden-stub{display:none!important}</style>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/player-skin.css?v=1" />
+  <script>
+    /* Los iconos no se muestran hasta que la fuente está lista (evita ver "close", "chevron_left"...) */
+    (function () {
+      var d = document.documentElement, n = 0;
+      function listo() { d.classList.add('ic-ok'); }
+      if (!document.fonts || !document.fonts.load) { listo(); return; }
+      var t = setInterval(function () {
+        n++;
+        try { document.fonts.load('24px "Material Symbols Rounded"', 'home'); if (Array.from(document.fonts).some(function (f) { return /Material Symbols Rounded/.test(f.family) && f.status === 'loaded'; })) { clearInterval(t); listo(); } } catch (e) { clearInterval(t); listo(); }
+        if (n > 40) clearInterval(t);
+      }, 100);
+    })();
+  </script>
+</head>
+<body class="pj-home">
+  <!-- Entrada única (se retira cuando el juego ya está pintado) -->
+  <div id="pj-loading" class="pj-splash" role="status" aria-live="polite" aria-label="Cargando">
+    <div class="pj-splash-in"><img src="img/PJ-BLANCO-LOGO.png" alt="Placeta Junior" width="200" height="87"><div class="pj-splash-dots" aria-hidden="true"><i></i><i></i><i></i></div></div>
+  </div>
+
+  <button type="button" id="pj-back" aria-label="Volver">&#8592; Volver</button>
+  <!-- Contenedores que app.js espera (no se muestran: el catálogo vive en la página principal) -->
+  <div class="hidden-stub" aria-hidden="true"><div id="error-banner"></div><span id="edad-count"></span><div id="populares-row"></div><div id="categorias"></div></div>
+
+  <!-- Página de detalle de actividad (a pantalla completa, no popup) -->
+  <div id="detail-page" class="detail-page" aria-live="polite"></div>
+
+  <!-- Página de juego (a pantalla completa, no popup) -->
+  <div id="game-page" class="game-page" aria-live="polite"></div>
+
+  <div id="codigo-actividad-modal" class="pj-modal" hidden>
+    <div class="pj-modal-card"><button type="button" class="pj-modal-close" onclick="cerrarCodigoActividad()" aria-label="Cerrar">×</button>
+      <h2>Usar código de actividad</h2><p>Introduce un código no asignado para jugar una vez. El código seguirá disponible.</p>
+      <input id="codigo-actividad-input" autocomplete="off" placeholder="GDLP-XXXX-0000" />
+      <button class="btn btn-primary" type="button" onclick="usarCodigoActividad()">Desbloquear y jugar</button>
+      <p id="codigo-actividad-error" class="error-banner hidden"></p>
+    </div>
+  </div>
+
+  <div id="actividad-anuncio-modal" class="pj-modal" hidden aria-live="polite">
+    <div class="pj-modal-card pj-anuncio-card">
+      <button type="button" class="pj-modal-close" onclick="cerrarAnuncioActividad()" aria-label="Cerrar">×</button>
+      <div id="actividad-anuncio-contenido"></div>
+    </div>
+  </div>
+
+  <!-- Lluvia de confeti al acabar los juegos -->
+  <div id="confetti" class="hidden"></div>
+
+  <!-- Zona de impresión para worksheets en PDF A4 -->
+  <div id="print-worksheet" class="print-worksheet" aria-hidden="true"></div>
+
+
+  <script src="js/avisos.js?v=20260820"></script>
+  <script src="js/sonidos.js?v=20260829-ui"></script>
+  <script src="js/mapa-mundi.js?v=20260902-espana"></script>
+  <script src="js/partidas.js?v=20260822"></script>
+  <script src="js/music.js?v=20260822"></script>
+  <script src="js/code-engine.js?v=20260822"></script>
+  <script src="js/modalidades.js?v=20260921"></script>
+  <script src="js/app.js?v=20261014-i18n"></script>
+  <script src="js/player.js?v=20261014-i18n"></script>
+  <script src="js/primaria-juegos.js?v=20261024"></script>
+  <script src="js/accesibilidad.js?v=20260902-ico"></script>
+  <script>
+    /* Aviso a la página principal cuando se sale del juego (o si no hay juego que mostrar) */
+    (function () {
+      var enviado = false, t, fin = false;
+      var splash = function () { return document.getElementById('pj-loading'); };
+      function quitarSplash() {
+        if (fin) return; fin = true;
+        var s = splash(); if (!s) return;
+        s.classList.add('is-hidden'); setTimeout(function () { if (s.parentNode) s.remove(); }, 450);
+      }
+      window.ocultarCarga = function () {}; window.ocultarIntroInicial = function () {};
+      setTimeout(quitarSplash, 7000);
+      function cerrar() { if (enviado) return; enviado = true; try { parent.postMessage({ pjClose: 1 }, location.origin); } catch (e) { location.href = '/'; } }
+      document.getElementById('pj-back').addEventListener('click', cerrar);
+      var abierto = false;
+      new MutationObserver(function () {
+        var on = document.body.classList.contains('mostrando-juego') || document.body.classList.contains('mostrando-detalle');
+        if (on) { abierto = true; clearTimeout(t); setTimeout(quitarSplash, 120); return; }
+        if (!abierto) return;
+        clearTimeout(t);
+        t = setTimeout(function () { if (!document.body.classList.contains('mostrando-juego') && !document.body.classList.contains('mostrando-detalle')) cerrar(); }, 500);
+      }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+      if (parent === window) document.getElementById('pj-back').addEventListener('click', function () { location.href = '/'; });
+    })();
+  </script>
+
+  <script>
+    /* Traducción de los textos fijos del reproductor (ca / en / eu) */
+    (function () {
+      var L = 'es'; try { L = JSON.parse(localStorage.getItem('junior_acc_web') || '{}').idioma || 'es'; } catch (e) {}
+      if (L === 'es') return; document.documentElement.lang = L;
+      var K = {ca: 0, en: 1, eu: 2}[L]; if (K === undefined) return;
+      var T = {"Salir": ["Sortir", "Exit", "Irten"], "Salir de la actividad": ["Surt de l'activitat", "Leave the activity", "Jarduera utzi"], "Empieza": ["Comença", "Start", "Hasi"], "¡Resultado!": ["Resultat!", "Results!", "Emaitza!"], "¡Empezar!": ["Comença!", "Start!", "Hasi!"], "¡A jugar!": ["A jugar!", "Let's play!", "Jolasten hasi!"], "Comprobar": ["Comprova", "Check", "Egiaztatu"], "Comprobar orden": ["Comprova l'ordre", "Check the order", "Egiaztatu ordena"], "Comprobar compra": ["Comprova la compra", "Check purchase", "Egiaztatu erosketa"], "Comprobar plano": ["Comprova el pla", "Check the plan", "Egiaztatu planoa"], "Comprobar trazo": ["Comprova el traç", "Check the stroke", "Egiaztatu trazua"], "Tu respuesta": ["La teva resposta", "Your answer", "Zure erantzuna"], "Siguiente": ["Següent", "Next", "Hurrengoa"], "Anterior": ["Anterior", "Previous", "Aurrekoa"], "Pantalla siguiente": ["Pantalla següent", "Next screen", "Hurrengo pantaila"], "Pantalla anterior": ["Pantalla anterior", "Previous screen", "Aurreko pantaila"], "Tu nivel": ["El teu nivell", "Your level", "Zure maila"], "¡Muy bien!": ["Molt bé!", "Well done!", "Oso ondo!"], "¡Correcto!": ["Correcte!", "Correct!", "Zuzena!"], "¡Todo correcto!": ["Tot correcte!", "All correct!", "Dena zuzen!"], "¡Orden perfecto!": ["Ordre perfecte!", "Perfect order!", "Ordena bikaina!"], "¡Todo emparejado!": ["Tot emparellat!", "All matched!", "Dena parekatuta!"], "¡Has encontrado todas!": ["Les has trobat totes!", "You found them all!", "Denak aurkitu dituzu!"], "¡Has clasificado todas las palabras!": ["Has classificat totes les paraules!", "You sorted all the words!", "Hitz guztiak sailkatu dituzu!"], "¡Lo has conseguido!": ["Ho has aconseguit!", "You did it!", "Lortu duzu!"], "¡Vamos a programar!": ["Anem a programar!", "Let's code!", "Programatzera goaz!"], "¡Sigue así, campeón!": ["Continua així, campió!", "Keep it up, champ!", "Jarraitu horrela, txapeldun!"], "Casi lo logras": ["Gairebé ho tens", "Almost there", "Ia lortu duzu"], "Casi… elige otra opción": ["Gairebé… tria una altra opció", "Almost… pick another option", "Ia… aukeratu beste bat"], "Casi… inténtalo otra vez": ["Gairebé… torna-ho a provar", "Almost… try again", "Ia… saiatu berriro"], "Volver a intentarlo": ["Torna-ho a provar", "Try again", "Saiatu berriro"], "Volver al menú": ["Tornar al menú", "Back to menu", "Menura itzuli"], "Volver": ["Tornar", "Back", "Itzuli"], "Continuar": ["Continua", "Continue", "Jarraitu"], "Continuar →": ["Continua →", "Continue →", "Jarraitu →"], "Cerrar": ["Tanca", "Close", "Itxi"], "Reiniciar": ["Reinicia", "Restart", "Berrabiarazi"], "Deshacer": ["Desfés", "Undo", "Desegin"], "Vaciar": ["Buida", "Clear", "Hustu"], "Desbloquear": ["Desbloqueja", "Unlock", "Desblokeatu"], "Guardar mi progreso": ["Desa el meu progrés", "Save my progress", "Gorde nire aurrerapena"], "puntos verdes": ["punts verds", "green points", "puntu berde"], "puntos rojos": ["punts vermells", "red points", "puntu gorri"], "Pulsa «¡Empezar!» cuando estés listo.": ["Prem «Comença!» quan estiguis llest.", "Press “Start!” when you're ready.", "Sakatu «Hasi!» prest zaudenean."], "Lee y luego pulsa Continuar para responder": ["Llegeix i després prem Continua per respondre", "Read, then press Continue to answer", "Irakurri eta gero sakatu Jarraitu erantzuteko"], "Lee con calma, calcula y completa la frase con el resultado.": ["Llegeix amb calma, calcula i completa la frase amb el resultat.", "Read carefully, calculate and complete the sentence with the result.", "Irakurri lasai, kalkulatu eta osatu esaldia emaitzarekin."], "Completa la frase": ["Completa la frase", "Complete the sentence", "Osatu esaldia"], "Completa la palabra": ["Completa la paraula", "Complete the word", "Osatu hitza"], "Completa este reto": ["Completa aquest repte", "Complete this challenge", "Osatu erronka hau"], "Ordena los pasos": ["Ordena els passos", "Put the steps in order", "Ordenatu urratsak"], "Ordena las palabras": ["Ordena les paraules", "Put the words in order", "Ordenatu hitzak"], "Clasifica las palabras": ["Classifica les paraules", "Sort the words", "Sailkatu hitzak"], "Relacionar": ["Relaciona", "Match", "Erlazionatu"], "Sopa de letras": ["Sopa de lletres", "Word search", "Letra-zopa"], "Pulsa los pasos en el orden correcto": ["Prem els passos en l'ordre correcte", "Tap the steps in the correct order", "Sakatu urratsak ordena zuzenean"], "Toca una tarjeta de cada lado para emparejar": ["Toca una targeta de cada costat per emparellar", "Tap one card from each side to match", "Ukitu alde bakoitzeko txartel bat parekatzeko"], "Toca la primera y la última letra, o desliza para formar la palabra": ["Toca la primera i l'última lletra, o llisca per formar la paraula", "Tap the first and last letter, or swipe to form the word", "Ukitu lehen eta azken letra, edo irristatu hitza osatzeko"], "Escribe la palabra": ["Escriu la paraula", "Write the word", "Idatzi hitza"], "Escribe en el teclado la palabra de arriba.": ["Escriu amb el teclat la paraula de dalt.", "Type the word above on the keyboard.", "Idatzi goiko hitza teklatuarekin."], "Elige la palabra que falta": ["Tria la paraula que falta", "Choose the missing word", "Aukeratu falta den hitza"], "Pistas": ["Pistes", "Hints", "Pistak"], "Meta:": ["Meta:", "Goal:", "Helburua:"], "Total": ["Total", "Total", "Guztira"], "¿Cuánto es?": ["Quant és?", "How much is it?", "Zenbat da?"], "Resuelve paso a paso": ["Resol pas a pas", "Solve step by step", "Ebatzi urratsez urrats"], "Encuentra el error": ["Troba l'error", "Find the mistake", "Aurkitu akatsa"], "Tu programa": ["El teu programa", "Your program", "Zure programa"], "Ejecutar": ["Executa", "Run", "Exekutatu"], "Terminar compra": ["Acaba la compra", "Finish shopping", "Amaitu erosketa"], "Mayúsculas": ["Majúscules", "Capital letters", "Letra larriak"], "Minúsculas": ["Minúscules", "Lowercase", "Letra xeheak"], "media": ["mitjana", "medium", "ertaina"], "fácil": ["fàcil", "easy", "erraza"], "difícil": ["difícil", "hard", "zaila"], "Resultado": ["Resultat", "Result", "Emaitza"], "Esta actividad aún no tiene contenido jugable.": ["Aquesta activitat encara no té contingut jugable.", "This activity has no playable content yet.", "Jarduera honek ez du oraindik eduki jolasgarririk."], "Ir a la siguiente unidad": ["Ves a la unitat següent", "Go to the next unit", "Joan hurrengo unitatera"], "Tienes una partida en curso. ¡Puedes continuar!": ["Tens una partida en curs. Pots continuar!", "You have a game in progress. You can continue!", "Partida bat abian duzu. Jarraitu dezakezu!"], "Cada ejercicio es un poco más difícil. ¡Tú puedes!": ["Cada exercici és una mica més difícil. Tu pots!", "Each exercise is a bit harder. You can do it!", "Ariketa bakoitza pixka bat zailagoa da. Zuk egin dezakezu!"], "Antes de empezar": ["Abans de començar", "Before you start", "Hasi aurretik"], "Completa este nivel para desbloquear el siguiente.": ["Completa aquest nivell per desbloquejar el següent.", "Complete this level to unlock the next.", "Osatu maila hau hurrengoa desblokeatzeko."], "Pulsa los elementos destacados para ver más información": ["Prem els elements destacats per veure més informació", "Tap the highlighted items to see more info", "Sakatu nabarmendutako elementuak informazio gehiago ikusteko"], "Elige su categoría:": ["Tria'n la categoria:", "Choose its category:", "Aukeratu bere kategoria:"], "Procesando canje…": ["Processant el canvi…", "Processing redemption…", "Trukea prozesatzen…"], "Guarda primero tu progreso con tu DIP.": ["Desa primer el teu progrés amb el teu DIP.", "Save your progress with your DIP first.", "Gorde lehenik zure aurrerapena zure DIParekin."]};
+      var RP = {"ca": [["^Pregunta (\\d+) de (\\d+)$", "Pregunta $1 de $2"], ["^Pantalla (\\d+) de (\\d+)$", "Pantalla $1 de $2"], ["^Diapositiva (\\d+)$", "Diapositiva $1"], ["^La respuesta era: ", "La resposta era: "], ["^Nivel (\\d+)$", "Nivell $1"], ["^Nv (\\d+)$", "Nv $1"], ["^Cálculo mental · (\\d+) / (\\d+)$", "Càlcul mental · $1 / $2"], ["^(\\d+) min$", "$1 min"]], "en": [["^Pregunta (\\d+) de (\\d+)$", "Question $1 of $2"], ["^Pantalla (\\d+) de (\\d+)$", "Screen $1 of $2"], ["^Diapositiva (\\d+)$", "Slide $1"], ["^La respuesta era: ", "The answer was: "], ["^Nivel (\\d+)$", "Level $1"], ["^Cálculo mental · (\\d+) / (\\d+)$", "Mental maths · $1 / $2"]], "eu": [["^Pregunta (\\d+) de (\\d+)$", "Galdera $1 / $2"], ["^Pantalla (\\d+) de (\\d+)$", "Pantaila $1 / $2"], ["^Diapositiva (\\d+)$", "Diapositiba $1"], ["^La respuesta era: ", "Erantzuna hau zen: "], ["^Nivel (\\d+)$", "Maila $1"], ["^Cálculo mental · (\\d+) / (\\d+)$", "Buruko kalkulua · $1 / $2"]]};
+      Object.assign(T, {
+        "Responde antes de que acabe el tiempo.": ["Respon abans que s'acabi el temps.", "Answer before time runs out.", "Erantzun denbora amaitu baino lehen."],
+        "Tu DIP (ej: 11111111D)": ["El teu DIP (p. ex.: 11111111D)", "Your DIP (e.g. 11111111D)", "Zure DIP-a (adib.: 11111111D)"],
+        "Guardar": ["Desa", "Save", "Gorde"], "Sigue así, campeón": ["Continua així, campió", "Keep it up, champ", "Jarraitu horrela, txapeldun"]
+      });
+      var SV = { ca: "A la web el progrés és local. Desa'l amb el teu DIP per sumar els punts i rebre $1 Pz.", en: "On the web, progress is stored locally. Save it with your DIP to add points and receive $1 Pz.", eu: "Webean aurrerapena lokala da. Gorde zure DIParekin puntuak batzeko eta $1 Pz jasotzeko." };
+      var RPX = [new RegExp('^En la web el progreso es local\\. Guarda con tu DIP para sumar los puntos y recibir (\\d+) Pz\\.$'), SV[L]];
+      var R = (RP[L] || []).map(function (r) { return [new RegExp(r[0]), r[1]]; }); R.push(RPX);
+      function tx(c) {
+        var v = T[c]; if (v) return v[K];
+        for (var i = 0; i < R.length; i++) if (R[i][0].test(c)) return c.replace(R[i][0], R[i][1]);
+        return null;
+      }
+      var busy = false;
+      function pasar(root) {
+        if (busy || !root) return; busy = true;
+        try {
+          var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), n;
+          while ((n = w.nextNode())) {
+            var m = n.nodeValue.match(/^(\s*[^\p{L}\d¡¿«]*)([\s\S]*?)([^\p{L}\d.!?»:…]*\s*)$/u);
+            if (!m || !m[2]) continue; var r = tx(m[2]); if (r) n.nodeValue = m[1] + r + m[3];
+          }
+          root.querySelectorAll('[title],[placeholder],[aria-label]').forEach(function (e) {
+            ['title', 'placeholder', 'aria-label'].forEach(function (a) { var v = e.getAttribute(a); if (v) { var r = tx(v.trim()); if (r) e.setAttribute(a, r); } });
+          });
+        } catch (e) {}
+        busy = false;
+      }
+      var raf = 0;
+      new MutationObserver(function () { if (raf) return; raf = requestAnimationFrame(function () { raf = 0; pasar(document.body); }); }).observe(document.body, { childList: true, subtree: true });
+      var bk = document.getElementById('pj-back'); if (bk && bk.lastChild) bk.lastChild.nodeValue = ' ' + (T['Volver'] ? T['Volver'][K] : 'Volver');
+    })();
+  </script>
+</body>
+</html>

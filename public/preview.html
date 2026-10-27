@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><script>try{if(!localStorage.getItem("junior_acc_web"))localStorage.setItem("junior_acc_web",JSON.stringify({idioma:"es",mayus:false,sonido:false}))}catch(e){}</script><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vista previa | Placeta Junior</title>
+<link rel="stylesheet" href="css/styles.css?v=20261007-games">
+<link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/redesign.css">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/player-skin.css?v=20261027-icons">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+<style>.embed .kp-salir,.embed #pj-back{display:none!important}body.embed.mostrando-juego .game-page{padding-top:6px}</style>
+<link rel="icon" type="image/png" href="favijunior.png"></head>
+<body class="pj-home mostrando-juego"><div id="game-page" class="game-page"><div id="player-content"></div></div><div id="kp-feedback" class="kp-feedback hidden"></div>
+<script src="js/sonidos.js"></script><script src="js/mapa-mundi.js"></script><script src="js/progreso.js?v=20261007-games"></script><script src="js/code-engine.js"></script><script src="js/modalidades.js"></script><script src="js/player.js?v=20261007-games"></script><script src="js/primaria-juegos.js?v=20261024"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  try {
+    const iconFallbacks = {
+      close: '×', emoji_events: '🏆', check_circle: '✓', cancel: '✕',
+      chevron_left: '‹', chevron_right: '›', calculate: '∑', description: '▤',
+      extension: '◆', view_timeline: '↔', draw: '✎', compare_arrows: '↔',
+      drag_indicator: '⠿', search: '⌕', visibility: '◉', science: '⚗',
+      construction: '⚒', shopping_cart: '🛒', explore: '◎', casino: '🎲',
+      menu_book: '▤', quiz: '?', abc: 'ABC', arrow_forward: '→', home: '⌂',
+      redeem: '🎁', save: '▣', link: '↔', edit_note: '✎',
+      format_list_numbered: '≡', public: '◎', map: '▧', keyboard: '⌨', '123': '123'
+    };
+    let fallbackActive = false;
+    const replaceIconLigatures = (root) => {
+      if (root.nodeType !== Node.ELEMENT_NODE) return;
+      const icons = [];
+      if (root.matches('.material-symbols-rounded')) icons.push(root);
+      icons.push(...root.querySelectorAll('.material-symbols-rounded'));
+      icons.forEach((icon) => {
+        if (icon.classList.contains('pj-icon-fallback')) return;
+        const glyph = iconFallbacks[icon.textContent.trim()] || '•';
+        icon.textContent = glyph;
+        icon.classList.add('pj-icon-fallback');
+      });
+    };
+    const replaceCurrentIcons = () => {
+      const currentContent = document.getElementById('player-content');
+      if (currentContent) replaceIconLigatures(currentContent);
+    };
+    const iconObserver = new MutationObserver(() => {
+      if (fallbackActive) replaceCurrentIcons();
+    });
+    iconObserver.observe(document.body, { childList: true, subtree: true });
+    const useIconFallbacks = () => {
+      if (fallbackActive) return;
+      fallbackActive = true;
+      replaceCurrentIcons();
+      document.documentElement.classList.add('ic-ok');
+    };
+    const useIconFont = (fonts) => {
+      if (!fonts.some((font) => font.family === 'Material Symbols Rounded' && font.status === 'loaded')) {
+        useIconFallbacks();
+        return;
+      }
+      document.documentElement.classList.add('ic-ok');
+      iconObserver.disconnect();
+    };
+    const raw = sessionStorage.getItem('pj-preview-activity') || localStorage.getItem('pj-preview-activity');
+    const activity = raw ? JSON.parse(raw) : null;
+    if (!activity) throw new Error('No hay actividad para previsualizar.');
+    // En preview se pueden recorrer todas las diapositivas sin superar los
+    // ejercicios; la aplicación publicada mantiene el desbloqueo progresivo.
+    activity._preview = true;
+    if (typeof abrirJuego !== 'function') throw new Error('No se pudo cargar el reproductor.');
+    var q = new URLSearchParams(location.search);
+    abrirJuego(activity);
+    if (fallbackActive) replaceCurrentIcons();
+    document.fonts.load('24px "Material Symbols Rounded"', 'home').then(useIconFont, useIconFallbacks);
+    if (q.get('embed')) {
+      document.body.classList.add('embed');
+      var st = parseInt(q.get('start'), 10);
+      if (!isNaN(st)) {
+        var intentos = 0, iv = setInterval(function () {
+          intentos++;
+          try {
+            if (typeof pantallas !== 'undefined' && pantallas.length > 1) {
+              var objetivo = pantallas.findIndex(function (s) { return s.bi === st; });
+              if (objetivo > 0) { var saltar = function () { if (pantallaIdx !== objetivo) { pantallaIdx = objetivo; renderPantalla(); } }; saltar(); setTimeout(saltar, 400); setTimeout(saltar, 1000); }
+              clearInterval(iv);
+            }
+          } catch (e) { clearInterval(iv); }
+          if (intentos > 40) clearInterval(iv);
+        }, 80);
+      }
+    }
+  } catch (error) {
+    document.getElementById('player-content').innerHTML = '<main style="max-width:720px;margin:12vh auto;padding:24px;text-align:center"><h1>⚠️ Preview no disponible</h1><p>' + String(error.message || error) + '</p></main>';
+  }
+});
+</script></body></html>

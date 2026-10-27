@@ -1,0 +1,39 @@
+/* ═══ Placeta Junior · herramientas (Studio y DevAI) — rediseño ═══ */
+:root{--tp:#5B14C8;--tp2:#7A2BE6;--to:#FF8A00;--ty:#FFD21F;--tg:#16A34A;--tr:#E23B5A;--tink:#1D1744;--tmut:#6c6791;--tbg:#EEEAFD;--tl:#F5EFFF;--tl2:#E3D7FA;--tf:'Fredoka','Outfit',system-ui,sans-serif;
+ --pj-purple:#5B14C8;--pj-purple-light:#F1EAFE;--pj-green:#16A34A;--pj-green-light:#E8F9EE;--pj-orange:#FF8A00;--pj-blue:#2563EB;--radius:22px}
+html:not(.ic-ok) .material-symbols-rounded{visibility:hidden;width:1em;overflow:hidden;white-space:nowrap}
+body.tool{margin:0;background:var(--tbg);color:var(--tink);font-family:var(--tf);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+body.tool *{box-sizing:border-box}
+/* cabecera */
+.tb{position:sticky;top:0;z-index:30;background:linear-gradient(90deg,#4D0DB3,var(--tp2));border-bottom:6px solid transparent;border-image:linear-gradient(90deg,#FF4B4B 0 20%,#FF8A00 20% 40%,#FFD21F 40% 60%,#2FCB3B 60% 80%,#2E8BFF 80%) 1}
+.tb-in{max-width:1500px;margin:0 auto;padding:8px 18px;display:flex;align-items:center;gap:14px}
+.tb-logo{display:block;height:44px;width:auto}
+.tb-name{font:600 17px var(--tf);color:#fff;display:flex;align-items:center;gap:8px}
+.tb-tag{font:500 12px var(--tf);background:rgba(255,255,255,.2);color:#fff;border-radius:99px;padding:3px 10px}
+.tb-sp{flex:1}
+.tb-nav{display:flex;gap:6px;flex-wrap:wrap}
+.tb-nav a{color:#fff;text-decoration:none;font:500 15px var(--tf);padding:8px 15px;border-radius:99px;transition:background .15s,transform .12s}
+.tb-nav a:hover{background:rgba(255,255,255,.2);transform:translateY(-2px)}
+.tb-nav a.on{background:var(--ty);color:var(--tink);box-shadow:0 3px 0 #C9A400}
+@media(max-width:560px){.tb-name span.t{display:none}.tb-logo{height:36px}.tb-nav a{padding:7px 11px;font-size:14px}}
+/* botones */
+body.tool .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:0;border-radius:999px;padding:10px 18px;font:600 15px var(--tf);cursor:pointer;background:#fff;color:var(--tp);box-shadow:0 0 0 3px var(--tl2),0 4px 0 var(--tl2);transition:transform .12s,box-shadow .12s,filter .15s}
+body.tool .btn:hover{transform:translateY(-2px);filter:brightness(1.03)}body.tool .btn:active{transform:translateY(3px)}
+body.tool .btn-purple{background:var(--tp);color:#fff;box-shadow:0 4px 0 #3F0C95}
+body.tool .btn-green{background:var(--tg);color:#fff;box-shadow:0 4px 0 #0F7A37}
+body.tool .btn-outline{background:#fff;color:var(--tp)}
+body.tool .btn[disabled]{opacity:.5;cursor:not-allowed;transform:none}
+body.tool .btn .material-symbols-rounded{font-size:20px}
+/* campos */
+body.tool input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),body.tool select,body.tool textarea{font:500 15px var(--tf);color:var(--tink);background:#fff;border:0;border-radius:16px;padding:10px 14px;box-shadow:inset 0 0 0 2px var(--tl2);outline:0;transition:box-shadow .15s;max-width:100%}
+body.tool select{border-radius:99px}
+body.tool input:focus,body.tool select:focus,body.tool textarea:focus{box-shadow:inset 0 0 0 3px var(--tp2)}
+body.tool textarea{width:100%;resize:vertical;line-height:1.45}
+body.tool label{font:600 13px var(--tf);color:var(--tmut);letter-spacing:.02em}
+body.tool ::placeholder{color:#a9a4c6}
+body.tool :focus-visible{outline:3px solid var(--to);outline-offset:2px;border-radius:8px}
+body.tool ::-webkit-scrollbar{width:10px;height:10px}body.tool ::-webkit-scrollbar-thumb{background:#cdbff0;border-radius:99px;border:2px solid transparent;background-clip:content-box}
+body.tool .error-banner{max-width:1500px;margin:10px auto 0;border-radius:18px;font:600 15px var(--tf)}
+@keyframes tin{from{opacity:0;transform:translateY(10px)}}
+@keyframes tpop{0%{transform:scale(.97)}50%{transform:scale(1.02)}100%{transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){body.tool *{animation:none!important;transition:none!important}}

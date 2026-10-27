@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Placeta Junior - Inicio</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Fredoka:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "surface-container-lowest": "#ffffff",
+                "tertiary-fixed-dim": "#e9c400",
+                "on-secondary-fixed": "#001a41",
+                "outline": "#7b7487",
+                "on-primary": "#ffffff",
+                "primary": "#5a00c5",
+                "deep-ink": "#1E1B4B",
+                "on-primary-fixed-variant": "#5a00c6",
+                "bright-orange": "#FF8A00",
+                "tertiary": "#705d00",
+                "primary-container": "#732ee4",
+                "on-tertiary-fixed-variant": "#544600",
+                "on-secondary": "#ffffff",
+                "lime-green": "#32CD32",
+                "primary-fixed": "#eaddff",
+                "inverse-surface": "#2d3133",
+                "on-error-container": "#93000a",
+                "surface-container-low": "#f2f4f6",
+                "surface-container": "#eceef0",
+                "vibrant-purple": "#732EE4",
+                "sunny-yellow": "#FFD600",
+                "on-surface": "#191c1e",
+                "surface-dim": "#d8dadc",
+                "surface-container-highest": "#e0e3e5",
+                "secondary-fixed-dim": "#adc7ff",
+                "inverse-primary": "#d2bbff",
+                "inverse-on-surface": "#eff1f3",
+                "electric-blue": "#007BFF",
+                "primary-fixed-dim": "#d2bbff",
+                "on-primary-fixed": "#25005a",
+                "surface-variant": "#e0e3e5",
+                "surface-container-high": "#e6e8ea",
+                "error": "#ba1a1a",
+                "surface": "#f7f9fb",
+                "on-tertiary-fixed": "#221b00",
+                "on-tertiary-container": "#4c3e00",
+                "error-container": "#ffdad6",
+                "secondary": "#0059bb",
+                "outline-variant": "#ccc3d8",
+                "secondary-fixed": "#d8e2ff",
+                "tertiary-fixed": "#ffe170",
+                "on-secondary-container": "#fefcff",
+                "on-surface-variant": "#4a4455",
+                "background": "#f7f9fb",
+                "tertiary-container": "#caa900",
+                "on-background": "#191c1e",
+                "secondary-container": "#0070ea",
+                "surface-bright": "#f7f9fb",
+                "on-tertiary": "#ffffff",
+                "on-error": "#ffffff",
+                "on-secondary-fixed-variant": "#004493",
+                "on-primary-container": "#e2d1ff",
+                "surface-tint": "#732ee4"
+        },
+        "borderRadius": {
+                "DEFAULT": "1rem",
+                "lg": "2rem",
+                "xl": "3rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "margin-mobile": "16px",
+                "island-gap": "48px",
+                "base": "8px",
+                "margin-desktop": "64px",
+                "gutter": "24px"
+        },
+        "fontFamily": {
+                "display-lg": [
+                        "Fredoka"
+                ],
+                "body-md": [
+                        "Plus Jakarta Sans"
+                ],
+                "body-lg": [
+                        "Plus Jakarta Sans"
+                ],
+                "display-lg-mobile": [
+                        "Fredoka"
+                ],
+                "headline-lg": [
+                        "Fredoka"
+                ],
+                "button-text": [
+                        "Fredoka"
+                ],
+                "label-bold": [
+                        "Fredoka"
+                ],
+                "headline-md": [
+                        "Fredoka"
+                ]
+        },
+        "fontSize": {
+                "display-lg": [
+                        "48px",
+                        {
+                                "lineHeight": "1.1",
+                                "fontWeight": "600"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "1.5",
+                                "fontWeight": "400"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "1.6",
+                                "fontWeight": "500"
+                        }
+                ],
+                "display-lg-mobile": [
+                        "36px",
+                        {
+                                "lineHeight": "1.2",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-lg": [
+                        "32px",
+                        {
+                                "lineHeight": "1.2",
+                                "fontWeight": "600"
+                        }
+                ],
+                "button-text": [
+                        "20px",
+                        {
+                                "lineHeight": "1.0",
+                                "fontWeight": "600"
+                        }
+                ],
+                "label-bold": [
+                        "16px",
+                        {
+                                "lineHeight": "1.0",
+                                "letterSpacing": "0.05em",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-md": [
+                        "24px",
+                        {
+                                "lineHeight": "1.3",
+                                "fontWeight": "500"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+  @keyframes float {
+    0% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-12px) rotate(2deg); }
+    100% { transform: translateY(0px) rotate(0deg); }
+  }
+  @keyframes float-reverse {
+    0% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(12px) rotate(-2deg); }
+    100% { transform: translateY(0px) rotate(0deg); }
+  }
+  @keyframes pulse-btn {
+    0% { box-shadow: 0 0 0 0 rgba(115, 46, 228, 0.7); transform: scale(1); }
+    50% { box-shadow: 0 0 0 10px rgba(115, 46, 228, 0); transform: scale(1.02); }
+    100% { box-shadow: 0 0 0 0 rgba(115, 46, 228, 0); transform: scale(1); }
+  }
+  @keyframes spin-slow {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  .animate-float { animation: float 4s ease-in-out infinite; }
+  .animate-float-fast { animation: float 2.5s ease-in-out infinite; }
+  .animate-float-reverse { animation: float-reverse 3.5s ease-in-out infinite; }
+  .animate-pulse-btn { animation: pulse-btn 2s infinite; }
+  .animate-spin-slow { animation: spin-slow 15s linear infinite; }
+</style>
+</head>
+<body class="bg-surface text-on-surface font-body-md overflow-x-hidden min-h-screen pb-[80px] md:pb-0 relative">
+<!-- Subtle Background -->
+<div class="fixed inset-0 pointer-events-none opacity-[0.03] z-0">
+<iframe class="w-full h-full border-none pointer-events-none" src="{{DATA:SCREEN:SCREEN_5}}"></iframe>
+</div>
+<!-- Doodles Background -->
+<div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+<span class="material-symbols-outlined absolute top-[20%] left-[5%] text-sunny-yellow text-6xl animate-spin-slow opacity-80" data-weight="fill">star</span>
+<span class="material-symbols-outlined absolute top-[15%] right-[10%] text-bright-orange text-5xl animate-float opacity-80">bolt</span>
+<span class="material-symbols-outlined absolute top-[40%] left-[8%] text-lime-green text-6xl animate-float-reverse opacity-80" data-weight="fill">cloud</span>
+<span class="material-symbols-outlined absolute top-[60%] right-[5%] text-electric-blue text-5xl animate-float-fast opacity-80" data-weight="fill">category</span>
+<span class="material-symbols-outlined absolute top-[80%] left-[15%] text-vibrant-purple text-6xl animate-float opacity-80" data-weight="fill">interests</span>
+</div>
+<!-- TopAppBar -->
+<header class="w-full py-4 hidden md:block sticky top-0 z-40 bg-primary border-b-8 border-bright-orange shadow-[0_4px_15px_rgba(255,138,0,0.5)]">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop max-w-[1200px] mx-auto">
+<div class="flex items-center space-x-6 p-2">
+<img alt="Placeta Junior" class="h-16 w-auto object-contain brightness-0 invert" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxcGVbHp3TB421JjqOo8LNJyq4mWE3pKFsA2prMCFnjGE3Rs4RNOsnYfZMTaLJSx2BQHuQhdxNTD_nA_o13vJJFCAITOCKZfTyZquROqG9aiFKo8bdIE57no4L1L0yRCQwE4UOMDCRO0zJUQeTIiQLVH5rwqu73wBXo9f60NF_RcfmvnFilny7kpbB58BdPHG6h9Mxgr5aS0yEiceoscGDfV7HKyi0CPEAJ_xc3VqHcEKDZFkZlOVsIA6twXdq-0QlHqg"/>
+<nav class="flex space-x-2">
+<a class="text-on-primary-fixed-variant bg-sunny-yellow border-b-4 border-bright-orange pb-1 rounded-full px-5 py-2.5 font-button-text text-sm transition-transform hover:scale-110 active:translate-y-1 shadow-[0_4px_0_0_#FF8A00]" href="#">Inicio</a>
+<a class="text-on-primary hover:bg-white/20 hover:text-white rounded-full px-5 py-2.5 font-button-text text-sm transition-transform hover:scale-110" href="#">Jugar</a>
+<a class="text-on-primary hover:bg-white/20 hover:text-white rounded-full px-5 py-2.5 font-button-text text-sm transition-transform hover:scale-110" href="#">Para familias</a>
+</nav>
+</div>
+<div class="flex items-center space-x-4 p-2">
+<button class="flex items-center gap-2 bg-lime-green text-on-primary rounded-full px-5 py-2.5 font-button-text text-sm hover:scale-110 active:translate-y-1 active:shadow-none shadow-[0_4px_0_0_#228B22] border-2 border-[#b3ffb3] animate-pulse-btn">
+<span class="material-symbols-outlined text-[20px]">play_arrow</span> Jugar ahora
+                </button>
+<button class="flex items-center gap-2 bg-surface text-vibrant-purple border-2 border-vibrant-purple rounded-full px-5 py-2.5 font-button-text text-sm hover:bg-primary-fixed transition-transform hover:scale-110 shadow-[0_4px_0_0_#732ee4]">
+<span class="material-symbols-outlined text-[20px]">key</span> Tengo un código
+                </button>
+<button class="p-2 text-on-primary hover:text-sunny-yellow transition-transform hover:scale-125">
+<span class="material-symbols-outlined text-[28px]">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<main class="max-w-[1200px] mx-auto px-margin-mobile md:px-margin-desktop space-y-8 mt-8 relative z-10">
+<!-- Activities Section -->
+<section class="space-y-8">
+<div class="space-y-4 text-center max-w-2xl mx-auto py-8 relative">
+<span class="material-symbols-outlined absolute -top-4 -left-8 text-sunny-yellow text-5xl animate-spin-slow">flare</span>
+<span class="material-symbols-outlined absolute -bottom-4 -right-8 text-electric-blue text-4xl animate-float">all_inclusive</span>
+<h1 class="font-display-lg text-display-lg text-deep-ink drop-shadow-[0_4px_0_rgba(115,46,228,0.2)]">Actividades</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant font-bold">Hay una aventura para cada curiosidad. ¿Cuál te apetece hoy?</p>
+</div>
+<!-- Search Bar -->
+<div class="max-w-2xl mx-auto relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-vibrant-purple group-focus-within:text-bright-orange transition-colors">search</span>
+<input class="w-full bg-surface-container-lowest border-4 border-vibrant-purple rounded-full py-4 pl-12 pr-4 font-body-md font-bold text-deep-ink focus:outline-none focus:border-bright-orange focus:ring-0 shadow-[0_6px_0_0_#d2bbff] focus:shadow-[0_6px_0_0_#FF8A00] transition-all" placeholder="Buscar actividades, juegos..." type="text"/>
+</div>
+<!-- Filters -->
+<div class="flex flex-wrap justify-center items-center gap-3">
+<button class="bg-vibrant-purple text-on-primary border-2 border-primary-fixed px-6 py-2.5 rounded-full font-label-bold text-sm shadow-[0_4px_0_0_#5a00c5] hover:scale-110 active:translate-y-1 active:shadow-none transition-all">Todas</button>
+<button class="bg-surface-container-lowest border-2 border-vibrant-purple text-vibrant-purple hover:bg-primary-fixed px-6 py-2.5 rounded-full font-label-bold text-sm transition-all shadow-[0_4px_0_0_#d2bbff] hover:shadow-[0_4px_0_0_#732EE4] hover:scale-110 active:translate-y-1 active:shadow-none">3-5 años</button>
+<button class="bg-surface-container-lowest border-2 border-electric-blue text-electric-blue hover:bg-secondary-fixed px-6 py-2.5 rounded-full font-label-bold text-sm transition-all shadow-[0_4px_0_0_#adc7ff] hover:shadow-[0_4px_0_0_#0070ea] hover:scale-110 active:translate-y-1 active:shadow-none">6-8 años</button>
+<button class="bg-surface-container-lowest border-2 border-sunny-yellow text-tertiary-container hover:bg-tertiary-fixed px-6 py-2.5 rounded-full font-label-bold text-sm transition-all shadow-[0_4px_0_0_#e9c400] hover:shadow-[0_4px_0_0_#caa900] hover:scale-110 active:translate-y-1 active:shadow-none">9-12 años</button>
+<button class="bg-surface-container-lowest border-2 border-bright-orange text-bright-orange hover:bg-error-container px-6 py-2.5 rounded-full font-label-bold text-sm transition-all shadow-[0_4px_0_0_#ffdad6] hover:shadow-[0_4px_0_0_#FF8A00] hover:scale-110 active:translate-y-1 active:shadow-none">12+ años</button>
+</div>
+<!-- Populares Category -->
+<div class="flex items-center gap-3 mt-12 mb-6 relative">
+<span class="material-symbols-outlined absolute -top-4 -left-6 text-bright-orange text-3xl animate-float">star</span>
+<span class="material-symbols-outlined text-bright-orange text-4xl animate-pulse" data-weight="fill">star</span>
+<h2 class="font-headline-lg text-headline-lg text-deep-ink drop-shadow-[0_2px_0_rgba(255,138,0,0.3)]">Populares</h2>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest rounded-[2rem] overflow-hidden shadow-[0_8px_0_0_#d2bbff] border-4 border-vibrant-purple flex flex-col group hover:-translate-y-2 hover:shadow-[0_12px_0_0_#732ee4] transition-all animate-float">
+<div class="aspect-video bg-surface-container relative overflow-hidden rounded-t-[1.6rem] border-b-4 border-vibrant-purple">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="A stylized 3D map illustration of Europe with bright, chunky colors and floating destination markers, rendered in a cheerful, claymorphic style suitable for a children's educational platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDw19bIjNxWd_2Hw-AVaPK_sJMy6M5AWfOaphLytEEthaFkPA5Fx1h_V9jwYPRMIcmfN7zjafRHe6wNRmwaC0MIGwwVOzARpd4ClZ3wIFA4O-DO1I0E9dtf6UkCLEkQSOBqm6z-gmdEl8Ej85Ss1_tzGKsf15PsXgwhhuot7NAS7OYmIisL2Lv3B74KHE8NTCaOdDDERavvvFszCkzNtlfgrfFQAeRBa0HH2Ss6GvGoX_t4ocfWjb39fg"/>
+</div>
+<div class="p-6 flex flex-col flex-1">
+<h3 class="font-headline-md text-headline-md text-deep-ink text-xl leading-tight mb-2 font-bold">Viaje por Europa</h3>
+<div class="flex justify-between items-center text-sm text-on-surface-variant font-medium mt-auto mb-5">
+<span class="text-vibrant-purple font-label-bold bg-primary-fixed px-3 py-1 rounded-full border-2 border-vibrant-purple">Geografía</span>
+<span class="flex items-center gap-1.5 bg-surface-container-high px-3 py-1 rounded-full text-deep-ink font-bold border-2 border-surface-variant"><span class="material-symbols-outlined text-[16px]">visibility</span> 1k</span>
+</div>
+<button class="w-full bg-vibrant-purple text-on-primary hover:bg-primary py-3 rounded-full font-button-text text-sm uppercase transition-all flex justify-center items-center gap-2 shadow-[0_4px_0_0_#5a00c5] active:translate-y-1 active:shadow-none animate-pulse-btn">
+<span class="material-symbols-outlined text-[20px]">play_arrow</span> Jugar
+                        </button>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest rounded-[2rem] overflow-hidden shadow-[0_8px_0_0_#ffdad6] border-4 border-bright-orange flex flex-col group hover:-translate-y-2 hover:shadow-[0_12px_0_0_#FF8A00] transition-all animate-float-reverse">
+<div class="aspect-video bg-surface-container relative overflow-hidden rounded-t-[1.6rem] border-b-4 border-bright-orange">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="A vibrant 3D illustration of a child holding a glowing, oversized magnifying glass looking at a miniature planet Earth, featuring soft lighting and a playful clay-like texture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC59ZWnMhFWrs5P9f_CPrvcIsQ4fiAKqN_auYvHDGPb6U5if0njEsL6FEPiweWLR07yo_wGMYsrJNLaH9OLMFITbkWkWFLivbKDa2NKfkIQwbE7aFdGfPJ2_7_3kkdzLEyFD2FpyXF8eiYgkdmt0Nq1JLAmonxkojFLVUfr3IbQjPSZi169wp54yhV10JYBQY3ZU2UJgJOAupbGQWzlGm62DDKsJKZs415WwaLAa3IEhkcrJd9WvT-kLQ"/>
+</div>
+<div class="p-6 flex flex-col flex-1">
+<h3 class="font-headline-md text-headline-md text-deep-ink text-xl leading-tight mb-2 font-bold">Exploradores del mundo</h3>
+<div class="flex justify-between items-center text-sm text-on-surface-variant font-medium mt-auto mb-5">
+<span class="text-bright-orange font-label-bold bg-error-container px-3 py-1 rounded-full border-2 border-bright-orange">Geografía</span>
+<span class="flex items-center gap-1.5 bg-surface-container-high px-3 py-1 rounded-full text-deep-ink font-bold border-2 border-surface-variant"><span class="material-symbols-outlined text-[16px]">visibility</span> 850</span>
+</div>
+<button class="w-full bg-bright-orange text-on-primary hover:bg-[#e67e00] py-3 rounded-full font-button-text text-sm uppercase transition-all flex justify-center items-center gap-2 shadow-[0_4px_0_0_#cc7000] active:translate-y-1 active:shadow-none animate-pulse-btn">
+<span class="material-symbols-outlined text-[20px]">play_arrow</span> Jugar
+                        </button>
+</div>
+</div>
+</div>
+<!-- Tecnología Category -->
+<div class="flex items-center gap-3 mt-12 mb-6 relative">
+<span class="material-symbols-outlined absolute -top-4 -left-6 text-electric-blue text-3xl animate-float-fast">code</span>
+<span class="material-symbols-outlined text-electric-blue text-4xl animate-pulse" data-weight="fill">computer</span>
+<h2 class="font-headline-lg text-headline-lg text-deep-ink drop-shadow-[0_2px_0_rgba(0,123,255,0.3)]">Tecnología</h2>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest rounded-[2rem] overflow-hidden shadow-[0_8px_0_0_#adc7ff] border-4 border-electric-blue flex flex-col group hover:-translate-y-2 hover:shadow-[0_12px_0_0_#0059bb] transition-all animate-float">
+<div class="aspect-video bg-surface-container relative overflow-hidden rounded-t-[1.6rem] border-b-4 border-electric-blue">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="A cute 3D robot character sitting at a chunky, colorful computer desk typing on a large keyboard. The scene uses bright neon accents against a dark background, in a friendly claymorphism aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUOxB90AqZs-IkgFINO_GbRT_J-ak76YS8WRtbnYn6JgAdP4d-i48OWKonIiVq462ygqsbbhfadmGYM2Gu8SsootMTzzkvQlvNbzwLUmqBiZPVqOifBLyOvrppR9RE-6cFSt--_QlL07lgBbprygTpgK2Jh4EVMVwjoAuGdHPdySNlgoNqD7j__KgD8onuZ849y2GW3ercqd11NNpjES-7Sicqr4tFSx3bHz-stEfbdtLvsq73WpuM8Q"/>
+</div>
+<div class="p-6 flex flex-col flex-1">
+<h3 class="font-headline-md text-headline-md text-deep-ink text-xl leading-tight mb-2 font-bold">Programador por un día</h3>
+<div class="flex justify-between items-center text-sm text-on-surface-variant font-medium mt-auto mb-5">
+<span class="text-electric-blue font-label-bold bg-secondary-fixed px-3 py-1 rounded-full border-2 border-electric-blue">Tecnología</span>
+<span class="flex items-center gap-1.5 bg-surface-container-high px-3 py-1 rounded-full text-deep-ink font-bold border-2 border-surface-variant"><span class="material-symbols-outlined text-[16px]">visibility</span> 2k</span>
+</div>
+<button class="w-full bg-electric-blue text-on-primary hover:bg-secondary py-3 rounded-full font-button-text text-sm uppercase transition-all flex justify-center items-center gap-2 shadow-[0_4px_0_0_#004493] active:translate-y-1 active:shadow-none animate-pulse-btn">
+<span class="material-symbols-outlined text-[20px]">play_arrow</span> Jugar
+                        </button>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-surface-container-lowest rounded-[2rem] overflow-hidden shadow-[0_8px_0_0_#adc7ff] border-4 border-secondary flex flex-col group hover:-translate-y-2 hover:shadow-[0_12px_0_0_#004493] transition-all animate-float-reverse">
+<div class="aspect-video bg-surface-container relative overflow-hidden rounded-t-[1.6rem] border-b-4 border-secondary">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="An abstract 3D representation of the inside of a computer, featuring brightly colored microchips, glowing logic gates, and floating binary code blocks in a playful, toy-like style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUUKBMTYjNPYQFuBQWy5pFhLRPZp0r6-2Upo4Vcn9hULJ725tSXiobDa9FCtkPyRaLzC0i00cwvAl76DImH_wx8YD0iBFxaNPxkLGXi2H5BRZg7XFIqnOppk8t8VEX78a5RQPP2qrtqeyjQdxz5buu8TQFXv9NleYn5DBHCRc9P0xydjWx98FRCVCnwfnUhU9RTk4ohsYWvv1cTn0zLfk0yjLaUCQRqNURy-IaUiJY6CT1pVfsHufXqg"/>
+</div>
+<div class="p-6 flex flex-col flex-1">
+<h3 class="font-headline-md text-headline-md text-deep-ink text-xl leading-tight mb-2 font-bold">Dentro de un ordenador</h3>
+<div class="flex justify-between items-center text-sm text-on-surface-variant font-medium mt-auto mb-5">
+<span class="text-secondary font-label-bold bg-secondary-fixed px-3 py-1 rounded-full border-2 border-secondary">Tecnología</span>
+<span class="flex items-center gap-1.5 bg-surface-container-high px-3 py-1 rounded-full text-deep-ink font-bold border-2 border-surface-variant"><span class="material-symbols-outlined text-[16px]">visibility</span> 500</span>
+</div>
+<button class="w-full bg-secondary text-on-primary hover:bg-[#004493] py-3 rounded-full font-button-text text-sm uppercase transition-all flex justify-center items-center gap-2 shadow-[0_4px_0_0_#002b5e] active:translate-y-1 active:shadow-none animate-pulse-btn">
+<span class="material-symbols-outlined text-[20px]">play_arrow</span> Jugar
+                        </button>
+</div>
+</div>
+</div>
+<!-- Ciencias Category -->
+<div class="flex items-center gap-3 mt-12 mb-6 relative">
+<span class="material-symbols-outlined absolute -top-4 -left-6 text-lime-green text-3xl animate-float">psychology</span>
+<span class="material-symbols-outlined text-lime-green text-4xl animate-pulse" data-weight="fill">science</span>
+<h2 class="font-headline-lg text-headline-lg text-deep-ink drop-shadow-[0_2px_0_rgba(50,205,50,0.3)]">Ciencias</h2>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Card 5 -->
+<div class="bg-surface-container-lowest rounded-[2rem] overflow-hidden shadow-[0_8px_0_0_#b3ffb3] border-4 border-lime-green flex flex-col group hover:-translate-y-2 hover:shadow-[0_12px_0_0_#228B22] transition-all animate-float">
+<div class="aspect-video bg-surface-container relative overflow-hidden rounded-t-[1.6rem] border-b-4 border-lime-green">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="A stylized 3D macro shot of a happy, cartoonish water droplet character sliding down a vibrant green leaf, illuminated by soft sunlight. Designed with a chunky, clay-like aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXhU5JglmOlDUwJk9c-ZGvm_n9CmHRlwCgALkPvka2MCrbxsUMTqKDziGTVsAqaMpjp6KGof_-97zWbWPg9K1LPgbTaKiy_0QD_tQfQHK4-Q8g_y-LCd-S2iH3H9RAndV7qdCCRn4RjamywrK56O22e2Kyvr7gLO5iIm-Gre_vqiecf53GY5EEDSlTyUZ4CDvxRtrp7obYuHOwviErIocnwKpj5_ps4I0WXDvPQLSlDMDhOpE_QRJ_bA"/>
+</div>
+<div class="p-6 flex flex-col flex-1">
+<h3 class="font-headline-md text-headline-md text-deep-ink text-xl leading-tight mb-2 font-bold">El viaje de una gota de agua</h3>
+<div class="flex justify-between items-center text-sm text-on-surface-variant font-medium mt-auto mb-5">
+<span class="text-lime-green font-label-bold bg-[#e6ffe6] px-3 py-1 rounded-full border-2 border-lime-green">Ciencias</span>
+<span class="flex items-center gap-1.5 bg-surface-container-high px-3 py-1 rounded-full text-deep-ink font-bold border-2 border-surface-variant"><span class="material-symbols-outlined text-[16px]">visibility</span> 1.2k</span>
+</div>
+<button class="w-full bg-lime-green text-on-primary hover:bg-[#228B22] py-3 rounded-full font-button-text text-sm uppercase transition-all flex justify-center items-center gap-2 shadow-[0_4px_0_0_#1a6b1a] active:translate-y-1 active:shadow-none animate-pulse-btn">
+<span class="material-symbols-outlined text-[20px]">play_arrow</span> Jugar
+                        </button>
+</div>
+</div>
+<!-- Card 6 -->
+<div class="bg-surface-container-lowest rounded-[2rem] overflow-hidden shadow-[0_8px_0_0_#e9c400] border-4 border-sunny-yellow flex flex-col group hover:-translate-y-2 hover:shadow-[0_12px_0_0_#caa900] transition-all animate-float-reverse">
+<div class="aspect-video bg-surface-container relative overflow-hidden rounded-t-[1.6rem] border-b-4 border-sunny-yellow">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="A 3D educational illustration showing the solar system with stylized, colorful planets orbiting a bright, cartoonish sun. The space background is deep blue with soft glowing stars in a friendly claymorphic style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBM3APm4vuudwopc3LyccIGM9mVF8hyus7amWVgFd6WalbI_HyqOh_iC2ITLteZT-LW4CITGM0Vdx6z4MAOZChnLwZ3jhttVXYmU71USCinyxEDalGYdXYcsKOu3M4Q4Mq24js0oNtfsVa9iKvFHCi5vd-rm2Pa4ShQAo_PXyd3lNrNQqs9-NKkNEUg1yIc5KCnAXMTvZ-MjCqlDiOK4BcOvyPpFhB4yuZl_9v8MEyfVkEkZq2bx66QHg"/>
+</div>
+<div class="p-6 flex flex-col flex-1">
+<h3 class="font-headline-md text-headline-md text-deep-ink text-xl leading-tight mb-2 font-bold">Los planetas del Sistema Solar</h3>
+<div class="flex justify-between items-center text-sm text-on-surface-variant font-medium mt-auto mb-5">
+<span class="text-tertiary-container font-label-bold bg-tertiary-fixed px-3 py-1 rounded-full border-2 border-sunny-yellow">Ciencias</span>
+<span class="flex items-center gap-1.5 bg-surface-container-high px-3 py-1 rounded-full text-deep-ink font-bold border-2 border-surface-variant"><span class="material-symbols-outlined text-[16px]">visibility</span> 3k</span>
+</div>
+<button class="w-full bg-sunny-yellow text-on-tertiary-fixed hover:bg-tertiary-container hover:text-on-primary py-3 rounded-full font-button-text text-sm uppercase transition-all flex justify-center items-center gap-2 shadow-[0_4px_0_0_#caa900] active:translate-y-1 active:shadow-none animate-pulse-btn">
+<span class="material-symbols-outlined text-[20px]">play_arrow</span> Jugar
+                        </button>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 md:hidden bg-surface-container-lowest dark:bg-on-secondary-fixed border-t-4 border-surface-container-highest dark:border-deep-ink shadow-[0_-4px_0_0_rgba(0,0,0,0.1)] rounded-t-lg">
+<div class="flex flex-col items-center justify-center bg-sunny-yellow text-on-tertiary-fixed rounded-full px-6 py-2 shadow-[0_4px_0_0_#caa900] transition-transform hover:scale-110 active:translate-y-0.5">
+<span class="material-symbols-outlined" data-weight="fill">home</span>
+<span class="font-label-bold text-[10px] mt-1">Inicio</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-4 py-2 hover:scale-110 transition-transform active:translate-y-0.5">
+<span class="material-symbols-outlined">emoji_events</span>
+<span class="font-label-bold text-[10px] mt-1">Logros</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-4 py-2 hover:scale-110 transition-transform active:translate-y-0.5">
+<span class="material-symbols-outlined">shopping_bag</span>
+<span class="font-label-bold text-[10px] mt-1">Tienda</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-4 py-2 hover:scale-110 transition-transform active:translate-y-0.5">
+<span class="material-symbols-outlined">face</span>
+<span class="font-label-bold text-[10px] mt-1">Perfil</span>
+</div>
+</nav>
+<!-- Footer -->
+<footer class="w-full mt-24 py-12 bg-surface-container-low border-t border-surface-variant relative z-10">
+<div class="flex flex-col items-center gap-6 w-full px-margin-mobile text-center max-w-[1200px] mx-auto">
+<img alt="Placeta Junior" class="h-12 object-contain hover:scale-110 transition-transform" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWja-36VaPO2lvq7Q5pxsoZNKR2rQi6lq-isWgatGq_VTpiTsvLyr8-O8t37BYSYOinDo3vrPEOeKLDMzq1GzuxZdO-WVWWKLuMW2MCHWkvW3zut7e8t7Nk_O6uzB7Fjn_lmzJ-L8uWsMHeVVxunbT2DYf6N9CEPvLWmyr7VmZzLXCL7_N0X7fdO3-3Ul_TrTyGkSzPHoDlVYjobpBhlq-VLlFSJIkeQp_mKmBRtkxU8-EKqzcPvRjIWsACm5KrVyeouA"/>
+<div class="flex space-x-6">
+<a class="text-on-surface-variant font-label-bold text-sm hover:text-vibrant-purple transition-colors" href="#">Privacidad</a>
+<a class="text-on-surface-variant font-label-bold text-sm hover:text-bright-orange transition-colors" href="#">Ayuda</a>
+<a class="text-on-surface-variant font-label-bold text-sm hover:text-lime-green transition-colors" href="#">Contacto</a>
+</div>
+<p class="text-on-surface-variant/70 font-body-md text-sm mt-4">© 2026 Placeta Junior · Grupo de La Placeta</p>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Crear actividad | Placeta Junior</title>
+  <link rel="icon" href="/favijunior.png" />
+  <link rel="stylesheet" href="/studio-creadores.css" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Placeta Junior, inicio"><img src="/img/PJ-BLANCO-LOGO.png" alt="Placeta Junior" /></a>
+    <span class="brand-title">Placeta Junior Education</span>
+    <nav aria-label="Navegación"><a href="/#/educacion">Para educación</a><a href="/crear-actividad" aria-current="page">Crea una actividad</a><a href="/centros/panel">Mi cuenta</a></nav>
+  </header>
+  <main>
+    <section class="intro">
+      <div><p class="eyebrow">TU AULA, TUS IDEAS</p><h1>Crea una actividad <span>para aprender jugando.</span></h1><p class="intro-copy">Diseña el contenido para tu grupo. Placeta Junior acompaña el proceso hasta que esté listo para compartir.</p></div>
+      <div class="identity" id="identity"><span class="status-dot"></span><span id="identity-status">Comprobando cuenta…</span></div>
+    </section>
+    <section id="access-gate" class="access-gate" role="status" aria-live="polite">
+      <h2 id="access-title">Comprobando permisos…</h2>
+      <p id="access-message">El editor solo está disponible para docentes aprobados y centros activos autorizados.</p>
+      <div class="access-links">
+        <a href="/centros?tipo=docente">Acceso docente</a>
+        <a href="/centros?tipo=centro">Acceso de centro</a>
+      </div>
+    </section>
+    <div id="creator-tools" hidden>
+      <section class="activity-metadata" aria-labelledby="activity-metadata-title">
+        <div class="section-heading compact"><div><p class="eyebrow">FICHA</p><h2 id="activity-metadata-title">Datos de la actividad</h2></div></div>
+        <div class="activity-meta-fields">
+          <div class="field"><label for="meta-title">Título</label><input id="meta-title" maxlength="160" autocomplete="off" /></div>
+          <div class="field"><label for="meta-description">Descripción</label><textarea id="meta-description" maxlength="2000" rows="2"></textarea></div>
+          <div class="field"><label for="meta-category">Materia</label><select id="meta-category"><option>General</option><option>Matemáticas</option><option>Lengua</option><option>Ciencias</option><option>Geografía</option><option>Tecnología</option><option>Lógica</option><option>Cultura</option></select></div>
+          <div class="field"><label for="meta-age">Edad recomendada</label><input id="meta-age" value="6-12" maxlength="20" /></div>
+          <div class="field"><label for="meta-difficulty">Dificultad</label><select id="meta-difficulty"><option value="facil">Fácil</option><option value="media" selected>Media</option><option value="dificil">Difícil</option></select></div>
+        </div>
+      </section>
+      <section class="template-section" aria-labelledby="template-title">
+        <div class="section-heading"><div><p class="eyebrow">PUNTO DE PARTIDA</p><h2 id="template-title">Elige una plantilla</h2></div><button id="blank-template" class="quiet-button" type="button">Empezar en blanco</button></div>
+        <div class="templates" id="templates"></div>
+      </section>
+      <section class="review-process" aria-labelledby="review-title">
+        <div class="review-intro"><span class="review-spark" aria-hidden="true">✦</span><div><p class="eyebrow">HECHO EN EQUIPO</p><h2 id="review-title">Tu propuesta, cuidada antes de llegar al aula.</h2><p>Al enviarla, el equipo de Placeta Junior se ocupa de la revisión editorial.</p></div></div>
+        <ol class="review-steps">
+          <li><span aria-hidden="true">01</span><div><strong>Revisamos</strong><p>Leemos la actividad y comprobamos que sea clara, adecuada y coherente con su objetivo educativo.</p></div></li>
+          <li><span aria-hidden="true">02</span><div><strong>Verificamos</strong><p>Contrastamos el contenido y el funcionamiento de los ejercicios; si hace falta, te pediremos ajustes.</p></div></li>
+          <li><span aria-hidden="true">03</span><div><strong>Preparamos para compartir</strong><p>Según el caso, creamos una portada y las traducciones necesarias antes de incorporarla a Placeta Junior.</p></div></li>
+        </ol>
+      </section>
+      <section class="workspace" aria-label="Editor de actividad">
+        <aside class="toolbox">
+          <div class="section-heading compact"><div><p class="eyebrow">BLOQUES</p><h2>Añadir contenido</h2></div></div>
+          <div class="block-palette" id="palette"></div>
+        </aside>
+        <section class="builder">
+          <div class="builder-top"><div><p class="eyebrow">LIENZO</p><h2 id="activity-title">Actividad sin título</h2></div><div class="builder-actions"><button id="undo-action" class="quiet-button history-button" type="button" disabled aria-label="Deshacer">↶ Deshacer</button><button id="redo-action" class="quiet-button history-button" type="button" disabled aria-label="Rehacer">↷ Rehacer</button><button id="preview-activity" class="quiet-button" type="button">Vista previa</button><button id="clear-draft" class="quiet-button" type="button">Vaciar lienzo</button></div></div>
+          <div class="canvas" id="canvas" aria-live="polite"></div>
+        </section>
+        <aside class="inspector">
+          <div class="section-heading compact"><div><p class="eyebrow">EDICIÓN</p><h2>Propiedades</h2></div></div>
+          <div id="inspector-content" class="inspector-content"></div>
+        </aside>
+      </section>
+      <section class="submit-bar">
+        <div><strong id="draft-title">Actividad nueva</strong><span id="draft-summary">El borrador se guarda en este dispositivo.</span></div>
+        <button id="submit-activity" class="submit-button" type="button"><span aria-hidden="true">↗</span> Enviar a revisión</button>
+      </section>
+      <dialog class="preview-dialog" id="preview-dialog" aria-labelledby="preview-title">
+        <div class="preview-heading"><div><p class="eyebrow">ASÍ LA VERÁ EL ALUMNADO</p><h2 id="preview-title">Vista previa de la actividad</h2></div><button id="close-preview" class="close-preview" type="button" aria-label="Cerrar vista previa">×</button></div>
+        <iframe id="preview-frame" title="Vista previa interactiva de la actividad" src="about:blank"></iframe>
+        <p class="preview-note">La vista previa te permite probar los ejercicios. La portada y las traducciones se preparan durante la revisión editorial, según el caso.</p>
+      </dialog>
+    </div>
+    <p id="notice" class="notice" role="status" aria-live="polite"></p>
+  </main>
+  <script src="/studio-creadores.js" defer></script>
+</body>
+</html>
