@@ -17,3 +17,17 @@
 .education-topbar a:focus-visible,.education-signout:focus-visible{outline:3px solid #2e8bff;outline-offset:3px}
 @media(max-width:760px){.education-topbar-inner{flex-wrap:wrap;gap:5px 10px;padding-block:8px}.education-brand img{width:76px}.education-brand-title{font-size:12px}.education-nav{order:3;justify-content:flex-start;flex-basis:100%;overflow-x:auto;padding:2px 0;scrollbar-width:thin}.education-nav a{min-height:37px;padding:7px 10px;font-size:12px}.education-signout{margin-left:auto}}
 @media(prefers-reduced-motion:reduce){.education-nav a,.education-signout{transition:none}}
+.education-topbar{box-shadow:0 5px 20px rgba(43,14,100,.22)}
+.education-topbar-inner{gap:clamp(10px,2vw,22px)}
+.education-brand img{filter:drop-shadow(0 2px 2px #16093a44)}
+.education-nav a{font-weight:600;transition:background .16s ease,transform .16s ease,color .16s ease}
+.education-nav a:hover{transform:translateY(-1px)}
+.education-nav a[aria-current="page"]{box-shadow:0 3px 0 #c46500}
+.education-signout{min-height:38px;transition:background .16s ease,transform .16s ease}
+.education-signout:hover{transform:translateY(-1px)}
+@media(max-width:760px){
+  .education-topbar-inner{gap:6px 10px}
+  .education-nav{gap:5px}
+  .education-nav a{min-height:40px}
+}
+@media(prefers-reduced-motion:reduce){.education-nav a,.education-signout{transition:none}}

@@ -164,3 +164,69 @@ footer a{color:#fff}
 .center-list-arrow{color:var(--morado);font-size:22px}
 @media(max-width:700px){.centros-list-heading{align-items:flex-start;flex-direction:column}.add-center-card{align-self:flex-start}}
 @media(max-width:700px){.device-actions{grid-column:3;grid-row:2;flex-direction:column;align-items:stretch}}
+body{background:radial-gradient(ellipse at 96% 0,color-mix(in srgb,var(--purple) 9%,transparent),transparent 30%),var(--bg)}
+main#principal{padding:clamp(18px,3.5vw,40px) clamp(14px,3vw,28px);gap:18px}
+.tarjeta{
+  position:relative;
+  overflow:hidden;
+  padding:clamp(22px,4vw,42px);
+  border:1px solid color-mix(in srgb,var(--purple) 11%,var(--line));
+  border-radius:28px;
+  box-shadow:0 5px 0 color-mix(in srgb,var(--purple) 8%,var(--line)),0 22px 50px -38px #21113f99
+}
+.tarjeta>h1:first-child{max-width:22ch;margin-bottom:12px;letter-spacing:-.025em}
+.tarjeta>.nota{max-width:66ch;line-height:1.7}
+.opciones-alta{gap:16px;margin-top:26px}
+.opcion-alta{
+  position:relative;
+  min-height:142px;
+  gap:16px;
+  padding:22px;
+  border:1px solid var(--line);
+  border-radius:22px;
+  background:linear-gradient(140deg,var(--card),color-mix(in srgb,var(--purple) 3%,var(--card)));
+  box-shadow:0 5px 0 color-mix(in srgb,var(--purple) 8%,var(--line));
+  transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease
+}
+.opcion-alta:hover{transform:translateY(-3px);border-color:#c8b1ef;background:linear-gradient(140deg,var(--card),color-mix(in srgb,var(--purple) 6%,var(--card)));box-shadow:0 8px 0 color-mix(in srgb,var(--purple) 11%,var(--line)),0 18px 30px -25px #21113f88}
+.opcion-alta-icono{display:grid;place-items:center;width:58px;height:58px;border-radius:19px;background:#efe8ff;font-size:29px}
+.opcion-alta:nth-child(2) .opcion-alta-icono{background:#fff0c7}
+.opcion-alta strong{font:400 20px/1.2 var(--f1)}
+.opcion-alta small{max-width:40ch;font-size:13px;line-height:1.55}
+.btn-volver{border-radius:999px}
+fieldset{padding:18px 20px;background:color-mix(in srgb,var(--bg) 42%,var(--card))}
+legend{color:var(--purple)}
+label{line-height:1.5}
+input,select,textarea{transition:border-color .15s ease,box-shadow .15s ease,background .15s ease}
+input:focus,select:focus,textarea:focus{border-color:var(--purple);outline:0;box-shadow:0 0 0 4px color-mix(in srgb,var(--purple) 13%,transparent)}
+input[type=checkbox]:focus-visible{outline:3px solid #2e8bff;outline-offset:2px}
+.centro-card,.solicitud-card,.dashboard-kpi,.stat-panel,.stats-section{border-radius:18px}
+.centro-card{transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
+.centro-card:hover{transform:translateY(-2px);border-color:#c9b6ed;box-shadow:0 8px 22px -17px #21113f88}
+.centro-mark{border-radius:16px;background:linear-gradient(145deg,var(--purple),var(--purple2));box-shadow:0 4px 0 #43109c}
+.dashboard-head{padding-bottom:22px}
+.dashboard-code{border-radius:18px;background:linear-gradient(135deg,color-mix(in srgb,var(--purple) 7%,var(--card)),var(--card))}
+.dashboard-kpi,.stat-panel,.stats-section{box-shadow:0 4px 0 color-mix(in srgb,var(--purple) 7%,var(--line))}
+.dashboard-tabs button{transition:background .15s ease,color .15s ease}
+.device-row{border-radius:16px;transition:border-color .15s ease,box-shadow .15s ease}
+.device-row:hover{border-color:color-mix(in srgb,var(--purple) 28%,var(--line));box-shadow:0 5px 16px -16px #21113f}
+.add-center-card{border-color:color-mix(in srgb,var(--purple) 18%,var(--line));background:color-mix(in srgb,var(--purple) 5%,var(--card));color:var(--purple)}
+.add-center-card>span{background:var(--purple)}
+.center-list-card{border-color:var(--line);background:var(--card);color:var(--ink)}
+.center-list-mark{background:color-mix(in srgb,var(--purple) 10%,var(--card));color:var(--purple)}
+.center-list-arrow{color:var(--purple)}
+footer{margin-top:auto}
+@media(max-width:700px){
+  main#principal{padding:16px 13px 24px}
+  .tarjeta{padding:22px 18px;border-radius:23px}
+  .opciones-alta{gap:12px}
+  .opcion-alta{min-height:112px;padding:16px;border-radius:18px}
+  .opcion-alta-icono{width:48px;height:48px;border-radius:16px}
+  .centro-card{padding:16px}
+  .centro-card-side{justify-content:flex-start}
+  .dashboard-tabs{scrollbar-width:thin}
+}
+@media(prefers-reduced-motion:reduce){
+  .opcion-alta,.centro-card,input,select,textarea,.dashboard-tabs button,.device-row{transition:none}
+  .opcion-alta:hover,.centro-card:hover{transform:none}
+}
