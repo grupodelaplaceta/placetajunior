@@ -1,4 +1,4 @@
-# Nuevos juegos de Infantil y modalidades de Primaria
+# Juegos de Infantil y modalidades de Primaria
 
 ## 1. Infantil (3-5 años) — `public/js/infantil/`
 
@@ -23,9 +23,9 @@ con tolerancia que se estrecha y guía que se desvanece en las pasadas siguiente
 `public/img/juegos/*.webp` (480×270, capturas reales de cada juego) + `public/js/juegos-miniaturas.js` (`window.PJ_GIMG`, clave = nombre catalán; `col` y `puz` para los grupos).
 Para regenerarlas tras cambiar un juego: `python3 tools/generar-miniaturas.py "Nom del joc"` (o sin argumentos para todas).
 
-## 2. Modalidades clásicas de Primaria (6-12 años) — `public/js/primaria-juegos.js`
+## 2. Modalidades clásicas de Primaria (6-12 años) — `public/js/actividades/primaria-clasica.js`
 
-Once tipos de bloque nuevos, 100 % declarativos (JSON dentro de `datos`, también aceptados en el nivel superior del bloque). Cada reto es una pantalla con su estado en `kpEstado`, suma `kpScore.verdes/rojos` y usa el mismo `mostrarFeedback` que el test. Si faltan datos hay un ejemplo por defecto (nunca se rompe la actividad).
+Once tipos de bloque clásicos, 100 % declarativos (JSON dentro de `datos`, también aceptados en el nivel superior del bloque). Cada reto es una pantalla con su estado en `kpEstado`, suma `kpScore.verdes/rojos` y usa el mismo `mostrarFeedback` que el test. Si faltan datos hay un ejemplo por defecto.
 
 | `tipo` | Qué trabaja | `datos` |
 |---|---|---|
@@ -44,28 +44,29 @@ Once tipos de bloque nuevos, 100 % declarativos (JSON dentro de `datos`, tambié
 Integración:
 - **Reproductor** (`player.js`): rama en `abrirJuego`, `renderPantalla`, etiqueta y texto accesible. Script cargado en `jugar.html` y `preview.html`.
 - **DevAI** (`devai.html`): ejemplos y reglas en el prompt + sección «Retos de Primaria» con plantillas que abren el reproductor real.
-- **Studio docente** (`/crear-actividad`, `public/studio-creadores.html` y `public/studio-creadores.js`): paleta, opciones visuales y configuración avanzada.
+- **Studio docente** (`/crear-actividad`, `public/studio-creadores.html` y `public/studio-creadores.js`): paleta y edición visual de los ejercicios; las modalidades no requieren editar JSON.
 - **PDF/fichas** (`app.js › fichaPrimariaPdf`): versión imprimible de cada tipo.
 - **Modalidades** (`modalidades.js`): añadidos a la lista de la etapa `primaria`.
 
-## 3. Modalidades nuevas de Primaria — `public/js/pn-*`
+## 3. Modalidades nuevas de Primaria — `public/js/actividades/`
 
 Estas modalidades están implementadas en el repositorio principal; no dependen de la carpeta de origen `primaria-nueva`. Se configuran desde el Studio de docentes y centros en `/crear-actividad`.
 
 | `tipo` | Qué trabaja | Datos principales |
 |---|---|---|
-| `geometria` | Figuras y propiedades geométricas | `modo`, `figuras`, `cantidad`, `nivel` |
+| `geometria` | Figuras, propiedades y medida del área o perímetro | `modo:"medir"`, `medida:"area"\|"perimetro"\|"mixto"`, ejercicios opcionales `{ancho,alto,medida}` |
 | `dinero` | Monedas, pagos y cambio | `modo`, `cantidad`, `nivel` |
 | `vertical` | Sumas y restas en vertical | `operacion`, `ejercicios:[{a,b,op}]`, `cantidad`, `nivel` |
 | `abaco` | Representación y lectura de números | `modo`, `columnas`, `cantidad` |
 | `calculo_mental` | Operaciones y cálculo mental | `ejercicios:[{enunciado,respuesta}]`, `cantidad`, `nivel` |
-| `horas` | Leer, poner y calcular horas | `modo`, `ejercicios:[{hora,duracion?}]` o `[{inicio,fin}]`, `cantidad`, `nivel` |
-| `tesoro` | Orientación y programación de recorridos | `modo`, `cantidad`, `nivel` |
+| `horas` | Leer, poner y calcular horas con reloj analógico, digital o ambos | `modo`, `reloj:"analogico"\|"digital"\|"ambos"`, ejercicios `{hora,duracion?}` o `{inicio,fin}` |
+| `dados` | Sumas, restas y multiplicaciones representadas con dados | `operacion`, `dados:2..4`, ejercicios `{caras:[…],operacion}` |
+| `tesoro` | Orientación y programación de recorridos | `modo:"pista"\|"programar"\|"dibujar"`, `cantidad`, `nivel` |
 | `simetria_dibujo` | Completar figuras simétricas | `eje`, `cantidad`, `nivel` |
 | `patron_visual` | Patrones de formas, colores o números | `modo`, `cantidad`, `nivel` |
 | `batalla` | Operaciones en un tablero de batalla naval | `nivel` |
 | `tangram` | Reconocimiento y composición de piezas | `modo`, `estilo`, `cantidad` |
 
-El Studio ofrece controles visuales para los ajustes habituales y conserva un editor JSON avanzado para personalizar todos los datos. En el reloj, las horas se introducen en formato de 24 horas (`16:30`) y se representan en la esfera analógica de 12 horas (`4:30`).
+El Studio ofrece controles visuales para los ajustes y los ejercicios de las modalidades. En el reloj, las horas se introducen en formato de 24 horas (`16:30`) y el docente elige la representación analógica, digital o combinada. La medición geométrica muestra rectángulos cuadriculados con dimensiones en centímetros. El tipo de dados admite retos con caras propias y las monedas/billetes de euros se dibujan con recursos SVG locales. El mapa del tesoro permite seleccionar casillas, usar flechas o trazar la ruta arrastrando con ratón o pantalla táctil.
 
-Para añadir una modalidad nueva, registra el tipo y sus opciones en el Studio activo, integra su generador y renderizador en el motor correspondiente (`PJPrimaria` o `PJPNueva`), añade su traducción y comprueba su reproducción, vista previa y publicación con pruebas.
+Para añadir una modalidad nueva, sigue la guía de [`public/js/actividades/README.md`](../../public/js/actividades/README.md), registra tipo y opciones en el Studio, añade traducciones y actualización de catálogo/DevAI/PDF/offline, y comprueba reproducción, vista previa y publicación con pruebas.

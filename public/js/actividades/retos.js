@@ -8,12 +8,12 @@
   /* =========================================================
      7 · MAPA DEL TESORO (orientación: norte, sur, este, oeste)
      Modo "pista": se lee la pista y se marca la casilla del tesoro.
-     Modo "programar": se escriben flechas que llevan desde el punto de partida hasta el tesoro.
+     Modo "programar": se escriben flechas o se traza una ruta por las casillas.
      El tesoro no se muestra nunca en el mapa (sin chivatos).
      ========================================================= */
   const DIR = { n: [0, -1], s: [0, 1], e: [1, 0], o: [-1, 0] };
   const ARROW = { n: '↑', s: '↓', e: '→', o: '←' };
-  const LM = [['palmera', '🌴'], ['roca', '🪨'], ['barco', '⛵'], ['faro', '🗼']];
+  const LM = [['palmera', 'palm_tree'], ['roca', 'landscape'], ['barco', 'sailing'], ['faro', 'light']];
 
   function genMapa(lv) {
     const W = lv === 3 ? 7 : 6, H = lv === 1 ? 4 : 5;
@@ -33,18 +33,18 @@
       if (dy) moves.push({ d: dy > 0 ? 's' : 'n', n: Math.abs(dy) });
       return { W, H, lms, S: { x: S.x, y: S.y, id: S.id }, T: { x: Tx, y: Ty }, moves };
     }
-    return { W: 6, H: 5, lms: [{ x: 0, y: 0, id: 'palmera', e: '🌴' }, { x: 4, y: 0, id: 'roca', e: '🪨' }, { x: 0, y: 4, id: 'barco', e: '⛵' }, { x: 4, y: 4, id: 'faro', e: '🗼' }], S: { x: 0, y: 0, id: 'palmera' }, T: { x: 2, y: 2 }, moves: [{ d: 'e', n: 2 }, { d: 's', n: 2 }] };
+    return { W: 6, H: 5, lms: [{ x: 0, y: 0, id: 'palmera', e: 'palm_tree' }, { x: 4, y: 0, id: 'roca', e: 'landscape' }, { x: 0, y: 4, id: 'barco', e: 'sailing' }, { x: 4, y: 4, id: 'faro', e: 'light' }], S: { x: 0, y: 0, id: 'palmera' }, T: { x: 2, y: 2 }, moves: [{ d: 'e', n: 2 }, { d: 's', n: 2 }] };
   }
 
   const clausula = mv => mv.n + ' ' + t(mv.n === 1 ? 'tes.cas1' : 'tes.casn') + ' ' + t('dir.' + mv.d);
   const textoPista = s => t('tes.clue', { s: t('lm.' + s.S.id), m: s.moves.map(clausula).join(t('tes.and')) });
 
   function crearTesoro(d) {
-    const MODOS = ['pista', 'programar'], out = [], lv = nivel(d);
+    const MODOS = ['pista', 'programar', 'dibujar'], out = [], lv = nivel(d);
     for (let i = 0; i < cant(d, 3); i++) {
       const modo = MODOS.includes(d.modo) ? d.modo : MODOS[i % 2];
       const m = genMapa(lv);
-      out.push({ s: Object.assign({ modo, sol: '' }, m), e: { malas: [], prog: [], fallos: 0 } });
+      out.push({ s: Object.assign({ modo, sol: '' }, m), e: { malas: [], prog: [], trazo: [], fallos: 0 } });
     }
     out.forEach(x => { x.s.sol = textoPista(x.s); });
     return out;
@@ -62,29 +62,50 @@
   }
 
   function rTesoro(s, e, idx) {
-    const camino = s.modo === 'programar' ? recorrer(s, arr(e.prog)).camino : [];
+    const camino = s.modo === 'dibujar' ? arr(e.trazo) : s.modo === 'programar' ? recorrer(s, arr(e.prog)).camino : [];
     const puedes = !e.respondida;
-    let mapa = `<div class="pn-tgrid" style="grid-template-columns:repeat(${s.W},1fr)">`;
+    let mapa = `<div class="pn-tgrid${s.modo === 'dibujar' ? ' pn-draw-grid' : ''}" style="grid-template-columns:repeat(${s.W},1fr)">`;
     for (let y = 0; y < s.H; y++) for (let x = 0; x < s.W; x++) {
       const key = x + ',' + y, lm = s.lms.find(q => q.x === x && q.y === y);
       const esS = s.S.x === x && s.S.y === y, malo = arr(e.malas).includes(key), paso = camino.indexOf(key);
       let cls = 'pn-tcell';
       if (lm) cls += ' lm'; if (esS) cls += ' start'; if (malo) cls += ' miss'; if (paso >= 0) cls += ' path';
-      const dentro = lm ? `<span aria-hidden="true">${lm.e}</span>` : paso >= 0 ? `<b>${paso + 1}</b>` : '';
+      const dentro = lm ? `<span class="material-symbols-rounded" aria-hidden="true">${lm.e}</span>` : paso >= 0 ? `<b>${paso + 1}</b>` : '';
       const etiqueta = lm ? t('lm.' + lm.id) : (x + 1) + ', ' + (y + 1);
       if (s.modo === 'pista' && puedes && !lm && !malo) mapa += `<button type="button" class="${cls}" data-pn="te_cell" data-i="${idx}" data-v="${key}" aria-label="${esc(etiqueta)}">${dentro}</button>`;
+      else if (s.modo === 'dibujar' && puedes) mapa += `<button type="button" class="${cls}" data-pn="te_drawcell" data-i="${idx}" data-v="${key}" aria-label="${esc(etiqueta)}">${dentro}</button>`;
       else mapa += `<span class="${cls}" aria-label="${esc(etiqueta)}">${dentro}</span>`;
     }
     mapa += '</div>';
     const pista = `<p class="pn-clue">${esc(textoPista(s))}</p>`;
     const brujula = `<div class="pn-compass" aria-hidden="true">${[['n', '↑'], ['s', '↓'], ['e', '→'], ['o', '←']].map(([d, a]) => `<span>${esc(t('dir.' + d + 'b'))} ${a}</span>`).join('')}</div>`;
     if (s.modo === 'pista') return cab('tesoro', t('tes.clue_q')) + pista + brujula + mapa + `<div class="pn-row">${btn('pn_show', idx, t('show'), 'ghost')}</div>` + msg(e);
-    const flechas = ['n', 's', 'e', 'o'].map(d => `<button type="button" class="pn-arrow" data-pn="te_add" data-i="${idx}" data-v="${d}" aria-label="${esc(t('dir.' + d + 'b'))}"${puedes ? '' : ' disabled'}>${ARROW[d]}</button>`).join('');
-    const ruta = arr(e.prog).map(d => `<span class="pn-chip">${ARROW[d]}</span>`).join('') || '<span class="pn-empty">—</span>';
-    return cab('tesoro', t('tes.prog_q')) + pista + brujula + mapa +
-      `<div class="pn-arrows" role="group">${flechas}</div>` +
+    const flechas = s.modo === 'programar' ? ['n', 's', 'e', 'o'].map(d => `<button type="button" class="pn-arrow" data-pn="te_add" data-i="${idx}" data-v="${d}" aria-label="${esc(t('dir.' + d + 'b'))}"${puedes ? '' : ' disabled'}>${ARROW[d]}</button>`).join('') : '';
+    const route = s.modo === 'dibujar' ? arr(e.trazo).map((cell, j) => `<span class="pn-chip">${j + 1}</span>`) : arr(e.prog).map(d => `<span class="pn-chip">${ARROW[d]}</span>`);
+    const ruta = route.join('') || '<span class="pn-empty">—</span>';
+    return cab('tesoro', t(s.modo === 'dibujar' ? 'tes.draw_q' : 'tes.prog_q')) + pista + brujula + mapa +
+      (flechas ? `<div class="pn-arrows" role="group">${flechas}</div>` : `<p class="pn-hint">${esc(t('tes.draw_hint'))}</p>`) +
       `<div class="pn-seq" aria-label="${esc(t('tes.route'))}">${ruta}</div>` +
       `<div class="pn-row">${btn('te_del', idx, t('tes.undo'), 'ghost')}${btn('te_run', idx, t('tes.run'), 'primary')}${btn('pn_show', idx, t('show'), 'ghost')}</div>` + msg(e);
+  }
+
+  function drawStep(s, e, key) {
+    const [x, y] = key.split(',').map(Number), route = arr(e.trazo), last = route.length ? route[route.length - 1].split(',').map(Number) : [s.S.x, s.S.y];
+    if (route.length && key === route[route.length - 1]) return;
+    if (route.length && key === (route.length > 1 ? route[route.length - 2] : s.S.x + ',' + s.S.y)) {
+      e.trazo = route.slice(0, -1); e.msg = null; return true;
+    }
+    if (Math.abs(x - last[0]) + Math.abs(y - last[1]) !== 1 || route.includes(key) || route.length >= 24) return;
+    e.trazo = route.concat([key]); e.msg = null; return true;
+  }
+
+  function trazoDirections(s, route) {
+    let from = s.S;
+    return arr(route).map(key => {
+      const [x, y] = key.split(',').map(Number), direction = x > from.x ? 'e' : x < from.x ? 'o' : y > from.y ? 's' : 'n';
+      from = { x, y };
+      return direction;
+    });
   }
 
   const TESORO_ACT = {
@@ -94,16 +115,47 @@
       e.malas = arr(e.malas).concat([v]); e.fallos = (e.fallos || 0) + 1;
       e.msg = { k: 'tes.miss', ok: false }; ref();
     },
+    te_drawcell(idx, v) {
+      const s = cur(idx), e = st(idx); if (!s || !e || e.respondida) return;
+      if (drawStep(s, e, v)) ref();
+    },
     te_add(idx, v) { const e = st(idx); if (!e || e.respondida || arr(e.prog).length >= 12) return; e.prog = arr(e.prog).concat([v]); e.msg = null; ref(); },
-    te_del(idx) { const e = st(idx); if (!e || e.respondida) return; e.prog = arr(e.prog).slice(0, -1); e.msg = null; ref(); },
+    te_del(idx) { const s = cur(idx), e = st(idx); if (!s || !e || e.respondida) return; if (s.modo === 'dibujar') e.trazo = arr(e.trazo).slice(0, -1); else e.prog = arr(e.prog).slice(0, -1); e.msg = null; ref(); },
     te_run(idx) {
       const s = cur(idx), e = st(idx); if (!s || !e || e.respondida) return;
-      const w = recorrer(s, arr(e.prog));
+      const w = recorrer(s, s.modo === 'dibujar' ? trazoDirections(s, e.trazo) : arr(e.prog));
       if (w.fuera) { e.fallos = (e.fallos || 0) + 1; e.msg = { k: 'tes.off', ok: false }; return ref(); }
       if (w.x === s.T.x && w.y === s.T.y) return resolver(idx, !(e.fallos > 0), s.sol);
       e.fallos = (e.fallos || 0) + 1; e.msg = { k: 'tes.no', ok: false }; ref();
     }
   };
+
+  let drawingIndex = null;
+  document.addEventListener('pointerdown', event => {
+    const cell = event.target.closest && event.target.closest('[data-pn="te_drawcell"]');
+    if (!cell) return;
+    const idx = Number(cell.dataset.i), s = cur(idx), e = st(idx);
+    if (!s || !e || e.respondida || s.modo !== 'dibujar') return;
+    e.drawing = true; drawingIndex = idx;
+    drawStep(s, e, cell.dataset.v);
+    cell.classList.toggle('path', arr(e.trazo).includes(cell.dataset.v));
+  });
+  document.addEventListener('pointerover', event => {
+    const cell = event.target.closest && event.target.closest('[data-pn="te_drawcell"]');
+    if (!cell) return;
+    const idx = Number(cell.dataset.i), s = cur(idx), e = st(idx);
+    if (!s || !e || !e.drawing || e.respondida || s.modo !== 'dibujar') return;
+    drawStep(s, e, cell.dataset.v);
+    cell.classList.toggle('path', arr(e.trazo).includes(cell.dataset.v));
+  });
+  const finishDrawing = () => {
+    if (drawingIndex === null) return;
+    const e = st(drawingIndex);
+    if (e) { e.drawing = false; ref(); }
+    drawingIndex = null;
+  };
+  document.addEventListener('pointerup', finishDrawing);
+  document.addEventListener('pointercancel', finishDrawing);
 
   /* =========================================================
      8 · SIMETRÍA CON DIBUJO: completar el reflejo (eje vertical u horizontal)

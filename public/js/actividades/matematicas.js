@@ -6,7 +6,7 @@
   const { t, eur, esc, arr, num, ri, pick, shuf, nivel, cant, pad2, dgs, numOpts, st, cur, ref, resolver, msg, btn, cab, opts } = C.h;
 
   /* =========================================================
-     1 · GEOMETRÍA: identificar, contar lados, clasificar
+     1 · GEOMETRÍA: identificar, contar lados, clasificar y medir
      ========================================================= */
   const KIND = { triangulo: 3, cuadrado: 4, rectangulo: 4, rombo: 4, circulo: 0, pentagono: 5, hexagono: 6 };
   const KINDS = Object.keys(KIND);
@@ -23,13 +23,24 @@
   const shapeSVG = (k, cls) => `<svg class="pn-shape ${cls || ''}" viewBox="0 0 200 200" aria-hidden="true">${k === 'circulo' ? '<circle cx="100" cy="100" r="80"/>' : '<polygon points="' + SHAPE_PTS[k] + '"/>'}</svg>`;
 
   function crearGeo(d) {
-    const MODOS = ['identificar', 'lados', 'clasificar'];
+    const MODOS = ['identificar', 'lados', 'clasificar', 'medir'];
     const pool = arr(d.figuras).filter(k => KIND[k] !== undefined);
     const K = pool.length >= 3 ? pool : KINDS;
-    const out = [];
-    for (let i = 0; i < cant(d, 5); i++) {
+    const out = [], customMeasures = arr(d.ejercicios).slice(0, 12);
+    const total = d.modo === 'medir' && customMeasures.length ? customMeasures.length : cant(d, 5);
+    for (let i = 0; i < total; i++) {
       const m = MODOS.includes(d.modo) ? d.modo : pick(MODOS);
-      if (m === 'identificar') {
+      if (m === 'medir') {
+        const exercise = customMeasures[i] || {};
+        const w = Math.max(2, Math.min(9, num(exercise.ancho, ri(2, 9))));
+        const h = Math.max(2, Math.min(9, num(exercise.alto, ri(2, 9))));
+        const medida = ['area', 'perimetro'].includes(exercise.medida) ? exercise.medida
+          : ['area', 'perimetro'].includes(d.medida) ? d.medida
+            : d.medida === 'mixto' ? (i % 2 ? 'perimetro' : 'area') : pick(['area', 'perimetro']);
+        const answer = medida === 'area' ? w * h : 2 * (w + h);
+        const options = numOpts(answer, [1, -1, 2, -2, w, -w, h, -h]);
+        out.push({ s: { modo: m, ancho: w, alto: h, medida, op: options.op, cor: options.cor, sol: String(answer) } });
+      } else if (m === 'identificar') {
         const k = pick(K), op = shuf([k].concat(shuf(KINDS.filter(x => x !== k)).slice(0, 3)));
         out.push({ s: { modo: m, kind: k, op, cor: op.indexOf(k), sol: t('k.' + k) } });
       } else if (m === 'lados') {
@@ -47,6 +58,15 @@
   }
 
   function rGeo(s, e, idx) {
+    if (s.modo === 'medir') {
+      const cell = 160 / Math.max(s.ancho, s.alto), x = 20, y = 20, w = s.ancho * cell, h = s.alto * cell;
+      let grid = '';
+      for (let c = 1; c < s.ancho; c++) grid += `<line x1="${x + c * cell}" y1="${y}" x2="${x + c * cell}" y2="${y + h}"/>`;
+      for (let r = 1; r < s.alto; r++) grid += `<line x1="${x}" y1="${y + r * cell}" x2="${x + w}" y2="${y + r * cell}"/>`;
+      const svg = `<svg class="pn-measure" viewBox="0 0 200 200" role="img" aria-label="${esc(t('geo.measureDiagram', { w: s.ancho, h: s.alto }))}"><rect x="${x}" y="${y}" width="${w}" height="${h}"/>${grid}<text x="${x + w / 2}" y="${y + h + 18}" text-anchor="middle">${s.ancho} cm</text><text x="${x + w + 6}" y="${y + h / 2}" text-anchor="middle" transform="rotate(90 ${x + w + 6} ${y + h / 2})">${s.alto} cm</text></svg>`;
+      return cab('geometria', t('geo.measure', { measure: t('geo.measure.' + s.medida) })) + `<div class="pn-stage">${svg}</div>` +
+        opts(idx, e, s.op, s.cor, 'pn_q', v => `${esc(v)} ${esc(t('geo.units.' + s.medida))}`, true) + msg(e);
+    }
     if (s.modo === 'clasificar') {
       const p = PROPS.find(x => x.id === s.prop);
       return cab('geometria', t('geo.classify', { p: t(p.k) })) + opts(idx, e, s.op, s.cor, 'pn_q', k => shapeSVG(k, 'mini'), true) + msg(e);
@@ -67,7 +87,7 @@
     return en ? '€' + (Number.isInteger(e) ? e : e.toFixed(2)) : (Number.isInteger(e) ? e : e.toFixed(2).replace('.', ',')) + ' €';
   };
   const lang = () => window.PJPNI.lang();
-  const mhtml = v => `<span class="pn-${isBill(v) ? 'bill' : 'coin'} v${v}">${esc(mlab(v))}</span>`;
+  const mhtml = v => `<svg class="pn-cash-icon pn-${isBill(v) ? 'bill' : 'coin'} v${v}" viewBox="0 0 ${isBill(v) ? '150 88' : '100 100'}" role="img" aria-label="${esc(mlab(v))}"><use href="/img/actividades/euros.svg#${isBill(v) ? 'bill' : 'coin'}-${v}"></use></svg>`;
   const DIN_DELTAS = [5, 10, 20, 50, 100, -5, -10, -20, -50, -100, 1, -1];
 
   function crearDinero(d) {
@@ -360,6 +380,7 @@
 
   function crearHoras(d) {
     const lv = nivel(d), MODS = ['leer', 'poner', 'sumar', 'duracion'], out = [];
+    const configReloj = ['digital', 'ambos'].includes(d.reloj) ? d.reloj : 'analogico';
     const pasos = lv === 1 ? [0, 30] : lv === 2 ? [0, 15, 30, 45] : [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
     const duraciones = lv === 1 ? [30, 60, 90, 120] : [15, 30, 45, 60, 75, 90, 120, 150];
     const ejercicios = arr(d.ejercicios).slice(0, 12);
@@ -372,18 +393,24 @@
       const ejercicio = ejercicios[i] || {};
       const m = MODS.includes(ejercicio.modo) ? ejercicio.modo : MODS.includes(d.modo) ? d.modo : MODS[i % MODS.length];
       if (m === 'leer') {
-        const tot = parseHora(ejercicio.hora) ?? ri(0, 11) * 60 + pick(pasos), reloj = tot % 720, set = new Set([reloj]);
-        shuf([reloj + 15, reloj - 15, reloj + 30, reloj - 30, reloj + 60, reloj - 60]).forEach(x => { if (set.size < 4) set.add(((x % 720) + 720) % 720); });
+        const tot = parseHora(ejercicio.hora) ?? ri(0, 11) * 60 + pick(pasos), analogMinutes = tot % 720;
+        const answerMinutes = configReloj !== 'analogico' ? tot : analogMinutes, set = new Set([answerMinutes]);
+        shuf([15, -15, 30, -30, 60, -60]).forEach(delta => {
+          const value = answerMinutes + delta, max = configReloj !== 'analogico' ? 1440 : 720;
+          if (set.size < 4 && value >= 0 && value < max) set.add(value);
+        });
         const op = shuf([...set]);
-        out.push({ s: { modo: m, h: Math.floor(reloj / 60), m: reloj % 60, op, cor: op.indexOf(reloj), sol: fmt12(reloj) } });
+        out.push({ s: { modo: m, h: Math.floor(analogMinutes / 60), m: analogMinutes % 60, digitalH: Math.floor(tot / 60), reloj: configReloj, op, cor: op.indexOf(answerMinutes), sol: configReloj !== 'analogico' ? fmt24(tot) : fmt12(analogMinutes) } });
       } else if (m === 'poner') {
         const tot = parseHora(ejercicio.hora) ?? ri(0, 11) * 60 + pick(pasos), reloj = tot % 720;
-        out.push({ s: { modo: m, h: Math.floor(reloj / 60), m: reloj % 60, label: fmt12(reloj), sol: fmt12(reloj) }, e: { h: 0, m: 0 } });
+        const digital = configReloj !== 'analogico';
+        const label = digital ? fmt24(tot) : fmt12(reloj);
+        out.push({ s: { modo: m, h: Math.floor(reloj / 60), m: reloj % 60, digitalH: Math.floor(tot / 60), reloj: configReloj, label, sol: label }, e: { h: 0, m: 0 } });
       } else if (m === 'sumar') {
         const start = parseHora(ejercicio.hora) ?? ri(8, 19) * 60 + pick(pasos), dur = Math.max(1, num(ejercicio.duracion, pick(duraciones))), fin = start + dur, set = new Set([fin]);
         shuf([fin + 15, fin - 15, fin + 30, fin - 30, fin + 60]).forEach(x => { if (set.size < 4 && x > 0) set.add(x); });
         const op = shuf([...set]);
-        out.push({ s: { modo: m, start, dur, op, cor: op.indexOf(fin), sol: fmt24(fin) } });
+        out.push({ s: { modo: m, start, dur, reloj: configReloj, op, cor: op.indexOf(fin), sol: fmt24(fin) } });
       } else {
         const explicitStart = parseHora(ejercicio.inicio), explicitEnd = parseHora(ejercicio.fin);
         const hasDuration = explicitStart !== null && explicitEnd !== null && explicitStart !== explicitEnd;
@@ -396,14 +423,21 @@
     return out;
   }
 
+  function clockView(h, m, format, digitalHour = h) {
+    const analog = format !== 'digital' ? clockSVG(h, m) : '';
+    const digitalTime = fmt24(digitalHour * 60 + m);
+    const digital = format !== 'analogico' ? `<div class="pn-digital-clock" aria-label="${esc(t('hora.digitalLabel', { h: digitalTime }))}">${esc(digitalTime)}</div>` : '';
+    return analog + digital;
+  }
+
   function rHoras(s, e, idx) {
-    if (s.modo === 'leer') return cab('horas', t('hora.read')) + `<div class="pn-clockwrap">${clockSVG(s.h, s.m)}</div>` + opts(idx, e, s.op, s.cor, 'pn_q', mn => esc(fmt12(mn)), true) + msg(e);
-    if (s.modo === 'sumar') return cab('horas', t('hora.end', { a: fmt24(s.start), d: durFmt(s.dur) })) + `<div class="pn-clockwrap">${clockSVG(Math.floor(s.start / 60) % 12, s.start % 60)}</div>` + opts(idx, e, s.op, s.cor, 'pn_q', mn => esc(fmt24(mn)), true) + msg(e);
+    if (s.modo === 'leer') return cab('horas', t('hora.read')) + `<div class="pn-clockwrap">${clockView(s.h, s.m, s.reloj, s.digitalH)}</div>` + opts(idx, e, s.op, s.cor, 'pn_q', mn => esc(s.reloj === 'analogico' ? fmt12(mn) : fmt24(mn)), true) + msg(e);
+    if (s.modo === 'sumar') return cab('horas', t('hora.end', { a: fmt24(s.start), d: durFmt(s.dur) })) + `<div class="pn-clockwrap">${clockView(Math.floor(s.start / 60) % 12, s.start % 60, s.reloj, Math.floor(s.start / 60) % 24)}</div>` + opts(idx, e, s.op, s.cor, 'pn_q', mn => esc(fmt24(mn)), true) + msg(e);
     if (s.modo === 'duracion') return cab('horas', t('hora.dur', { a: fmt24(s.start), b: fmt24(s.end) })) + opts(idx, e, s.op, s.cor, 'pn_q', dm => esc(durFmt(dm)), true) + msg(e);
     const h12 = e.h || 12;
     return cab('horas', t('hora.set', { h: s.label })) +
-      `<div class="pn-clockwrap">${clockSVG(e.h, e.m)}</div>` +
-      `<div class="pn-digital" aria-live="polite">${h12}:${pad2(e.m)}</div>` +
+      `<div class="pn-clockwrap">${clockView(e.h, e.m, s.reloj, s.reloj === 'analogico' ? h12 : e.h)}</div>` +
+      (s.reloj === 'analogico' ? `<div class="pn-digital" aria-live="polite">${h12}:${pad2(e.m)}</div>` : '') +
       `<div class="pn-tadj">` +
       `<div class="pn-adj"><span>${esc(t('hora.hour'))}</span><button type="button" class="pn-btn sm" data-pn="hr_adj" data-i="${idx}" data-v="h-">−</button><button type="button" class="pn-btn sm" data-pn="hr_adj" data-i="${idx}" data-v="h+">+</button></div>` +
       `<div class="pn-adj"><span>${esc(t('hora.min'))}</span><button type="button" class="pn-btn sm" data-pn="hr_adj" data-i="${idx}" data-v="m-">−5</button><button type="button" class="pn-btn sm" data-pn="hr_adj" data-i="${idx}" data-v="m+">+5</button></div>` +
@@ -413,28 +447,61 @@
 
   const HORAS_ACT = {
     hr_adj(idx, v) {
-      const e = st(idx); if (!e || e.respondida) return;
-      if (v === 'h+') e.h = (e.h + 1) % 12;
-      else if (v === 'h-') e.h = (e.h + 11) % 12;
+      const s = cur(idx), e = st(idx); if (!s || !e || e.respondida) return;
+      const hours = s.reloj !== 'analogico' ? 24 : 12;
+      if (v === 'h+') e.h = (e.h + 1) % hours;
+      else if (v === 'h-') e.h = (e.h + hours - 1) % hours;
       else if (v === 'm+') e.m = (e.m + 5) % 60;
       else e.m = (e.m + 55) % 60;
       e.msg = null; ref();
     },
     hr_chk(idx) {
       const s = cur(idx), e = st(idx); if (!s || !e || e.respondida) return;
-      if (e.h === s.h && e.m === s.m) return resolver(idx, true, s.sol);
+      if (e.h === (s.reloj === 'analogico' ? s.h : s.digitalH) && e.m === s.m) return resolver(idx, true, s.sol);
       e.msg = { k: 'hora.wrong', ok: false }; ref();
     }
   };
 
+  function crearDados(d) {
+    const out = [], custom = arr(d.ejercicios), cantidad = Math.min(12, Math.max(1, custom.length || cant(d, 5)));
+    const ops = ['suma', 'resta', 'multiplicacion'];
+    for (let i = 0; i < cantidad; i++) {
+      const item = custom[i] || {};
+      const operation = ops.includes(item.operacion) ? item.operacion : ops.includes(d.operacion) ? d.operacion : 'suma';
+      const requestedFaces = arr(item.caras);
+      const sides = operation === 'resta' ? 2 : requestedFaces.length
+        ? Math.min(4, Math.max(2, requestedFaces.length))
+        : Math.min(4, Math.max(2, Number(d.dados) || 2));
+      let faces = requestedFaces.slice(0, sides).map(v => Math.max(1, Math.min(6, Math.floor(Number(v) || 1))));
+      while (faces.length < sides) faces.push(ri(1, 6));
+      if (operation === 'resta') faces.sort((a, b) => b - a);
+      const answer = operation === 'resta' ? faces[0] - faces[1]
+        : operation === 'multiplicacion' ? faces.reduce((a, b) => a * b, 1)
+          : faces.reduce((a, b) => a + b, 0);
+      const options = numOpts(answer, [1, -1, 2, -2, 3, -3, 5, -5]);
+      out.push({ s: { operacion: operation, caras: faces, op: options.op, cor: options.cor, sol: String(answer) } });
+    }
+    return out;
+  }
+
+  const PIPS = { 1: [[50, 50]], 2: [[28, 28], [72, 72]], 3: [[28, 28], [50, 50], [72, 72]], 4: [[28, 28], [72, 28], [28, 72], [72, 72]], 5: [[28, 28], [72, 28], [50, 50], [28, 72], [72, 72]], 6: [[28, 26], [72, 26], [28, 50], [72, 50], [28, 74], [72, 74]] };
+  const dadoSVG = n => `<svg class="pn-die" viewBox="0 0 100 100" role="img" aria-label="${esc(t('dice.face', { n }))}"><rect x="4" y="4" width="92" height="92" rx="18"/>${PIPS[n].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="7"/>`).join('')}</svg>`;
+  const simboloOp = op => op === 'suma' ? '+' : op === 'resta' ? '−' : '×';
+  function rDados(s, e, idx) {
+    const expression = s.caras.join(` ${simboloOp(s.operacion)} `) + ' = ?';
+    return cab('dados', t('dice.question')) + `<div class="pn-dice-area" role="group" aria-label="${esc(expression)}">${s.caras.map(dadoSVG).join('')}</div><p class="pn-dice-expression">${esc(expression)}</p>` +
+      opts(idx, e, s.op, s.cor, 'pn_q', v => esc(v), true) + msg(e);
+  }
+
   /* ---------- textos para lectura en voz alta ---------- */
   const TXT_A = {
-    geometria: s => (s.modo === 'clasificar' ? t('geo.classify', { p: t(PROPS.find(p => p.id === s.prop).k) }) : s.modo === 'lados' ? t('geo.sides') : t('geo.identify')),
+    geometria: s => (s.modo === 'medir' ? t('geo.measure', { measure: t('geo.measure.' + s.medida) }) : s.modo === 'clasificar' ? t('geo.classify', { p: t(PROPS.find(p => p.id === s.prop).k) }) : s.modo === 'lados' ? t('geo.sides') : t('geo.identify')),
     dinero: s => (s.modo === 'pagar' ? t('din.pay', { p: eur(s.price) }) : s.modo === 'cambio' ? t('din.change', { paid: eur(s.paid), p: eur(s.price) }) : t('din.count')),
     vertical: () => t('vert.q'),
     abaco: s => (s.modo === 'leer' ? t('aba.read') : t('aba.set', { n: s.n })),
     calculo_mental: s => s.txt,
-    horas: s => (s.modo === 'leer' ? t('hora.read') : s.modo === 'poner' ? t('hora.set', { h: s.label }) : s.modo === 'sumar' ? t('hora.end', { a: fmt24(s.start), d: durFmt(s.dur) }) : t('hora.dur', { a: fmt24(s.start), b: fmt24(s.end) }))
+    horas: s => (s.modo === 'leer' ? t('hora.read') : s.modo === 'poner' ? t('hora.set', { h: s.label }) : s.modo === 'sumar' ? t('hora.end', { a: fmt24(s.start), d: durFmt(s.dur) }) : t('hora.dur', { a: fmt24(s.start), b: fmt24(s.end) })),
+    dados: s => t('dice.question') + ': ' + s.caras.join(` ${simboloOp(s.operacion)} `)
   };
 
   /* ---------- registro ---------- */
@@ -455,4 +522,5 @@
   C.reg('abaco', { crear: crearAbaco, render: rAbaco, texto: s => TXT_A.abaco(s), act: ABACO_ACT });
   C.reg('calculo_mental', { crear: crearCalc, render: rCalc, texto: s => TXT_A.calculo_mental(s) });
   C.reg('horas', { crear: crearHoras, render: rHoras, texto: s => TXT_A.horas(s), act: HORAS_ACT });
+  C.reg('dados', { crear: crearDados, render: rDados, texto: s => TXT_A.dados(s) });
 })();

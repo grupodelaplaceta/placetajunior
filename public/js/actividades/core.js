@@ -1,5 +1,5 @@
 /* Placeta Junior · Primaria Nueva · núcleo (v1.0.0)
-   Contrato del motor (igual que primaria-juegos.js):
+   Contrato compartido por los motores de actividades de Primaria:
      crear(bloque) → [{s, e}]   ·   render(s, e) → HTML   ·   init()   ·   texto(s)
    Usa los globales del reproductor: kpEstado, kpScore, pantallas, pantallaIdx,
    renderPantalla(), mostrarFeedback(ok, texto, siguiente), pantallaNext().
@@ -50,8 +50,8 @@
   }
 
   /* ---------- piezas de interfaz ---------- */
-  const ICONO = { geometria: 'category', dinero: 'euro', vertical: 'calculate', abaco: 'tune', calculo_mental: 'psychology', horas: 'schedule', tesoro: 'explore', simetria_dibujo: 'flip', patron_visual: 'pattern', batalla: 'sailing', tangram: 'extension' };
-  const TITULO = { geometria: 'geo.title', dinero: 'din.title', vertical: 'vert.title', abaco: 'aba.title', calculo_mental: 'cm.title', horas: 'hora.title', tesoro: 'tes.title', simetria_dibujo: 'sim.title', patron_visual: 'pat.title', batalla: 'bat.title', tangram: 'tan.title' };
+  const ICONO = { geometria: 'category', dinero: 'euro', vertical: 'calculate', abaco: 'tune', calculo_mental: 'psychology', horas: 'schedule', dados: 'casino', tesoro: 'explore', simetria_dibujo: 'flip', patron_visual: 'pattern', batalla: 'sailing', tangram: 'extension' };
+  const TITULO = { geometria: 'geo.title', dinero: 'din.title', vertical: 'vert.title', abaco: 'aba.title', calculo_mental: 'cm.title', horas: 'hora.title', dados: 'dice.title', tesoro: 'tes.title', simetria_dibujo: 'sim.title', patron_visual: 'pat.title', batalla: 'bat.title', tangram: 'tan.title' };
 
   const cab = (k, pregunta) => `<div class="kp-qcard pn-cab"><span class="kp-orb" aria-hidden="true"></span><div class="kp-qt"><span class="material-symbols-rounded" aria-hidden="true">${ICONO[k]}</span> ${esc(t(TITULO[k]))}</div><div class="kp-q">${esc(pregunta)}</div></div>`;
 
@@ -153,7 +153,7 @@
     }
   };
 
-  // Lo usan los ficheros de tipos (pn-tipos-a.js, pn-tipos-b.js)
+  // Lo usan los motores de matemáticas y retos.
   window.PJPNCore = {
     h: { t, eur, lang, esc, arr, num, ri, pick, shuf, D, nivel, cant, pad2, dgs, numOpts, st, cur, ref, resolver, msg, btn, cab, opts },
     reg(tipo, def) {

@@ -26,6 +26,20 @@ test('DevAI incluye Pensamiento computacional y sus nombres regionales en traduc
   assert.match(html, /<option>Pensamiento computacional<\/option>/);
 });
 
+test('DevAI ofrece plantillas para las actividades matemáticas nuevas', () => {
+  for (const tipo of ['geometria', 'dinero', 'vertical', 'abaco', 'calculo_mental', 'horas', 'dados', 'tesoro', 'simetria_dibujo', 'patron_visual', 'batalla', 'tangram']) {
+    assert.match(html, new RegExp(`plantillaPrim\\('${tipo}'\\)`), `${tipo} debe tener una plantilla`);
+  }
+  assert.match(html, /preferencia de reloj "analogico", "digital" o "ambos"/);
+  assert.match(html, /"dibujar"/);
+});
+
+test('los botones de DevAI no usan emojis como iconos', () => {
+  const buttons = [...html.matchAll(/<button\b[^>]*>([\s\S]*?)<\/button>/g)].map(([, label]) => label);
+  assert.ok(buttons.length > 0);
+  for (const label of buttons) assert.doesNotMatch(label, /\p{Extended_Pictographic}/u);
+});
+
 test('los scripts en línea de DevAI tienen sintaxis válida', () => {
   const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
   assert.ok(scripts.length > 0);

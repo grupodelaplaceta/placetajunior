@@ -138,7 +138,7 @@
       });
     } else if (k === 'patrones') {
       let ps = arr(d.secuencias).filter(s => arr(s.serie).length >= 3 && arr(s.opciones).length >= 2);
-      if (!ps.length) ps = [{ serie: ['2', '4', '6', '?', '10'], opciones: ['7', '8', '9'], correcta: 1 }, { serie: ['🔴', '🔵', '🔴', '🔵', '?'], opciones: ['🔵', '🔴', '🟢'], correcta: 1 }];
+      if (!ps.length) ps = [{ serie: ['2', '4', '6', '?', '10'], opciones: ['7', '8', '9'], correcta: 1 }, { serie: ['●', '◆', '●', '◆', '?'], opciones: ['◆', '●', '▲'], correcta: 1 }];
       ps.forEach((p, i) => P(i, ps.length, { sel: null, respondida: false, acierto: null, orden: shuf(p.opciones.map((_, j) => j)) }, { p }));
     } else if (k === 'simetria') {
       let ej = arr(d.ejercicios);

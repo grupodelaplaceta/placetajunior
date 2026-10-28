@@ -8,18 +8,19 @@
     ['texto', 'Texto explicativo', '▤', 'Básicos'], ['test', 'Preguntas tipo test', '?', 'Básicos'],
     ['relacionar', 'Relacionar parejas', '↔', 'Básicos'], ['completar', 'Completar frases', '✎', 'Básicos'],
     ['ordenar', 'Ordenar pasos', '≡', 'Básicos'], ['sopa_letras', 'Sopa de letras', '▦', 'Básicos'],
-    ['reloj', 'El reloj', '🕒', 'Matemáticas'], ['recta_numerica', 'Recta numérica', '📏', 'Matemáticas'],
-    ['grafico', 'Lee el gráfico', '📊', 'Matemáticas'], ['balanza', 'Balanza', '⚖️', 'Matemáticas'],
-    ['ahorcado', 'Adivina la palabra', '🔤', 'Lengua'], ['anagrama', 'Ordena las letras', '🔀', 'Lengua'],
-    ['patrones', 'Continúa la serie', '🔁', 'Lógica y atención'], ['simetria', 'Completa el reflejo', '🪞', 'Lógica y atención'],
-    ['silabas', 'Separa en sílabas', '✂️', 'Lengua'], ['vf_rapido', 'Verdadero o falso', '⚡', 'Lógica y atención'],
-    ['ruleta_preguntas', 'Ruleta de preguntas', '🎡', 'Lógica y atención'],
-    ['geometria', 'Explora las formas', '🔷', 'Matemáticas'], ['dinero', 'Monedas y cambio', '🪙', 'Matemáticas'],
-    ['vertical', 'Suma y resta en vertical', '➕', 'Matemáticas'], ['abaco', 'Ábaco', '🧮', 'Matemáticas'],
-    ['calculo_mental', 'Cálculo mental', '⚡', 'Matemáticas'], ['horas', 'Lee y calcula horas', '🕰️', 'Matemáticas'],
-    ['tesoro', 'Búsqueda del tesoro', '🗺️', 'Lógica y atención'], ['simetria_dibujo', 'Dibuja la simetría', '🪞', 'Lógica y atención'],
-    ['patron_visual', 'Patrones visuales', '🟣', 'Lógica y atención'], ['batalla', 'Batalla matemática', '🚢', 'Matemáticas'],
-    ['tangram', 'Tangram', '🔺', 'Matemáticas']
+    ['reloj', 'El reloj', 'schedule', 'Matemáticas'], ['recta_numerica', 'Recta numérica', 'straighten', 'Matemáticas'],
+    ['grafico', 'Lee el gráfico', 'bar_chart', 'Matemáticas'], ['balanza', 'Balanza', 'balance', 'Matemáticas'],
+    ['ahorcado', 'Adivina la palabra', 'text_fields', 'Lengua'], ['anagrama', 'Ordena las letras', 'shuffle', 'Lengua'],
+    ['patrones', 'Continúa la serie', 'repeat', 'Lógica y atención'], ['simetria', 'Completa el reflejo', 'flip', 'Lógica y atención'],
+    ['silabas', 'Separa en sílabas', 'content_cut', 'Lengua'], ['vf_rapido', 'Verdadero o falso', 'bolt', 'Lógica y atención'],
+    ['ruleta_preguntas', 'Ruleta de preguntas', 'casino', 'Lógica y atención'],
+    ['geometria', 'Explora las formas', 'category', 'Matemáticas'], ['dinero', 'Monedas y cambio', 'euro', 'Matemáticas'],
+    ['vertical', 'Suma y resta en vertical', 'calculate', 'Matemáticas'], ['abaco', 'Ábaco', 'tune', 'Matemáticas'],
+    ['calculo_mental', 'Cálculo mental', 'psychology', 'Matemáticas'], ['horas', 'Lee y calcula horas', 'schedule', 'Matemáticas'],
+    ['dados', 'Retos con dados', 'casino', 'Matemáticas'],
+    ['tesoro', 'Búsqueda del tesoro', 'explore', 'Lógica y atención'], ['simetria_dibujo', 'Dibuja la simetría', 'flip', 'Lógica y atención'],
+    ['patron_visual', 'Patrones visuales', 'pattern', 'Lógica y atención'], ['batalla', 'Batalla matemática', 'sailing', 'Matemáticas'],
+    ['tangram', 'Tangram', 'extension', 'Matemáticas']
   ];
   const PRIMARY_DEFAULTS = {
     reloj: { modo: 'poner', ejercicios: [{ hora: '03:30' }, { hora: '09:00' }] },
@@ -33,12 +34,13 @@
     silabas: { palabras: [{ palabra: 'MARIPOSA', silabas: ['MA', 'RI', 'PO', 'SA'] }] },
     vf_rapido: { segundos: 12, afirmaciones: [{ texto: 'El Sol es una estrella.', verdadero: true, explicacion: 'Es la estrella más cercana a la Tierra.' }] },
     ruleta_preguntas: { preguntas: [{ categoria: 'Ciencias', pregunta: '¿Cuántos planetas tiene el sistema solar?', opciones: ['7', '8', '9'], correcta: 1 }, { categoria: 'Lengua', pregunta: '¿Cuál es un verbo?', opciones: ['correr', 'mesa', 'azul'], correcta: 0 }] },
-    geometria: { modo: 'identificar', cantidad: 5, nivel: 1 },
+    geometria: { modo: 'identificar', medida: 'mixto', cantidad: 5, nivel: 1 },
     dinero: { modo: 'contar', cantidad: 4, nivel: 1 },
     vertical: { operacion: '+', cantidad: 4, nivel: 1, ejercicios: [] },
     abaco: { modo: 'poner', cantidad: 4, columnas: 3 },
     calculo_mental: { cantidad: 5, nivel: 1, ejercicios: [] },
-    horas: { modo: 'leer', cantidad: 4, nivel: 1, ejercicios: [] },
+    horas: { modo: 'leer', reloj: 'analogico', cantidad: 4, nivel: 1, ejercicios: [] },
+    dados: { operacion: 'suma', dados: 2, cantidad: 5, ejercicios: [] },
     tesoro: { modo: 'pista', cantidad: 3, nivel: 1 },
     simetria_dibujo: { eje: 'v', cantidad: 3, nivel: 1 },
     patron_visual: { modo: 'formas', cantidad: 4, nivel: 1 },
@@ -57,13 +59,14 @@
     silabas: 'Cada palabra contiene una lista de sílabas en el orden correcto.',
     vf_rapido: 'Escribe afirmaciones y marca en cada una si es verdadera; añade una explicación.',
     ruleta_preguntas: 'Añade categoría, pregunta, opciones y el índice de la respuesta correcta (empieza en 0).',
-    geometria: 'Elige el reto y la dificultad. Puedes limitar las figuras desde las opciones avanzadas.',
+    geometria: 'Elige identificar, clasificar, contar lados o medir el área y el perímetro. También puedes definir las dimensiones.',
     dinero: 'Selecciona si practicar monedas, pagos o el cálculo del cambio, y ajusta la dificultad.',
     vertical: 'Elige la operación y la dificultad. En las opciones avanzadas puedes definir cada operación.',
     abaco: 'Elige si el alumnado representa o lee el número y cuántas columnas tendrá el ábaco.',
     calculo_mental: 'Ajusta el número de preguntas y el nivel. Puedes escribir ejercicios propios en las opciones avanzadas.',
-    horas: 'Cada hora introducida genera un reto. Usa HH:MM de 00:00 a 23:59; 16:30 se mostrará como 4:30 en un reloj de 12 horas.',
-    tesoro: 'Elige si el alumnado sigue una pista o programa el recorrido, y ajusta el nivel.',
+    horas: 'Cada hora introducida genera un reto. Usa HH:MM de 00:00 a 23:59 y elige reloj analógico, digital o ambos.',
+    dados: 'Elige suma, resta o multiplicación y el número de dados. Puedes definir las caras y la operación de cada reto.',
+    tesoro: 'Elige si el alumnado sigue una pista, programa con flechas o dibuja el recorrido por casillas.',
     simetria_dibujo: 'Elige el eje de simetría y cuántos dibujos crear.',
     patron_visual: 'Elige practicar patrones con figuras o con números.',
     batalla: 'Ajusta la dificultad de las operaciones y del tablero.',
@@ -239,7 +242,7 @@
       const title = draft.title?.trim() || 'Actividad sin título';
       const updated = draft.updatedAt ? new Date(draft.updatedAt).toLocaleDateString('es-ES') : '';
       return `<article class="saved-activity${draft.id === state.currentDraftId ? ' is-current' : ''}"><span class="saved-activity-art" aria-hidden="true">✦</span><div class="saved-activity-copy"><strong>${esc(title)}</strong><small>${esc(draft.category || 'General')} · ${draft.blocks.length} bloques${updated ? ` · Guardada ${esc(updated)}` : ''}</small></div><button type="button" class="saved-open" data-open-draft="${esc(draft.id)}">Abrir</button><button type="button" class="saved-delete" data-delete-draft="${esc(draft.id)}" aria-label="Eliminar ${esc(title)}">×</button></article>`;
-    }).join('') : '<div class="saved-empty"><span aria-hidden="true">🪁</span><strong>Tu espacio está listo</strong><p>Aquí aparecerán las actividades que guardes para este centro.</p><button type="button" class="new-activity-button" data-create-first>＋ Crear mi primera actividad</button></div>';
+    }).join('') : '<div class="saved-empty"><span class="material-symbols-rounded" aria-hidden="true">auto_awesome</span><strong>Tu espacio está listo</strong><p>Aquí aparecerán las actividades que guardes para este centro.</p><button type="button" class="new-activity-button" data-create-first>＋ Crear mi primera actividad</button></div>';
   }
 
   function setupManagedCenters() {
@@ -335,16 +338,16 @@
     if (block.tipo === 'ruleta_preguntas') return `${(data.preguntas || []).length} pregunta(s)`;
     if (['vertical', 'calculo_mental'].includes(block.tipo)) return `${(data.ejercicios || []).length || data.cantidad || 0} ejercicio(s)`;
     if (block.tipo === 'horas') return `${(data.ejercicios || []).length || data.cantidad || 0} reto(s)`;
-    if (['geometria', 'dinero', 'abaco', 'tesoro', 'simetria_dibujo', 'patron_visual', 'tangram'].includes(block.tipo)) return `${data.cantidad || 0} reto(s)`;
+    if (['geometria', 'dinero', 'abaco', 'dados', 'tesoro', 'simetria_dibujo', 'patron_visual', 'tangram'].includes(block.tipo)) return `${data.cantidad || 0} reto(s)`;
     if (block.tipo === 'batalla') return `Nivel ${data.nivel || 1}`;
     return '';
   }
 
   function paintTemplates(active) {
-    const visuals = { quiz: ['🎯', 'template-quiz'], parejas: ['🧩', 'template-pairs'], lectura: ['📚', 'template-reading'], vocabulario: ['🌿', 'template-vocabulary'] };
+    const visuals = { quiz: ['quiz', 'template-quiz'], parejas: ['extension', 'template-pairs'], lectura: ['auto_stories', 'template-reading'], vocabulario: ['park', 'template-vocabulary'] };
     $('templates').innerHTML = TEMPLATES.map((item, index) => {
       const [icon, style] = visuals[item.id];
-      return `<button type="button" class="template ${style}" data-template="${item.id}" aria-pressed="${active === item.id}"><span class="template-art" aria-hidden="true">${icon}</span><span class="template-copy"><span class="template-index">PLANTILLA 0${index + 1}</span><strong>${esc(item.title)}</strong><small>${esc(item.description)}</small></span><span class="template-arrow" aria-hidden="true">→</span></button>`;
+      return `<button type="button" class="template ${style}" data-template="${item.id}" aria-pressed="${active === item.id}"><span class="template-art material-symbols-rounded" aria-hidden="true">${icon}</span><span class="template-copy"><span class="template-index">PLANTILLA 0${index + 1}</span><strong>${esc(item.title)}</strong><small>${esc(item.description)}</small></span><span class="template-arrow" aria-hidden="true">→</span></button>`;
     }).join('');
   }
 
@@ -392,12 +395,21 @@
   }
 
   function primaryField(label, key, value, mode = 'text', hint = '', choices = null) {
-    const textarea = ['lines', 'json', 'times', 'hourTasks', 'words', 'wordHints', 'syllables', 'truth', 'chartData'].includes(mode);
+    const textarea = ['lines', 'json', 'times', 'hourTasks', 'measureTasks', 'diceTasks', 'balanceTasks', 'sequenceTasks', 'symmetryTasks', 'rouletteTasks', 'operationTasks', 'mentalTasks', 'chartQuestions', 'words', 'wordHints', 'syllables', 'truth', 'chartData'].includes(mode);
     let shown = value ?? '';
     if (mode === 'json') shown = JSON.stringify(value ?? [], null, 2);
     else if (mode === 'lines') shown = Array.isArray(value) ? value.join('\n') : '';
     else if (mode === 'times') shown = Array.isArray(value) ? value.map((item) => item.hora || '').join('\n') : '';
     else if (mode === 'hourTasks') shown = Array.isArray(value) ? value.map((item) => item.inicio && item.fin ? `${item.inicio}|${item.fin}` : item.duracion != null ? `${item.hora || ''}|${item.duracion}` : item.hora || '').join('\n') : '';
+    else if (mode === 'measureTasks') shown = Array.isArray(value) ? value.map((item) => `${item.ancho}|${item.alto}|${item.medida || ''}`).join('\n') : '';
+    else if (mode === 'diceTasks') shown = Array.isArray(value) ? value.map((item) => `${(item.caras || []).join(',')}|${item.operacion || ''}`).join('\n') : '';
+    else if (mode === 'balanceTasks') shown = Array.isArray(value) ? value.map((item) => `${(item.izq || []).join(',')}|${(item.der || []).join(',')}|${(item.pesas || []).join(',')}|${item.ecuacion || ''}`).join('\n') : '';
+    else if (mode === 'sequenceTasks') shown = Array.isArray(value) ? value.map((item) => `${(item.serie || []).join(',')}|${(item.opciones || []).join(',')}|${item.correcta ?? 0}`).join('\n') : '';
+    else if (mode === 'symmetryTasks') shown = Array.isArray(value) ? value.map((item) => `${item.ancho}|${item.alto}|${(item.celdas || []).map((cell) => cell.join(',')).join(';')}`).join('\n') : '';
+    else if (mode === 'rouletteTasks') shown = Array.isArray(value) ? value.map((item) => `${item.categoria || ''}|${item.pregunta || ''}|${(item.opciones || []).join(',')}|${item.correcta ?? 0}`).join('\n') : '';
+    else if (mode === 'operationTasks') shown = Array.isArray(value) ? value.map((item) => `${item.a}|${item.b}|${item.op || '+'}`).join('\n') : '';
+    else if (mode === 'mentalTasks') shown = Array.isArray(value) ? value.map((item) => `${item.enunciado || ''}|${item.respuesta ?? ''}`).join('\n') : '';
+    else if (mode === 'chartQuestions') shown = Array.isArray(value) ? value.map((item) => `${item.pregunta || ''}|${(item.opciones || []).join(',')}|${item.correcta ?? 0}`).join('\n') : '';
     else if (mode === 'words') shown = Array.isArray(value) ? value.join('\n') : '';
     else if (mode === 'wordHints') shown = Array.isArray(value) ? value.map((item) => `${item.palabra || ''}|${item.pista || ''}`).join('\n') : '';
     else if (mode === 'syllables') shown = Array.isArray(value) ? value.map((item) => `${item.palabra || ''}|${(item.silabas || []).join('-')}`).join('\n') : '';
@@ -410,8 +422,8 @@
       const options = choices || (key === 'modo' ? [['poner', 'Poner la hora'], ['leer', 'Leer la hora']] : [['barras', 'Barras'], ['pictograma', 'Pictograma']]);
       control = `<select id="${id}" data-primary-data="${key}" data-mode="${mode}">${options.map(([option, title]) => `<option value="${option}" ${shown === option ? 'selected' : ''}>${title}</option>`).join('')}</select>`;
     } else {
-      const numeric = ['number', 'level', 'quantity', 'columns'].includes(mode);
-      const limits = { level: 'min="1" max="3" step="1"', quantity: 'min="1" max="12" step="1"', columns: 'min="2" max="4" step="1"' };
+      const numeric = ['number', 'level', 'quantity', 'columns', 'diceCount'].includes(mode);
+      const limits = { level: 'min="1" max="3" step="1"', quantity: 'min="1" max="12" step="1"', columns: 'min="2" max="4" step="1"', diceCount: 'min="2" max="4" step="1"' };
       control = `<input id="${id}" data-primary-data="${key}" data-mode="${mode}" ${numeric ? `type="number" ${limits[mode] || ''}` : ''} value="${esc(shown)}" />`;
     }
     return `<label class="field primary-field" for="${id}"><span>${esc(label)}</span>${control}${hint ? `<small>${esc(hint)}</small>` : ''}</label>`;
@@ -428,35 +440,42 @@
     if (block.tipo === 'grafico') return primaryField('Título del gráfico', 'titulo_grafico', data.titulo_grafico) +
       primaryField('Unidad', 'unidad', data.unidad, 'text', 'Ejemplo: niños, libros, puntos.') +
       primaryField('Tipo de gráfico', 'tipo_grafico', data.tipo_grafico || 'barras', 'select') +
-      primaryField('Datos (etiqueta|valor, una línea por dato)', 'datos', data.datos, 'chartData', 'Ejemplo: Perro|8');
-    if (block.tipo === 'balanza') return primaryField('Ejercicios de balanza (JSON)', 'ejercicios', data.ejercicios, 'json', 'Cada ejercicio define izq, der y pesas. Mantén los nombres tal como aparecen.');
+      primaryField('Datos (etiqueta|valor, una línea por dato)', 'datos', data.datos, 'chartData', 'Ejemplo: Perro|8') +
+      primaryField('Preguntas (pregunta|opciones|índice correcto)', 'preguntas', data.preguntas || [], 'chartQuestions', 'Ejemplo: ¿Qué valor es mayor?|Perro,Gato,Pez|0');
+    if (block.tipo === 'balanza') return primaryField('Ejercicios (plato izquierdo|plato derecho|pesas|ecuación)', 'ejercicios', data.ejercicios, 'balanceTasks', 'Usa números separados por comas. Ejemplo: 5,3|2|1,2,3,5|2 + ? = 8.');
     if (block.tipo === 'ahorcado') return primaryField('Intentos disponibles', 'intentos', data.intentos, 'number') +
       primaryField('Palabras y pistas (palabra|pista)', 'palabras', data.palabras, 'wordHints', 'Ejemplo: MARIPOSA|Insecto con alas de colores.');
     if (block.tipo === 'anagrama') return primaryField('Palabras y pistas (palabra|pista)', 'palabras', data.palabras, 'wordHints', 'Ejemplo: ESCUELA|Donde aprendes.');
-    if (block.tipo === 'patrones') return primaryField('Series (JSON)', 'secuencias', data.secuencias, 'json', 'Cada serie contiene serie, opciones y correcta (índice desde 0). Usa ? para el hueco.');
-    if (block.tipo === 'simetria') return primaryField('Dibujos de la cuadrícula (JSON)', 'ejercicios', data.ejercicios, 'json', 'Cada dibujo contiene ancho, alto y celdas [x, y] de la mitad izquierda.');
+    if (block.tipo === 'patrones') return primaryField('Series (serie|opciones|índice correcto)', 'secuencias', data.secuencias, 'sequenceTasks', 'Separa elementos y opciones con comas, usa ? para el hueco e índice desde 0.');
+    if (block.tipo === 'simetria') return primaryField('Dibujos (ancho|alto|celdas x,y)', 'ejercicios', data.ejercicios, 'symmetryTasks', 'Ejemplo: 3|4|0,0;1,1;2,2. Las coordenadas empiezan en 0.');
     if (block.tipo === 'silabas') return primaryField('Palabras separadas en sílabas (palabra|sílabas)', 'palabras', data.palabras, 'syllables', 'Ejemplo: MARIPOSA|MA-RI-PO-SA.');
     if (block.tipo === 'vf_rapido') return primaryField('Duración en segundos', 'segundos', data.segundos, 'number') +
       primaryField('Afirmaciones (texto|verdadero/falso|explicación)', 'afirmaciones', data.afirmaciones, 'truth', 'Ejemplo: El Sol es una estrella.|verdadero|Es la estrella más cercana a la Tierra.');
-    if (block.tipo === 'ruleta_preguntas') return primaryField('Preguntas de la ruleta (JSON)', 'preguntas', data.preguntas, 'json', 'Cada pregunta tiene categoria, pregunta, opciones y correcta (índice desde 0).');
+    if (block.tipo === 'ruleta_preguntas') return primaryField('Preguntas (categoría|enunciado|opciones|índice correcto)', 'preguntas', data.preguntas, 'rouletteTasks', 'Separa las opciones con comas. El índice de la respuesta correcta empieza en 0.');
     const count = (label = 'Número de retos') => primaryField(label, 'cantidad', data.cantidad, 'quantity');
     const level = () => primaryField('Nivel de dificultad', 'nivel', data.nivel, 'level', '1: inicial · 2: intermedio · 3: avanzado.');
-    if (block.tipo === 'geometria') return primaryField('Tipo de reto', 'modo', data.modo, 'select', '', [['identificar', 'Identificar formas'], ['lados', 'Contar lados'], ['clasificar', 'Clasificar formas']]) +
+    if (block.tipo === 'geometria') return primaryField('Tipo de reto', 'modo', data.modo, 'select', '', [['identificar', 'Identificar formas'], ['lados', 'Contar lados'], ['clasificar', 'Clasificar formas'], ['medir', 'Medir área o perímetro']]) +
+      (data.modo === 'medir' ? primaryField('Medida', 'medida', data.medida || 'mixto', 'select', '', [['mixto', 'Alternar área y perímetro'], ['area', 'Área'], ['perimetro', 'Perímetro']]) +
+        primaryField('Dimensiones (ancho|alto|área/perímetro)', 'ejercicios', data.ejercicios || [], 'measureTasks', 'Ejemplo: 5|3|area. Deja vacío para generar dimensiones automáticamente.') : '') +
       count() + level() + primaryField('Figuras (opcional, una por línea)', 'figuras', data.figuras || [], 'words', 'Ejemplo: triangulo, cuadrado, circulo.');
     if (block.tipo === 'dinero') return primaryField('Tipo de reto', 'modo', data.modo, 'select', '', [['contar', 'Contar monedas'], ['pagar', 'Pagar un importe'], ['cambio', 'Calcular el cambio']]) +
       count() + level();
     if (block.tipo === 'vertical') return primaryField('Operación', 'operacion', data.operacion, 'select', '', [['+', 'Sumas'], ['-', 'Restas']]) +
-      count() + level() + primaryField('Operaciones propias (JSON)', 'ejercicios', data.ejercicios || [], 'json', 'Cada ejercicio tiene a, b y op (+ o -).');
+      count() + level() + primaryField('Operaciones (primer número|segundo número|signo)', 'ejercicios', data.ejercicios || [], 'operationTasks', 'Ejemplo: 7856|2679|+. Usa + o -.');
     if (block.tipo === 'abaco') return primaryField('Tipo de reto', 'modo', data.modo, 'select', '', [['poner', 'Representar el número'], ['leer', 'Leer el ábaco']]) +
       count() + primaryField('Columnas', 'columnas', data.columnas, 'columns', 'Entre 2 y 4 columnas.');
     if (block.tipo === 'calculo_mental') return count() + level() +
-      primaryField('Ejercicios propios (JSON)', 'ejercicios', data.ejercicios || [], 'json', 'Cada ejercicio tiene enunciado y respuesta.');
+      primaryField('Ejercicios (enunciado|respuesta)', 'ejercicios', data.ejercicios || [], 'mentalTasks', 'Ejemplo: ¿Cuánto es el doble de 24?|48.');
     if (block.tipo === 'horas') {
       const modo = primaryField('Tipo de reto', 'modo', data.modo, 'select', '', [['leer', 'Leer el reloj'], ['poner', 'Poner la hora'], ['sumar', 'Sumar tiempo'], ['duracion', 'Calcular duración']]);
+      const reloj = primaryField('Diseño del reloj', 'reloj', data.reloj || 'analogico', 'select', '', [['analogico', 'Analógico'], ['digital', 'Digital'], ['ambos', 'Analógico y digital']]);
       const formato = primaryField('Retos de hora', 'ejercicios', data.ejercicios || [], 'hourTasks', 'Un reto por línea: HH:MM para leer/poner; HH:MM|minutos para sumar; HH:MM|HH:MM (inicio y fin) para calcular duración.');
-      return modo + count() + level() + formato;
+      return modo + reloj + count() + level() + formato;
     }
-    if (block.tipo === 'tesoro') return primaryField('Tipo de reto', 'modo', data.modo, 'select', '', [['pista', 'Seguir una pista'], ['programar', 'Programar el recorrido']]) +
+    if (block.tipo === 'dados') return primaryField('Operación', 'operacion', data.operacion || 'suma', 'select', '', [['suma', 'Sumar'], ['resta', 'Restar'], ['multiplicacion', 'Multiplicar']]) +
+      primaryField('Número de dados', 'dados', data.dados || 2, 'diceCount', 'Entre 2 y 4 dados por reto.') + count() +
+      primaryField('Retos personalizados (caras|operación)', 'ejercicios', data.ejercicios || [], 'diceTasks', 'Ejemplo: 3,5|suma. Caras del 1 al 6.');
+    if (block.tipo === 'tesoro') return primaryField('Tipo de reto', 'modo', data.modo, 'select', '', [['pista', 'Seguir una pista'], ['programar', 'Programar con flechas'], ['dibujar', 'Dibujar con ratón o pantalla táctil']]) +
       count() + level();
     if (block.tipo === 'simetria_dibujo') return primaryField('Eje de simetría', 'eje', data.eje, 'select', '', [['v', 'Vertical'], ['h', 'Horizontal']]) +
       count() + level();
@@ -476,10 +495,10 @@
     const mode = target.dataset.mode;
     const raw = target.value;
     let value = raw;
-    if (['number', 'level', 'quantity', 'columns'].includes(mode)) {
+    if (['number', 'level', 'quantity', 'columns', 'diceCount'].includes(mode)) {
       if (raw.trim() === '' || !Number.isFinite(Number(raw))) { $('field-error').textContent = 'Escribe un número válido.'; return; }
       value = Number(raw);
-      const limits = { level: [1, 3], quantity: [1, 12], columns: [2, 4] }[mode];
+      const limits = { level: [1, 3], quantity: [1, 12], columns: [2, 4], diceCount: [2, 4] }[mode];
       if (!Number.isInteger(value) || (limits && (value < limits[0] || value > limits[1]))) {
         $('field-error').textContent = limits ? `El valor debe ser un número entero entre ${limits[0]} y ${limits[1]}.` : 'Escribe un número entero válido.';
         return;
@@ -509,6 +528,102 @@
         $('field-error').textContent = 'Revisa el formato de cada reto de hora según el modo seleccionado.';
         return;
       }
+      value = parsed;
+    }
+    else if (mode === 'measureTasks') {
+      const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+      const parsed = lines.map((line) => {
+        const [ancho, alto, medida = data.medida || 'mixto'] = line.split('|').map((part) => part.trim());
+        if (!/^\d+$/.test(ancho) || !/^\d+$/.test(alto) || Number(ancho) < 2 || Number(ancho) > 9 || Number(alto) < 2 || Number(alto) > 9 || !['area', 'perimetro', 'mixto'].includes(medida)) return null;
+        return { ancho: Number(ancho), alto: Number(alto), medida: medida === 'mixto' ? '' : medida };
+      });
+      if (parsed.some((item) => !item)) { $('field-error').textContent = 'Usa ancho|alto|area o ancho|alto|perimetro; las medidas van de 2 a 9.'; return; }
+      value = parsed;
+    }
+    else if (mode === 'diceTasks') {
+      const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+      const parsed = lines.map((line) => {
+        const [faces = '', operation = data.operacion || 'suma'] = line.split('|').map((part) => part.trim());
+        const caras = faces.split(',').map((face) => Number(face.trim()));
+        if (caras.length < 2 || caras.length > 4 || caras.some((face) => !Number.isInteger(face) || face < 1 || face > 6) || !['suma', 'resta', 'multiplicacion'].includes(operation)) return null;
+        return { caras, operacion: operation };
+      });
+      if (parsed.some((item) => !item)) { $('field-error').textContent = 'Usa caras del 1 al 6, separadas por comas, y una operación válida.'; return; }
+      value = parsed;
+    }
+    else if (mode === 'balanceTasks') {
+      const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+      const parsed = lines.map((line) => {
+        const [left = '', right = '', weights = '', ecuacion = ''] = line.split('|').map((part) => part.trim());
+        const list = text => text.split(',').map((part) => Number(part.trim()));
+        const izq = list(left), der = list(right), pesas = list(weights);
+        if (!left || !right || !weights || [...izq, ...der, ...pesas].some((item) => !Number.isFinite(item) || item <= 0)) return null;
+        return { izq, der, pesas, ecuacion };
+      });
+      if (parsed.some((item) => !item)) { $('field-error').textContent = 'Cada balanza necesita pesos válidos en ambos platos y pesas separadas por comas.'; return; }
+      value = parsed;
+    }
+    else if (mode === 'sequenceTasks') {
+      const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+      const parsed = lines.map((line) => {
+        const [sequence = '', options = '', correct = ''] = line.split('|').map((part) => part.trim());
+        const serie = sequence.split(',').map((item) => item.trim()).filter(Boolean);
+        const opciones = options.split(',').map((item) => item.trim()).filter(Boolean);
+        const correcta = Number(correct);
+        if (serie.filter((item) => item === '?' || item === '_').length !== 1 || opciones.length < 2 || !Number.isInteger(correcta) || correcta < 0 || correcta >= opciones.length) return null;
+        return { serie, opciones, correcta };
+      });
+      if (parsed.some((item) => !item)) { $('field-error').textContent = 'Cada serie debe incluir un único ?, opciones y el índice correcto empezando en 0.'; return; }
+      value = parsed;
+    }
+    else if (mode === 'symmetryTasks') {
+      const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+      const parsed = lines.map((line) => {
+        const [width = '', height = '', cells = ''] = line.split('|').map((part) => part.trim());
+        const ancho = Number(width), alto = Number(height);
+        const celdas = cells ? cells.split(';').map((cell) => cell.split(',').map((part) => Number(part.trim()))) : [];
+        if (!Number.isInteger(ancho) || ancho < 2 || ancho > 6 || !Number.isInteger(alto) || alto < 2 || alto > 9 ||
+            celdas.some(([x, y]) => !Number.isInteger(x) || !Number.isInteger(y) || x < 0 || x >= ancho || y < 0 || y >= alto)) return null;
+        return { ancho, alto, celdas };
+      });
+      if (parsed.some((item) => !item)) { $('field-error').textContent = 'Usa ancho|alto|x,y;x,y con ancho 2-6, alto 2-9 y coordenadas dentro de la cuadrícula.'; return; }
+      value = parsed;
+    }
+    else if (mode === 'rouletteTasks' || mode === 'chartQuestions') {
+      const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+      const parsed = lines.map((line) => {
+        const parts = line.split('|').map((part) => part.trim());
+        const category = mode === 'rouletteTasks' ? parts[0] : '';
+        const question = parts[mode === 'rouletteTasks' ? 1 : 0] || '';
+        const optionsRaw = parts[mode === 'rouletteTasks' ? 2 : 1] || '';
+        const correct = parts[mode === 'rouletteTasks' ? 3 : 2] || '';
+        const opciones = optionsRaw.split(',').map((item) => item.trim()).filter(Boolean);
+        const correcta = Number(correct);
+        if (!question || opciones.length < 2 || !Number.isInteger(correcta) || correcta < 0 || correcta >= opciones.length) return null;
+        return mode === 'rouletteTasks' ? { categoria: category || 'General', pregunta: question, opciones, correcta } : { pregunta: question, opciones, correcta };
+      });
+      if (parsed.some((item) => !item)) { $('field-error').textContent = 'Añade la pregunta, al menos dos opciones y el índice correcto empezando en 0.'; return; }
+      value = parsed;
+    }
+    else if (mode === 'operationTasks') {
+      const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+      const parsed = lines.map((line) => {
+        const [first = '', second = '', operation = '+'] = line.split('|').map((part) => part.trim());
+        const a = Number(first), b = Number(second);
+        if (first === '' || second === '' || !Number.isFinite(a) || !Number.isFinite(b) || a < 0 || b < 0 || !['+', '-'].includes(operation)) return null;
+        return { a, b, op: operation };
+      });
+      if (parsed.some((item) => !item)) { $('field-error').textContent = 'Usa dos números y un signo + o - en cada operación.'; return; }
+      value = parsed;
+    }
+    else if (mode === 'mentalTasks') {
+      const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+      const parsed = lines.map((line) => {
+        const [enunciado = '', answer = ''] = line.split('|').map((part) => part.trim());
+        const respuesta = Number(answer);
+        return enunciado && answer !== '' && Number.isFinite(respuesta) ? { enunciado, respuesta } : null;
+      });
+      if (parsed.some((item) => !item)) { $('field-error').textContent = 'Usa un enunciado y una respuesta numérica por ejercicio.'; return; }
       value = parsed;
     }
     else if (mode === 'words') value = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
@@ -544,6 +659,7 @@
     const card = $('canvas').querySelector(`[data-index="${state.selected}"]`);
     if (card) card.querySelector('.block-copy small').textContent = `${blockName(block.tipo)} · ${blockSummary(block)}`;
     saveDraft();
+    if (mode === 'select' && key === 'modo') paintInspector();
   }
 
   function paintInspector() {
@@ -551,36 +667,37 @@
     const block = state.blocks[state.selected];
     if (!block) { root.innerHTML = '<p class="inspector-empty">Selecciona un bloque para editarlo. El título y la descripción se completan al enviar.</p>'; return; }
     const typeArt = {
-      texto: ['▤', 'Lectura y explicación', 'Presenta el tema con tus propias palabras.'],
-      test: ['?', 'Pregunta y descubre', 'Escribe opciones breves y marca la respuesta correcta.'],
-      relacionar: ['↔', 'Conecta las ideas', 'Cada pareja une un concepto con su respuesta.'],
-      completar: ['✎', 'Completa el hueco', 'La respuesta debe encajar en el espacio de la frase.'],
-      ordenar: ['≡', 'Pasos en orden', 'Coloca cada paso en una línea, en el orden esperado.'],
-      sopa_letras: ['▦', 'Busca las palabras', 'Añade vocabulario y, si quieres, una pista para cada palabra.'],
-      reloj: ['🕒', 'El reloj', PRIMARY_HELP.reloj],
-      recta_numerica: ['📏', 'Recta numérica', PRIMARY_HELP.recta_numerica],
-      grafico: ['📊', 'Lee el gráfico', PRIMARY_HELP.grafico],
-      balanza: ['⚖️', 'Balanza', PRIMARY_HELP.balanza],
-      ahorcado: ['🔤', 'Adivina la palabra', PRIMARY_HELP.ahorcado],
-      anagrama: ['🔀', 'Ordena las letras', PRIMARY_HELP.anagrama],
-      patrones: ['🔁', 'Continúa la serie', PRIMARY_HELP.patrones],
-      simetria: ['🪞', 'Completa el reflejo', PRIMARY_HELP.simetria],
-      silabas: ['✂️', 'Separa en sílabas', PRIMARY_HELP.silabas],
-      vf_rapido: ['⚡', 'Verdadero o falso', PRIMARY_HELP.vf_rapido],
-      ruleta_preguntas: ['🎡', 'Ruleta de preguntas', PRIMARY_HELP.ruleta_preguntas],
-      geometria: ['🔷', 'Explora las formas', PRIMARY_HELP.geometria],
-      dinero: ['🪙', 'Monedas y cambio', PRIMARY_HELP.dinero],
-      vertical: ['➕', 'Suma y resta en vertical', PRIMARY_HELP.vertical],
-      abaco: ['🧮', 'Ábaco', PRIMARY_HELP.abaco],
-      calculo_mental: ['⚡', 'Cálculo mental', PRIMARY_HELP.calculo_mental],
-      horas: ['🕰️', 'Lee y calcula horas', PRIMARY_HELP.horas],
-      tesoro: ['🗺️', 'Búsqueda del tesoro', PRIMARY_HELP.tesoro],
-      simetria_dibujo: ['🪞', 'Dibuja la simetría', PRIMARY_HELP.simetria_dibujo],
-      patron_visual: ['🟣', 'Patrones visuales', PRIMARY_HELP.patron_visual],
-      batalla: ['🚢', 'Batalla matemática', PRIMARY_HELP.batalla],
-      tangram: ['🔺', 'Tangram', PRIMARY_HELP.tangram]
+      texto: ['article', 'Lectura y explicación', 'Presenta el tema con tus propias palabras.'],
+      test: ['quiz', 'Pregunta y descubre', 'Escribe opciones breves y marca la respuesta correcta.'],
+      relacionar: ['compare_arrows', 'Conecta las ideas', 'Cada pareja une un concepto con su respuesta.'],
+      completar: ['edit_note', 'Completa el hueco', 'La respuesta debe encajar en el espacio de la frase.'],
+      ordenar: ['format_list_numbered', 'Pasos en orden', 'Coloca cada paso en una línea, en el orden esperado.'],
+      sopa_letras: ['grid_view', 'Busca las palabras', 'Añade vocabulario y, si quieres, una pista para cada palabra.'],
+      reloj: ['schedule', 'El reloj', PRIMARY_HELP.reloj],
+      recta_numerica: ['straighten', 'Recta numérica', PRIMARY_HELP.recta_numerica],
+      grafico: ['bar_chart', 'Lee el gráfico', PRIMARY_HELP.grafico],
+      balanza: ['balance', 'Balanza', PRIMARY_HELP.balanza],
+      ahorcado: ['text_fields', 'Adivina la palabra', PRIMARY_HELP.ahorcado],
+      anagrama: ['shuffle', 'Ordena las letras', PRIMARY_HELP.anagrama],
+      patrones: ['repeat', 'Continúa la serie', PRIMARY_HELP.patrones],
+      simetria: ['flip', 'Completa el reflejo', PRIMARY_HELP.simetria],
+      silabas: ['content_cut', 'Separa en sílabas', PRIMARY_HELP.silabas],
+      vf_rapido: ['bolt', 'Verdadero o falso', PRIMARY_HELP.vf_rapido],
+      ruleta_preguntas: ['casino', 'Ruleta de preguntas', PRIMARY_HELP.ruleta_preguntas],
+      geometria: ['category', 'Explora las formas', PRIMARY_HELP.geometria],
+      dinero: ['euro', 'Monedas y cambio', PRIMARY_HELP.dinero],
+      vertical: ['calculate', 'Suma y resta en vertical', PRIMARY_HELP.vertical],
+      abaco: ['tune', 'Ábaco', PRIMARY_HELP.abaco],
+      calculo_mental: ['psychology', 'Cálculo mental', PRIMARY_HELP.calculo_mental],
+      horas: ['schedule', 'Lee y calcula horas', PRIMARY_HELP.horas],
+      dados: ['casino', 'Retos con dados', PRIMARY_HELP.dados],
+      tesoro: ['explore', 'Búsqueda del tesoro', PRIMARY_HELP.tesoro],
+      simetria_dibujo: ['flip', 'Dibuja la simetría', PRIMARY_HELP.simetria_dibujo],
+      patron_visual: ['pattern', 'Patrones visuales', PRIMARY_HELP.patron_visual],
+      batalla: ['sailing', 'Batalla matemática', PRIMARY_HELP.batalla],
+      tangram: ['extension', 'Tangram', PRIMARY_HELP.tangram]
     };
-    const art = typeArt[block.tipo] || ['✦', blockName(block.tipo), 'Personaliza este contenido.'];
+    const art = typeArt[block.tipo] || ['auto_awesome', blockName(block.tipo), 'Personaliza este contenido.'];
     let fields = editorField('Título del bloque', 'titulo', block.titulo || '');
     if (block.tipo === 'texto') fields += editorField('Contenido', 'contenido', block.contenido, 'multiline', 8);
     else if (block.tipo === 'test') fields += `<div class="repeat-list">${(block.preguntas || []).map((item, index) => `<fieldset class="repeat-item"><legend>Pregunta ${index + 1}</legend>${fieldMarkup('Enunciado', 'preguntas', index, 'pregunta', item.pregunta)}<label class="field"><span>Opciones, una por línea</span><textarea data-collection="preguntas" data-index="${index}" data-key="opciones" data-mode="lines" rows="4">${esc((item.opciones || []).join('\n'))}</textarea></label><label class="field"><span>Índice correcto (empieza en 0)</span><input type="number" min="0" max="${Math.max(0, (item.opciones || []).length - 1)}" data-collection="preguntas" data-index="${index}" data-key="correcta" value="${Number(item.correcta) || 0}" /></label><button type="button" class="quiet-button" data-delete-row="preguntas" data-index="${index}">Eliminar pregunta</button></fieldset>`).join('')}</div><button type="button" class="add-row" data-add-row="preguntas">＋ Añadir pregunta</button>`;
@@ -591,8 +708,8 @@
       fields += editorField('Palabras (una por línea)', 'palabras', block.palabras, 'lines', 5);
       fields += editorField('Pistas (una por línea, opcional)', 'pistas', block.pistas, 'lines', 4);
     }
-    if (PRIMARY_DEFAULTS[block.tipo]) fields += `<details class="activity-data-editor" open><summary>Configurar contenido del reto</summary><p>${esc(PRIMARY_HELP[block.tipo])}</p>${primaryEditorFields(block)}</details><details class="activity-data-editor"><summary>Opciones avanzadas (JSON)</summary>${editorField('Datos completos del reto', 'datos', block.datos || PRIMARY_DEFAULTS[block.tipo], 'json', 12)}</details>`;
-    root.innerHTML = `<div class="inspector-type-card type-${esc(block.tipo)}"><span aria-hidden="true">${art[0]}</span><div><strong>${art[1]}</strong><small>${art[2]}</small></div></div>${fields}<p class="validation" id="field-error" aria-live="polite"></p>`;
+    if (PRIMARY_DEFAULTS[block.tipo]) fields += `<details class="activity-data-editor" open><summary>Configurar contenido del reto</summary><p>${esc(PRIMARY_HELP[block.tipo])}</p>${primaryEditorFields(block)}</details>`;
+    root.innerHTML = `<div class="inspector-type-card type-${esc(block.tipo)}"><span class="material-symbols-rounded" aria-hidden="true">${art[0]}</span><div><strong>${art[1]}</strong><small>${art[2]}</small></div></div>${fields}<p class="validation" id="field-error" aria-live="polite"></p>`;
   }
 
   function fieldMarkup(label, collection, index, key, value) {

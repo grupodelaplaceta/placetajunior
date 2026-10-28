@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0,0&display=swap');
 
 :root{font-family:"Plus Jakarta Sans",sans-serif;color:#20221f;background:#f4f5f0;font-synthesis:none;--ink:#20221f;--muted:#6d726b;--green:#226b48;--green-dark:#174b34;--lime:#d8f16a;--line:#dce1d8;--paper:#fff;--red:#b64036}
 *{box-sizing:border-box}
@@ -212,6 +212,7 @@ main{max-width:1320px;padding-top:clamp(20px,3vw,34px)}
 .palette-item.type-sopa_letras .palette-icon{background:#fff1df;color:#bc6415}
 .inspector-type-card{display:flex;align-items:center;gap:12px;margin:0 0 4px;padding:12px;border:1px solid var(--line);border-radius:15px;background:#f5f0ff}
 .inspector-type-card>span{display:grid;place-items:center;flex:none;width:42px;height:42px;border-radius:14px;background:#e6dcfa;color:#5b14c8;font-size:23px;font-weight:800}
+.material-symbols-rounded{font-family:'Material Symbols Rounded';font-weight:normal;font-style:normal;font-size:24px;line-height:1;letter-spacing:normal;text-transform:none;white-space:nowrap;word-wrap:normal;direction:ltr;font-feature-settings:'liga';-webkit-font-feature-settings:'liga';-webkit-font-smoothing:antialiased}
 .inspector-type-card>div{display:grid;gap:3px}.inspector-type-card strong{color:var(--ink);font-size:13px}.inspector-type-card small{color:var(--muted);font-size:10px;line-height:1.4}
 .inspector-type-card.type-test{background:#fff9e9}.inspector-type-card.type-test>span{background:#ffedc4;color:#a65700}
 .inspector-type-card.type-relacionar{background:#edf8ff}.inspector-type-card.type-relacionar>span{background:#d9efff;color:#08749b}

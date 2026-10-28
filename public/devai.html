@@ -163,55 +163,67 @@ Reglas:
 - ESQUEMAS SEGUROS: para sustituir imágenes usa un bloque `esquema` con `esquema.elementos`. Solo puedes usar `texto`, `rectangulo`, `circulo` y `linea`, con colores hexadecimales y medidas numéricas. No escribas HTML, SVG, JavaScript, CSS, URLs, imágenes, iframes ni fuentes externas. Para información al pulsar, añade únicamente `accion: {"tipo":"popup", "titulo":"...", "contenido":"..."}` al elemento: la plataforma crea el popup y aplica accesibilidad y tipografías propias.
 - En calculo_mental, "operacion" puede ser "suma", "resta", "multiplicacion" o "division" (cada "suma" puede sobrescribirla con su propio "op"). "vertical": true muestra la cuenta en vertical (suma/resta) y, en las sumas, "llevadas": true pinta las llevadas encima de cada columna.
 - JUEGOS MATEMÁTICOS: también puedes crear bloques interactivos con tipo "carrera_matematica", "batalla_matematica", "tienda_matematica", "batalla_fracciones", "escape_room_matematico", "detective_matematico", "arquitectos", "invasion_alienigena", "pizzeria_fracciones" o "numero_misterioso". Configura cada juego con un objeto "datos": "difficulty" (1-4), "questions", "timeLimit", "operations" (addition/subtraction/multiplication/division o sus nombres en español), "minNumber", "maxNumber", "answerOptions" y "rewards": {"xp":100,"coins":20}. Tienda: "productos" [{"emoji":"🍎","nombre":"Manzana","precio":2.5}], "compra" [{"producto":0,"cantidad":1}], "pagaCon" y "discountPct" (nivel avanzado). Fracciones: "numerador", "denominador", "sumandos" (p. ej. [{"numerador":1,"denominador":4},{"numerador":2,"denominador":4}]) y "questions". Escape: "habitaciones" con "pruebas" (pregunta, opciones, correcta, cifra) y "codigo"; cada habitación se puede añadir como datos sin programarla. Detective: "historia", "pistas", "opciones", "correcta". Arquitectos: "perimetro" o "condicion":"area" con "area". Número misterioso: "minNumber", "maxNumber", "numeroSecreto", "pistas" y "opciones". El progreso común conserva puntos, XP, monedas, victorias, medallas y habilidades dominadas; perder una batalla nunca borra progreso.
-- RETOS DE PRIMARIA (6-12): además puedes usar los bloques interactivos "reloj" (modo "poner" o "leer", horas "HH:MM"), "recta_numerica" (min, max, paso, valores), "grafico" (datos con etiqueta y valor; "tipo_grafico" barras o pictograma; si omites "preguntas" se generan solas), "balanza" (izq, der, pesas: las pesas elegidas deben poder sumar lo que falta), "ahorcado" y "anagrama" (palabras con "palabra" en MAYÚSCULAS y "pista"), "patrones" ("serie" con un único "?" y "correcta" = índice de la opción), "simetria" (celdas [x,y] de la mitad izquierda, x < ancho), "silabas" (las sílabas unidas deben formar la palabra), "vf_rapido" (afirmaciones verdaderas y falsas mezcladas) y "ruleta_preguntas" (cada pregunta con su "categoria"). Todos van con su contenido dentro de "datos". Mézclalos con test y texto para que la actividad sea variada y dinámica.
+- RETOS DE PRIMARIA (6-12): además de los bloques anteriores, puedes usar "geometria" con modo "medir", medida "area", "perimetro" o "mixto", nivel y cantidad; "dados" con operacion "suma", "resta" o "multiplicacion", dados entre 2 y 4 y ejercicios opcionales como [{"caras":[3,5],"operacion":"suma"}]; y "horas" con modo "leer", "poner", "sumar" o "duracion", preferencia de reloj "analogico", "digital" o "ambos" y ejercicios con horas HH:MM de 24 horas. También existen "dinero", "vertical" (ejercicios con a, b y op), "abaco", "calculo_mental", "tesoro" (modo "pista", "programar" o "dibujar"), "simetria_dibujo", "patron_visual", "batalla" y "tangram". Cada bloque lleva sus opciones en "datos"; usa ejemplos concretos, ejercicios cortos y adecuados a la edad, y combina tipos para que la actividad sea variada. Los tipos están disponibles igualmente como controles visuales en el Studio de docentes.
 - No generes bloques de tipo "problemas" temporalmente. El formato "calculo_mental" sí está permitido.
 - Para lenguaje usa "construir_frase", "clasificar_palabras", "completar_palabra", "cazador_errores" y "lectura_interactiva" con sus estructuras de ejemplo.
 - Escribe en español, adáptalo a la edad indicada y numera bien los bloques.
 - DIAPOSITIVAS/NIVELES: si la actividad tiene varias partes, usa `contenido.niveles` (también llamado `diapositivas`) con 2-6 objetos ordenados. Cada objeto debe tener `orden`, `titulo`, `descripcion`, `recompensa` y `bloques`. La primera diapositiva debe explicar y las siguientes practicar. Si usas niveles, deja también `contenido.bloques` como resumen o vacío.
 - IMPORTANTE: devuelve solo el JSON, sin texto ni comillas de código.</textarea>
       <div class="row" style="margin-top:10px;">
-        <button class="btn btn-purple" onclick="copiar('prompt')">📋 Copiar prompt</button>
+        <button class="btn btn-purple" onclick="copiar('prompt')">Copiar prompt</button>
       </div>
     </div>
 
     <div class="card devai-formatos">
-      <h2>🎮 Formatos nuevos listos para usar</h2>
+      <h2>Formatos nuevos listos para usar</h2>
       <p class="sub">Elige una plantilla, edítala y pulsa <strong>Previsualizar</strong> para abrir el reproductor real.</p>
       <div class="row">
-        <button class="btn btn-outline" onclick="plantilla('construir_frase')">📝 Frases</button>
-        <button class="btn btn-outline" onclick="plantilla('clasificar_palabras')">🔤 Clasificar</button>
-        <button class="btn btn-outline" onclick="plantilla('completar_palabra')">✏️ Ortografía</button>
-        <button class="btn btn-outline" onclick="plantilla('cazador_errores')">🔎 Errores</button>
-        <button class="btn btn-outline" onclick="plantilla('lectura_interactiva')">📖 Lectura</button>
-        <button class="btn btn-outline" onclick="plantilla('dinero_euro')">💶 Euros</button>
+        <button class="btn btn-outline" onclick="plantilla('construir_frase')">Frases</button>
+        <button class="btn btn-outline" onclick="plantilla('clasificar_palabras')">Clasificar</button>
+        <button class="btn btn-outline" onclick="plantilla('completar_palabra')">Ortografía</button>
+        <button class="btn btn-outline" onclick="plantilla('cazador_errores')">Errores</button>
+        <button class="btn btn-outline" onclick="plantilla('lectura_interactiva')">Lectura</button>
+        <button class="btn btn-outline" onclick="plantilla('dinero_euro')">Euros</button>
       </div>
-      <h3>🔢 Juegos matemáticos</h3>
+      <h3>Juegos matemáticos</h3>
       <div class="row">
-        <button class="btn btn-outline" onclick="plantillaJuego('carrera_matematica')">🏎️ Carrera</button>
-        <button class="btn btn-outline" onclick="plantillaJuego('batalla_matematica')">⚔️ Batalla</button>
-        <button class="btn btn-outline" onclick="plantillaJuego('tienda_matematica')">🛒 Tienda</button>
-        <button class="btn btn-outline" onclick="plantillaJuego('batalla_fracciones')">🍕 Fracciones</button>
-        <button class="btn btn-outline" onclick="plantillaJuego('escape_room_matematico')">🔐 Escape room</button>
-        <button class="btn btn-outline" onclick="plantillaJuego('detective_matematico')">🕵️ Detectives</button>
-        <button class="btn btn-outline" onclick="plantillaJuego('arquitectos')">📐 Arquitectos</button>
-        <button class="btn btn-outline" onclick="plantillaJuego('invasion_alienigena')">👽 Invasión</button>
-        <button class="btn btn-outline" onclick="plantillaJuego('pizzeria_fracciones')">🍕 Pizzería</button>
-        <button class="btn btn-outline" onclick="plantillaJuego('numero_misterioso')">🔎 Número misterioso</button>
+        <button class="btn btn-outline" onclick="plantillaJuego('carrera_matematica')">Carrera</button>
+        <button class="btn btn-outline" onclick="plantillaJuego('batalla_matematica')">Batalla</button>
+        <button class="btn btn-outline" onclick="plantillaJuego('tienda_matematica')">Tienda</button>
+        <button class="btn btn-outline" onclick="plantillaJuego('batalla_fracciones')">Fracciones</button>
+        <button class="btn btn-outline" onclick="plantillaJuego('escape_room_matematico')">Escape room</button>
+        <button class="btn btn-outline" onclick="plantillaJuego('detective_matematico')">Detectives</button>
+        <button class="btn btn-outline" onclick="plantillaJuego('arquitectos')">Arquitectos</button>
+        <button class="btn btn-outline" onclick="plantillaJuego('invasion_alienigena')">Invasión</button>
+        <button class="btn btn-outline" onclick="plantillaJuego('pizzeria_fracciones')">Pizzería</button>
+        <button class="btn btn-outline" onclick="plantillaJuego('numero_misterioso')">Número misterioso</button>
       
       </div>
-      <h3>🧠 Retos de Primaria</h3>
+      <h3>Retos de Primaria</h3>
       <div class="row">
-        <button class="btn btn-outline" onclick="plantillaPrim('reloj')">🕒 Reloj</button>
-        <button class="btn btn-outline" onclick="plantillaPrim('recta_numerica')">📏 Recta</button>
-        <button class="btn btn-outline" onclick="plantillaPrim('grafico')">📊 Gráfico</button>
-        <button class="btn btn-outline" onclick="plantillaPrim('balanza')">⚖️ Balanza</button>
-        <button class="btn btn-outline" onclick="plantillaPrim('ahorcado')">🔤 Ahorcado</button>
-        <button class="btn btn-outline" onclick="plantillaPrim('anagrama')">🔀 Anagrama</button>
-        <button class="btn btn-outline" onclick="plantillaPrim('patrones')">🧩 Patrones</button>
-        <button class="btn btn-outline" onclick="plantillaPrim('simetria')">🪞 Simetría</button>
-        <button class="btn btn-outline" onclick="plantillaPrim('silabas')">✂️ Sílabas</button>
-        <button class="btn btn-outline" onclick="plantillaPrim('vf_rapido')">⚡ V o F</button>
-        <button class="btn btn-outline" onclick="plantillaPrim('ruleta_preguntas')">🎡 Ruleta</button>
+        <button class="btn btn-outline" onclick="plantillaPrim('reloj')">Reloj analógico</button>
+        <button class="btn btn-outline" onclick="plantillaPrim('horas')">Reloj digital o analógico</button>
+        <button class="btn btn-outline" onclick="plantillaPrim('recta_numerica')">Recta numérica</button>
+        <button class="btn btn-outline" onclick="plantillaPrim('grafico')">Gráfico</button>
+        <button class="btn btn-outline" onclick="plantillaPrim('balanza')">Balanza</button>
+        <button class="btn btn-outline" onclick="plantillaPrim('ahorcado')">Ahorcado</button>
+        <button class="btn btn-outline" onclick="plantillaPrim('anagrama')">Anagrama</button>
+        <button class="btn btn-outline" onclick="plantillaPrim('patrones')">Patrones</button>
+        <button class="btn btn-outline" onclick="plantillaPrim('simetria')">Simetría</button>
+        <button class="btn btn-outline" onclick="plantillaPrim('silabas')">Sílabas</button>
+        <button class="btn btn-outline" onclick="plantillaPrim('vf_rapido')">Verdadero o falso</button>
+        <button class="btn btn-outline" onclick="plantillaPrim('ruleta_preguntas')">Ruleta</button>
+        <button class="btn btn-outline" onclick="plantillaPrim('geometria')">Medir formas</button>
+        <button class="btn btn-outline" onclick="plantillaPrim('dinero')">Euros y cambio</button>
+        <button class="btn btn-outline" onclick="plantillaPrim('vertical')">Sumas y restas</button>
+        <button class="btn btn-outline" onclick="plantillaPrim('abaco')">Ábaco</button>
+        <button class="btn btn-outline" onclick="plantillaPrim('calculo_mental')">Cálculo mental</button>
+        <button class="btn btn-outline" onclick="plantillaPrim('dados')">Retos con dados</button>
+        <button class="btn btn-outline" onclick="plantillaPrim('tesoro')">Mapa del tesoro</button>
+        <button class="btn btn-outline" onclick="plantillaPrim('simetria_dibujo')">Dibuja simetrías</button>
+        <button class="btn btn-outline" onclick="plantillaPrim('patron_visual')">Patrones visuales</button>
+        <button class="btn btn-outline" onclick="plantillaPrim('batalla')">Batalla matemática</button>
+        <button class="btn btn-outline" onclick="plantillaPrim('tangram')">Tangram</button>
       </div>
     </div>
 
@@ -221,7 +233,7 @@ Reglas:
         <p class="sub">Escribe tu actividad en texto libre y genera el código en texto directo (sin IA).</p>
         <textarea id="texto" placeholder="Ej:&#10;Actividad: El sistema solar (8 años)&#10;Preguntas:&#10;¿Cuál es el planeta rojo? -> Marte&#10;¿Qué estrella da luz a la Tierra? -> El Sol&#10;Relaciona:&#10;Sol -> Estrella&#10;Luna -> Satélite"></textarea>
         <div class="row" style="margin-top:10px;">
-          <button class="btn btn-purple" onclick="generar()">⚙️ Generar código</button>
+          <button class="btn btn-purple" onclick="generar()">Generar código</button>
         </div>
       </div>
 
@@ -250,16 +262,16 @@ Reglas:
         </div>
         <div id="info-campos" aria-live="polite"></div>
         <div class="row">
-          <button class="btn btn-purple" onclick="copiar('codigo')">📋 Copiar código</button>
-          <button class="btn btn-outline" onclick="previsualizar()">👁️ Previsualizar</button>
-          <button class="btn btn-green" onclick="publicar()">🚀 Publicar a revisión</button>
+          <button class="btn btn-purple" onclick="copiar('codigo')">Copiar código</button>
+          <button class="btn btn-outline" onclick="previsualizar()">Previsualizar</button>
+          <button class="btn btn-green" onclick="publicar()">Publicar a revisión</button>
         </div>
         <div id="mensaje" style="margin-top:10px;font-size:13px;"></div>
       </div>
     </div>
 
     <div class="card">
-      <h2>👁️ Vista previa</h2>
+      <h2>Vista previa</h2>
       <div id="preview"><p style="color:var(--pj-gray-500);font-size:13px;">Aún no hay nada que previsualizar. Pega el código y pulsa Previsualizar.</p></div>
     </div>
   </div>
@@ -323,6 +335,7 @@ Reglas:
     function plantillaPrim(tipo) {
       const D = {
         reloj: ['El reloj', 'Pon el reloj a la hora que se pide.', { modo: 'poner', ejercicios: [{ hora: '03:30' }, { hora: '09:00' }, { hora: '06:15', modo: 'leer' }] }],
+        horas: ['Las horas', 'Lee y calcula horas con el diseño de reloj elegido.', { modo: 'leer', reloj: 'digital', ejercicios: [{ hora: '16:30' }, { hora: '09:15' }] }],
         recta_numerica: ['La recta numérica', 'Toca en la recta el número pedido.', { min: 0, max: 20, paso: 1, valores: [13, 4] }],
         grafico: ['Lee el gráfico', 'Observa el gráfico y responde.', { titulo_grafico: 'Mascotas de la clase', unidad: 'niños', tipo_grafico: 'barras', datos: [{ etiqueta: 'Perro', valor: 8 }, { etiqueta: 'Gato', valor: 5 }, { etiqueta: 'Pez', valor: 3 }] }],
         balanza: ['Equilibra la balanza', 'Añade pesas hasta equilibrar.', { ejercicios: [{ izq: [5, 3], der: [2], pesas: [1, 2, 3, 5], ecuacion: '2 + ? = 8' }, { izq: [10], der: [4], pesas: [1, 2, 3, 6] }] }],
@@ -332,7 +345,18 @@ Reglas:
         simetria: ['Completa el reflejo', 'Pinta la parte que falta como en un espejo.', { ejercicios: [{ ancho: 3, alto: 4, celdas: [[0, 0], [1, 1], [2, 2], [2, 3]] }] }],
         silabas: ['Separa en sílabas', 'Corta la palabra en sílabas.', { palabras: [{ palabra: 'MARIPOSA', silabas: ['MA', 'RI', 'PO', 'SA'] }, { palabra: 'ESCUELA', silabas: ['ES', 'CUE', 'LA'] }] }],
         vf_rapido: ['Verdadero o falso', 'Decide rápido si es verdadero o falso.', { segundos: 12, afirmaciones: [{ texto: 'El Sol es una estrella.', verdadero: true, explicacion: 'Es la estrella más cercana a la Tierra.' }, { texto: 'Un triángulo tiene cuatro lados.', verdadero: false }] }],
-        ruleta_preguntas: ['Ruleta de preguntas', 'Gira la ruleta y responde.', { preguntas: [{ categoria: 'Ciencias', pregunta: '¿Cuántos planetas tiene el sistema solar?', opciones: ['7', '8', '9'], correcta: 1 }, { categoria: 'Lengua', pregunta: '¿Cuál es un verbo?', opciones: ['correr', 'mesa', 'azul'], correcta: 0 }] }]
+        ruleta_preguntas: ['Ruleta de preguntas', 'Gira la ruleta y responde.', { preguntas: [{ categoria: 'Ciencias', pregunta: '¿Cuántos planetas tiene el sistema solar?', opciones: ['7', '8', '9'], correcta: 1 }, { categoria: 'Lengua', pregunta: '¿Cuál es un verbo?', opciones: ['correr', 'mesa', 'azul'], correcta: 0 }] }],
+        geometria: ['Medimos rectángulos', 'Calcula el área y el perímetro de cada figura.', { modo: 'medir', medida: 'mixto', cantidad: 4, nivel: 1, ejercicios: [{ ancho: 5, alto: 3, medida: 'area' }, { ancho: 4, alto: 2, medida: 'perimetro' }] }],
+        dinero: ['Euros y cambio', 'Cuenta monedas y billetes para resolver los retos.', { modo: 'contar', cantidad: 4, nivel: 1 }],
+        vertical: ['Sumas y restas en vertical', 'Resuelve cada operación columna por columna.', { operacion: '+', ejercicios: [{ a: 7856, b: 2679, op: '+' }, { a: 70002, b: 39875, op: '-' }] }],
+        abaco: ['El ábaco', 'Representa los números en el ábaco.', { modo: 'poner', columnas: 4, cantidad: 4 }],
+        calculo_mental: ['Cálculo mental', 'Resuelve y elige el resultado correcto.', { cantidad: 5, nivel: 2 }],
+        dados: ['Retos con dados', 'Resuelve la operación que muestran los dados.', { operacion: 'suma', dados: 2, ejercicios: [{ caras: [3, 5], operacion: 'suma' }, { caras: [6, 2], operacion: 'resta' }, { caras: [4, 3], operacion: 'multiplicacion' }] }],
+        tesoro: ['Mapa del tesoro', 'Programa un camino por casillas hasta el tesoro.', { modo: 'programar', cantidad: 3, nivel: 1 }],
+        simetria_dibujo: ['Dibuja la simetría', 'Completa el reflejo de cada figura.', { eje: 'v', cantidad: 3, nivel: 1 }],
+        patron_visual: ['Patrones visuales', 'Descubre qué figura o número continúa la serie.', { modo: 'formas', cantidad: 4, nivel: 1 }],
+        batalla: ['Batalla matemática', 'Resuelve las operaciones para acertar en el tablero.', { nivel: 1 }],
+        tangram: ['Tangram', 'Completa la figura con las piezas geométricas.', { modo: 'completar', estilo: 'clasico', cantidad: 3 }]
       }[tipo];
       if (!D) return;
       const bloque = { tipo, titulo: D[0], instrucciones: D[1], datos: D[2] };

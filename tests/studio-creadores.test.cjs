@@ -45,7 +45,7 @@ test('el editor incluye cuatro plantillas y editor visual para tipos comunes', (
   assert.match(js, /function paintPalette\(\)[\s\S]*?palette-search/);
   assert.match(js, /data-category="\$\{esc\(category\)\}"/);
   assert.match(read('public/js/player.js'), /window\.PJPrimaria && PJPrimaria\.TIPOS\.has\(b\.tipo\)/);
-  assert.match(read('public/js/primaria-juegos.js'), /const TIPOS = new Set\(\['reloj', 'recta_numerica', 'grafico', 'balanza', 'ahorcado', 'anagrama', 'patrones', 'simetria', 'silabas', 'vf_rapido', 'ruleta_preguntas'\]\)/);
+  assert.match(read('public/js/actividades/primaria-clasica.js'), /const TIPOS = new Set\(\['reloj', 'recta_numerica', 'grafico', 'balanza', 'ahorcado', 'anagrama', 'patrones', 'simetria', 'silabas', 'vf_rapido', 'ruleta_preguntas'\]\)/);
   assert.match(html, /id="meta-title"/);
   assert.match(html, /id="preview-activity"/);
   assert.match(js, /data-add-row="preguntas"/);
@@ -63,7 +63,7 @@ test('los once tipos nuevos generan pantallas con el reproductor existente', () 
   const window = {};
   const document = { getElementById: () => null, createElement: () => ({}), head: { appendChild() {} } };
   const context = { window, document, console, Math, Set, Array, Object, String, Number, JSON, Date, setTimeout, clearTimeout, setInterval, clearInterval };
-  vm.runInNewContext(read('public/js/primaria-juegos.js'), context);
+  vm.runInNewContext(read('public/js/actividades/primaria-clasica.js'), context);
   const examples = {
     reloj: { ejercicios: [{ hora: '03:30' }] },
     recta_numerica: { min: 0, max: 20, paso: 1, valores: [13, 4] },
@@ -81,6 +81,14 @@ test('los once tipos nuevos generan pantallas con el reproductor existente', () 
     assert.ok(window.PJPrimaria.TIPOS.has(tipo), `el reproductor reconoce ${tipo}`);
     assert.ok(window.PJPrimaria.crear({ tipo, datos }).length, `${tipo} genera al menos una pantalla`);
   }
+});
+
+test('el Studio ofrece controles de reloj, medida, dados y ejercicios sin editor JSON oculto', () => {
+  const studio = read('public/studio-creadores.js');
+  for (const control of ['reloj', 'medida', 'measureTasks', 'diceTasks', 'balanceTasks', 'sequenceTasks', 'symmetryTasks', 'rouletteTasks', 'operationTasks', 'mentalTasks']) {
+    assert.ok(studio.includes(control), `Debe tener controles visuales para ${control}`);
+  }
+  assert.doesNotMatch(studio, /Opciones avanzadas \(JSON\)/);
 });
 
 test('el lienzo permite deshacer, rehacer, duplicar y mover bloques', () => {

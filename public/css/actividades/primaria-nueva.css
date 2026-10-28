@@ -70,13 +70,14 @@
 /* ----- dinero ----- */
 .pn-money { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center; min-height: 64px; }
 .pn-money.big { padding: 12px; background: #f7f5ff; border-radius: 22px; margin-bottom: 10px; }
-.pn-coin, .pn-bill { display: inline-grid; place-items: center; font: 900 18px var(--pn-font); color: #fff; text-shadow: 0 1px 0 rgba(0,0,0,.25); }
-.pn-coin { width: 74px; height: 74px; border-radius: 50%; border: 5px solid #fff; box-shadow: 0 4px 0 rgba(0,0,0,.2), inset 0 0 0 3px rgba(0,0,0,.08); background: #c97b3b; }
+.pn-coin, .pn-bill { display: inline-grid; place-items: center; }
+.pn-cash-icon { display: block; width: 82px; height: 82px; }
+.pn-coin { width: 74px; height: 74px; }
 .pn-coin.v100, .pn-coin.v200 { background: radial-gradient(circle at 35% 30%, #fff7c2, #d6b14a 60%, #a57f1f); }
 .pn-coin.v200 { background: radial-gradient(circle at 35% 30%, #ffffff, #bfc7d4 55%, #8a95a8); }
 .pn-coin.v10, .pn-coin.v20, .pn-coin.v50 { background: radial-gradient(circle at 35% 30%, #e7e9ef, #a8aebe 60%, #7c8496); }
 .pn-coin.v1, .pn-coin.v2, .pn-coin.v5 { background: radial-gradient(circle at 35% 30%, #f0c08a, #c97b3b 60%, #8c4d1d); }
-.pn-bill { width: 118px; height: 62px; border-radius: 10px; box-shadow: 0 4px 0 rgba(0,0,0,.18); }
+.pn-bill { width: 118px; height: 69px; }
 .pn-bill.v500 { background: linear-gradient(135deg, #7c3aed, #a78bfa); }
 .pn-bill.v1000 { background: linear-gradient(135deg, #0891b2, #67e8f9); }
 .pn-bill.v2000 { background: linear-gradient(135deg, #16a34a, #86efac); }
@@ -126,7 +127,8 @@ button.pn-bead:hover { transform: scale(1.06); }
 .pn-rlab { font: 900 18px var(--pn-font); color: #6b4a1e; }
 
 /* ----- reloj y horas ----- */
-.pn-clockwrap { display: grid; place-items: center; }
+.pn-clockwrap { display: grid; place-items: center; gap: 12px; }
+.pn-clockwrap:has(.pn-clock + .pn-digital-clock) { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
 .pn-clock { width: min(260px, 70vw); height: auto; display: block; }
 .pn-clock .face { fill: #fff; stroke: var(--pn-violet); stroke-width: 6; }
 .pn-clock text { font: 900 17px var(--pn-font); fill: var(--pn-ink); }
@@ -137,6 +139,16 @@ button.pn-bead:hover { transform: scale(1.06); }
 .pn-clock .hand.m { stroke: var(--pn-bad); stroke-width: 5; }
 .pn-clock .pin { fill: var(--pn-violet); }
 .pn-digital { text-align: center; font: 900 40px var(--pn-title); color: var(--pn-violet); margin: 4px 0; }
+.pn-digital-clock { border: 5px solid #39266e; border-radius: 18px; background: #17152a; color: #c9f7df; padding: 18px 24px; font: 900 clamp(38px, 8vw, 58px)/1.1 ui-monospace, monospace; letter-spacing: .08em; text-align: center; box-shadow: inset 0 0 0 3px #5d4f87; }
+.pn-measure { width: min(100%, 300px); height: auto; overflow: visible; }
+.pn-measure rect { fill: #fff; stroke: #34205e; stroke-width: 2; }
+.pn-measure line { stroke: #aaa1bf; stroke-width: 1; }
+.pn-measure text { fill: #2b1d55; font: 700 11px var(--pn-font); }
+.pn-dice-area { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin: 14px auto; }
+.pn-die { width: clamp(72px, 17vw, 112px); height: auto; filter: drop-shadow(0 5px 0 #d9ccff); }
+.pn-die rect { fill: #fff; stroke: #5b14c8; stroke-width: 4; }
+.pn-die circle { fill: #3f00d8; }
+.pn-dice-expression { text-align: center; color: var(--pn-ink); font: 900 clamp(28px, 6vw, 42px)/1.2 var(--pn-font); margin: 8px 0 16px; }
 .pn-tadj { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; margin: 8px 0; }
 .pn-adj { display: flex; align-items: center; gap: 8px; font-weight: 800; }
 .pn-adj span { min-width: 70px; text-align: right; color: #6b5aa6; }
@@ -145,6 +157,8 @@ button.pn-bead:hover { transform: scale(1.06); }
 .pn-compass { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 4px 0 2px; }
 .pn-compass span { background: #f5f2ff; color: #5a3fb0; font: 800 14px var(--pn-font); padding: 6px 12px; border-radius: 99px; }
 .pn-tgrid { display: grid; gap: 6px; width: min(520px, 100%); margin: 8px auto; }
+.pn-draw-grid { touch-action: none; user-select: none; }
+.pn-draw-grid .pn-tcell { cursor: crosshair; }
 .pn-tcell { aspect-ratio: 1; border-radius: 14px; border: 0; background: linear-gradient(#e7f9ee, #cdeeda); display: grid; place-items: center; font-size: clamp(22px, 5vw, 34px); padding: 0; color: var(--pn-ink);
   box-shadow: inset 0 0 0 2px #a6dcb9; cursor: default; }
 button.pn-tcell { cursor: pointer; }

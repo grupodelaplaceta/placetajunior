@@ -496,7 +496,7 @@ function abrirJuego(act) {
           kpEstado.push({ contador: 0, historia: [], respondida: false, acierto: null, sel: null, aviso: '' });
         });
       } else if (window.PJPrimaria && PJPrimaria.TIPOS.has(b.tipo)) {
-        // Tipos de Primaria (js/primaria-juegos.js): una pantalla por reto
+        // Tipos clásicos de Primaria (js/actividades/primaria-clasica.js): una pantalla por reto
         PJPrimaria.crear(b).forEach((x) => { pantallas.push(Object.assign({ tipo: 'pp', bi }, x.s)); kpEstado.push(x.e); });
       } else if (['arrastrar','buscar','detective','laboratorio','construccion','presupuesto','dinero_euro','construir_frase','clasificar_palabras','completar_palabra','cazador_errores','lectura_interactiva','exploracion','simulacion','historia_interactiva','memoria','sonido','codigo_secreto','escape_room'].includes(b.tipo) && (b.datos || b.palabras || b.texto || b.escenas || b.elementos || b.categorias)) {
         pantallas.push({ tipo: 'interactivo', bi, nivelIndex: b.nivelIndex });
