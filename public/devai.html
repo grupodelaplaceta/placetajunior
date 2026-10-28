@@ -84,7 +84,7 @@
 {
   "titulo": "Título de la actividad",
   "descripcion": "Descripción breve",
-  "categoria": "Matemáticas|Lengua|Ciencias|Geografía|Tecnología|Lógica|Cultura|General",
+  "categoria": "Matemáticas|Lengua|Ciencias|Geografía|Tecnología|Lógica|Pensamiento computacional|Cultura|General",
   "edad_recomendada": "6-12",
   "dificultad": "facil|media|dificil",
   "tiempo_estimado": 10,
@@ -146,7 +146,8 @@
 }
 
 Reglas:
-- TRADUCCIONES: si se piden traducciones, añádelas en `traducciones` en la raíz del JSON. Incluye las claves `ca` (catalán), `val` (valenciano) y `en` (inglés); cada una debe contener `titulo`, `descripcion`, `categoria` y `contenido`, con la misma estructura completa que la actividad original (`version`, `niveles` y `bloques` cuando existan). Traduce también los títulos, instrucciones, preguntas, opciones, respuestas escritas y textos de todos los bloques y niveles. Conserva los índices de `correcta`, los valores numéricos y la lógica; no cambies el significado ni omitas contenido. No incluyas una traducción parcial.
+- TRADUCCIONES: si se piden traducciones, añádelas en `traducciones` en la raíz del JSON. Incluye las claves `ca` (catalán), `val` (valenciano) y `en` (inglés); cada una debe contener `titulo`, `descripcion`, `categoria` y `contenido`, con la misma estructura completa que la actividad original (`version`, `niveles` y `bloques` cuando existan). Para la categoría `Pensamiento computacional`, conserva el mismo concepto y usa `BOTXIFRA` en `ca`, `Pensament computacional` en `val` y `STEM` en `en`. Traduce también los títulos, instrucciones, preguntas, opciones, respuestas escritas y textos de todos los bloques y niveles. Conserva los índices de `correcta`, los valores numéricos y la lógica; no cambies el significado ni omitas contenido. No incluyas una traducción parcial.
+- PENSAMIENTO COMPUTACIONAL: actividad educativa de Primaria que combina matemáticas, pensamiento lógico, informática y robótica para desarrollar la resolución de problemas y el pensamiento computacional. Usa esta categoría cuando corresponda.
 - Devuelve la actividad original en español en los campos raíz y las traducciones completas dentro de `traducciones`, todo en un único JSON. No añadas `traducciones` si no se han solicitado.
 - "correcta" es el índice (base 0) de la opción correcta de cada pregunta.
 - En relacionar modo "escribir": "der" es la palabra que el niño debe teclear (NO la pongas en "izq").
@@ -234,7 +235,7 @@ Reglas:
           <div class="field"><label>Categoría</label>
             <select id="categoria">
               <option>Matemáticas</option><option>Lengua</option><option>Ciencias</option><option>Geografía</option>
-              <option>Tecnología</option><option>Lógica</option><option>Cultura</option><option selected>General</option>
+              <option>Tecnología</option><option>Lógica</option><option>Pensamiento computacional</option><option>Cultura</option><option selected>General</option>
             </select>
           </div>
           <div class="field"><label>Edad</label><input id="edad" value="6-12" /></div>

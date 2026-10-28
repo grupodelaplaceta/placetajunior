@@ -19,6 +19,13 @@ test('DevAI conserva las traducciones raíz o anidadas al publicar', () => {
   assert.match(html, /Puedes incluir `traducciones` \(ca, val y en\) en el mismo objeto/);
 });
 
+test('DevAI incluye Pensamiento computacional y sus nombres regionales en traducciones', () => {
+  assert.match(html, /"categoria": "[^"]*Pensamiento computacional/);
+  assert.match(html, /categoría `Pensamiento computacional`[\s\S]*`BOTXIFRA` en `ca`[\s\S]*`Pensament computacional` en `val`[\s\S]*`STEM` en `en`/);
+  assert.match(html, /actividad educativa de Primaria que combina matemáticas, pensamiento lógico, informática y robótica/);
+  assert.match(html, /<option>Pensamiento computacional<\/option>/);
+});
+
 test('los scripts en línea de DevAI tienen sintaxis válida', () => {
   const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)];
   assert.ok(scripts.length > 0);

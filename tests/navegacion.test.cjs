@@ -82,6 +82,15 @@ test('el script de la página principal es JavaScript válido', () => {
   for (const b of bloques) assert.doesNotThrow(() => new Function(b));
 });
 
+test('la categoría Pensamiento computacional muestra su traducción en el catálogo', () => {
+  const app = leer('public/js/app.js');
+  assert.match(app, /TODAS\.map\(pjAplicarTraduccionActividad\)/);
+  assert.match(app, /resultado\[campo\] = traduccion\[campo\]/);
+  assert.match(app, /c\.includes\('computacional'\).*c\.includes\('botxifra'\).*c\.includes\('stem'\)/);
+  assert.match(leer('public/studio.html'), /value="Pensamiento computacional"/);
+  assert.match(leer('public/studio-creadores.html'), /<option>Pensamiento computacional<\/option>/);
+});
+
 test('las tarjetas usan portada traducida y solo muestran la insignia del idioma activo', () => {
   const html = leer('public/index.html');
   assert.match(html, /var portadaTraducida=\[tx\.miniaturaUrl,tx\.miniatura_url,tx\.portadaUrl,tx\.portada_url/);

@@ -115,7 +115,7 @@ const categoriaColor = (cat = '') => {
   if (c.includes('natur') || c.includes('cien') || c.includes('bio')) return 'green';
   if (c.includes('geo') || c.includes('hist') || c.includes('social')) return 'orange';
   if (c.includes('arte') || c.includes('mús') || c.includes('mus')) return 'purple';
-  if (c.includes('code') || c.includes('program') || c.includes('inform')) return 'purple';
+  if (c.includes('code') || c.includes('program') || c.includes('inform') || c.includes('computacional') || c.includes('botxifra') || c.includes('stem')) return 'purple';
   return 'purple';
 };
 
@@ -128,7 +128,7 @@ const categoriaIcono = (cat = '') => {
   if (c.includes('geo')) return 'public';
   if (c.includes('tecn') || c.includes('inform')) return 'computer';
   if (c.includes('logic')) return 'psychology';
-  if (c.includes('code') || c.includes('program') || c.includes('inform')) return 'code';
+  if (c.includes('code') || c.includes('program') || c.includes('inform') || c.includes('computacional') || c.includes('botxifra') || c.includes('stem')) return 'code';
   return 'extension';
 };
 
@@ -366,6 +366,7 @@ function registrarVisitaActividad(id) {
 }
 
 function cardActividad(a) {
+  a = pjAplicarTraduccionActividad(a);
   const bloqueada = esBloqueada(a);
   const tieneUnidades = obtenerUnidadesActividad(a).length > 0;
   const color = categoriaColor(a.categoria);
@@ -1097,7 +1098,7 @@ async function cargarTodo() {
 // ⭐ Populares: las más jugadas (fila horizontal)
 function renderPopulares() {
   const row = document.getElementById('populares-row');
-  const ordenadas = [...TODAS].filter(a => edadCumple(a, filtroEdad)).sort((a, b) =>
+  const ordenadas = TODAS.map(pjAplicarTraduccionActividad).filter(a => edadCumple(a, filtroEdad)).sort((a, b) =>
     (Number(b.visitas ?? b.estadisticas?.visitas ?? b.estadisticas?.veces_realizada ?? 0) || 0) -
     (Number(a.visitas ?? a.estadisticas?.visitas ?? a.estadisticas?.veces_realizada ?? 0) || 0)
   ).slice(0, 10);
@@ -1110,7 +1111,7 @@ function renderPopulares() {
 // 🗂️ Una fila horizontal por categoría (deslizable): gratis y de pago mezcladas
 function renderCategorias() {
   const cont = document.getElementById('categorias');
-  const filtradas = TODAS.filter(a => edadCumple(a, filtroEdad));
+  const filtradas = TODAS.map(pjAplicarTraduccionActividad).filter(a => edadCumple(a, filtroEdad));
   const cats = [...new Set(filtradas.map(a => a.categoria).filter(Boolean))];
   if (cats.length === 0) { cont.innerHTML = ''; return; }
   cont.innerHTML = cats.map(cat => {
