@@ -13,7 +13,13 @@
     ['ahorcado', 'Adivina la palabra', '🔤', 'Lengua'], ['anagrama', 'Ordena las letras', '🔀', 'Lengua'],
     ['patrones', 'Continúa la serie', '🔁', 'Lógica y atención'], ['simetria', 'Completa el reflejo', '🪞', 'Lógica y atención'],
     ['silabas', 'Separa en sílabas', '✂️', 'Lengua'], ['vf_rapido', 'Verdadero o falso', '⚡', 'Lógica y atención'],
-    ['ruleta_preguntas', 'Ruleta de preguntas', '🎡', 'Lógica y atención']
+    ['ruleta_preguntas', 'Ruleta de preguntas', '🎡', 'Lógica y atención'],
+    ['geometria', 'Explora las formas', '🔷', 'Matemáticas'], ['dinero', 'Monedas y cambio', '🪙', 'Matemáticas'],
+    ['vertical', 'Suma y resta en vertical', '➕', 'Matemáticas'], ['abaco', 'Ábaco', '🧮', 'Matemáticas'],
+    ['calculo_mental', 'Cálculo mental', '⚡', 'Matemáticas'], ['horas', 'Lee y calcula horas', '🕰️', 'Matemáticas'],
+    ['tesoro', 'Búsqueda del tesoro', '🗺️', 'Lógica y atención'], ['simetria_dibujo', 'Dibuja la simetría', '🪞', 'Lógica y atención'],
+    ['patron_visual', 'Patrones visuales', '🟣', 'Lógica y atención'], ['batalla', 'Batalla matemática', '🚢', 'Matemáticas'],
+    ['tangram', 'Tangram', '🔺', 'Matemáticas']
   ];
   const PRIMARY_DEFAULTS = {
     reloj: { modo: 'poner', ejercicios: [{ hora: '03:30' }, { hora: '09:00' }] },
@@ -26,10 +32,21 @@
     simetria: { ejercicios: [{ ancho: 3, alto: 4, celdas: [[0, 0], [1, 1], [2, 2], [2, 3]] }] },
     silabas: { palabras: [{ palabra: 'MARIPOSA', silabas: ['MA', 'RI', 'PO', 'SA'] }] },
     vf_rapido: { segundos: 12, afirmaciones: [{ texto: 'El Sol es una estrella.', verdadero: true, explicacion: 'Es la estrella más cercana a la Tierra.' }] },
-    ruleta_preguntas: { preguntas: [{ categoria: 'Ciencias', pregunta: '¿Cuántos planetas tiene el sistema solar?', opciones: ['7', '8', '9'], correcta: 1 }, { categoria: 'Lengua', pregunta: '¿Cuál es un verbo?', opciones: ['correr', 'mesa', 'azul'], correcta: 0 }] }
+    ruleta_preguntas: { preguntas: [{ categoria: 'Ciencias', pregunta: '¿Cuántos planetas tiene el sistema solar?', opciones: ['7', '8', '9'], correcta: 1 }, { categoria: 'Lengua', pregunta: '¿Cuál es un verbo?', opciones: ['correr', 'mesa', 'azul'], correcta: 0 }] },
+    geometria: { modo: 'identificar', cantidad: 5, nivel: 1 },
+    dinero: { modo: 'contar', cantidad: 4, nivel: 1 },
+    vertical: { operacion: '+', cantidad: 4, nivel: 1, ejercicios: [] },
+    abaco: { modo: 'poner', cantidad: 4, columnas: 3 },
+    calculo_mental: { cantidad: 5, nivel: 1, ejercicios: [] },
+    horas: { modo: 'leer', cantidad: 4, nivel: 1, ejercicios: [] },
+    tesoro: { modo: 'pista', cantidad: 3, nivel: 1 },
+    simetria_dibujo: { eje: 'v', cantidad: 3, nivel: 1 },
+    patron_visual: { modo: 'formas', cantidad: 4, nivel: 1 },
+    batalla: { nivel: 1 },
+    tangram: { modo: 'completar', estilo: 'clasico', cantidad: 4 }
   };
   const PRIMARY_HELP = {
-    reloj: 'Cambia la hora o el modo. Usa horas en formato HH:MM.',
+    reloj: 'Cambia la hora o el modo. Usa HH:MM en formato de 24 horas; 16:30 se representa como 4:30 en el reloj analógico.',
     recta_numerica: 'Ajusta los límites, el salto y los números que el alumnado colocará.',
     grafico: 'Edita los datos y las preguntas en formato JSON. Cada dato lleva etiqueta y valor.',
     balanza: 'Edita los ejercicios en JSON. Cada ejercicio incluye los pesos de ambos platos y las pesas disponibles.',
@@ -39,7 +56,18 @@
     simetria: 'Cada ejercicio define la cuadrícula y las celdas que forman el dibujo.',
     silabas: 'Cada palabra contiene una lista de sílabas en el orden correcto.',
     vf_rapido: 'Escribe afirmaciones y marca en cada una si es verdadera; añade una explicación.',
-    ruleta_preguntas: 'Añade categoría, pregunta, opciones y el índice de la respuesta correcta (empieza en 0).'
+    ruleta_preguntas: 'Añade categoría, pregunta, opciones y el índice de la respuesta correcta (empieza en 0).',
+    geometria: 'Elige el reto y la dificultad. Puedes limitar las figuras desde las opciones avanzadas.',
+    dinero: 'Selecciona si practicar monedas, pagos o el cálculo del cambio, y ajusta la dificultad.',
+    vertical: 'Elige la operación y la dificultad. En las opciones avanzadas puedes definir cada operación.',
+    abaco: 'Elige si el alumnado representa o lee el número y cuántas columnas tendrá el ábaco.',
+    calculo_mental: 'Ajusta el número de preguntas y el nivel. Puedes escribir ejercicios propios en las opciones avanzadas.',
+    horas: 'Cada hora introducida genera un reto. Usa HH:MM de 00:00 a 23:59; 16:30 se mostrará como 4:30 en un reloj de 12 horas.',
+    tesoro: 'Elige si el alumnado sigue una pista o programa el recorrido, y ajusta el nivel.',
+    simetria_dibujo: 'Elige el eje de simetría y cuántos dibujos crear.',
+    patron_visual: 'Elige practicar patrones con figuras o con números.',
+    batalla: 'Ajusta la dificultad de las operaciones y del tablero.',
+    tangram: 'Elige el reto y la paleta de color de las piezas.'
   };
   const TEMPLATES = [
     { id: 'quiz', title: 'Quiz rápido', description: 'Una explicación breve y preguntas para comprobar lo aprendido.', blocks: [
@@ -305,6 +333,10 @@
     if (block.tipo === 'patrones') return `${(data.secuencias || []).length} serie(s)`;
     if (block.tipo === 'vf_rapido') return `${(data.afirmaciones || []).length} afirmación(es)`;
     if (block.tipo === 'ruleta_preguntas') return `${(data.preguntas || []).length} pregunta(s)`;
+    if (['vertical', 'calculo_mental'].includes(block.tipo)) return `${(data.ejercicios || []).length || data.cantidad || 0} ejercicio(s)`;
+    if (block.tipo === 'horas') return `${(data.ejercicios || []).length || data.cantidad || 0} reto(s)`;
+    if (['geometria', 'dinero', 'abaco', 'tesoro', 'simetria_dibujo', 'patron_visual', 'tangram'].includes(block.tipo)) return `${data.cantidad || 0} reto(s)`;
+    if (block.tipo === 'batalla') return `Nivel ${data.nivel || 1}`;
     return '';
   }
 
@@ -359,12 +391,14 @@
     return `<div class="field"><label for="field-${key}">${esc(label)}</label>${textarea ? `<textarea id="field-${key}" data-key="${key}" data-mode="${mode}" rows="${rows}"${mode === 'json' ? ' class="json-field" spellcheck="false"' : ''}>${esc(shown)}</textarea>` : `<input id="field-${key}" data-key="${key}" value="${esc(shown)}" />`}</div>`;
   }
 
-  function primaryField(label, key, value, mode = 'text', hint = '') {
-    const textarea = ['lines', 'json', 'times', 'wordHints', 'syllables', 'truth', 'chartData'].includes(mode);
+  function primaryField(label, key, value, mode = 'text', hint = '', choices = null) {
+    const textarea = ['lines', 'json', 'times', 'hourTasks', 'words', 'wordHints', 'syllables', 'truth', 'chartData'].includes(mode);
     let shown = value ?? '';
     if (mode === 'json') shown = JSON.stringify(value ?? [], null, 2);
     else if (mode === 'lines') shown = Array.isArray(value) ? value.join('\n') : '';
     else if (mode === 'times') shown = Array.isArray(value) ? value.map((item) => item.hora || '').join('\n') : '';
+    else if (mode === 'hourTasks') shown = Array.isArray(value) ? value.map((item) => item.inicio && item.fin ? `${item.inicio}|${item.fin}` : item.duracion != null ? `${item.hora || ''}|${item.duracion}` : item.hora || '').join('\n') : '';
+    else if (mode === 'words') shown = Array.isArray(value) ? value.join('\n') : '';
     else if (mode === 'wordHints') shown = Array.isArray(value) ? value.map((item) => `${item.palabra || ''}|${item.pista || ''}`).join('\n') : '';
     else if (mode === 'syllables') shown = Array.isArray(value) ? value.map((item) => `${item.palabra || ''}|${(item.silabas || []).join('-')}`).join('\n') : '';
     else if (mode === 'truth') shown = Array.isArray(value) ? value.map((item) => `${item.texto || ''}|${item.verdadero ? 'verdadero' : 'falso'}|${item.explicacion || ''}`).join('\n') : '';
@@ -373,9 +407,13 @@
     let control;
     if (textarea) control = `<textarea id="${id}" data-primary-data="${key}" data-mode="${mode}" rows="${mode === 'json' ? 9 : 4}"${mode === 'json' ? ' spellcheck="false"' : ''}>${esc(shown)}</textarea>`;
     else if (mode === 'select') {
-      const options = key === 'modo' ? [['poner', 'Poner la hora'], ['leer', 'Leer la hora']] : [['barras', 'Barras'], ['pictograma', 'Pictograma']];
+      const options = choices || (key === 'modo' ? [['poner', 'Poner la hora'], ['leer', 'Leer la hora']] : [['barras', 'Barras'], ['pictograma', 'Pictograma']]);
       control = `<select id="${id}" data-primary-data="${key}" data-mode="${mode}">${options.map(([option, title]) => `<option value="${option}" ${shown === option ? 'selected' : ''}>${title}</option>`).join('')}</select>`;
-    } else control = `<input id="${id}" data-primary-data="${key}" data-mode="${mode}" ${mode === 'number' ? 'type="number"' : ''} value="${esc(shown)}" />`;
+    } else {
+      const numeric = ['number', 'level', 'quantity', 'columns'].includes(mode);
+      const limits = { level: 'min="1" max="3" step="1"', quantity: 'min="1" max="12" step="1"', columns: 'min="2" max="4" step="1"' };
+      control = `<input id="${id}" data-primary-data="${key}" data-mode="${mode}" ${numeric ? `type="number" ${limits[mode] || ''}` : ''} value="${esc(shown)}" />`;
+    }
     return `<label class="field primary-field" for="${id}"><span>${esc(label)}</span>${control}${hint ? `<small>${esc(hint)}</small>` : ''}</label>`;
   }
 
@@ -401,6 +439,32 @@
     if (block.tipo === 'vf_rapido') return primaryField('Duración en segundos', 'segundos', data.segundos, 'number') +
       primaryField('Afirmaciones (texto|verdadero/falso|explicación)', 'afirmaciones', data.afirmaciones, 'truth', 'Ejemplo: El Sol es una estrella.|verdadero|Es la estrella más cercana a la Tierra.');
     if (block.tipo === 'ruleta_preguntas') return primaryField('Preguntas de la ruleta (JSON)', 'preguntas', data.preguntas, 'json', 'Cada pregunta tiene categoria, pregunta, opciones y correcta (índice desde 0).');
+    const count = (label = 'Número de retos') => primaryField(label, 'cantidad', data.cantidad, 'quantity');
+    const level = () => primaryField('Nivel de dificultad', 'nivel', data.nivel, 'level', '1: inicial · 2: intermedio · 3: avanzado.');
+    if (block.tipo === 'geometria') return primaryField('Tipo de reto', 'modo', data.modo, 'select', '', [['identificar', 'Identificar formas'], ['lados', 'Contar lados'], ['clasificar', 'Clasificar formas']]) +
+      count() + level() + primaryField('Figuras (opcional, una por línea)', 'figuras', data.figuras || [], 'words', 'Ejemplo: triangulo, cuadrado, circulo.');
+    if (block.tipo === 'dinero') return primaryField('Tipo de reto', 'modo', data.modo, 'select', '', [['contar', 'Contar monedas'], ['pagar', 'Pagar un importe'], ['cambio', 'Calcular el cambio']]) +
+      count() + level();
+    if (block.tipo === 'vertical') return primaryField('Operación', 'operacion', data.operacion, 'select', '', [['+', 'Sumas'], ['-', 'Restas']]) +
+      count() + level() + primaryField('Operaciones propias (JSON)', 'ejercicios', data.ejercicios || [], 'json', 'Cada ejercicio tiene a, b y op (+ o -).');
+    if (block.tipo === 'abaco') return primaryField('Tipo de reto', 'modo', data.modo, 'select', '', [['poner', 'Representar el número'], ['leer', 'Leer el ábaco']]) +
+      count() + primaryField('Columnas', 'columnas', data.columnas, 'columns', 'Entre 2 y 4 columnas.');
+    if (block.tipo === 'calculo_mental') return count() + level() +
+      primaryField('Ejercicios propios (JSON)', 'ejercicios', data.ejercicios || [], 'json', 'Cada ejercicio tiene enunciado y respuesta.');
+    if (block.tipo === 'horas') {
+      const modo = primaryField('Tipo de reto', 'modo', data.modo, 'select', '', [['leer', 'Leer el reloj'], ['poner', 'Poner la hora'], ['sumar', 'Sumar tiempo'], ['duracion', 'Calcular duración']]);
+      const formato = primaryField('Retos de hora', 'ejercicios', data.ejercicios || [], 'hourTasks', 'Un reto por línea: HH:MM para leer/poner; HH:MM|minutos para sumar; HH:MM|HH:MM (inicio y fin) para calcular duración.');
+      return modo + count() + level() + formato;
+    }
+    if (block.tipo === 'tesoro') return primaryField('Tipo de reto', 'modo', data.modo, 'select', '', [['pista', 'Seguir una pista'], ['programar', 'Programar el recorrido']]) +
+      count() + level();
+    if (block.tipo === 'simetria_dibujo') return primaryField('Eje de simetría', 'eje', data.eje, 'select', '', [['v', 'Vertical'], ['h', 'Horizontal']]) +
+      count() + level();
+    if (block.tipo === 'patron_visual') return primaryField('Tipo de patrón', 'modo', data.modo, 'select', '', [['formas', 'Figuras y colores'], ['num', 'Series numéricas']]) +
+      count() + level();
+    if (block.tipo === 'batalla') return level();
+    if (block.tipo === 'tangram') return primaryField('Tipo de reto', 'modo', data.modo, 'select', '', [['completar', 'Completar la figura'], ['contar', 'Contar piezas'], ['identificar', 'Identificar una pieza']]) +
+      count() + primaryField('Estilo de las piezas', 'estilo', data.estilo, 'select', '', [['clasico', 'Clásico'], ['pastel', 'Pastel'], ['neon', 'Neón'], ['madera', 'Madera'], ['silueta', 'Silueta']]);
     return '';
   }
 
@@ -412,9 +476,14 @@
     const mode = target.dataset.mode;
     const raw = target.value;
     let value = raw;
-    if (mode === 'number') {
+    if (['number', 'level', 'quantity', 'columns'].includes(mode)) {
       if (raw.trim() === '' || !Number.isFinite(Number(raw))) { $('field-error').textContent = 'Escribe un número válido.'; return; }
       value = Number(raw);
+      const limits = { level: [1, 3], quantity: [1, 12], columns: [2, 4] }[mode];
+      if (!Number.isInteger(value) || (limits && (value < limits[0] || value > limits[1]))) {
+        $('field-error').textContent = limits ? `El valor debe ser un número entero entre ${limits[0]} y ${limits[1]}.` : 'Escribe un número entero válido.';
+        return;
+      }
     }
     else if (mode === 'lines') {
       const entries = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
@@ -426,6 +495,23 @@
       if (hours.some((hora) => !/^([01]\d|2[0-3]):[0-5]\d$/.test(hora))) { $('field-error').textContent = 'Escribe cada hora en formato HH:MM.'; return; }
       value = hours.map((hora) => ({ hora }));
     }
+    else if (mode === 'hourTasks') {
+      const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+      const isTime = value => /^([01]\d|2[0-3]):[0-5]\d$/.test(value);
+      const parsed = lines.map((line) => {
+        const [first, second] = line.split('|').map((part) => part.trim());
+        if (data.modo === 'sumar' && second !== undefined && isTime(first) && /^\d+$/.test(second) && Number(second) > 0) return { hora: first, duracion: Number(second) };
+        if (data.modo === 'duracion' && second !== undefined && isTime(first) && isTime(second) && first !== second) return { inicio: first, fin: second };
+        if ((data.modo === 'leer' || data.modo === 'poner') && second === undefined && isTime(first)) return { hora: first };
+        return null;
+      });
+      if (parsed.some((item) => !item)) {
+        $('field-error').textContent = 'Revisa el formato de cada reto de hora según el modo seleccionado.';
+        return;
+      }
+      value = parsed;
+    }
+    else if (mode === 'words') value = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
     else if (mode === 'wordHints') value = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean).map((line) => {
       const [palabra = '', pista = ''] = line.split('|');
       return { palabra: palabra.trim(), pista: pista.trim() };
@@ -481,7 +567,18 @@
       simetria: ['🪞', 'Completa el reflejo', PRIMARY_HELP.simetria],
       silabas: ['✂️', 'Separa en sílabas', PRIMARY_HELP.silabas],
       vf_rapido: ['⚡', 'Verdadero o falso', PRIMARY_HELP.vf_rapido],
-      ruleta_preguntas: ['🎡', 'Ruleta de preguntas', PRIMARY_HELP.ruleta_preguntas]
+      ruleta_preguntas: ['🎡', 'Ruleta de preguntas', PRIMARY_HELP.ruleta_preguntas],
+      geometria: ['🔷', 'Explora las formas', PRIMARY_HELP.geometria],
+      dinero: ['🪙', 'Monedas y cambio', PRIMARY_HELP.dinero],
+      vertical: ['➕', 'Suma y resta en vertical', PRIMARY_HELP.vertical],
+      abaco: ['🧮', 'Ábaco', PRIMARY_HELP.abaco],
+      calculo_mental: ['⚡', 'Cálculo mental', PRIMARY_HELP.calculo_mental],
+      horas: ['🕰️', 'Lee y calcula horas', PRIMARY_HELP.horas],
+      tesoro: ['🗺️', 'Búsqueda del tesoro', PRIMARY_HELP.tesoro],
+      simetria_dibujo: ['🪞', 'Dibuja la simetría', PRIMARY_HELP.simetria_dibujo],
+      patron_visual: ['🟣', 'Patrones visuales', PRIMARY_HELP.patron_visual],
+      batalla: ['🚢', 'Batalla matemática', PRIMARY_HELP.batalla],
+      tangram: ['🔺', 'Tangram', PRIMARY_HELP.tangram]
     };
     const art = typeArt[block.tipo] || ['✦', blockName(block.tipo), 'Personaliza este contenido.'];
     let fields = editorField('Título del bloque', 'titulo', block.titulo || '');

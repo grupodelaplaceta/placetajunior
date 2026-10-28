@@ -68,21 +68,55 @@ test('Primaria Nueva registra y reproduce todos sus tipos', () => {
   }
 });
 
+test('el editor del Studio configura los once tipos nuevos', () => {
+  const studio = fs.readFileSync(path.join(root, 'public', 'studio-creadores.js'), 'utf8');
+  for (const tipo of tipos) {
+    assert.match(studio, new RegExp(`\\['${tipo}',`), `${tipo} debe estar en la paleta activa`);
+    assert.match(studio, new RegExp(`\\b${tipo}: \\{`), `${tipo} debe tener datos iniciales`);
+    assert.match(studio, new RegExp(`block\\.tipo === '${tipo}'`), `${tipo} debe tener controles visuales`);
+  }
+});
+
+test('el tipo horas respeta las horas y ejercicios que define el docente', () => {
+  const motor = cargarMotor().PJPNueva;
+  const leer = motor.crear({ tipo: 'horas', datos: { modo: 'leer', ejercicios: [{ hora: '16:30' }] } })[0].s;
+  assert.equal(leer.h, 4);
+  assert.equal(leer.m, 30);
+  assert.equal(leer.sol, '4:30');
+
+  const poner = motor.crear({ tipo: 'horas', datos: { modo: 'poner', ejercicios: [{ hora: '09:15' }] } })[0].s;
+  assert.equal(poner.h, 9);
+  assert.equal(poner.m, 15);
+  assert.equal(poner.sol, '9:15');
+
+  const sumar = motor.crear({ tipo: 'horas', datos: { modo: 'sumar', ejercicios: [{ hora: '16:30', duracion: 30 }] } })[0].s;
+  assert.equal(sumar.sol, '17:00');
+
+  const duracion = motor.crear({ tipo: 'horas', datos: { modo: 'duracion', ejercicios: [{ inicio: '23:30', fin: '00:30' }] } })[0].s;
+  assert.equal(duracion.start, 1410);
+  assert.equal(duracion.end, 1470);
+});
+
 test('las modalidades nuevas están declaradas en Primaria y en el Studio', () => {
   const context = {};
   context.window = context;
   vm.runInNewContext(fs.readFileSync(path.join(root, 'public', 'js', 'modalidades.js'), 'utf8'), context);
   const catalogo = context.PJModalidades.catalogo.primaria.tipos;
-  const studio = fs.readFileSync(path.join(root, 'public', 'js', 'studio.js'), 'utf8');
-  const html = fs.readFileSync(path.join(root, 'public', 'studio.html'), 'utf8');
 
   for (const tipo of tipos) {
     assert.ok(catalogo.includes(tipo), `${tipo} debe estar en el catálogo`);
-    assert.match(html, new RegExp(`data-tipo="${tipo}"`), `${tipo} debe estar en la paleta del Studio`);
-    if (tipo !== 'calculo_mental') {
-      assert.match(studio, new RegExp(`\\b${tipo}: \\{`), `${tipo} debe tener configuración de Studio`);
-    }
   }
+});
+
+test('el reloj clásico convierte una hora de 24 horas a su esfera analógica', () => {
+  const window = {};
+  const document = { getElementById: () => null, createElement: () => ({}), head: { appendChild() {} } };
+  const context = { window, document, console, Math, Set, Array, Object, String, Number, JSON, Date, setTimeout, clearTimeout, setInterval, clearInterval };
+  vm.runInNewContext(read('public/js/primaria-juegos.js'), context);
+  const reloj = window.PJPrimaria.crear({ tipo: 'reloj', datos: { ejercicios: [{ hora: '16:30' }] } })[0].s;
+  assert.equal(reloj.h, 4);
+  assert.equal(reloj.mi, 30);
+  assert.equal(reloj.cor, '4:30');
 });
 
 test('el cálculo mental antiguo conserva prioridad cuando tiene sumas explícitas', () => {

@@ -87,7 +87,6 @@ test('la categoría Pensamiento computacional muestra su traducción en el catá
   assert.match(app, /TODAS\.map\(pjAplicarTraduccionActividad\)/);
   assert.match(app, /resultado\[campo\] = traduccion\[campo\]/);
   assert.match(app, /c\.includes\('computacional'\).*c\.includes\('botxifra'\).*c\.includes\('stem'\)/);
-  assert.match(leer('public/studio.html'), /value="Pensamiento computacional"/);
   assert.match(leer('public/studio-creadores.html'), /<option>Pensamiento computacional<\/option>/);
 });
 

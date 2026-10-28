@@ -1,4 +1,4 @@
-# Nuevos juegos de Infantil y nuevos tipos de Primaria
+# Nuevos juegos de Infantil y modalidades de Primaria
 
 ## 1. Infantil (3-5 años) — `public/js/infantil/`
 
@@ -23,7 +23,7 @@ con tolerancia que se estrecha y guía que se desvanece en las pasadas siguiente
 `public/img/juegos/*.webp` (480×270, capturas reales de cada juego) + `public/js/juegos-miniaturas.js` (`window.PJ_GIMG`, clave = nombre catalán; `col` y `puz` para los grupos).
 Para regenerarlas tras cambiar un juego: `python3 tools/generar-miniaturas.py "Nom del joc"` (o sin argumentos para todas).
 
-## 2. Primaria (6-12 años) — `public/js/primaria-juegos.js`
+## 2. Modalidades clásicas de Primaria (6-12 años) — `public/js/primaria-juegos.js`
 
 Once tipos de bloque nuevos, 100 % declarativos (JSON dentro de `datos`, también aceptados en el nivel superior del bloque). Cada reto es una pantalla con su estado en `kpEstado`, suma `kpScore.verdes/rojos` y usa el mismo `mostrarFeedback` que el test. Si faltan datos hay un ejemplo por defecto (nunca se rompe la actividad).
 
@@ -44,8 +44,28 @@ Once tipos de bloque nuevos, 100 % declarativos (JSON dentro de `datos`, tambié
 Integración:
 - **Reproductor** (`player.js`): rama en `abrirJuego`, `renderPantalla`, etiqueta y texto accesible. Script cargado en `jugar.html` y `preview.html`.
 - **DevAI** (`devai.html`): ejemplos y reglas en el prompt + sección «Retos de Primaria» con plantillas que abren el reproductor real.
-- **Studio** (`studio.js`/`studio.html`): botones de paleta, datos por defecto (`PRIM_DEFAULTS`) y editor JSON con la ayuda de cada formato (`PRIM_AYUDA`).
+- **Studio docente** (`/crear-actividad`, `public/studio-creadores.html` y `public/studio-creadores.js`): paleta, opciones visuales y configuración avanzada.
 - **PDF/fichas** (`app.js › fichaPrimariaPdf`): versión imprimible de cada tipo.
 - **Modalidades** (`modalidades.js`): añadidos a la lista de la etapa `primaria`.
 
-Para añadir un tipo nuevo: nombre en `TIPOS` + creador en `crear()` + función `r<Tipo>` en `RND` + (opcional) `INI` para eventos + handler en `window.PJP`; después, `PRIM_DEFAULTS`/`PRIM_AYUDA` (Studio), ejemplo (DevAI) y rama en `fichaPrimariaPdf`.
+## 3. Modalidades nuevas de Primaria — `public/js/pn-*`
+
+Estas modalidades están implementadas en el repositorio principal; no dependen de la carpeta de origen `primaria-nueva`. Se configuran desde el Studio de docentes y centros en `/crear-actividad`.
+
+| `tipo` | Qué trabaja | Datos principales |
+|---|---|---|
+| `geometria` | Figuras y propiedades geométricas | `modo`, `figuras`, `cantidad`, `nivel` |
+| `dinero` | Monedas, pagos y cambio | `modo`, `cantidad`, `nivel` |
+| `vertical` | Sumas y restas en vertical | `operacion`, `ejercicios:[{a,b,op}]`, `cantidad`, `nivel` |
+| `abaco` | Representación y lectura de números | `modo`, `columnas`, `cantidad` |
+| `calculo_mental` | Operaciones y cálculo mental | `ejercicios:[{enunciado,respuesta}]`, `cantidad`, `nivel` |
+| `horas` | Leer, poner y calcular horas | `modo`, `ejercicios:[{hora,duracion?}]` o `[{inicio,fin}]`, `cantidad`, `nivel` |
+| `tesoro` | Orientación y programación de recorridos | `modo`, `cantidad`, `nivel` |
+| `simetria_dibujo` | Completar figuras simétricas | `eje`, `cantidad`, `nivel` |
+| `patron_visual` | Patrones de formas, colores o números | `modo`, `cantidad`, `nivel` |
+| `batalla` | Operaciones en un tablero de batalla naval | `nivel` |
+| `tangram` | Reconocimiento y composición de piezas | `modo`, `estilo`, `cantidad` |
+
+El Studio ofrece controles visuales para los ajustes habituales y conserva un editor JSON avanzado para personalizar todos los datos. En el reloj, las horas se introducen en formato de 24 horas (`16:30`) y se representan en la esfera analógica de 12 horas (`4:30`).
+
+Para añadir una modalidad nueva, registra el tipo y sus opciones en el Studio activo, integra su generador y renderizador en el motor correspondiente (`PJPrimaria` o `PJPNueva`), añade su traducción y comprueba su reproducción, vista previa y publicación con pruebas.

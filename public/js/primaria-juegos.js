@@ -96,7 +96,7 @@
       let ej = arr(d.ejercicios).length ? d.ejercicios : arr(d.horas).map(h => ({ hora: h }));
       if (!ej.length) ej = [{ hora: '03:00' }, { hora: '06:30' }, { hora: '09:15' }];
       ej.forEach((x, i) => {
-        const m = /^(\d{1,2}):(\d{2})$/.exec(String(x.hora || '03:00')) || ['', '3', '0'], h = Math.min(12, Math.max(0, +m[1])) % 12, mi = Math.min(59, +m[2]), modo = (x.modo || d.modo) === 'leer' ? 'leer' : 'poner';
+        const m = /^([01]?\d|2[0-3]):([0-5]\d)$/.exec(String(x.hora || '03:00')) || ['', '3', '0'], h = (+m[1]) % 12, mi = +m[2], modo = (x.modo || d.modo) === 'leer' ? 'leer' : 'poner';
         const lab = (hh, mm) => ((hh % 12) || 12) + ':' + String(mm).padStart(2, '0'), cor = lab(h, mi), set = new Set([cor]);
         const alts = [lab(h, (mi + 30) % 60), lab(h + 1, mi), lab(h + 11, mi), lab(h, (mi + 15) % 60), lab(h + 6, mi)];
         for (const a of alts) { if (set.size >= 3) break; set.add(a); }

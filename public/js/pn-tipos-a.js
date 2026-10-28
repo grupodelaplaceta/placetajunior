@@ -362,23 +362,32 @@
     const lv = nivel(d), MODS = ['leer', 'poner', 'sumar', 'duracion'], out = [];
     const pasos = lv === 1 ? [0, 30] : lv === 2 ? [0, 15, 30, 45] : [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
     const duraciones = lv === 1 ? [30, 60, 90, 120] : [15, 30, 45, 60, 75, 90, 120, 150];
-    for (let i = 0; i < cant(d, 4); i++) {
-      const m = MODS.includes(d.modo) ? d.modo : MODS[i % MODS.length];
+    const ejercicios = arr(d.ejercicios).slice(0, 12);
+    const cantidad = ejercicios.length || cant(d, 4);
+    const parseHora = value => {
+      const m = /^([01]?\d|2[0-3]):([0-5]\d)$/.exec(String(value || ''));
+      return m ? Number(m[1]) * 60 + Number(m[2]) : null;
+    };
+    for (let i = 0; i < cantidad; i++) {
+      const ejercicio = ejercicios[i] || {};
+      const m = MODS.includes(ejercicio.modo) ? ejercicio.modo : MODS.includes(d.modo) ? d.modo : MODS[i % MODS.length];
       if (m === 'leer') {
-        const tot = ri(0, 11) * 60 + pick(pasos), set = new Set([tot]);
-        shuf([tot + 15, tot - 15, tot + 30, tot - 30, tot + 60, tot - 60]).forEach(x => { if (set.size < 4) set.add(((x % 720) + 720) % 720); });
+        const tot = parseHora(ejercicio.hora) ?? ri(0, 11) * 60 + pick(pasos), reloj = tot % 720, set = new Set([reloj]);
+        shuf([reloj + 15, reloj - 15, reloj + 30, reloj - 30, reloj + 60, reloj - 60]).forEach(x => { if (set.size < 4) set.add(((x % 720) + 720) % 720); });
         const op = shuf([...set]);
-        out.push({ s: { modo: m, h: Math.floor(tot / 60), m: tot % 60, op, cor: op.indexOf(tot), sol: fmt12(tot) } });
+        out.push({ s: { modo: m, h: Math.floor(reloj / 60), m: reloj % 60, op, cor: op.indexOf(reloj), sol: fmt12(reloj) } });
       } else if (m === 'poner') {
-        const tot = ri(0, 11) * 60 + pick(pasos);
-        out.push({ s: { modo: m, h: Math.floor(tot / 60), m: tot % 60, label: fmt12(tot), sol: fmt12(tot) }, e: { h: 0, m: 0 } });
+        const tot = parseHora(ejercicio.hora) ?? ri(0, 11) * 60 + pick(pasos), reloj = tot % 720;
+        out.push({ s: { modo: m, h: Math.floor(reloj / 60), m: reloj % 60, label: fmt12(reloj), sol: fmt12(reloj) }, e: { h: 0, m: 0 } });
       } else if (m === 'sumar') {
-        const start = ri(8, 19) * 60 + pick(pasos), dur = pick(duraciones), fin = start + dur, set = new Set([fin]);
+        const start = parseHora(ejercicio.hora) ?? ri(8, 19) * 60 + pick(pasos), dur = Math.max(1, num(ejercicio.duracion, pick(duraciones))), fin = start + dur, set = new Set([fin]);
         shuf([fin + 15, fin - 15, fin + 30, fin - 30, fin + 60]).forEach(x => { if (set.size < 4 && x > 0) set.add(x); });
         const op = shuf([...set]);
         out.push({ s: { modo: m, start, dur, op, cor: op.indexOf(fin), sol: fmt24(fin) } });
       } else {
-        const start = ri(8, 19) * 60 + pick(pasos), dur = pick(duraciones), set = new Set([dur]);
+        const explicitStart = parseHora(ejercicio.inicio), explicitEnd = parseHora(ejercicio.fin);
+        const hasDuration = explicitStart !== null && explicitEnd !== null && explicitStart !== explicitEnd;
+        const start = hasDuration ? explicitStart : ri(8, 19) * 60 + pick(pasos), dur = hasDuration ? (explicitEnd - explicitStart + 1440) % 1440 : pick(duraciones), set = new Set([dur]);
         shuf([dur + 15, dur - 15, dur + 30, dur - 30, dur + 60]).forEach(x => { if (set.size < 4 && x > 0) set.add(x); });
         const op = shuf([...set]);
         out.push({ s: { modo: m, start, end: start + dur, op, cor: op.indexOf(dur), sol: durFmt(dur) } });

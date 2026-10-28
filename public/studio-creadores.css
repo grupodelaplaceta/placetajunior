@@ -308,3 +308,10 @@ main{max-width:1320px;padding-top:clamp(20px,3vw,34px)}
   .studio-next-row{border-color:var(--line);background:linear-gradient(105deg,#30234c,#211946)}
   .submit-bar{background:#211946ed}
 }
+.palette-item.type-geometria .palette-icon,.palette-item.type-tangram .palette-icon{background:#eee8ff;color:#5b14c8}
+.palette-item.type-dinero .palette-icon,.palette-item.type-abaco .palette-icon{background:#fff0c7;color:#a65700}
+.palette-item.type-vertical .palette-icon,.palette-item.type-batalla .palette-icon{background:#e2f3ff;color:#08749b}
+.palette-item.type-calculo_mental .palette-icon,.palette-item.type-horas .palette-icon{background:#ffe5ef;color:#bc2860}
+.palette-item.type-tesoro .palette-icon,.palette-item.type-patron_visual .palette-icon{background:#e4f6e8;color:#218144}
+.palette-item.type-simetria_dibujo .palette-icon{background:#fce5cc;color:#a65700}
+.activity-data-editor .primary-field small{display:block;color:var(--muted);font-size:10px;line-height:1.45}
