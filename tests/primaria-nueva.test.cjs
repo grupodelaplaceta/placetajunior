@@ -70,6 +70,22 @@ test('Primaria Nueva registra y reproduce todos sus tipos', () => {
   }
 });
 
+test('las nuevas actividades adaptan sus componentes a pantallas estrechas', () => {
+  const css = fs.readFileSync(path.join(root, 'public', 'css', 'actividades', 'primaria-nueva.css'), 'utf8');
+  const jugar = fs.readFileSync(path.join(root, 'public', 'jugar.html'), 'utf8');
+  const preview = fs.readFileSync(path.join(root, 'public', 'preview.html'), 'utf8');
+  const sw = fs.readFileSync(path.join(root, 'public', 'sw.js'), 'utf8');
+
+  assert.match(css, /@media\s*\(max-width:\s*600px\)/);
+  assert.match(css, /\.pn-screen\s*\{[^}]*min-width:\s*0/);
+  assert.match(css, /\.pn-screen \.pn-vrow\s*\{[^}]*minmax\(38px,\s*1fr\)/);
+  assert.match(css, /\.pn-screen \.pn-clockwrap:has\([^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/);
+  assert.match(css, /\.pn-screen \.pn-keys\s*\{[^}]*minmax\(0,\s*1fr\)/);
+  assert.match(jugar, /primaria-nueva\.css\?v=20261028-responsive/);
+  assert.match(preview, /primaria-nueva\.css\?v=20261028-responsive/);
+  assert.match(sw, /placetajunior-assets-v12/);
+});
+
 test('el editor del Studio configura todos los tipos nuevos', () => {
   const studio = fs.readFileSync(path.join(root, 'public', 'studio-creadores.js'), 'utf8');
   for (const tipo of tipos) {

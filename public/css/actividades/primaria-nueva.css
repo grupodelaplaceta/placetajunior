@@ -14,7 +14,7 @@
   --pn-title: 'Handly', 'Outfit', system-ui, sans-serif;
 }
 
-.pn-screen { font-family: var(--pn-font); color: var(--pn-ink); width: 100%; max-width: 760px; margin: 0 auto; }
+.pn-screen { font-family: var(--pn-font); color: var(--pn-ink); width: 100%; min-width: 0; max-width: 760px; margin: 0 auto; overflow-wrap: anywhere; }
 .pn-screen *, .pn-screen *::before, .pn-screen *::after { box-sizing: border-box; }
 .pn-screen button { font-family: inherit; }
 .pn-screen :focus-visible { outline: 4px solid var(--pn-warn); outline-offset: 3px; }
@@ -210,5 +210,30 @@ button.pn-tcell:hover { filter: brightness(1.05); transform: translateY(-2px); }
 .pn-pz.hole { fill: #f5f3ff; stroke: #7c3aed; stroke-width: 4; stroke-dasharray: 9 7; }
 .pn-pz.hl { stroke: #f59e0b; stroke-width: 9; }
 .pn-thumb { width: 92px; height: 92px; display: block; }
+
+@media (max-width: 600px) {
+  .pn-screen .pn-cab { border-radius: 20px; padding: 16px; margin-bottom: 12px; }
+  .pn-screen .pn-row, .pn-screen .pn-tadj { gap: 8px; }
+  .pn-screen .pn-opts { grid-template-columns: repeat(auto-fit, minmax(min(100%, 130px), 1fr)); gap: 10px; }
+  .pn-screen .pn-opt { min-width: 0; min-height: 64px; padding: 10px 8px; border-radius: 16px; overflow-wrap: anywhere; }
+  .pn-screen .pn-clue { padding: 12px; font-size: 16px; }
+  .pn-screen .pn-price { font-size: clamp(36px, 12vw, 50px); }
+  .pn-screen .pn-vgrid { width: 100%; padding: 12px 8px; overscroll-behavior-x: contain; }
+  .pn-screen .pn-vrow { grid-template-columns: 34px repeat(var(--w), minmax(38px, 1fr)); gap: 4px; }
+  .pn-screen .pn-vdig, .pn-screen .pn-vsign { min-width: 0; height: 48px; font-size: clamp(24px, 8vw, 34px); }
+  .pn-screen .pn-vcar { width: 100%; max-width: 44px; }
+  .pn-screen .pn-vres { width: 100%; max-width: 48px; height: 52px; font-size: 28px; }
+  .pn-screen .pn-keys { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+  .pn-screen .pn-key { min-width: 0; height: 50px; }
+  .pn-screen .pn-abaco { flex-wrap: wrap; justify-content: center; padding: 12px; }
+  .pn-screen .pn-clockwrap:has(.pn-clock + .pn-digital-clock) { grid-template-columns: minmax(0, 1fr); }
+  .pn-screen .pn-digital-clock { max-width: 100%; padding: 12px clamp(10px, 4vw, 18px); font-size: clamp(32px, 12vw, 48px); }
+  .pn-screen .pn-dice-area { gap: 8px; }
+  .pn-screen .pn-arrow { width: clamp(48px, 15vw, 60px); height: clamp(48px, 15vw, 60px); }
+  .pn-screen .pn-sgrid { padding: 6px; gap: 2px; }
+  .pn-screen .pn-board { padding: 8px; gap: 3px; }
+  .pn-screen .pn-tile { width: clamp(56px, 18vw, 70px); height: clamp(56px, 18vw, 70px); }
+  .pn-screen .pn-thumb { width: clamp(64px, 22vw, 88px); height: auto; }
+}
 
 @media (prefers-reduced-motion: reduce) { .pn-screen * { transition: none !important; animation: none !important; } }
