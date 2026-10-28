@@ -13,7 +13,7 @@
       etiqueta: 'Primaria',
       edades: '6-12',
       tema: 'descubre',
-      tipos: ['test', 'calculo_mental', 'mapa_mundi', 'mapa_espana', 'code_blocks', 'cazador_errores', 'reloj', 'recta_numerica', 'grafico', 'balanza', 'ahorcado', 'anagrama', 'patrones', 'simetria', 'silabas', 'vf_rapido', 'ruleta_preguntas']
+      tipos: ['test', 'calculo_mental', 'mapa_mundi', 'mapa_espana', 'code_blocks', 'cazador_errores', 'reloj', 'recta_numerica', 'grafico', 'balanza', 'ahorcado', 'anagrama', 'patrones', 'simetria', 'silabas', 'vf_rapido', 'ruleta_preguntas', 'geometria', 'dinero', 'vertical', 'abaco', 'horas', 'tesoro', 'simetria_dibujo', 'patron_visual', 'batalla', 'tangram']
     },
     secundaria: {
       etiqueta: 'Secundaria',

@@ -422,6 +422,9 @@ function abrirJuego(act) {
       } else if (b.tipo === 'completar') {
         pantallas.push({ tipo: 'completar', bi });
         kpEstado.push({ estado: {} });
+      } else if (window.PJPNueva && PJPNueva.TIPOS.has(b.tipo) && !(b.tipo === 'calculo_mental' && Array.isArray(b.sumas) && b.sumas.length)) {
+        // Primaria Nueva: conserva el cálculo mental legado cuando usa sumas[].
+        PJPNueva.crear(b).forEach((x) => { pantallas.push(Object.assign({ tipo: 'pn-nueva', bi }, x.s)); kpEstado.push(x.e); });
       } else if (b.tipo === 'calculo_mental') {
         (b.sumas || []).forEach((s, si) => {
           const a = Number(s.a) || 0, bb = Number(s.b) || 0;
@@ -721,6 +724,7 @@ function renderPantalla() {
   else if (s.tipo === 'code_explica') cuerpo = screenCodeExplica(s);
   else if (s.tipo === 'interactivo') cuerpo = screenInteractive(s, est);
   else if (s.tipo === 'pp') cuerpo = PJPrimaria.render(s, est);
+  else if (s.tipo === 'pn-nueva') cuerpo = PJPNueva.render(s, est);
   else if (s.tipo === 'final') { cuerpo = screenFinal(s); if (!kpCelebrado) { kpCelebrado = true; if (window.PJProgreso) { PJProgreso.sumar(kpScore.verdes, kpScore.rojos); try { window.dispatchEvent(new CustomEvent('pj:progreso')); } catch (e) { /* ok */ } } lluviaConfetti(); if (window.pjSonido) pjSonido.victoria(); } }
   ocultarFeedback();
   destruirMapas();
@@ -770,6 +774,7 @@ function renderPantalla() {
   if (s.tipo === 'code') { kpCodeDibujarEscenario(); kpCodePintarPrograma(); }
   if (s.tipo === 'trazo') iniciarTrazo(pantallaIdx);
   if (s.tipo === 'pp') PJPrimaria.init(s, pantallaIdx);
+  if (s.tipo === 'pn-nueva') PJPNueva.init(s, pantallaIdx);
 
   // Accesibilidad: exponer el texto de la pantalla para la lectura con audio
   document.dispatchEvent(new CustomEvent('junior:texto', { detail: textoPantallaWeb(s) }));
@@ -838,6 +843,7 @@ function textoPantallaWeb(s) {
   if (s.tipo === 'espana') return (s.modo === 'comunidades' ? 'Comunidades autónomas de España. ' : 'Provincias de España. ') + (s.pide || '');
   if (s.tipo === 'meca') return 'Escribe con el teclado la palabra: ' + (s.target || '');
   if (s.tipo === 'pp') return window.PJPrimaria ? PJPrimaria.texto(s) : '';
+  if (s.tipo === 'pn-nueva') return window.PJPNueva ? PJPNueva.texto(s) : '';
   if (s.tipo === 'nb') return 'Números con bloques. ' + (s.pideTexto || s.pregunta || '');
   if (s.tipo === 'code') return 'Placeta Junior Code. Ejercicio ' + ((s.ejercicio || 0) + 1) + '. ' + (s.objetivo_texto || 'Lleva a Candela hasta la estrella.');
   if (s.tipo === 'code_explica') return 'Placeta Junior Code. ' + (s.explicacion || 'Pulsa los bloques para programar a Candela.');

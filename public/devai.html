@@ -146,6 +146,8 @@
 }
 
 Reglas:
+- TRADUCCIONES: si se piden traducciones, añádelas en `traducciones` en la raíz del JSON. Incluye las claves `ca` (catalán), `val` (valenciano) y `en` (inglés); cada una debe contener `titulo`, `descripcion`, `categoria` y `contenido`, con la misma estructura completa que la actividad original (`version`, `niveles` y `bloques` cuando existan). Traduce también los títulos, instrucciones, preguntas, opciones, respuestas escritas y textos de todos los bloques y niveles. Conserva los índices de `correcta`, los valores numéricos y la lógica; no cambies el significado ni omitas contenido. No incluyas una traducción parcial.
+- Devuelve la actividad original en español en los campos raíz y las traducciones completas dentro de `traducciones`, todo en un único JSON. No añadas `traducciones` si no se han solicitado.
 - "correcta" es el índice (base 0) de la opción correcta de cada pregunta.
 - En relacionar modo "escribir": "der" es la palabra que el niño debe teclear (NO la pongas en "izq").
 - Empieza SIEMPRE con un bloque "texto" que enseñe el contenido antes de las preguntas.
@@ -224,7 +226,7 @@ Reglas:
 
       <div class="card">
         <h2>3️⃣ Código de la actividad (texto directo)</h2>
-        <p class="sub">Edita o pega aquí el JSON (el de la IA o el generado). Con "Previsualizar" lo ves renderizado y con "Publicar" lo envías a revisión.</p>
+        <p class="sub">Edita o pega aquí el JSON (el de la IA o el generado). Puedes incluir `traducciones` (ca, val y en) en el mismo objeto; se conservarán al publicar. Con "Previsualizar" lo ves renderizado y con "Publicar" lo envías a revisión.</p>
         <textarea id="codigo" spellcheck="false" placeholder='Pega aquí el JSON de la actividad... o pulsa "Generar código" en el paso 2.'></textarea>
         <div class="meta">
           <div class="field"><label class="campo-lbl">Título <span class="req">*</span></label><input id="titulo" placeholder="Título (si no está en el JSON)" /></div>
@@ -585,6 +587,11 @@ Reglas:
       const titulo = (obj.titulo || $('titulo').value || '').trim();
       const descripcion = (obj.descripcion || $('descripcion').value || '').trim();
       if (!titulo || !descripcion) { aviso('❌ Faltan título y descripción.', true); return; }
+      const traducciones = obj.traducciones ?? contenido.traducciones;
+      if (traducciones != null && (typeof traducciones !== 'object' || Array.isArray(traducciones))) {
+        aviso('❌ Las traducciones deben ser un objeto con una entrada por idioma (ca, val, en).', true);
+        return;
+      }
       const body = {
         tipo_titular: 'interno', dip: null, eip: null, nombre_entidad: null, nombre_autor: null,
         titulo, descripcion,
@@ -599,7 +606,8 @@ Reglas:
         subvencionada: (obj.subvencionada ?? $('subvencionada').checked) === true,
         num_preguntas: contarPreguntas(bloques.length ? bloques : nivelesPublicar.flatMap(n => n.bloques || [])),
         num_fases: nivelesPublicar.length || bloques.length,
-        contenido
+        contenido,
+        ...(traducciones ? { traducciones } : {})
       };
       m.textContent = '⏳ Enviando…'; m.className = '';
       try {

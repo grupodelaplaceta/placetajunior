@@ -257,6 +257,39 @@ main{max-width:1320px;padding-top:clamp(20px,3vw,34px)}
   .submit-button{max-width:50%;white-space:normal;line-height:1.2}
 }
 @media(prefers-reduced-motion:reduce){.studio-menu button,.saved-activity,.new-activity-button,.studio-next-button{transition:none}}
+ .palette-filters{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:10px;padding:11px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(135deg,#faf8ff,#fff)}
+ .palette-search{display:grid;grid-template-columns:22px minmax(0,1fr);align-items:center;gap:6px;min-height:40px;padding:0 10px;border:1px solid #ded7ef;border-radius:12px;background:#fff;color:var(--purple)}
+ .palette-search>span{font-size:20px;text-align:center}
+ .palette-search input{min-width:0;width:100%;padding:8px 0;border:0;outline:0;background:transparent;color:var(--ink);font:500 12px "Plus Jakarta Sans",system-ui,sans-serif}
+ .palette-search input:focus-visible{outline:0}
+ .palette-category-label{margin:0;color:var(--muted);font-size:10px;font-weight:800}
+ .palette-filters select{width:100%;min-height:38px;padding:7px 10px;border:1px solid #ded7ef;border-radius:11px;background:#fff;color:var(--ink);font:700 12px "Plus Jakarta Sans",system-ui,sans-serif}
+ .palette-count{margin:0;color:var(--muted);font-size:10px}
+ .palette-items{display:grid;gap:7px;max-height:490px;overflow:auto;padding:2px 3px 4px 1px;overscroll-behavior:contain}
+ .palette-item[hidden]{display:none!important}
+ .palette-item{min-height:60px;padding:8px 9px;border-radius:14px}
+ .palette-item-copy{display:grid;gap:3px;min-width:0}
+ .palette-item-copy strong{overflow:hidden;color:var(--ink);font-size:11px;text-overflow:ellipsis;white-space:nowrap}
+ .palette-item-copy small{color:var(--muted);font-size:9px;font-weight:600}
+ .palette-item.type-reloj .palette-icon,.palette-item.type-grafico .palette-icon,.palette-item.type-ruleta_preguntas .palette-icon{background:#fff0c7}
+ .palette-item.type-recta_numerica .palette-icon,.palette-item.type-simetria .palette-icon{background:#e2f3ff}
+ .palette-item.type-balanza .palette-icon,.palette-item.type-patrones .palette-icon{background:#e2f5dc}
+ .palette-item.type-ahorcado .palette-icon,.palette-item.type-anagrama .palette-icon,.palette-item.type-silabas .palette-icon{background:#ffe5ef}
+ .palette-item.type-vf_rapido .palette-icon{background:#fce5cc}
+ .activity-data-editor{padding:11px;border:1px solid var(--line);border-radius:15px;background:#faf8ff}
+ .activity-data-editor summary{color:var(--purple);font-size:12px;font-weight:800;cursor:pointer}
+ .activity-data-editor>p{margin:10px 0;color:var(--muted);font-size:11px;line-height:1.55}
+ .activity-data-editor .field label{font-size:11px}
+ .activity-data-editor textarea{font:500 11px/1.5 "Plus Jakarta Sans",system-ui,sans-serif}
+ .activity-data-editor .json-field{min-height:200px}
+ @media(max-width:1050px){.palette-items{max-height:420px}}
+ @media(max-width:700px){.palette-items{grid-template-columns:repeat(2,minmax(0,1fr));max-height:350px}.palette-item{grid-template-columns:32px minmax(0,1fr) 20px;gap:7px}.palette-item .palette-icon{width:30px;height:30px;font-size:16px}.activity-data-editor .json-field{min-height:180px}}
+ @media(max-width:400px){.palette-items{grid-template-columns:1fr}}
+ @media(prefers-color-scheme:dark){
+   .palette-filters,.activity-data-editor{border-color:var(--line);background:#211946}
+   .palette-search,.palette-filters select{border-color:var(--line);background:#150f2e;color:var(--ink)}
+   .palette-search input{color:var(--ink)}
+ }
 @media(prefers-color-scheme:dark){
   body{background:radial-gradient(ellipse at 88% 2%,#35245b 0,transparent 31%),#150f2e}
   .studio-menu,.studio-view{background:#211946ed}

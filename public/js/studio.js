@@ -51,10 +51,30 @@ const TIPOS = {
   ,silabas: { ico: 'content_cut', nombre: 'Separa en sílabas' }
   ,vf_rapido: { ico: 'bolt', nombre: 'Verdadero o falso relámpago' }
   ,ruleta_preguntas: { ico: 'casino', nombre: 'Ruleta de preguntas' }
+  ,geometria: { ico: 'category', nombre: 'Geometría' }
+  ,dinero: { ico: 'euro', nombre: 'Euros' }
+  ,vertical: { ico: 'calculate', nombre: 'Sumas y restas en vertical' }
+  ,abaco: { ico: 'tune', nombre: 'Ábaco' }
+  ,horas: { ico: 'schedule', nombre: 'Horas y duraciones' }
+  ,tesoro: { ico: 'explore', nombre: 'Mapa del tesoro' }
+  ,simetria_dibujo: { ico: 'flip', nombre: 'Simetría con dibujo' }
+  ,patron_visual: { ico: 'pattern', nombre: 'Patrones visuales' }
+  ,batalla: { ico: 'sailing', nombre: 'Hundir la flota' }
+  ,tangram: { ico: 'extension', nombre: 'Tangram' }
 };
 
 // Tipos de Primaria (js/primaria-juegos.js): contenido 100 % JSON dentro de `datos`
 const PRIM_DEFAULTS = {
+  geometria: { modo: 'identificar', cantidad: 4 },
+  dinero: { modo: 'contar', cantidad: 3, nivel: 1 },
+  vertical: { operacion: '+', cantidad: 3, nivel: 1 },
+  abaco: { modo: 'poner', columnas: 3, cantidad: 2 },
+  horas: { modo: 'leer', cantidad: 3, nivel: 1 },
+  tesoro: { modo: 'pista', cantidad: 2, nivel: 1 },
+  simetria_dibujo: { cantidad: 3, nivel: 1 },
+  patron_visual: { cantidad: 5, nivel: 1 },
+  batalla: { nivel: 1 },
+  tangram: { modo: 'completar', cantidad: 3, estilo: 'clasico' },
   reloj: { modo: 'poner', ejercicios: [{ hora: '03:30' }, { hora: '09:00' }, { hora: '06:15', modo: 'leer' }] },
   recta_numerica: { min: 0, max: 20, paso: 1, valores: [13, 4] },
   grafico: { titulo_grafico: 'Mascotas de la clase', unidad: 'niños', tipo_grafico: 'barras', datos: [{ etiqueta: 'Perro', valor: 8 }, { etiqueta: 'Gato', valor: 5 }, { etiqueta: 'Pez', valor: 3 }], preguntas: [{ pregunta: '¿Qué mascota es la más frecuente?', opciones: ['Perro', 'Gato', 'Pez'], correcta: 0 }] },
@@ -68,6 +88,16 @@ const PRIM_DEFAULTS = {
   ruleta_preguntas: { preguntas: [{ categoria: 'Ciencias', pregunta: '¿Cuántos planetas tiene el sistema solar?', opciones: ['7', '8', '9'], correcta: 1 }, { categoria: 'Lengua', pregunta: '¿Cuál es un verbo?', opciones: ['correr', 'mesa', 'azul'], correcta: 0 }] }
 };
 const PRIM_AYUDA = {
+  geometria: 'modo: "identificar"|"lados"|"clasificar" · cantidad · nivel · figuras[] opcional',
+  dinero: 'modo: "contar"|"pagar"|"cambio" · cantidad · nivel',
+  vertical: 'operacion: "+"|"-" · ejercicios[] opcionales: {a,b,op} · cantidad · nivel',
+  abaco: 'modo: "poner"|"leer" · columnas (2-5) · cantidad',
+  horas: 'modo: "leer"|"poner"|"sumar"|"duracion" · ejercicios[] opcionales · cantidad · nivel',
+  tesoro: 'modo: "pista"|"programar" · cantidad · nivel',
+  simetria_dibujo: 'eje: "v"|"h" opcional · cantidad · nivel',
+  patron_visual: 'cantidad · nivel',
+  batalla: 'nivel: 1-3',
+  tangram: 'modo: "completar"|"contar"|"identificar" · cantidad · estilo',
   reloj: 'ejercicios[]: {hora:"HH:MM", modo:"poner"|"leer"}',
   recta_numerica: 'min, max, paso y valores[] (números a colocar)',
   grafico: 'datos[]: {etiqueta, valor, color?} · tipo_grafico: "barras"|"pictograma" · preguntas[] opcionales (si no hay, se generan)',

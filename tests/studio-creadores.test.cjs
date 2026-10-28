@@ -2,6 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const vm = require('node:vm');
 
 const root = path.join(__dirname, '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
@@ -38,6 +39,13 @@ test('el editor incluye cuatro plantillas y editor visual para tipos comunes', (
   for (const view of ['activities', 'create', 'edit', 'guide']) assert.match(html, new RegExp(`data-studio-panel="${view}"`));
   for (const id of ['quiz', 'parejas', 'lectura', 'vocabulario']) assert.ok(js.includes(`id: '${id}'`));
   for (const id of ['texto', 'test', 'relacionar', 'completar', 'ordenar', 'sopa_letras']) assert.ok(js.includes(`['${id}'`));
+  for (const id of ['reloj', 'recta_numerica', 'grafico', 'balanza', 'ahorcado', 'anagrama', 'patrones', 'simetria', 'silabas', 'vf_rapido', 'ruleta_preguntas']) {
+    assert.ok(js.includes(`${id}: {`), `Studio incluye ${id}`);
+  }
+  assert.match(js, /function paintPalette\(\)[\s\S]*?palette-search/);
+  assert.match(js, /data-category="\$\{esc\(category\)\}"/);
+  assert.match(read('public/js/player.js'), /window\.PJPrimaria && PJPrimaria\.TIPOS\.has\(b\.tipo\)/);
+  assert.match(read('public/js/primaria-juegos.js'), /const TIPOS = new Set\(\['reloj', 'recta_numerica', 'grafico', 'balanza', 'ahorcado', 'anagrama', 'patrones', 'simetria', 'silabas', 'vf_rapido', 'ruleta_preguntas'\]\)/);
   assert.match(html, /id="meta-title"/);
   assert.match(html, /id="preview-activity"/);
   assert.match(js, /data-add-row="preguntas"/);
@@ -49,6 +57,30 @@ test('el editor incluye cuatro plantillas y editor visual para tipos comunes', (
   assert.match(js, /function setAuthorScope\(value\)/);
   assert.match(js, /function deleteSavedDraft\(id\)/);
   assert.match(js, /function paintInspector\(\)[\s\S]*?inspector-type-card type-/);
+});
+
+test('los once tipos nuevos generan pantallas con el reproductor existente', () => {
+  const window = {};
+  const document = { getElementById: () => null, createElement: () => ({}), head: { appendChild() {} } };
+  const context = { window, document, console, Math, Set, Array, Object, String, Number, JSON, Date, setTimeout, clearTimeout, setInterval, clearInterval };
+  vm.runInNewContext(read('public/js/primaria-juegos.js'), context);
+  const examples = {
+    reloj: { ejercicios: [{ hora: '03:30' }] },
+    recta_numerica: { min: 0, max: 20, paso: 1, valores: [13, 4] },
+    grafico: { datos: [{ etiqueta: 'Perro', valor: 8 }, { etiqueta: 'Gato', valor: 5 }] },
+    balanza: { ejercicios: [{ izq: [5, 3], der: [2], pesas: [1, 2, 3, 5] }] },
+    ahorcado: { palabras: [{ palabra: 'MARIPOSA', pista: 'Insecto' }] },
+    anagrama: { palabras: [{ palabra: 'ESCUELA', pista: 'Aprendes' }] },
+    patrones: { secuencias: [{ serie: ['2', '4', '6', '?'], opciones: ['7', '8', '9'], correcta: 1 }] },
+    simetria: { ejercicios: [{ ancho: 3, alto: 4, celdas: [[0, 0], [1, 1]] }] },
+    silabas: { palabras: [{ palabra: 'MARIPOSA', silabas: ['MA', 'RI', 'PO', 'SA'] }] },
+    vf_rapido: { afirmaciones: [{ texto: 'El Sol es una estrella.', verdadero: true }] },
+    ruleta_preguntas: { preguntas: [{ categoria: 'Ciencias', pregunta: '¿Cuántos planetas?', opciones: ['7', '8', '9'], correcta: 1 }] }
+  };
+  for (const [tipo, datos] of Object.entries(examples)) {
+    assert.ok(window.PJPrimaria.TIPOS.has(tipo), `el reproductor reconoce ${tipo}`);
+    assert.ok(window.PJPrimaria.crear({ tipo, datos }).length, `${tipo} genera al menos una pantalla`);
+  }
 });
 
 test('el lienzo permite deshacer, rehacer, duplicar y mover bloques', () => {
