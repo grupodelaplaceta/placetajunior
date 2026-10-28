@@ -20,8 +20,8 @@
   const pick = a => a[Math.floor(Math.random() * a.length)];
   const shuf = a => { const x = a.slice(); for (let i = x.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [x[i], x[j]] = [x[j], x[i]]; } return x; };
   const D = b => (b && b.datos && typeof b.datos === 'object' ? Object.assign({}, b, b.datos) : (b || {}));
-  const nivel = d => Math.min(3, Math.max(1, num(d.nivel, 1)));
-  const cant = (d, def) => Math.min(12, Math.max(1, num(d.cantidad, def)));
+  const nivel = d => Math.floor(Math.min(3, Math.max(1, num(d.nivel, 1))));
+  const cant = (d, def) => Math.floor(Math.min(12, Math.max(1, num(d.cantidad, def))));
   const pad2 = n => String(n).padStart(2, '0');
   const dgs = n => String(n).split('').reverse().map(Number);
 
@@ -69,7 +69,7 @@
   // Opciones tipo test. Si e.malas tiene índices, esas opciones quedan descartadas (reintento).
   function opts(idx, e, items, cor, act, label, big) {
     const malas = arr(e.malas);
-    return `<div class="pn-opts${big ? ' big' : ''}" role="group">${items.map((it, j) => {
+    return `<div class="pn-opts${big ? ' big' : ''}" role="group" aria-label="${esc(t('options.label'))}">${items.map((it, j) => {
       let c = 'pn-opt';
       if (e.respondida) { if (j === cor) c += ' ok'; else if (e.sel === j) c += ' bad'; }
       else if (malas.includes(j)) c += ' bad';
@@ -108,10 +108,25 @@
     if (!fn) return;
     ev.preventDefault();
     fn(Number(el.getAttribute('data-i')), el.getAttribute('data-v'), el);
+    const restoreFocus = () => {
+      if (document.activeElement !== document.body || document.querySelector('.kp-fb-card, dialog[open]')) return;
+      const stage = document.querySelector('.kp-stage') || document.querySelector('.pn-screen');
+      if (!stage) return;
+      const sameAction = Array.from(stage.querySelectorAll('[data-pn]')).find(candidate =>
+        candidate.dataset.pn === el.dataset.pn && candidate.dataset.i === el.dataset.i && candidate.dataset.v === el.dataset.v && !candidate.disabled
+      );
+      const target = sameAction || stage.querySelector('.pn-msg');
+      if (target) {
+        if (!target.hasAttribute('tabindex') && target.classList.contains('pn-msg')) target.setAttribute('tabindex', '-1');
+        target.focus({ preventScroll: true });
+      }
+    };
+    if (typeof requestAnimationFrame === 'function') requestAnimationFrame(restoreFocus);
   });
 
   // Teclado físico para la operación vertical
   document.addEventListener('keydown', ev => {
+    if (ev.target && ev.target.closest && ev.target.closest('input, textarea, select, [contenteditable="true"]')) return;
     const g = document.querySelector('.pn-vgrid');
     if (!g) return;
     const idx = Number(g.getAttribute('data-i')), e = st(idx);

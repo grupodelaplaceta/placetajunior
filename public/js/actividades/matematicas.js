@@ -20,7 +20,7 @@
   ];
   const polyN = n => Array.from({ length: n }, (_, i) => { const a = -Math.PI / 2 + i * 2 * Math.PI / n; return (100 + 80 * Math.cos(a)).toFixed(1) + ',' + (100 + 80 * Math.sin(a)).toFixed(1); }).join(' ');
   const SHAPE_PTS = { triangulo: '100,20 180,170 20,170', cuadrado: '40,40 160,40 160,160 40,160', rectangulo: '15,60 185,60 185,140 15,140', rombo: '100,15 185,100 100,185 15,100', pentagono: polyN(5), hexagono: polyN(6) };
-  const shapeSVG = (k, cls) => `<svg class="pn-shape ${cls || ''}" viewBox="0 0 200 200" aria-hidden="true">${k === 'circulo' ? '<circle cx="100" cy="100" r="80"/>' : '<polygon points="' + SHAPE_PTS[k] + '"/>'}</svg>`;
+  const shapeSVG = (k, cls) => `<svg class="pn-shape ${cls || ''}" viewBox="0 0 200 200" role="img" aria-label="${esc(t('k.' + k))}">${k === 'circulo' ? '<circle cx="100" cy="100" r="80"/>' : '<polygon points="' + SHAPE_PTS[k] + '"/>'}</svg>`;
 
   function crearGeo(d) {
     const MODOS = ['identificar', 'lados', 'clasificar', 'medir'];
@@ -124,12 +124,12 @@
     }
     const suma = arr(e.pago).reduce((a, b) => a + b, 0);
     const bandeja = arr(e.pago).length
-      ? arr(e.pago).map((v, j) => `<button type="button" class="pn-coinbtn" data-pn="din_quita" data-i="${idx}" data-v="${j}" aria-label="${esc(t('din.remove'))}">${mhtml(v)}</button>`).join('')
+      ? arr(e.pago).map((v, j) => `<button type="button" class="pn-coinbtn" data-pn="din_quita" data-i="${idx}" data-v="${j}" aria-label="${esc(t('din.remove') + ' ' + mlab(v))}">${mhtml(v)}</button>`).join('')
       : '<span class="pn-empty">—</span>';
     return cab('dinero', t('din.pay', { p: eur(s.price) })) +
       `<div class="pn-pago"><div class="pn-lab">${esc(t('din.paying'))}: <strong>${esc(eur(suma))}</strong></div><div class="pn-money pn-tray" aria-live="polite">${bandeja}</div></div>` +
       `<div class="pn-lab">${esc(t('din.wallet'))}</div>` +
-      `<div class="pn-money pn-wallet">${MONEY.map((v, j) => `<button type="button" class="pn-coinbtn" data-pn="din_add" data-i="${idx}" data-v="${j}">${mhtml(v)}</button>`).join('')}</div>` +
+      `<div class="pn-money pn-wallet">${MONEY.map((v, j) => `<button type="button" class="pn-coinbtn" data-pn="din_add" data-i="${idx}" data-v="${j}" aria-label="${esc(mlab(v))}">${mhtml(v)}</button>`).join('')}</div>` +
       `<div class="pn-row">${btn('din_chk', idx, t('check'), 'primary')}${btn('din_clear', idx, t('clear'), 'ghost')}${btn('pn_show', idx, t('show'), 'ghost')}</div>` + msg(e);
   }
 
@@ -171,7 +171,11 @@
   }
 
   function crearVertical(d) {
-    const out = [], lv = nivel(d), datos = arr(d.ejercicios).filter(x => x && num(x.a, null) != null && num(x.b, null) != null);
+    const out = [], lv = nivel(d), datos = arr(d.ejercicios).filter(x => {
+      if (!x) return false;
+      const a = num(x.a, null), b = num(x.b, null);
+      return Number.isSafeInteger(a) && Number.isSafeInteger(b) && a >= 0 && b >= 0 && a <= 999999 && b <= 999999;
+    });
     const n = datos.length ? datos.length : cant(d, 4);  // con ejercicios propios, sólo esos
     for (let i = 0; i < n; i++) {
       let a, b, op;
@@ -294,7 +298,7 @@
       for (let k = 0; k < 10; k++) {
         const on = k < val ? ' on' : '';
         cuentas += puedes
-          ? `<button type="button" class="pn-bead${on}" data-pn="ab_bead" data-i="${idx}" data-v="${j}:${k}" aria-label="${esc(t('aba.bead'))}"></button>`
+          ? `<button type="button" class="pn-bead${on}" data-pn="ab_bead" data-i="${idx}" data-v="${j}:${k}" aria-label="${esc(t('aba.bead') + ' ' + (k + 1) + ', ' + t('aba.c' + (s.cols - 1 - j)))}" aria-pressed="${k < val}"></button>`
           : `<span class="pn-bead${on}"></span>`;
       }
       return `<div class="pn-rod"><div class="pn-beads">${cuentas}</div><span class="pn-rlab">${esc(t('aba.c' + (s.cols - 1 - j)))}</span></div>`;

@@ -1,66 +1,104 @@
-/* Placeta Junior UI polish: shared visual rhythm for Education, Studio and activities. */
+/* Placeta Junior · shared interface system for learning, teachers and centres. */
 :root {
   --pj-shadow: 0 14px 34px -24px rgba(48, 24, 102, .46);
   --pj-ring: 0 0 0 4px rgba(91, 20, 200, .13);
+  --pj-ease: cubic-bezier(.2,.75,.25,1);
 }
 
-/* One Education shell: the public education page and Studio share the same
-   spacing, surfaces and visual language even though their feature styles differ. */
+html { scroll-behavior: smooth; scroll-padding-top: 92px; }
+body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+:where(button, a, input, select, textarea):focus-visible { outline: 3px solid #2e8bff; outline-offset: 3px; }
+.material-symbols-rounded { font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24; line-height: 1; }
+
+/* Brand and navigation */
+.education-topbar, .pj-topbar, .top { box-shadow: 0 8px 26px rgba(45, 19, 110, .2); }
+.education-brand img, .pj-home .brand img { filter: drop-shadow(0 2px 3px #1c0a4b50); }
+.education-nav a, .mn a, .pj-home .nav-links a { min-height: 42px; transition: background .18s var(--pj-ease), color .18s var(--pj-ease), transform .18s var(--pj-ease), box-shadow .18s var(--pj-ease); }
+.education-nav a:hover, .mn a:hover, .pj-home .nav-links a:hover { transform: translateY(-1px); }
+.education-nav a[aria-current="page"], .mn a[aria-current="page"] { box-shadow: 0 3px 0 #c46500; }
+.education-signout { min-height: 40px; }
+
+/* Teacher and centre workspace */
 .education-topbar + main, .top + main { max-width: 1400px; }
 .education-topbar + main { padding-top: clamp(22px, 4vw, 48px); }
-body:has(.studio-menu) { background: radial-gradient(ellipse at 92% 3%, #efe8ff 0, transparent 29%), #f7f6fd; }
-body:has(.studio-menu) main { max-width: 1400px; }
-body:has(.studio-menu) .intro { border-bottom-color: var(--line); }
-body:has(.studio-menu) .studio-view { border: 1px solid var(--line); border-radius: 24px; background: rgba(255,255,255,.82); box-shadow: var(--pj-shadow); }
-body:has(.studio-menu) .studio-menu { border-color: var(--line); border-radius: 18px; box-shadow: 0 5px 0 #e4dff4; }
-body:has(.studio-menu) .studio-menu button[aria-selected="true"] { box-shadow: 0 3px 0 #c46500; }
-body:has(.studio-menu) .studio-view-heading { padding-bottom: 18px; border-bottom: 1px solid var(--line); }
-body:has(.studio-menu) .studio-view-heading h2 { color: var(--ink); }
-body:has(.studio-menu) .new-activity-button, body:has(.studio-menu) .studio-next-button,
-body:has(.studio-menu) .submit-button { border-radius: 999px; box-shadow: 0 4px 0 #c46500; }
-body:has(.studio-menu) .saved-activity { border-radius: 18px; box-shadow: 0 3px 0 #e4dff4; }
-body:has(.studio-menu) .palette-item, body:has(.studio-menu) .block-card,
-body:has(.studio-menu) .inspector, body:has(.studio-menu) .toolbox { border-radius: 16px; }
-body:has(.studio-menu) .field input:focus, body:has(.studio-menu) .field textarea:focus,
-body:has(.studio-menu) .field select:focus { border-color: var(--purple); box-shadow: var(--pj-ring); }
-body:has(.studio-menu) .preview-dialog { border: 1px solid var(--line); border-radius: 24px; box-shadow: 0 24px 80px rgba(29, 23, 68, .28); }
-
-html { scroll-behavior: smooth; }
-body { text-rendering: optimizeLegibility; }
-button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
-
-/* Education / teachers / centre administration */
-.top, .education-topbar { backdrop-filter: blur(14px); }
-.tarjeta, .dashboard-kpi, .stat-panel, .stats-section, .centro-card,
-.solicitud-card, .center-list-card { box-shadow: var(--pj-shadow), 0 1px 0 var(--line); }
-.tarjeta { animation: pj-enter .35s ease both; }
-.opcion-alta, .centro-card, .center-list-card, .dashboard-kpi, .device-row,
-.stat-panel, .stats-section, .solicitud-card { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
-.opcion-alta:focus-within, .centro-card:focus-within, .center-list-card:focus-visible,
-.dashboard-kpi:hover, .device-row:hover, .stat-panel:hover, .stats-section:hover { box-shadow: var(--pj-shadow), var(--pj-ring); }
+.tarjeta, .dashboard-kpi, .stat-panel, .stats-section, .centro-card, .solicitud-card, .center-list-card { box-shadow: var(--pj-shadow), 0 1px 0 var(--line); }
+.tarjeta { animation: pj-enter .35s var(--pj-ease) both; }
+.opcion-alta, .centro-card, .center-list-card, .dashboard-kpi, .device-row, .stat-panel, .stats-section, .solicitud-card { transition: transform .18s var(--pj-ease), box-shadow .18s var(--pj-ease), border-color .18s var(--pj-ease); }
+.opcion-alta:focus-within, .centro-card:focus-within, .center-list-card:focus-visible, .dashboard-kpi:hover, .device-row:hover, .stat-panel:hover, .stats-section:hover { box-shadow: var(--pj-shadow), var(--pj-ring); }
 .dashboard-kpi:hover, .device-row:hover, .stat-panel:hover, .stats-section:hover { transform: translateY(-2px); }
 .dashboard-head { position: relative; }
 .dashboard-head::after { content: ""; position: absolute; left: 0; bottom: -1px; width: 76px; height: 3px; border-radius: 99px; background: var(--orange); }
 
-/* Studio */
-.topbar nav a, .studio-menu button, .palette-item, .template, .block-card,
-.submit-button, .quiet-button { transition: transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease; }
-.topbar nav a:focus-visible, .studio-menu button:focus-visible, .palette-item:focus-visible,
-.template:focus-visible, .block-card:focus-within, .submit-button:focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
+/* Catalogue and collections */
+.collection-page .collection-main, .collection-page .collection-hero-inner { width: min(1160px, calc(100% - 40px)); }
+.collection-page .collection-tools, .collection-page .collection-faq, .collection-page .collection-status { border-color: var(--line); border-radius: 22px; box-shadow: var(--pj-shadow); }
+.collection-page .collection-filters button { min-height: 42px; border-radius: 999px; transition: transform .16s var(--pj-ease), background .16s, box-shadow .16s; }
+.collection-page .collection-filters button:hover { transform: translateY(-2px); }
+.collection-page .collection-card { transition: transform .2s var(--pj-ease), box-shadow .2s var(--pj-ease); }
+.collection-page .collection-card:hover { transform: translateY(-4px); box-shadow: 0 16px 34px -20px #24104470; }
+.collection-page details { border-color: var(--line); border-radius: 16px; }
+
+/* Studio: same surfaces, spacing, focus states and button language as Education. */
+body:has(.studio-menu) { background: radial-gradient(ellipse at 92% 3%, #efe8ff 0, transparent 29%), #f7f6fd; }
+body:has(.studio-menu) main { max-width: 1400px; }
+body:has(.studio-menu) .studio-view { border: 1px solid var(--line); border-radius: 24px; background: rgba(255,255,255,.88); box-shadow: var(--pj-shadow); }
+body:has(.studio-menu) .studio-menu { border-color: var(--line); border-radius: 18px; box-shadow: 0 5px 0 #e4dff4; }
+body:has(.studio-menu) .studio-menu button { min-height: 46px; }
+body:has(.studio-menu) .studio-menu button[aria-selected="true"] { box-shadow: 0 4px 0 #45109e; }
+body:has(.studio-menu) .studio-view-heading { padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+body:has(.studio-menu) .new-activity-button, body:has(.studio-menu) .studio-next-button, body:has(.studio-menu) .submit-button { min-height: 46px; border-radius: 999px; box-shadow: 0 4px 0 #c46500; }
+body:has(.studio-menu) .saved-activity { border-radius: 18px; box-shadow: 0 3px 0 #e4dff4; }
+body:has(.studio-menu) .palette-item, body:has(.studio-menu) .block-card, body:has(.studio-menu) .inspector, body:has(.studio-menu) .toolbox { border-radius: 16px; }
+body:has(.studio-menu) .field input:focus, body:has(.studio-menu) .field textarea:focus, body:has(.studio-menu) .field select:focus { border-color: var(--purple); box-shadow: var(--pj-ring); }
+body:has(.studio-menu) .preview-dialog { border: 1px solid var(--line); border-radius: 24px; box-shadow: 0 24px 80px rgba(29, 23, 68, .28); }
+.topbar nav a, .studio-menu button, .palette-item, .template, .block-card, .submit-button, .quiet-button { transition: transform .18s var(--pj-ease), box-shadow .18s var(--pj-ease), background .18s, border-color .18s; }
 .template:active, .palette-item:active { transform: scale(.985); }
 .block-card:hover { box-shadow: 0 5px 0 #e4dff4, var(--pj-shadow); }
-.submit-bar { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); }
+.submit-bar { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); padding-bottom: calc(13px + env(safe-area-inset-bottom, 0px)); }
 
-/* Primaria Nueva activities */
+/* Games and every Primaria Nueva activity */
 .pn-screen { isolation: isolate; }
-.pn-cab, .pn-opt, .pn-btn, .pn-vgrid, .pn-tile, .pn-board, .pn-tan,
-.pn-sgrid, .pn-abaco, .pn-tray, .pn-wallet { box-shadow: var(--pj-shadow); }
+.pn-cab, .pn-opt, .pn-btn, .pn-vgrid, .pn-tile, .pn-board, .pn-tan, .pn-sgrid, .pn-abaco, .pn-tray, .pn-wallet { box-shadow: var(--pj-shadow); }
 .pn-cab { box-shadow: 0 8px 0 #3f0c95, var(--pj-shadow); }
-.pn-opt:focus-visible, .pn-btn:focus-visible, .pn-arrow:focus-visible,
-.pn-key:focus-visible, .pn-tcell:focus-visible, .pn-scell:focus-visible,
-.pn-bcell:focus-visible { outline: 4px solid #ff9f1c; outline-offset: 3px; }
+.pn-opt:focus-visible, .pn-btn:focus-visible, .pn-arrow:focus-visible, .pn-key:focus-visible, .pn-tcell:focus-visible, .pn-scell:focus-visible, .pn-bcell:focus-visible { outline: 4px solid #ff9f1c; outline-offset: 3px; }
 .pn-opt:hover:not(:disabled), .pn-arrow:hover:not(:disabled), .pn-key:hover:not(:disabled) { box-shadow: 0 0 0 3px #c9b8ff, 0 8px 0 #c9b8ff, var(--pj-shadow); }
 .pn-msg { min-height: 32px; }
+.game-page, .game-shell, .kp-juego { scroll-margin-top: 86px; }
+.pn-screen :is(button, [role="button"]) { touch-action: manipulation; }
+.pn-screen .pn-opts { gap: clamp(10px, 2vw, 16px); }
+.pn-screen .pn-opt { min-height: 70px; line-height: 1.25; }
+.pn-screen .pn-row { gap: 12px; }
+.pn-screen .pn-money { row-gap: 12px; }
+.pn-screen .pn-bead { width: clamp(34px, 6vw, 44px); height: clamp(34px, 6vw, 44px); }
+.pn-screen .pn-tcell, .pn-screen .pn-scell { touch-action: none; }
+.pn-screen .pn-msg:focus { outline: 0; border-radius: 8px; }
+.pj-home button.kp-pair { font-family: inherit; color: inherit; }
+.pj-home button.kp-pair:disabled { opacity: 1; cursor: default; }
+.pj-home button.kp-step:not(.done) { width: 100%; border: 0; color: inherit; text-align: left; }
+.pj-home :is(.kp-pair, .kp-step):focus-visible { outline: 4px solid #ff9f1c; outline-offset: 3px; z-index: 1; }
+.pj-home :is(.pp-chip, .pp-btn, .pp-tile, .pp-gap, .pp-cell, .pp-vf button):focus-visible { outline: 4px solid #ff9f1c; outline-offset: 3px; }
 
 @keyframes pj-enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .tarjeta { animation: none; } }
+@media (max-width: 760px) {
+  .education-topbar-inner { padding-inline: 14px; }
+  .education-nav { gap: 4px; }
+  .education-nav a { padding-inline: 10px; }
+  body:has(.studio-menu) .studio-view { padding: 18px; border-radius: 20px; }
+  .collection-page .collection-main, .collection-page .collection-hero-inner { width: min(calc(100% - 28px), 680px); }
+  .pn-screen .pn-opt { min-height: 64px; }
+  .pn-screen .pn-wallet { padding: 9px; }
+}
+@media (max-width: 480px) {
+  .education-brand-title { max-width: 150px; }
+  .education-nav { scroll-snap-type: x proximity; }
+  .education-nav a { scroll-snap-align: start; }
+  .education-signout { min-height: 36px; padding: 7px 11px; }
+  body:has(.studio-menu) .studio-view { padding: 14px; }
+  .pn-screen .pn-row { gap: 8px; }
+  .pn-screen .pn-row .pn-btn { flex: 1 1 auto; padding-inline: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}

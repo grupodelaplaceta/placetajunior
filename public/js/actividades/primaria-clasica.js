@@ -195,7 +195,7 @@
       g += `<line x1="${X(i)}" y1="${big ? 56 : 62}" x2="${X(i)}" y2="${big ? 84 : 78}" stroke="#33334d" stroke-width="${big ? 3 : 2}"/>`;
       if (big && i !== ti) g += `<text x="${X(i)}" y="108" text-anchor="middle" font-size="${W < 500 ? 15 : 18}" font-weight="800" fill="#33334d">${fmt(v)}</text>`;
       if (sel) g += `<g><path d="M${X(i)} 66 l-11 -26 h22z" fill="#e11d48"/><circle cx="${X(i)}" cy="70" r="8" fill="#e11d48"/></g>`;
-      g += `<rect x="${X(i) - Math.max(8, (x1 - x0) / n / 2)}" y="20" width="${Math.max(16, (x1 - x0) / n)}" height="90" fill="transparent" style="cursor:pointer" ${est.respondida ? '' : `onclick="PJP.rectaSel(${pantallaIdx},${i})"`} role="button" aria-label="${fmt(v)}"/>`;
+      g += `<rect x="${X(i) - Math.max(8, (x1 - x0) / n / 2)}" y="20" width="${Math.max(16, (x1 - x0) / n)}" height="90" fill="transparent" style="cursor:pointer" ${est.respondida ? 'aria-disabled="true"' : `onclick="PJP.rectaSel(${pantallaIdx},${i})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();PJP.rectaSel(${pantallaIdx},${i})}" tabindex="0" aria-pressed="${sel}"`} role="button" aria-label="${fmt(v)}"/>`;
     }
     const q = s.txt || ('Toca en la recta dónde está el ' + fmt(s.valor));
     return `<div class="kp-screen">${head('recta_numerica', q, 'Recta ' + (s.qi + 1) + ' de ' + s.n)}<div class="pp-wrap"><svg class="pp-svg" viewBox="0 0 ${W} 130" width="${W}" role="img" aria-label="Recta numérica de ${fmt(s.mn)} a ${fmt(s.mx)}" style="width:100%;max-width:${W}px">${g}</svg><button type="button" class="kp-btn" ${est.sel == null || est.respondida ? 'disabled' : ''} onclick="PJP.rectaOk(${pantallaIdx})">Comprobar</button></div></div>`;
@@ -224,7 +224,7 @@
   function scaleSVG(s, est, idx) {
     const L = sum(s.izq), Rr = sum(s.der) + sum(est.add), ang = Math.max(-14, Math.min(14, (Rr - L) * 3)), a = Math.abs(ang) * Math.PI / 180, len = 130, cx = 200, cy = 70;
     const d = len * Math.sin(a), dx = len * Math.cos(a), lyy = cy + (ang > 0 ? -d : d), ryy = cy + (ang > 0 ? d : -d);
-    const chips = (vals, rem) => vals.map((v, i) => { const x = -70 + (i % 5) * 28.5, y = -30 - Math.floor(i / 5) * 30; return `<g ${rem && rem[i] ? `onclick="PJP.balQuitar(${idx},${rem[i] - 1})" style="cursor:pointer" role="button" aria-label="Quitar ${v}"` : ''}><rect x="${x}" y="${y}" width="27" height="27" rx="7" fill="${COL[(v + 7) % 8]}"/><text x="${x + 13.5}" y="${y + 19}" text-anchor="middle" font-size="16" font-weight="900" fill="#fff">${v}</text></g>`; }).join('');
+    const chips = (vals, rem) => vals.map((v, i) => { const x = -70 + (i % 5) * 28.5, y = -30 - Math.floor(i / 5) * 30; return `<g ${rem && rem[i] ? `onclick="PJP.balQuitar(${idx},${rem[i] - 1})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();PJP.balQuitar(${idx},${rem[i] - 1})}" tabindex="0" style="cursor:pointer" role="button" aria-label="Quitar pesa de ${v}"` : ''}><rect x="${x}" y="${y}" width="27" height="27" rx="7" fill="${COL[(v + 7) % 8]}"/><text x="${x + 13.5}" y="${y + 19}" text-anchor="middle" font-size="16" font-weight="900" fill="#fff">${v}</text></g>`; }).join('');
     const rem = s.der.map(() => 0).concat(est.add.map((_, i) => i + 1));
     const pan = '<line x1="0" y1="-42" x2="-62" y2="0" stroke="#6b5aa6" stroke-width="3"/><line x1="0" y1="-42" x2="62" y2="0" stroke="#6b5aa6" stroke-width="3"/><path d="M-70 0h140q-10 22-35 22h-70q-25 0-35-22z" fill="#c9b8ff"/>';
     return `<svg id="pp-scale" class="pp-svg" viewBox="0 0 400 270" width="400" style="width:100%;max-width:440px" role="img" aria-label="Balanza. Izquierda ${L}. Derecha ${Rr}.">
@@ -309,9 +309,9 @@
     },
     rectaSel(idx, i) { const s = cur(idx), est = kpEstado[idx]; if (est.respondida) return; est.sel = s.mn + i * s.paso; renderPantalla(); },
     rectaOk(idx) { const s = cur(idx), est = kpEstado[idx]; if (est.sel == null) return; resolver(idx, Math.abs(est.sel - s.valor) < s.paso / 2, String(s.valor).replace('.', ',')); },
-    balAdd(idx, v) { const s = cur(idx), est = kpEstado[idx]; if (est.respondida) return; est.add.push(v); balUpd(idx); if (sum(s.der) + sum(est.add) === sum(s.izq)) setTimeout(() => resolver(idx, true, ''), 500); else if (est.add.length > 14) { est.add = []; balUpd(idx); } },
-    balQuitar(idx, i) { const est = kpEstado[idx]; if (est.respondida) return; est.add.splice(i, 1); balUpd(idx); },
-    balVaciar(idx) { const est = kpEstado[idx]; if (est.respondida) return; est.add = []; balUpd(idx); },
+    balAdd(idx, v) { const s = cur(idx), est = kpEstado[idx]; if (est.respondida) return; clearTimeout(est.balanceTimer); est.add.push(v); balUpd(idx); if (sum(s.der) + sum(est.add) === sum(s.izq)) { const snapshot = est.add.join(','); est.balanceTimer = setTimeout(() => { if (kpEstado[idx] === est && !est.respondida && est.add.join(',') === snapshot && sum(s.der) + sum(est.add) === sum(s.izq)) resolver(idx, true, ''); }, 500); } else if (est.add.length > 14) { est.add = []; balUpd(idx); } },
+    balQuitar(idx, i) { const est = kpEstado[idx]; if (est.respondida) return; clearTimeout(est.balanceTimer); est.add.splice(i, 1); balUpd(idx); },
+    balVaciar(idx) { const est = kpEstado[idx]; if (est.respondida) return; clearTimeout(est.balanceTimer); est.add = []; balUpd(idx); },
     ahLetra(idx, l) {
       const s = cur(idx), est = kpEstado[idx]; if (est.respondida || est.usadas.includes(l)) return; est.usadas.push(l);
       const w = norm(s.w); if (!w.includes(l)) est.fallos++;

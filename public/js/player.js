@@ -1779,8 +1779,8 @@ function screenRelacionar(s, est) {
     <div class="kp-qt"><span class="material-symbols-rounded" aria-hidden="true">link</span> Relacionar</div>`;
   if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente, b.imagen_alt);
   html += `<div class="kp-match">
-      <div class="kp-col">${izqOrder.map((j) => `<div class="kp-pair${izqCls(j)}" onclick="kpIzq(${pantallaIdx},${j})">${hechas[j] ? '✅ ' : ''}${itemIzq(j)}</div>`).join('')}</div>
-      <div class="kp-col">${derOrder.map((j) => `<div class="kp-pair alt${derCls(j)}" onclick="kpDer(${pantallaIdx},${j})">${hechas[j] ? '✅ ' : ''}${esc(pares[j].der || '…')}</div>`).join('')}</div>
+      <div class="kp-col">${izqOrder.map((j) => `<button type="button" class="kp-pair${izqCls(j)}" onclick="kpIzq(${pantallaIdx},${j})" ${hechas[j] ? 'disabled' : ''} aria-pressed="${est.izq === j || !!hechas[j]}" aria-label="${esc(pares[j].izq_alt || pares[j].izq || 'Elemento para relacionar')}">${hechas[j] ? '✅ ' : ''}${itemIzq(j)}</button>`).join('')}</div>
+      <div class="kp-col">${derOrder.map((j) => `<button type="button" class="kp-pair alt${derCls(j)}" onclick="kpDer(${pantallaIdx},${j})" ${hechas[j] ? 'disabled' : ''} aria-label="${esc(pares[j].der || 'Elemento para relacionar')}">${hechas[j] ? '✅ ' : ''}${esc(pares[j].der || '…')}</button>`).join('')}</div>
     </div>`;
   if (pares.length > 0 && Object.keys(hechas).length >= pares.length) html += `<div class="kp-msg ok">¡Todo emparejado! 🎉</div>`;
   html += `<div class="kp-hint">👆 Toca una tarjeta de cada lado para emparejar</div></div>`;
@@ -1860,8 +1860,8 @@ function screenOrdenar(s, est) {
     <div class="kp-qt"><span class="material-symbols-rounded" aria-hidden="true">format_list_numbered</span> Ordena los pasos</div>`;
   if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente, b.imagen_alt);
   html += `<div class="kp-steps">`;
-  done.forEach((ix, k) => { html += `<div class="kp-step done"><span class="kp-num">${k + 1}</span>${esc(b.items[ix] || '…')}</div>`; });
-  pend.forEach((ix) => { html += `<div class="kp-step" onclick="kpOrden(${pantallaIdx},${ix})"><span class="kp-num">?</span>${esc(b.items[ix] || '…')}</div>`; });
+  done.forEach((ix, k) => { html += `<div class="kp-step done"><span class="kp-num" aria-hidden="true">${k + 1}</span>${esc(b.items[ix] || '…')}</div>`; });
+  pend.forEach((ix) => { html += `<button type="button" class="kp-step" onclick="kpOrden(${pantallaIdx},${ix})" aria-label="Paso: ${esc(b.items[ix] || '…')}"><span class="kp-num" aria-hidden="true">?</span>${esc(b.items[ix] || '…')}</button>`; });
   html += `</div>`;
   if (est.hechas >= n) html += `<div class="kp-msg ok">¡Orden perfecto! 🎉</div>`;
   else if (est.err) html += `<div class="kp-msg bad">👀 Ese no es el siguiente paso</div>`;

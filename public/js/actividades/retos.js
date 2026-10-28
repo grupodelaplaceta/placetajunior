@@ -190,7 +190,8 @@
       const k = x + ',' + y, borde = (s.eje === 'v' && x === s.W / 2 - 1) ? ' edge-v' : (s.eje === 'h' && y === s.H / 2 - 1) ? ' edge-h' : '';
       if (esDestino(s, x, y)) {
         const on = pint.has(k) ? ' on' : '', mal = bad.has(k) ? ' bad' : '';
-        g += e.respondida ? `<span class="pn-scell tgt${on}${mal}${borde}"></span>` : `<button type="button" class="pn-scell tgt${on}${mal}${borde}" data-pn="si_cell" data-i="${idx}" data-v="${k}" aria-label="${esc(k)}"></button>`;
+        const label = t('sim.cell', { x: x + 1, y: y + 1 });
+        g += e.respondida ? `<span class="pn-scell tgt${on}${mal}${borde}" aria-label="${esc(label)}"></span>` : `<button type="button" class="pn-scell tgt${on}${mal}${borde}" data-pn="si_cell" data-i="${idx}" data-v="${k}" aria-label="${esc(label)}" aria-pressed="${pint.has(k)}"></button>`;
       } else {
         g += `<span class="pn-scell src${fill.has(k) ? ' on' : ''}${borde}"></span>`;
       }
@@ -227,6 +228,8 @@
      ========================================================= */
   const FORMAS = ['circle', 'square', 'triangle', 'star'];
   const COLORES = ['#ef4444', '#3b82f6', '#22c55e', '#facc15'];
+  const COLOR_KEY = { '#ef4444': 'color.red', '#3b82f6': 'color.blue', '#22c55e': 'color.green', '#facc15': 'color.yellow' };
+  const nombreFicha = v => t('f.' + v.f) + ', ' + t(COLOR_KEY[v.c]);
   const starPts = (() => { const p = []; for (let i = 0; i < 10; i++) { const r = i % 2 ? 18 : 44, a = -Math.PI / 2 + i * Math.PI / 5; p.push((50 + r * Math.cos(a)).toFixed(1) + ',' + (52 + r * Math.sin(a)).toFixed(1)); } return p.join(' '); })();
   const FIG = {
     circle: c => `<circle cx="50" cy="50" r="38" fill="${c}"/>`,
@@ -244,9 +247,11 @@
         const Lu = lv === 1 ? 2 : 3, unidad = [];
         while (unidad.length < Lu) { const c = { f: pick(FORMAS), c: pick(COLORES) }; if (!unidad.some(u => u.f === c.f && u.c === c.c)) unidad.push(c); }
         const seq = Array.from({ length: 7 }, (_, j) => unidad[j % Lu]), q = ri(3, 6), ans = seq[q];
-        const otras = FORMAS.filter(f => f !== ans.f), otrosC = COLORES.filter(c => c !== ans.c);
-        const dist = [{ f: pick(otras), c: ans.c }, { f: ans.f, c: pick(otrosC) }, { f: pick(otras), c: pick(otrosC) }];
-        const op = shuf([ans].concat(dist));
+        const otras = [];
+        for (const f of FORMAS) for (const c of COLORES) {
+          if (f !== ans.f || c !== ans.c) otras.push({ f, c });
+        }
+        const op = shuf([ans].concat(shuf(otras).slice(0, 3)));
         out.push({ s: { modo, seq: seq.slice(0, 7), q, op, cor: op.indexOf(ans), sol: '' } });
       } else {
         const paso = lv === 1 ? ri(1, 3) : ri(2, 5), a0 = ri(1, 9), seq = Array.from({ length: 6 }, (_, j) => a0 + paso * j), q = ri(2, 5), ans = seq[q];
@@ -261,10 +266,10 @@
 
   function rPatron(s, e, idx) {
     const fichas = s.seq.map((v, j) => {
-      if (j === s.q) return '<span class="pn-tile ask" aria-label="?">?</span>';
-      return s.modo === 'num' ? `<span class="pn-tile num">${v}</span>` : `<span class="pn-tile">${tileSVG(v.f, v.c)}</span>`;
+      if (j === s.q) return '<span class="pn-tile ask" role="img" aria-label="?">?</span>';
+      return s.modo === 'num' ? `<span class="pn-tile num">${v}</span>` : `<span class="pn-tile" role="img" aria-label="${esc(nombreFicha(v))}">${tileSVG(v.f, v.c)}</span>`;
     }).join('');
-    const etiqueta = s.modo === 'num' ? (v => esc(String(v))) : (v => tileSVG(v.f, v.c));
+    const etiqueta = s.modo === 'num' ? (v => esc(String(v))) : (v => `<span role="img" aria-label="${esc(nombreFicha(v))}">${tileSVG(v.f, v.c)}</span>`);
     return cab('patron_visual', s.modo === 'num' ? t('pat.num') : t('pat.shape')) +
       `<div class="pn-seq-tiles">${fichas}</div>` + opts(idx, e, s.op, s.cor, 'pn_q', etiqueta, true) + msg(e);
   }
@@ -390,7 +395,7 @@
     let cuerpo, pregunta;
     if (s.modo === 'completar') {
       pregunta = t('tan.complete');
-      cuerpo = svg + opts(idx, e, s.op, s.cor, 'pn_q', id => thumbSVG(pieza(id), color(id)), true);
+      cuerpo = svg + opts(idx, e, s.op, s.cor, 'pn_q', id => `<span role="img" aria-label="${esc(t('tan.' + pieza(id).k))}">${thumbSVG(pieza(id), color(id))}</span>`, true);
     } else if (s.modo === 'contar') {
       pregunta = t(s.q === 'tri' ? 'tan.count_tri' : s.q === 'sq' ? 'tan.count_sq' : 'tan.count_all');
       cuerpo = svg + opts(idx, e, s.op, s.cor, 'pn_q', v => esc(String(v)), true);
