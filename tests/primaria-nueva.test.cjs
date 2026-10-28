@@ -112,7 +112,7 @@ test('el reloj clásico convierte una hora de 24 horas a su esfera analógica', 
   const window = {};
   const document = { getElementById: () => null, createElement: () => ({}), head: { appendChild() {} } };
   const context = { window, document, console, Math, Set, Array, Object, String, Number, JSON, Date, setTimeout, clearTimeout, setInterval, clearInterval };
-  vm.runInNewContext(read('public/js/primaria-juegos.js'), context);
+  vm.runInNewContext(fs.readFileSync(path.join(jsDir, 'primaria-juegos.js'), 'utf8'), context);
   const reloj = window.PJPrimaria.crear({ tipo: 'reloj', datos: { ejercicios: [{ hora: '16:30' }] } })[0].s;
   assert.equal(reloj.h, 4);
   assert.equal(reloj.mi, 30);
