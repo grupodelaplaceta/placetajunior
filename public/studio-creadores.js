@@ -14,6 +14,7 @@
     ['patrones', 'Continúa la serie', 'repeat', 'Lógica y atención'], ['simetria', 'Completa el reflejo', 'flip', 'Lógica y atención'],
     ['silabas', 'Separa en sílabas', 'content_cut', 'Lengua'], ['vf_rapido', 'Verdadero o falso', 'bolt', 'Lógica y atención'],
     ['ruleta_preguntas', 'Ruleta de preguntas', 'casino', 'Lógica y atención'],
+    ['code_blocks', 'Placeta Junior Code', 'code', 'Pensamiento computacional'],
     ['geometria', 'Explora las formas', 'category', 'Matemáticas'], ['dinero', 'Monedas y cambio', 'euro', 'Matemáticas'],
     ['vertical', 'Suma y resta en vertical', 'calculate', 'Matemáticas'], ['abaco', 'Ábaco', 'tune', 'Matemáticas'],
     ['calculo_mental', 'Cálculo mental', 'psychology', 'Matemáticas'], ['horas', 'Lee y calcula horas', 'schedule', 'Matemáticas'],
@@ -47,6 +48,11 @@
     batalla: { nivel: 1 },
     tangram: { modo: 'completar', estilo: 'clasico', cantidad: 4 }
   };
+  const CODE_DEFAULT_EXERCISES = [
+    { titulo: 'Avanza hasta la estrella', explicacion: 'Añade dos bloques AVANZAR.', objetivo_texto: 'Lleva a Candela hasta la estrella.', bloques_permitidos: ['avanzar'], escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [] }, inicio: { x: 0, y: 0, direccion: 'derecha' }, objetivo: { posicion: { x: 2, y: 0 }, max_pasos: 4 }, pistas: ['Cada bloque AVANZAR mueve una casilla.'] },
+    { titulo: 'Rodea la roca', explicacion: 'Gira a la derecha para rodear la roca.', objetivo_texto: 'Llega a la estrella sin chocar con la roca.', bloques_permitidos: ['avanzar', 'girar'], escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [{ x: 1, y: 0 }], monedas: [] }, inicio: { x: 0, y: 0, direccion: 'derecha' }, objetivo: { posicion: { x: 1, y: 1 }, max_pasos: 4 }, pistas: ['Gira a la derecha y avanza una casilla.'] },
+    { titulo: 'Repite el recorrido', explicacion: 'Usa un bucle para avanzar cuatro casillas.', objetivo_texto: 'Programa a Candela para llegar a la estrella usando REPETIR.', bloques_permitidos: ['avanzar', 'repetir'], escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [] }, inicio: { x: 0, y: 0, direccion: 'derecha' }, objetivo: { posicion: { x: 4, y: 0 }, max_pasos: 5, debe_usar: ['repetir'] }, pistas: ['Crea un bloque REPETIR 4 veces e incluye AVANZAR dentro.'] }
+  ];
   const PRIMARY_HELP = {
     reloj: 'Cambia la hora o el modo. Usa HH:MM en formato de 24 horas; 16:30 se representa como 4:30 en el reloj analógico.',
     recta_numerica: 'Ajusta los límites, el salto y los números que el alumnado colocará.',
@@ -97,7 +103,8 @@
     completar: () => ({ tipo: 'completar', titulo: 'Completa', modo: 'escribir', frases: [{ texto: 'Escribe una frase con ___', respuesta: '' }] }),
     ordenar: () => ({ tipo: 'ordenar', titulo: 'Ordena los pasos', items: ['Primer paso', 'Segundo paso', 'Tercer paso'] }),
     sopa_letras: () => ({ tipo: 'sopa_letras', titulo: 'Sopa de letras', palabras: ['SOL', 'LUNA'], pistas: [] }),
-    ...Object.fromEntries(Object.entries(PRIMARY_DEFAULTS).map(([type, data]) => [type, () => ({ tipo: type, titulo: TYPES.find(([id]) => id === type)?.[1] || type, datos: structuredClone(data) })]))
+    ...Object.fromEntries(Object.entries(PRIMARY_DEFAULTS).map(([type, data]) => [type, () => ({ tipo: type, titulo: TYPES.find(([id]) => id === type)?.[1] || type, datos: structuredClone(data) })])),
+    code_blocks: () => ({ tipo: 'code_blocks', titulo: 'Placeta Junior Code', lenguaje: 'placeta_blocks', objetivo_texto: 'Programa a Candela para completar la misión.', ejercicios: structuredClone(CODE_DEFAULT_EXERCISES) })
   };
   const state = { title: '', description: '', category: 'General', age: '6-12', difficulty: 'media', blocks: [], selected: -1, templates: [], identity: null, identityKind: 'docente', authorName: '', center: null, centers: [], docenteAprobado: false, drafts: [], currentDraftId: null };
   const $ = (id) => document.getElementById(id);
@@ -336,6 +343,7 @@
     if (block.tipo === 'patrones') return `${(data.secuencias || []).length} serie(s)`;
     if (block.tipo === 'vf_rapido') return `${(data.afirmaciones || []).length} afirmación(es)`;
     if (block.tipo === 'ruleta_preguntas') return `${(data.preguntas || []).length} pregunta(s)`;
+    if (block.tipo === 'code_blocks') return `${(block.ejercicios || []).length} reto(s) de programación`;
     if (['vertical', 'calculo_mental'].includes(block.tipo)) return `${(data.ejercicios || []).length || data.cantidad || 0} ejercicio(s)`;
     if (block.tipo === 'horas') return `${(data.ejercicios || []).length || data.cantidad || 0} reto(s)`;
     if (['geometria', 'dinero', 'abaco', 'dados', 'tesoro', 'simetria_dibujo', 'patron_visual', 'tangram'].includes(block.tipo)) return `${data.cantidad || 0} reto(s)`;
@@ -353,7 +361,7 @@
 
   function paintPalette() {
     const categories = [...new Set(TYPES.map(([, , , category]) => category))];
-    $('palette').innerHTML = `<div class="palette-filters"><label class="palette-search"><span aria-hidden="true">⌕</span><input id="palette-search" type="search" placeholder="Busca un tipo…" aria-label="Buscar tipos de actividad"></label><label class="palette-category-label" for="palette-category">Materia</label><select id="palette-category" aria-label="Filtrar por materia"><option value="all">Todas</option>${categories.map((category) => `<option value="${esc(category)}">${esc(category)}</option>`).join('')}</select><p id="palette-count" class="palette-count" aria-live="polite"></p></div><div class="palette-items">${TYPES.map(([type, name, icon, category]) => `<button type="button" draggable="true" class="palette-item type-${type}" data-type="${type}" data-category="${esc(category)}"><span class="palette-icon" aria-hidden="true">${icon}</span><span class="palette-item-copy"><strong>${esc(name)}</strong><small>${esc(category)}</small></span><span class="palette-add" aria-hidden="true">＋</span></button>`).join('')}</div>`;
+    $('palette').innerHTML = `<div class="palette-filters"><label class="palette-search"><span aria-hidden="true">⌕</span><input id="palette-search" type="search" placeholder="Busca un tipo…" aria-label="Buscar tipos de actividad"></label><label class="palette-category-label" for="palette-category">Materia</label><select id="palette-category" aria-label="Filtrar por materia"><option value="all">Todas</option>${categories.map((category) => `<option value="${esc(category)}">${esc(category)}</option>`).join('')}</select><p id="palette-count" class="palette-count" aria-live="polite"></p></div><div class="palette-items">${TYPES.map(([type, name, icon, category]) => `<button type="button" draggable="true" class="palette-item type-${type}" data-type="${type}" data-category="${esc(category)}"><span class="palette-icon material-symbols-rounded" aria-hidden="true">${icon}</span><span class="palette-item-copy"><strong>${esc(name)}</strong><small>${esc(category)}</small></span><span class="palette-add" aria-hidden="true">＋</span></button>`).join('')}</div>`;
     const filterPalette = () => {
       const query = $('palette-search').value.trim().toLocaleLowerCase();
       const category = $('palette-category').value;
@@ -485,6 +493,175 @@
     if (block.tipo === 'tangram') return primaryField('Tipo de reto', 'modo', data.modo, 'select', '', [['completar', 'Completar la figura'], ['contar', 'Contar piezas'], ['identificar', 'Identificar una pieza']]) +
       count() + primaryField('Estilo de las piezas', 'estilo', data.estilo, 'select', '', [['clasico', 'Clásico'], ['pastel', 'Pastel'], ['neon', 'Neón'], ['madera', 'Madera'], ['silueta', 'Silueta']]);
     return '';
+  }
+
+  const CODE_COMMANDS = [
+    ['avanzar', 'Avanzar'], ['retroceder', 'Retroceder'], ['girar', 'Girar'],
+    ['saltar', 'Saltar'], ['repetir', 'Repetir'], ['si', 'Si']
+  ];
+
+  function codeExerciseEditor(exercise, index) {
+    const scenario = exercise.escenario || (exercise.escenario = { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [] });
+    const start = exercise.inicio || (exercise.inicio = { x: 0, y: 0, direccion: 'derecha' });
+    const objective = exercise.objetivo || (exercise.objetivo = { posicion: { x: 2, y: 0 } });
+    const target = objective.posicion || (objective.posicion = { x: 2, y: 0 });
+    const allowed = Array.isArray(exercise.bloques_permitidos) ? exercise.bloques_permitidos : [];
+    const required = Array.isArray(objective.debe_usar) ? objective.debe_usar : [];
+    const field = (label, key, value, type = 'text', attrs = '') => `<label class="field"><span>${label}</span>${
+      type === 'textarea'
+        ? `<textarea data-code-index="${index}" data-code-field="${key}" rows="3">${esc(value ?? '')}</textarea>`
+        : `<input type="${type}" data-code-index="${index}" data-code-field="${key}" value="${esc(value ?? '')}" ${attrs}>`
+    }</label>`;
+    const commands = (group, selected) => CODE_COMMANDS.map(([id, label]) =>
+      `<label class="code-command"><input type="checkbox" data-code-index="${index}" data-code-command="${group}" value="${id}"${selected.includes(id) ? ' checked' : ''}><span>${label}</span></label>`
+    ).join('');
+    return `<fieldset class="repeat-item code-exercise"><legend>Reto ${index + 1}</legend>
+      ${field('Título', 'titulo', exercise.titulo)}
+      ${field('Instrucción breve', 'explicacion', exercise.explicacion)}
+      ${field('Misión para el alumnado', 'objetivo_texto', exercise.objetivo_texto)}
+      <div class="code-field-grid">${field('Ancho del tablero', 'ancho', scenario.ancho || 6, 'number', 'min="3" max="10"')} ${field('Alto del tablero', 'alto', scenario.alto || 6, 'number', 'min="3" max="10')}</div>
+      <div class="code-field-grid">${field('Inicio X', 'inicioX', start.x ?? 0, 'number', 'min="0"')} ${field('Inicio Y', 'inicioY', start.y ?? 0, 'number', 'min="0"')}</div>
+      ${field('Candela empieza mirando', 'direccion', start.direccion || 'derecha', 'text', 'list="code-directions-' + index + '"')}<datalist id="code-directions-${index}"><option value="derecha"><option value="abajo"><option value="izquierda"><option value="arriba"></datalist>
+      <div class="code-field-grid">${field('Estrella X', 'objetivoX', target.x ?? 2, 'number', 'min="0"')} ${field('Estrella Y', 'objetivoY', target.y ?? 0, 'number', 'min="0"')}</div>
+      ${field('Máximo de pasos (opcional)', 'max_pasos', objective.max_pasos ?? '', 'number', 'min="1" max="200"')}
+      <label class="field"><span>Bloques disponibles</span><span class="code-commands">${commands('allowed', allowed)}</span></label>
+      <label class="field"><span>Bloques que debe usar</span><span class="code-commands">${commands('required', required)}</span></label>
+      ${field('Obstáculos: una coordenada X,Y por línea', 'obstaculos', (scenario.obstaculos || []).map(({ x, y }) => `${x},${y}`).join('\n'), 'textarea')}
+      ${field('Monedas: una coordenada X,Y por línea (opcional)', 'monedas', (scenario.monedas || []).map(({ x, y }) => `${x},${y}`).join('\n'), 'textarea')}
+      ${field('Pistas: una por línea', 'pistas', (exercise.pistas || []).join('\n'), 'textarea')}
+      <button type="button" class="quiet-button" data-code-delete="${index}">Eliminar reto</button>
+    </fieldset>`;
+  }
+
+  function codeEditorFields(block) {
+    if (!Array.isArray(block.ejercicios) || !block.ejercicios.length) block.ejercicios = structuredClone(CODE_DEFAULT_EXERCISES.slice(0, 1));
+    const exercises = block.ejercicios;
+    return `<details class="activity-data-editor code-editor" open><summary>Retos de programación</summary>
+      <p>Configura el tablero, la misión y los bloques de cada reto. Las coordenadas empiezan en 0,0.</p>
+      <div class="repeat-list">${exercises.map(codeExerciseEditor).join('')}</div>
+      <button type="button" class="add-row" data-code-add>Añadir reto</button>
+    </details>`;
+  }
+
+  function updateCodeExercise(target) {
+    const block = state.blocks[state.selected];
+    if (!block || block.tipo !== 'code_blocks') return;
+    const index = Number(target.dataset.codeIndex);
+    const exercise = block.ejercicios?.[index];
+    if (!exercise) return;
+    const error = $('field-error');
+    const value = target.value;
+    const numeric = {
+      ancho: [3, 10], alto: [3, 10], inicioX: [0, 9], inicioY: [0, 9],
+      objetivoX: [0, 9], objetivoY: [0, 9], max_pasos: [1, 200]
+    };
+    const coord = key => {
+      const entries = value.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+      const parsed = entries.map(line => {
+        const match = /^(\d+)\s*,\s*(\d+)$/.exec(line);
+        return match ? { x: Number(match[1]), y: Number(match[2]) } : null;
+      });
+      if (parsed.some(item => !item)) return null;
+      const width = Number(exercise.escenario.ancho) || 6, height = Number(exercise.escenario.alto) || 6;
+      if (parsed.some(item => item.x >= width || item.y >= height)) return null;
+      exercise.escenario[key] = parsed;
+      return true;
+    };
+    const key = target.dataset.codeField;
+    if (key in numeric) {
+      if (value.trim() === '' && key === 'max_pasos') delete exercise.objetivo.max_pasos;
+      else {
+        const number = Number(value), [min, max] = numeric[key];
+        if (!Number.isInteger(number) || number < min || number > max) {
+          error.textContent = `El campo ${key} debe ser un entero entre ${min} y ${max}.`;
+          return;
+        }
+        if (key === 'ancho' || key === 'alto') {
+          const extent = key === 'ancho' ? 'x' : 'y';
+          const coords = [...(exercise.escenario.obstaculos || []), ...(exercise.escenario.monedas || [])];
+          if (exercise.inicio[extent] >= number || exercise.objetivo.posicion[extent] >= number || coords.some(item => item[extent] >= number)) {
+            error.textContent = `El tablero no puede ser menor que las posiciones de inicio, objetivo y objetos del eje ${extent.toUpperCase()}.`;
+            return;
+          }
+          exercise.escenario[key] = number;
+        }
+        else if (key === 'inicioX') exercise.inicio.x = number;
+        else if (key === 'inicioY') exercise.inicio.y = number;
+        else if (key === 'objetivoX') exercise.objetivo.posicion.x = number;
+        else if (key === 'objetivoY') exercise.objetivo.posicion.y = number;
+        else exercise.objetivo.max_pasos = number;
+      }
+    } else if (key === 'obstaculos' || key === 'monedas') {
+      if (!coord(key)) { error.textContent = 'Usa una coordenada X,Y por línea, dentro del tablero.'; return; }
+    } else if (key === 'pistas') exercise.pistas = value.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+    else if (key === 'direccion') {
+      if (!['derecha', 'abajo', 'izquierda', 'arriba'].includes(value)) { error.textContent = 'Elige derecha, abajo, izquierda o arriba.'; return; }
+      exercise.inicio.direccion = value;
+    } else exercise[key] = value;
+    error.textContent = '';
+    scheduleHistory();
+    const card = $('canvas').querySelector(`[data-index="${state.selected}"]`);
+    if (card) card.querySelector('.block-copy small').textContent = `${blockName(block.tipo)} · ${blockSummary(block)}`;
+    saveDraft();
+  }
+
+  function updateCodeCommand(target) {
+    const block = state.blocks[state.selected];
+    const index = Number(target.dataset.codeIndex);
+    const exercise = block?.tipo === 'code_blocks' ? block.ejercicios?.[index] : null;
+    if (!exercise) return;
+    const group = target.dataset.codeCommand;
+    const allowed = Array.isArray(exercise.bloques_permitidos) ? exercise.bloques_permitidos : [];
+    const required = Array.isArray(exercise.objetivo?.debe_usar) ? exercise.objetivo.debe_usar : [];
+    const update = (values, value, checked) => checked
+      ? [...new Set(values.concat(value))]
+      : values.filter(item => item !== value);
+    if (group === 'allowed') {
+      exercise.bloques_permitidos = update(allowed, target.value, target.checked);
+      if (!target.checked) exercise.objetivo.debe_usar = required.filter(item => item !== target.value);
+      if (!exercise.bloques_permitidos.length) {
+        target.checked = true;
+        exercise.bloques_permitidos = [target.value];
+        $('field-error').textContent = 'Cada reto debe tener al menos un bloque disponible.';
+        return;
+      }
+    } else {
+      exercise.objetivo = exercise.objetivo || {};
+      exercise.objetivo.debe_usar = update(required, target.value, target.checked);
+      if (target.checked && !allowed.includes(target.value)) {
+        exercise.bloques_permitidos = allowed.concat(target.value);
+        const allowedCheckbox = target.closest('.code-exercise').querySelector(`[data-code-command="allowed"][value="${target.value}"]`);
+        if (allowedCheckbox) allowedCheckbox.checked = true;
+      }
+    }
+    $('field-error').textContent = '';
+    scheduleHistory();
+    saveDraft();
+  }
+
+  function addCodeExercise() {
+    const block = state.blocks[state.selected];
+    if (!block || block.tipo !== 'code_blocks') return;
+    if (block.ejercicios.length >= 12) { $('field-error').textContent = 'Puedes añadir hasta 12 retos por bloque.'; return; }
+    const index = block.ejercicios.length;
+    const exercise = structuredClone(CODE_DEFAULT_EXERCISES[0]);
+    exercise.titulo = `Reto ${index + 1}`;
+    exercise.objetivo.posicion.x = Math.min(index + 1, 5);
+    exercise.explicacion = 'Programa a Candela para llegar a la estrella.';
+    block.ejercicios.push(exercise);
+    $('field-error').textContent = '';
+    paintCanvas();
+    recordHistory();
+  }
+
+  function deleteCodeExercise(index) {
+    const block = state.blocks[state.selected];
+    if (!block || block.tipo !== 'code_blocks') return;
+    if (block.ejercicios.length <= 1) { $('field-error').textContent = 'Mantén al menos un reto en Placeta Junior Code.'; return; }
+    block.ejercicios.splice(index, 1);
+    $('field-error').textContent = '';
+    paintCanvas();
+    recordHistory();
   }
 
   function updatePrimaryField(target) {
@@ -695,7 +872,8 @@
       simetria_dibujo: ['flip', 'Dibuja la simetría', PRIMARY_HELP.simetria_dibujo],
       patron_visual: ['pattern', 'Patrones visuales', PRIMARY_HELP.patron_visual],
       batalla: ['sailing', 'Batalla matemática', PRIMARY_HELP.batalla],
-      tangram: ['extension', 'Tangram', PRIMARY_HELP.tangram]
+      tangram: ['extension', 'Tangram', PRIMARY_HELP.tangram],
+      code_blocks: ['code', 'Placeta Junior Code', 'Programa a Candela con bloques visuales y misiones progresivas.']
     };
     const art = typeArt[block.tipo] || ['auto_awesome', blockName(block.tipo), 'Personaliza este contenido.'];
     let fields = editorField('Título del bloque', 'titulo', block.titulo || '');
@@ -708,6 +886,7 @@
       fields += editorField('Palabras (una por línea)', 'palabras', block.palabras, 'lines', 5);
       fields += editorField('Pistas (una por línea, opcional)', 'pistas', block.pistas, 'lines', 4);
     }
+    else if (block.tipo === 'code_blocks') fields += codeEditorFields(block);
     if (PRIMARY_DEFAULTS[block.tipo]) fields += `<details class="activity-data-editor" open><summary>Configurar contenido del reto</summary><p>${esc(PRIMARY_HELP[block.tipo])}</p>${primaryEditorFields(block)}</details>`;
     root.innerHTML = `<div class="inspector-type-card type-${esc(block.tipo)}"><span class="material-symbols-rounded" aria-hidden="true">${art[0]}</span><div><strong>${art[1]}</strong><small>${art[2]}</small></div></div>${fields}<p class="validation" id="field-error" aria-live="polite"></p>`;
   }
@@ -886,6 +1065,7 @@
       balanza: ((block.datos || {}).ejercicios || []).length,
       ahorcado: ((block.datos || {}).palabras || []).length,
       anagrama: ((block.datos || {}).palabras || []).length,
+      code_blocks: (block.ejercicios || []).filter((exercise) => exercise && exercise.titulo && exercise.objetivo?.posicion).length,
       patrones: ((block.datos || {}).secuencias || []).length,
       simetria: ((block.datos || {}).ejercicios || []).length,
       silabas: ((block.datos || {}).palabras || []).length,
@@ -1035,12 +1215,18 @@
     $('inspector-content').addEventListener('input', (event) => { if (event.target.dataset.collection) updateCollectionField(event.target); });
     $('inspector-content').addEventListener('input', (event) => { if (event.target.dataset.primaryData) updatePrimaryField(event.target); });
     $('inspector-content').addEventListener('change', (event) => { if (event.target.dataset.primaryData) updatePrimaryField(event.target); });
+    $('inspector-content').addEventListener('input', (event) => { if (event.target.dataset.codeField) updateCodeExercise(event.target); });
     $('inspector-content').addEventListener('click', (event) => {
       const add = event.target.closest('[data-add-row]');
       const remove = event.target.closest('[data-delete-row]');
+      const addCode = event.target.closest('[data-code-add]');
+      const deleteCode = event.target.closest('[data-code-delete]');
       if (add) changeCollection(add.dataset.addRow, null);
       if (remove) changeCollection(remove.dataset.deleteRow, Number(remove.dataset.index));
+      if (addCode) addCodeExercise();
+      if (deleteCode) deleteCodeExercise(Number(deleteCode.dataset.codeDelete));
     });
+    $('inspector-content').addEventListener('change', (event) => { if (event.target.dataset.codeCommand) updateCodeCommand(event.target); });
     ['title', 'description', 'category', 'age', 'difficulty'].forEach((key) => {
       const input = $(`meta-${key}`);
       input.addEventListener('input', () => {

@@ -407,6 +407,26 @@ function abrirJuego(act) {
           pantallas.push({ tipo: 'code_reto', bi, ri, n: retos.length });
           kpEstado.push({ respondida: false, acierto: null });
         });
+      } else if (b.tipo === 'code_blocks' && window.PJCode) {
+        const ejercicios = PJCode.obtenerEjercicios(b);
+        ejercicios.forEach((ej, i) => {
+          pantallas.push({
+            tipo: 'code',
+            bi,
+            ejercicio: i,
+            total_ejercicios: ejercicios.length,
+            titulo: ej.titulo || `Ejercicio ${i + 1}`,
+            explicacion: ej.explicacion || '',
+            objetivo_texto: ej.objetivo_texto || 'Lleva a Candela hasta la estrella.',
+            escenario: ej.escenario || { tipo: 'cuadricula', ancho: 6, alto: 6 },
+            inicio: ej.inicio || { x: 0, y: 0, direccion: 'derecha' },
+            objetivo: ej.objetivo || {},
+            permitidos: PJCode.bloquesPermitidos({ contenido: b }, i),
+            max_bloques: ej.max_bloques || null,
+            pistas: ej.pistas || []
+          });
+          kpEstado.push({ programa: [], superado: false, resultado: null });
+        });
       } else if (b.tipo === 'sopa_letras') {
         const { grid, size } = generarSopa(b.palabras, b.tamano);
         pantallas.push({ tipo: 'sopa', bi, grid, size });
