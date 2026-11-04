@@ -95,8 +95,8 @@ test('Halloween está retirado y todas las actividades comparten un área establ
   assert.ok(!vercel.routes.some((route) => route.src === '/halloween/?'));
   assert.match(skin, /\.kp-stage\s*\{[^}]*min-width:0/);
   assert.match(skin, /\.kp-stage>\.kp-screen\s*\{[^}]*flex:0 0 auto;[^}]*margin:auto/);
-  assert.match(jugar, /player-skin\.css\?v=2/);
-  assert.match(preview, /player-skin\.css\?v=2/);
+  assert.match(jugar, /player-skin\.css\?v=3/);
+  assert.match(preview, /player-skin\.css\?v=3/);
 });
 
 test('la categoría Pensamiento computacional muestra su traducción en el catálogo', () => {

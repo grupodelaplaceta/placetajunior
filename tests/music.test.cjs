@@ -102,3 +102,10 @@ test('al volver a la pestaña restaura la última música elegida', async () => 
 
   assert.deepEqual(audio.starts, ['sounds/Mundo.mp3', 'sounds/Mundo.mp3']);
 });
+
+test('la portada, el reproductor y la vista previa cargan la misma versión musical', () => {
+  const read = (file) => fs.readFileSync(path.join(__dirname, '..', file), 'utf8');
+  for (const file of ['public/index.html', 'public/jugar.html', 'public/preview.html']) {
+    assert.match(read(file), /music\.js\?v=20261104-music-flow/, file);
+  }
+});

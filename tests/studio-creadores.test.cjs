@@ -123,6 +123,7 @@ test('el lienzo permite deshacer, rehacer, duplicar y mover bloques', () => {
 test('la vista previa se abre integrada y explica el acabado editorial', () => {
   const html = read('public/studio-creadores.html');
   const js = read('public/studio-creadores.js');
+  const jugar = read('public/jugar.html');
   const preview = read('public/preview.html');
   assert.match(html, /<dialog[^>]+id="preview-dialog"/);
   assert.match(html, /id="preview-frame"/);
@@ -132,6 +133,10 @@ test('la vista previa se abre integrada y explica el acabado editorial', () => {
   assert.match(js, /previewDialog\.addEventListener\('close', closePreview\)/);
   assert.doesNotMatch(js, /window\.open\('\/preview\.html'/);
   assert.match(preview, /document\.fonts\.load\('24px "Material Symbols Rounded"', 'home'\)\.then\(useIconFont, useIconFallbacks\)/);
+  assert.match(jugar, /player-skin\.css\?v=3/);
+  assert.match(preview, /player-skin\.css\?v=3/);
+  assert.match(jugar, /player\.js\?v=20261104-text-layout/);
+  assert.match(preview, /player\.js\?v=20261104-text-layout/);
   assert.match(preview, /iconFallbacks\[icon\.textContent\.trim\(\)\]/);
   assert.match(preview, /iconObserver\.observe\(document\.body/);
   assert.match(preview, /chevron_left: '‹', chevron_right: '›'/);
