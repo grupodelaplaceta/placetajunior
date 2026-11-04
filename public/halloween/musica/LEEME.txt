@@ -1,0 +1,14 @@
+MÚSICA DE HALLOWEEN
+===================
+1. Copia aquí tus canciones (mp3, ogg, wav, m4a, aac o webm).
+2. Ejecuta desde la raíz del proyecto:
+       node public/halloween/musica/actualizar-lista.js
+   (genera lista.json con todo lo que haya en la carpeta).
+3. Sube los cambios. Listo.
+
+Cómo suena:
+ · Al entrar a la página de Halloween se elige una canción al azar de la carpeta.
+ · Al entrar a un minijuego cambia a otra canción al azar; al volver a la página, otra distinta.
+ · Cuando una canción termina, empieza otra al azar (nunca la misma seguida si hay varias).
+ · Respeta el botón de sonido de Junior y tiene su propio botón dentro de cada juego.
+ · Si la carpeta está vacía, el evento funciona igualmente sin música.
