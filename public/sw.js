@@ -6,7 +6,7 @@
    ═══════════════════════════════════════════════════════════════════ */
 // Versionar la caché fuerza la actualización del reproductor y estilos en
 // dispositivos que ya visitaron la web.
-const CACHE = 'placetajunior-assets-v8';
+const CACHE = 'placetajunior-assets-v13';
 
 const ASSETS = [
   '/css/styles.css',
@@ -14,6 +14,19 @@ const ASSETS = [
   '/css/leaflet.css',
   '/js/app.js',
   '/js/player.js',
+  '/js/actividades/primaria-clasica.js',
+  '/js/actividades/i18n.js',
+  '/js/actividades/core.js',
+  '/js/actividades/matematicas.js',
+  '/js/actividades/retos.js',
+  '/css/actividades/primaria-nueva.css',
+  '/css/ui-polish.css',
+  '/img/actividades/euros.svg',
+  '/js/juegos-miniaturas.js',
+  '/js/infantil/sprites.js',
+  '/js/infantil/trazos.js',
+  '/js/infantil/agarrar.js',
+  '/js/infantil/pensar.js',
   '/js/sonidos.js',
   '/js/avisos.js',
   '/js/accesibilidad.js',

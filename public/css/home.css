@@ -979,7 +979,7 @@ body.pj-home.mostrando-detalle .detail-page { display: block; }
   .pj-home .card .card-cover { height: auto; min-height: 0; }
   .detail-body { max-width: 920px; margin: 0 auto; }
   .detail-stats { grid-template-columns: repeat(4, 1fr); }
-  .pj-home.mostrando-juego #game-page { max-width: 1080px; margin: 0 auto; }
+  .pj-home.mostrando-juego #game-page { width: 100%; max-width: none; margin: 0; }
   .kp-screen { max-width: 850px; margin: 0 auto; }
   .kp-map { min-height: 520px; max-height: 620px; }
 }
@@ -1671,7 +1671,6 @@ body.pj-home.mostrando-juego .game-page {
   overflow-y: auto;
   overscroll-behavior: contain;
   padding-bottom: 28px;
-  scrollbar-gutter: stable;
 }
 body.pj-home.mostrando-juego #player-content { min-height: 100%; }
 @media (max-width: 600px) {

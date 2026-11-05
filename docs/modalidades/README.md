@@ -137,3 +137,5 @@ Documentos por familia:
 - [Mapas (mundo sin pistas + España CCAA/provincias)](MAPAS.md)
 - [Placeta Junior Code — modalidades](MODALIDADES-CODE.md)
 - [Caligrafía — modalidades](MODALIDADES-CALIGRAFIA.md)
+
+- [Nuevos juegos de Infantil y nuevos tipos de Primaria](NUEVOS-JUEGOS-Y-TIPOS.md)

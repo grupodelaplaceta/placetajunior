@@ -115,7 +115,7 @@ const categoriaColor = (cat = '') => {
   if (c.includes('natur') || c.includes('cien') || c.includes('bio')) return 'green';
   if (c.includes('geo') || c.includes('hist') || c.includes('social')) return 'orange';
   if (c.includes('arte') || c.includes('mús') || c.includes('mus')) return 'purple';
-  if (c.includes('code') || c.includes('program') || c.includes('inform')) return 'purple';
+  if (c.includes('code') || c.includes('program') || c.includes('inform') || c.includes('computacional') || c.includes('botxifra') || c.includes('stem')) return 'purple';
   return 'purple';
 };
 
@@ -128,7 +128,7 @@ const categoriaIcono = (cat = '') => {
   if (c.includes('geo')) return 'public';
   if (c.includes('tecn') || c.includes('inform')) return 'computer';
   if (c.includes('logic')) return 'psychology';
-  if (c.includes('code') || c.includes('program') || c.includes('inform')) return 'code';
+  if (c.includes('code') || c.includes('program') || c.includes('inform') || c.includes('computacional') || c.includes('botxifra') || c.includes('stem')) return 'code';
   return 'extension';
 };
 
@@ -267,8 +267,27 @@ function generarCaratula(a) {
       ctx.shadowColor = esCode ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.4)'; ctx.shadowBlur = 12; ctx.shadowOffsetY = 3;
       ctx.fillStyle = esCode ? '#111111' : '#ffffff';
       ctx.font = '800 28px "Plus Jakarta Sans","Arial",sans-serif';
-      const t = (a.tit || '').toUpperCase();
-      ctx.fillText(t.length > 22 ? t.slice(0, 21) + '…' : t, W / 2, 244);
+      const titulo = String(a.tit || 'Actividad').trim().toUpperCase();
+      const lineas = [];
+      let linea = '';
+      titulo.split(/\s+/).forEach((palabra) => {
+        const prueba = linea ? `${linea} ${palabra}` : palabra;
+        if (linea && ctx.measureText(prueba).width > W - 56) {
+          lineas.push(linea);
+          linea = palabra;
+        } else {
+          linea = prueba;
+        }
+      });
+      if (linea) lineas.push(linea);
+      if (lineas.length > 2) {
+        lineas.length = 2;
+        let ultima = lineas[1];
+        while (ultima.length > 1 && ctx.measureText(`${ultima}…`).width > W - 56) ultima = ultima.slice(0, -1);
+        lineas[1] = `${ultima}…`;
+      }
+      ctx.font = `800 ${lineas.length > 1 ? 25 : 28}px "Plus Jakarta Sans","Arial",sans-serif`;
+      lineas.forEach((texto, i) => ctx.fillText(texto, W / 2, lineas.length > 1 ? 231 + i * 28 : 246, W - 56));
       ctx.restore();
 
       // Pill de categoría
@@ -279,7 +298,7 @@ function generarCaratula(a) {
       roundRectPath(ctx, (W - catW) / 2, 288, catW, 32, 16);
       ctx.fill();
       ctx.fillStyle = '#ffffff';
-      ctx.fillText(catLabel, W / 2, 304);
+      ctx.fillText(catLabel, W / 2, 304, W - 52);
 
       resolve(cv.toDataURL('image/png'));
     } catch (e) { resolve(''); }
@@ -366,6 +385,7 @@ function registrarVisitaActividad(id) {
 }
 
 function cardActividad(a) {
+  a = pjAplicarTraduccionActividad(a);
   const bloqueada = esBloqueada(a);
   const tieneUnidades = obtenerUnidadesActividad(a).length > 0;
   const color = categoriaColor(a.categoria);
@@ -634,6 +654,193 @@ function generarPdfCode(a) {
   return cuerpo;
 }
 
+// ── Fichas imprimibles de Primaria (motores en js/actividades/) ──
+const PRIM_PDF_TIPOS = new Set(['reloj', 'recta_numerica', 'grafico', 'balanza', 'ahorcado', 'anagrama', 'patrones', 'simetria', 'silabas', 'vf_rapido', 'ruleta_preguntas', 'geometria', 'dinero', 'vertical', 'abaco', 'calculo_mental', 'horas', 'dados', 'tesoro', 'simetria_dibujo', 'patron_visual', 'batalla', 'tangram']);
+function fichaPrimariaPdf(b, h) {
+  const wsImg = h.wsImg, textoPdf = h.textoPdf, d = Object.assign({}, b, b.datos || {}), A = (v) => Array.isArray(v) ? v : [], T = (t) => esc(textoPdf(t));
+  const sec = (tit, cuerpo) => '<div class="ws-sec"><h4>' + T(tit) + '</h4>' + wsImg(b.imagen_url, b.fuente) + cuerpo + '</div>';
+  const line = (n, html) => '<div class="ws-line"><span class="ws-n">' + n + '.</span> ' + html + '</div>';
+  const reloj = (h, m, marcar) => {
+    let t = ''; for (let i = 1; i <= 12; i++) { const a = i * Math.PI / 6; t += '<text x="' + (50 + 38 * Math.sin(a)).toFixed(1) + '" y="' + (54 - 38 * Math.cos(a)).toFixed(1) + '" text-anchor="middle" font-size="9" font-weight="700">' + i + '</text>'; }
+    const hd = ((h % 12) * 30 + m * .5) * Math.PI / 180, md = m * 6 * Math.PI / 180;
+    const ag = marcar ? '<line x1="50" y1="50" x2="' + (50 + 24 * Math.sin(hd)).toFixed(1) + '" y2="' + (50 - 24 * Math.cos(hd)).toFixed(1) + '" stroke="#000" stroke-width="3" stroke-linecap="round"/><line x1="50" y1="50" x2="' + (50 + 36 * Math.sin(md)).toFixed(1) + '" y2="' + (50 - 36 * Math.cos(md)).toFixed(1) + '" stroke="#000" stroke-width="1.8" stroke-linecap="round"/>' : '';
+    return '<svg viewBox="0 0 100 100" width="110" height="110" style="vertical-align:middle"><circle cx="50" cy="50" r="47" fill="#fff" stroke="#000" stroke-width="2"/>' + t + ag + '<circle cx="50" cy="50" r="2.5"/></svg>';
+  };
+  const hora24 = value => {
+    const m = /^([01]?\d|2[0-3]):([0-5]\d)$/.exec(String(value || ''));
+    return m ? { h: Number(m[1]), m: Number(m[2]), total: Number(m[1]) * 60 + Number(m[2]) } : null;
+  };
+  const relojPreferido = (h, m, formato, marcar) => (formato !== 'digital' ? reloj(h, m, marcar) : '') +
+    (formato !== 'analogico' ? '<span style="display:inline-block;border:2px solid #000;border-radius:6px;padding:8px 14px;font:bold 20px monospace;letter-spacing:2px">' +
+      (marcar ? String(h % 24).padStart(2, '0') + ':' + String(m).padStart(2, '0') : '__:__') + '</span>' : '');
+  const monedaPdf = value => '<svg viewBox="0 0 ' + (value >= 500 ? '150 88' : '100 100') + '" width="' + (value >= 500 ? '88' : '58') + '" height="' + (value >= 500 ? '52' : '58') + '" role="img" aria-label="' + esc(textoPdf(value >= 100 ? (value / 100) + ' euros' : value + ' céntimos')) + '"><use href="/img/actividades/euros.svg#' + (value >= 500 ? 'bill' : 'coin') + '-' + value + '"></use></svg>';
+  const formatoHora24 = total => String(Math.floor(total / 60) % 24).padStart(2, '0') + ':' + String(total % 60).padStart(2, '0');
+  const eurosPdf = cents => (Number(cents) / 100).toFixed(2).replace('.', ',') + ' €';
+  if (b.tipo === 'reloj') {
+    const ej = A(d.ejercicios).length ? A(d.ejercicios) : A(d.horas).map(h => ({ hora: h }));
+    return sec('Las horas', ej.map((x, k) => { const m = /^(\d{1,2}):(\d{2})$/.exec(String(x.hora || '')) || [0, 3, 0], h = +m[1], mi = +m[2], leer = (x.modo || d.modo) === 'leer'; return line(k + 1, leer ? reloj(h, mi, true) + ' ' + T('Son las') + ' ______' : T('Dibuja las agujas para marcar las') + ' <strong>' + (h || 12) + ':' + String(mi).padStart(2, '0') + '</strong> ' + reloj(0, 0, false)); }).join(''));
+  }
+  if (b.tipo === 'horas') {
+    const modo = d.modo || 'leer', formato = ['digital', 'ambos'].includes(d.reloj) ? d.reloj : 'analogico';
+    const defaults = modo === 'sumar' ? [{ hora: '09:15', duracion: 45 }, { hora: '13:30', duracion: 90 }] :
+      modo === 'duracion' ? [{ inicio: '08:30', fin: '10:00' }, { inicio: '14:15', fin: '16:45' }] :
+        [{ hora: '08:30' }, { hora: '11:15' }, { hora: '14:00' }, { hora: '16:45' }];
+    const ej = A(d.ejercicios).length ? A(d.ejercicios) : defaults;
+    const body = ej.map((x, k) => {
+      if (modo === 'duracion' && hora24(x.inicio) && hora24(x.fin)) return line(k + 1, T('Calcula cuánto tiempo pasa desde') + ' <strong>' + esc(x.inicio) + '</strong> ' + T('hasta') + ' <strong>' + esc(x.fin) + '</strong>: ______');
+      if (modo === 'sumar' && hora24(x.hora) && Number(x.duracion) > 0) {
+        const total = hora24(x.hora).total;
+        return line(k + 1, T('Empieza a las') + ' <strong>' + esc(x.hora) + '</strong> ' + T('y dura') + ' <strong>' + esc(x.duracion) + ' ' + T('minutos') + '</strong>. ' + T('¿A qué hora termina?') + ' ______');
+      }
+      const time = hora24(x.hora || (k % 2 ? '09:15' : '16:30')) || { h: 9, m: 0 };
+      const read = modo === 'leer';
+      const visual = read ? relojPreferido(time.h, time.m, formato, true) : relojPreferido(0, 0, formato, false);
+      const prompt = read ? T('¿Qué hora marca el reloj?') + ' ______' : T('Dibuja las agujas o escribe la hora') + ' <strong>' + esc(String(time.h).padStart(2, '0') + ':' + String(time.m).padStart(2, '0')) + '</strong>';
+      return line(k + 1, visual + '<br>' + prompt);
+    }).join('');
+    return sec('Las horas', body);
+  }
+  if (b.tipo === 'geometria') {
+    const shapes = [
+      ['Triángulo', '<polygon points="50,8 94,88 6,88"/>'],
+      ['Cuadrado', '<rect x="14" y="14" width="72" height="72"/>'],
+      ['Rectángulo', '<rect x="5" y="24" width="90" height="52"/>'],
+      ['Círculo', '<circle cx="50" cy="50" r="39"/>']
+    ];
+    const drawMeasure = (w, h) => {
+      const unit = 120 / Math.max(w, h), width = w * unit, height = h * unit, x = 20, y = 16;
+      let grid = '';
+      for (let col = 1; col < w; col++) grid += '<line x1="' + (x + col * unit) + '" y1="' + y + '" x2="' + (x + col * unit) + '" y2="' + (y + height) + '" stroke="#999"/>';
+      for (let row = 1; row < h; row++) grid += '<line x1="' + x + '" y1="' + (y + row * unit) + '" x2="' + (x + width) + '" y2="' + (y + row * unit) + '" stroke="#999"/>';
+      return '<svg viewBox="0 0 180 170" width="150" height="140" style="vertical-align:middle"><rect x="' + x + '" y="' + y + '" width="' + width + '" height="' + height + '" fill="#fff" stroke="#111" stroke-width="2"/>' + grid + '<text x="' + (x + width / 2) + '" y="' + (y + height + 18) + '" text-anchor="middle" font-size="12">' + w + ' cm</text><text x="' + (x + width + 8) + '" y="' + (y + height / 2) + '" font-size="12">' + h + ' cm</text></svg>';
+    };
+    if (d.modo === 'medir') {
+      const defaults = [{ ancho: 5, alto: 3 }, { ancho: 4, alto: 2 }, { ancho: 6, alto: 3 }];
+      const count = Math.min(12, Math.max(1, Number(d.cantidad) || 4));
+      const measures = A(d.ejercicios).length ? A(d.ejercicios) : Array.from({ length: count }, (_, k) => defaults[k % defaults.length]);
+      return sec('Medición de figuras', measures.map((x, k) => {
+        const w = Math.max(2, Math.min(9, Number(x.ancho) || 4)), h = Math.max(2, Math.min(9, Number(x.alto) || 3));
+        const measure = x.medida || (d.medida === 'mixto' ? (k % 2 ? 'perimetro' : 'area') : d.medida || 'area');
+        return line(k + 1, drawMeasure(w, h) + ' ' + T(measure === 'perimetro' ? 'Calcula el perímetro' : 'Calcula el área') + ': __________ ' + (measure === 'perimetro' ? 'cm' : 'cm²'));
+      }).join(''));
+    }
+    const figure = ([name, shape]) => '<span style="display:inline-grid;justify-items:center;min-width:88px"><svg viewBox="0 0 100 100" width="64" height="64"><g fill="#fff" stroke="#000" stroke-width="3">' + shape + '</g></svg><small>' + T(name) + ' □</small></span>';
+    if (d.modo === 'clasificar') return sec('Clasifica las figuras', '<p>' + T('Marca todas las figuras que tienen cuatro lados.') + '</p><div style="display:flex;flex-wrap:wrap;gap:12px">' + shapes.map(figure).join('') + '</div>');
+    return sec('Geometría', shapes.map(([name, shape], k) => line(k + 1, '<svg viewBox="0 0 100 100" width="72" height="72" style="vertical-align:middle"><g fill="#fff" stroke="#000" stroke-width="3">' + shape + '</g></svg> ' + (d.modo === 'lados' ? T('¿Cuántos lados tiene?') + ' _____' : T('Escribe el nombre de la figura') + ' __________'))).join(''));
+  }
+  if (b.tipo === 'dados') {
+    const operation = ['suma', 'resta', 'multiplicacion'].includes(d.operacion) ? d.operacion : 'suma';
+    const faces = operation === 'resta' ? [[6, 2], [5, 1], [4, 3]] : operation === 'multiplicacion' ? [[4, 3], [2, 6], [5, 2]] : [[3, 5], [2, 6], [4, 3]];
+    const defaults = faces.map(caras => ({ caras, operacion: operation }));
+    const count = Math.min(12, Math.max(1, Number(d.cantidad) || 5));
+    const exercises = A(d.ejercicios).length ? A(d.ejercicios) : Array.from({ length: count }, (_, k) => defaults[k % defaults.length]);
+    const die = n => '<svg viewBox="0 0 100 100" width="48" height="48" style="vertical-align:middle"><rect x="5" y="5" width="90" height="90" rx="14" fill="#fff" stroke="#111" stroke-width="3"/><text x="50" y="64" text-anchor="middle" font-size="42" font-weight="700">' + Number(n) + '</text></svg>';
+    const signs = { suma: '+', resta: '−', multiplicacion: '×' };
+    return sec('Retos con dados', exercises.map((x, k) => {
+      const faces = A(x.caras).length ? A(x.caras) : [3, 5], op = signs[x.operacion || d.operacion] || '+';
+      return line(k + 1, faces.map(die).join(' ' + op + ' ') + ' = __________');
+    }).join(''));
+  }
+  if (b.tipo === 'vertical') {
+    const operation = d.operacion === '-' ? '-' : '+';
+    const defaults = operation === '-' ? [{ a: 70002, b: 39875, op: '-' }, { a: 5814, b: 2637, op: '-' }, { a: 90000, b: 45678, op: '-' }] :
+      [{ a: 3876, b: 2459, op: '+' }, { a: 5687, b: 1278, op: '+' }, { a: 5814, b: 2637, op: '+' }];
+    const count = Math.min(12, Math.max(1, Number(d.cantidad) || 4));
+    const exercises = A(d.ejercicios).length ? A(d.ejercicios) : Array.from({ length: count }, (_, k) => defaults[k % defaults.length]);
+    return sec('Sumas y restas en vertical', exercises.map((x, k) => {
+      const op = x.op === '-' || x.op === '−' ? '−' : '+';
+      return line(k + 1, '<div style="display:inline-grid;grid-template-columns:24px minmax(100px,160px);text-align:right;font:700 22px monospace"><span></span><span>' + esc(x.a) + '</span><span>' + op + '</span><span>' + esc(x.b) + '</span><span></span><span style="border-top:2px solid #000;height:38px"></span></div>');
+    }).join(''));
+  }
+  if (b.tipo === 'dinero') {
+    const examples = [[200, 100, 50, 20], [1000, 200, 50], [500, 200, 100, 20], [2000, 500, 100]];
+    const count = Math.min(12, Math.max(1, Number(d.cantidad) || 4));
+    return sec('Euros: monedas y billetes', Array.from({ length: count }, (_, k) => {
+      const items = examples[k % examples.length];
+      const visuals = (d.modo === 'pagar' ? [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000] : items).map(monedaPdf).join(' ');
+      const targets = [735, 1250, 520, 960];
+      const prompt = d.modo === 'pagar' ? T('Forma esta cantidad exacta:') + ' <strong>' + esc(eurosPdf(targets[k % targets.length])) + '</strong> ' + T('Dibuja o anota las monedas y billetes.') : d.modo === 'cambio' ? T('Calcula el cambio de') + ' ' + esc(eurosPdf(2000 + k * 500)) + ' ' + T('si cuesta') + ' ' + esc(eurosPdf(1250 + k * 250)) + ': __________ €' : T('¿Cuánto dinero hay?') + ' __________ €';
+      return line(k + 1, visuals + '<br>' + prompt);
+    }).join(''));
+  }
+  if (b.tipo === 'recta_numerica') {
+    const mn = Number(d.min ?? 0), mx = Number(d.max ?? 10), st = Number(d.paso || 1), n = Math.max(1, Math.round((mx - mn) / st));
+    let svg = '<svg viewBox="0 0 400 44" width="100%" style="max-width:420px"><line x1="10" y1="16" x2="390" y2="16" stroke="#000" stroke-width="2"/>';
+    for (let i = 0; i <= n; i++) { const x = 10 + 380 * i / n; svg += '<line x1="' + x + '" y1="9" x2="' + x + '" y2="23" stroke="#000" stroke-width="1.5"/>' + ((i === 0 || i === n || i % Math.ceil(n / 10) === 0) ? '<text x="' + x + '" y="38" text-anchor="middle" font-size="11">' + (mn + i * st) + '</text>' : ''); }
+    return sec('La recta numérica', '<div>' + svg + '</svg></div>' + A(d.valores).map((v, k) => line(k + 1, T('Marca con una cruz el número') + ' <strong>' + esc(v) + '</strong>')).join(''));
+  }
+  if (b.tipo === 'grafico') {
+    const dt = A(d.datos), mx = Math.max(1, ...dt.map(x => Number(x.valor) || 0));
+    const bars = dt.map(x => '<div class="ws-line">' + esc(textoPdf(x.etiqueta)) + ': <span style="display:inline-block;height:12px;width:' + Math.round(180 * (Number(x.valor) || 0) / mx) + 'px;background:#888;vertical-align:middle"></span> <strong>' + esc(x.valor) + '</strong></div>').join('');
+    const qs = A(d.preguntas).length ? A(d.preguntas) : [{ pregunta: '¿Cuál tiene el valor más alto?' }, { pregunta: '¿Cuál tiene el valor más bajo?' }];
+    return sec(d.titulo_grafico || 'Lee el gráfico', bars + qs.map((q, k) => line(k + 1, T(q.pregunta) + (A(q.opciones).length ? ' ' + A(q.opciones).map((o, j) => '(' + 'abcdefgh'[j] + ') ' + esc(o)).join('  ') : ' ______'))).join(''));
+  }
+  if (b.tipo === 'balanza') {
+    return sec('La balanza', A(d.ejercicios).map((x, k) => line(k + 1, esc(A(x.izq).join(' + ')) + ' = ' + esc(A(x.der).concat(['____']).join(' + ')) + '  <span class="ws-hint">(' + T('pesas') + ': ' + esc(A(x.pesas).join(', ')) + ')</span>')).join(''));
+  }
+  if (b.tipo === 'ahorcado') {
+    return sec('Adivina la palabra', A(d.palabras).map((x, k) => { const w = String(typeof x === 'string' ? x : x.palabra || ''); return line(k + 1, [...w].map(() => '<span style="display:inline-block;width:22px;border-bottom:2px solid #000;margin-right:5px">&nbsp;</span>').join('') + (x.pista ? ' <span class="ws-hint">' + T(x.pista) + '</span>' : '')); }).join(''));
+  }
+  if (b.tipo === 'anagrama') {
+    return sec('Ordena las letras', A(d.palabras).map((x, k) => { const w = String(typeof x === 'string' ? x : x.palabra || '').toUpperCase(), l = [...w].sort(() => Math.random() - .5); return line(k + 1, '<strong style="letter-spacing:4px">' + esc(l.join(' ')) + '</strong> → ' + '________' + (x.pista ? ' <span class="ws-hint">' + T(x.pista) + '</span>' : '')); }).join(''));
+  }
+  if (b.tipo === 'patrones') {
+    return sec('Continúa la serie', A(d.secuencias).map((x, k) => line(k + 1, A(x.serie).map(v => (v === '?' || v === '_') ? '<strong>____</strong>' : esc(v)).join(' , ') + '  <span class="ws-hint">(' + A(x.opciones).map(esc).join(' · ') + ')</span>')).join(''));
+  }
+  if (b.tipo === 'simetria') {
+    return sec('Completa el reflejo', (A(d.ejercicios).length ? A(d.ejercicios) : [{ ancho: 3, alto: 4, celdas: [[0, 0], [1, 1], [2, 2], [2, 3], [0, 3]] }]).map((x) => { const w = Math.max(2, Math.min(6, +x.ancho || 3)), h = Math.max(2, Math.min(9, +x.alto || 4)), fx = new Set(A(x.celdas).map(c => c[0] + ',' + c[1])); let t = '<table style="border-collapse:collapse;margin:6px 0">'; for (let y = 0; y < h; y++) { t += '<tr>'; for (let c = 0; c < w * 2; c++) t += '<td style="width:22px;height:22px;border:1px solid #888;' + (c < w && fx.has(c + ',' + y) ? 'background:#000;' : '') + (c === w ? 'border-left:3px dashed #000;' : '') + '"></td>'; t += '</tr>'; } return '<div>' + t + '</table></div>'; }).join('') + '<p class="ws-hint">' + T('Pinta el lado derecho como si hubiera un espejo en la línea discontinua.') + '</p>');
+  }
+  if (b.tipo === 'silabas') {
+    return sec('Separa en sílabas', A(d.palabras).map((x, k) => line(k + 1, '<strong>' + esc(String(x.palabra || A(x.silabas).join(''))) + '</strong> → ______ - ______ - ______')).join(''));
+  }
+  if (b.tipo === 'vf_rapido') {
+    return sec('Verdadero o falso', A(d.afirmaciones).map((x, k) => line(k + 1, T(x.texto) + '  &nbsp; V &#9633; &nbsp; F &#9633;')).join(''));
+  }
+  if (b.tipo === 'abaco') {
+    const cols = Math.max(2, Math.min(4, Number(d.columnas) || 3)), mode = d.modo || 'poner';
+    const values = [243, 516, 382, 704].map(n => String(n).padStart(cols, '0').slice(-cols));
+    const rods = value => '<table style="border-collapse:collapse;display:inline-table;vertical-align:middle;margin:8px"><tr>' + [...value].map((digit, idx) => {
+      const beadCount = mode === 'leer' ? Number(digit) : 0;
+      return '<td style="width:28px;height:118px;border:1px solid #444;text-align:center;vertical-align:bottom;padding:4px"><div style="height:90px;display:flex;flex-direction:column-reverse;align-items:center;gap:2px">' +
+        Array.from({ length: 10 }, (_, j) => '<i style="width:15px;height:5px;border:1px solid #111;border-radius:4px;' + (j < beadCount ? 'background:#111;' : '') + '"></i>').join('') +
+        '</div><strong>' + ['U', 'D', 'C', 'UM'][cols - 1 - idx] + '</strong></td>';
+    }).join('') + '</tr></table>';
+    return sec('El ábaco', values.map((value, k) => line(k + 1, (mode === 'poner' ? '<strong>' + value + '</strong> ' + T('Representa el número en el ábaco') : rods(value) + ' ' + T('¿Qué número marca el ábaco?') + ' ______') + (mode === 'poner' ? rods(value) : ''))).join(''));
+  }
+  if (b.tipo === 'calculo_mental') {
+    const exercises = A(d.ejercicios).length ? A(d.ejercicios) : [{ enunciado: '348 + 276' }, { enunciado: '900 − 458' }, { enunciado: '24 × 6' }, { enunciado: 'La mitad de 86' }];
+    return sec('Cálculo mental', exercises.map((x, k) => line(k + 1, esc(x.enunciado || 'Calcula') + ' = __________')).join(''));
+  }
+  if (b.tipo === 'tesoro') {
+    const W = 6, H = 5;
+    const task = '<table style="border-collapse:collapse;margin:8px auto"><tbody>' + Array.from({ length: H }, (_, y) => '<tr>' + Array.from({ length: W }, (_, x) => '<td style="width:30px;height:30px;border:1px solid #555;text-align:center">' + (!x && !y ? '<strong>S</strong>' : '') + '</td>').join('') + '</tr>').join('') + '</tbody></table>';
+    return sec('Mapa del tesoro', line(1, T('Dibuja el recorrido desde la salida siguiendo las instrucciones:') + ' ' + T('Avanza 3 casillas hacia el este y 2 hacia el sur.') + task) + line(2, T('Escribe las instrucciones de otro recorrido:') + ' ______________________________'));
+  }
+  if (b.tipo === 'simetria_dibujo' || b.tipo === 'simetria') {
+    const width = 4, height = 5, filled = new Set(['0,0', '1,0', '1,1', '2,1', '0,3', '2,3', '1,4']);
+    const grid = '<table style="border-collapse:collapse;margin:8px auto">' + Array.from({ length: height }, (_, y) => '<tr>' + Array.from({ length: width * 2 }, (_, x) => {
+      const src = x < width, on = src && filled.has(x + ',' + y);
+      return '<td style="width:25px;height:25px;border:1px solid #888;' + (on ? 'background:#555;' : '') + (x === width ? 'border-left:3px dashed #000;' : '') + '"></td>';
+    }).join('') + '</tr>').join('') + '</table>';
+    return sec('Completa la simetría', grid + '<p class="ws-hint">' + T('Completa la mitad vacía como si hubiera un espejo en la línea discontinua.') + '</p>');
+  }
+  if (b.tipo === 'patron_visual') {
+    const sequence = d.modo === 'num' ? ['3', '6', '9', '____', '15'] : ['●', '◆', '●', '◆', '____'];
+    return sec('Patrones visuales', line(1, sequence.join(' &nbsp; ') + '<br>' + T('Dibuja o escribe qué elemento continúa el patrón.')));
+  }
+  if (b.tipo === 'batalla') {
+    const exercises = [[25, 17, '+'], [63, 28, '-'], [8, 7, '×'], [72, 9, '÷']];
+    const grid = '<table style="border-collapse:collapse;margin:10px auto">' + Array.from({ length: 5 }, (_, y) => '<tr>' + Array.from({ length: 5 }, (_, x) => '<td style="width:28px;height:28px;border:1px solid #555;text-align:center">' + (x === 0 && y === 0 ? 'S' : '') + '</td>').join('') + '</tr>').join('') + '</table>';
+    return sec('Batalla matemática', exercises.map(([a, c, op], k) => line(k + 1, a + ' ' + op + ' ' + c + ' = __________')).join('') + grid + '<p class="ws-hint">' + T('Resuelve las operaciones y marca en la cuadrícula las casillas indicadas por el docente.') + '</p>');
+  }
+  if (b.tipo === 'tangram') {
+    const pieces = '<svg viewBox="0 0 300 120" width="100%" style="max-width:400px"><g fill="#fff" stroke="#111" stroke-width="2"><polygon points="5,5 65,5 5,65"/><polygon points="70,5 130,5 130,65"/><polygon points="5,70 65,70 65,100"/><polygon points="75,70 105,70 105,100"/><rect x="110" y="70" width="30" height="30"/><polygon points="150,5 210,65 150,65"/><polygon points="215,5 275,5 245,65"/></g></svg>';
+    return sec('Tangram', '<p>' + T('Recorta las piezas y colócalas para formar una figura.') + '</p>' + pieces + '<div style="width:220px;height:170px;border:2px dashed #555;margin:12px auto"></div>' + '<p class="ws-hint">' + T('Dibuja la solución dentro del recuadro.') + '</p>');
+  }
+  const qs = A(d.preguntas);
+  return sec('Ruleta de preguntas', qs.map((q, k) => line(k + 1, '<em>[' + T(q.categoria || 'Pregunta') + ']</em> ' + T(q.pregunta) + ' ' + A(q.opciones).map((o, j) => '(' + 'abcdefgh'[j] + ') ' + esc(o)).join('  '))).join(''));
+}
+
 function mostrarSelectorPdf(id) {
   const anterior = document.getElementById('pj-pdf-popup');
   if (anterior) anterior.remove();
@@ -807,6 +1014,8 @@ async function descargarPdf(id, pref = null) {
       const elementos = Array.isArray(esquema.elementos) ? esquema.elementos : [];
       const etiquetas = elementos.map(e => e.texto || e.aria_label || e.accion?.titulo).filter(Boolean);
       cuerpo += '<div class="ws-sec ws-esquema"><h4>' + esc(textoPdf(b.titulo || 'Esquema interactivo')) + '</h4>' + wsImg(b.imagen_url, b.fuente) + '<p class="ws-hint">' + esc(textoPdf('Observa el esquema y escribe qué representa cada elemento señalado.')) + '</p>' + (etiquetas.length ? '<div class="ws-words">' + esc(textoPdf('Elementos')) + ': ' + etiquetas.map((it) => textoPdf(it)).map(esc).join(' · ') + '</div>' : '') + cajaEscrituraPdf(opciones, 'respuesta y explicación') + '</div>';
+    } else if (PRIM_PDF_TIPOS.has(b.tipo)) {
+      cuerpo += fichaPrimariaPdf(b, { wsImg, textoPdf });
     } else if (b.tipo) {
       const titulo = b.titulo || b.nombre || String(b.tipo).replace(/_/g, ' ');
       const instrucciones = b.instrucciones || b.descripcion || b.texto || '';
@@ -1042,7 +1251,7 @@ async function cargarTodo() {
 // ⭐ Populares: las más jugadas (fila horizontal)
 function renderPopulares() {
   const row = document.getElementById('populares-row');
-  const ordenadas = [...TODAS].filter(a => edadCumple(a, filtroEdad)).sort((a, b) =>
+  const ordenadas = TODAS.map(pjAplicarTraduccionActividad).filter(a => edadCumple(a, filtroEdad)).sort((a, b) =>
     (Number(b.visitas ?? b.estadisticas?.visitas ?? b.estadisticas?.veces_realizada ?? 0) || 0) -
     (Number(a.visitas ?? a.estadisticas?.visitas ?? a.estadisticas?.veces_realizada ?? 0) || 0)
   ).slice(0, 10);
@@ -1055,7 +1264,7 @@ function renderPopulares() {
 // 🗂️ Una fila horizontal por categoría (deslizable): gratis y de pago mezcladas
 function renderCategorias() {
   const cont = document.getElementById('categorias');
-  const filtradas = TODAS.filter(a => edadCumple(a, filtroEdad));
+  const filtradas = TODAS.map(pjAplicarTraduccionActividad).filter(a => edadCumple(a, filtroEdad));
   const cats = [...new Set(filtradas.map(a => a.categoria).filter(Boolean))];
   if (cats.length === 0) { cont.innerHTML = ''; return; }
   cont.innerHTML = cats.map(cat => {

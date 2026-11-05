@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0,0&display=swap');
+
 /* Área editorial para familias y docentes. Usa el shell visual de la portada. */
 .familias-page { --fam-ink:#17132b; --fam-muted:#6d6a7d; --fam-line:#e6e7ef; --fam-purple:#3f00d8; --fam-blue:#2979ff; --fam-green:#00a95a; --fam-orange:#ff6d00; background:#f7f8fc; color:var(--fam-ink); overflow-x:hidden; }
 .familias-page .pj-topbar { position:sticky; top:0; z-index:60; }
@@ -45,3 +47,12 @@
 @media (max-width:820px) { .familias-page .familias-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media (max-width:880px) { .familias-page .pj-topbar .nav-inner { width:calc(100% - 32px); } .familias-page .pj-topbar .nav-links { display:none; } .familias-page .pj-topbar .nav-toggle-btn { display:flex; margin-left:auto; } }
 @media (max-width:600px) { .familias-page .familias-hero { padding:49px 16px 42px; } .familias-page .familias-hero::after { right:-70px; bottom:-85px; width:170px; height:170px; border-width:25px; } .familias-page .familias-main { padding:28px 16px 54px; } .familias-page .familias-grid { grid-template-columns:1fr; } .familias-page .familias-card { min-height:175px; padding:18px; } .familias-page .familias-article section { padding:19px; } .familias-page .pj-topbar .nav-inner { min-height:62px; padding:9px 0 12px; } .familias-page .pj-topbar .brand img { height:38px; } .familias-page .pj-topbar .nav-cta .btn { min-height:38px; padding:8px 11px; font-size:12px; } }
+
+/* Finish the shared Placeta Junior system on family and teacher resource pages. */
+.familias-page .familias-hero { background-image: radial-gradient(circle at 8% 18%, #fff 0, transparent 32%), radial-gradient(circle at 94% 12%, #fff1d8 0, transparent 26%); }
+.familias-page .familias-article section { border-radius:22px; box-shadow:0 12px 30px -24px rgba(48,24,102,.5); transition:transform .18s ease,box-shadow .18s ease; }
+.familias-page .familias-article section:hover { transform:translateY(-2px); box-shadow:0 16px 34px -24px rgba(48,24,102,.55); }
+.familias-page .familias-cta { min-height:46px; box-shadow:0 4px 0 #3a1e7a; transition:transform .16s ease,filter .16s ease; }
+.familias-page .familias-cta:hover { transform:translateY(-2px); filter:brightness(1.08); }
+.familias-page .nav-links a:focus-visible,.familias-page .familias-cta:focus-visible { outline:3px solid #2e8bff; outline-offset:3px; }
+@media (prefers-reduced-motion:reduce) { .familias-page .familias-article section,.familias-page .familias-cta { transition:none; } }

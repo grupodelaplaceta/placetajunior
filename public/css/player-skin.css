@@ -3,6 +3,7 @@
 body.pj-home{font-family:var(--pf)}
 /* iconos: nunca se ve el nombre de la ligadura mientras carga la fuente */
 html:not(.ic-ok) .material-symbols-rounded{visibility:hidden;width:1em;overflow:hidden;white-space:nowrap}
+.pj-home .material-symbols-rounded.pj-icon-fallback{font-family:system-ui,sans-serif!important;font-feature-settings:normal!important;font-variation-settings:normal!important}
 /* entrada única */
 .pj-splash{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:radial-gradient(circle at 80% 10%,#9b5de5 0,transparent 45%),linear-gradient(160deg,#4D0DB3,#7A2BE6);transition:opacity .4s ease,visibility .4s}
 .pj-splash::before{content:"";position:absolute;left:0;right:0;top:0;height:6px;background:linear-gradient(90deg,#FF4B4B 0 20%,#FF8A00 20% 40%,#FFD21F 40% 60%,#2FCB3B 60% 80%,#2E8BFF 80%)}
@@ -95,7 +96,7 @@ body.pj-home .kp-answer.muted{opacity:.45}
 body.pj-home .kp-opt.ok::after,body.pj-home .kp-opt.bad::after{content:none}
 
 /* ═══════ v2 · Encaje en pantalla (sin scroll), tipos de actividad y efectos ═══════ */
-body.pj-home.mostrando-juego .game-page{width:min(1000px,100%);height:100dvh;max-height:100dvh;padding:max(8px,env(safe-area-inset-top)) 10px max(8px,env(safe-area-inset-bottom));display:flex;flex-direction:column;overflow:hidden}
+body.pj-home.mostrando-juego .game-page{width:100%;max-width:none;margin:0;height:100dvh;max-height:100dvh;padding:max(8px,env(safe-area-inset-top)) 10px max(8px,env(safe-area-inset-bottom));display:flex;flex-direction:column;overflow:hidden}
 body.pj-home.mostrando-juego #player-content{display:flex;flex-direction:column;flex:1 1 auto;min-height:0}
 body.pj-home .kp-top{flex:none;flex-wrap:nowrap;padding:8px 10px 11px;border-radius:22px 22px 0 0;gap:8px}
 body.pj-home .kp-nav-row{flex:none;padding:8px 6px 0}
@@ -156,6 +157,12 @@ body.pj-home .kp-calc-screen .kp-opts{grid-template-columns:1fr 1fr}
 body.pj-home .kp-calc-screen .kp-opt{min-height:56px;justify-content:center}
 body.pj-home .kp-timer-track{height:10px;border-radius:99px;background:#EFE9FF;overflow:hidden;flex:1}
 body.pj-home .kp-timer-bar{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--pg),var(--py),var(--pr))}
+body.pj-home .kp-screen,body.pj-home .kp-stage>.kp-screen{min-width:0;overflow-wrap:anywhere}
+body.pj-home .kp-screen>.kp-qt{flex-wrap:wrap;overflow-wrap:anywhere;text-wrap:balance;letter-spacing:0}
+body.pj-home .kp-title{max-width:24ch;margin-inline:auto;line-height:1.12;text-wrap:balance;overflow-wrap:anywhere}
+body.pj-home .kp-desc{max-width:60ch;line-height:1.5;text-wrap:pretty;overflow-wrap:anywhere}
+body.pj-home .kp-explicacion{width:100%;max-width:min(100%,68ch);text-align:left;overflow-wrap:anywhere}
+body.pj-home .kp-explicacion h1,body.pj-home .kp-explicacion h2,body.pj-home .kp-explicacion h3,body.pj-home .kp-explicacion h4{line-height:1.2;text-wrap:balance;overflow-wrap:anywhere}
 /* portada */
 body.pj-home .kp-cover-img{border-radius:22px;max-height:min(30dvh,230px);object-fit:cover;box-shadow:0 8px 0 #E3D7FA}
 body.pj-home .kp-cover-emoji{font-size:clamp(54px,12vh,92px);animation:pjfloat 3s ease-in-out infinite;text-align:center}

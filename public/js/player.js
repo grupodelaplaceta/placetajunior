@@ -407,6 +407,26 @@ function abrirJuego(act) {
           pantallas.push({ tipo: 'code_reto', bi, ri, n: retos.length });
           kpEstado.push({ respondida: false, acierto: null });
         });
+      } else if (b.tipo === 'code_blocks' && window.PJCode) {
+        const ejercicios = PJCode.obtenerEjercicios(b);
+        ejercicios.forEach((ej, i) => {
+          pantallas.push({
+            tipo: 'code',
+            bi,
+            ejercicio: i,
+            total_ejercicios: ejercicios.length,
+            titulo: ej.titulo || `Ejercicio ${i + 1}`,
+            explicacion: ej.explicacion || '',
+            objetivo_texto: ej.objetivo_texto || 'Lleva a Candela hasta la estrella.',
+            escenario: ej.escenario || { tipo: 'cuadricula', ancho: 6, alto: 6 },
+            inicio: ej.inicio || { x: 0, y: 0, direccion: 'derecha' },
+            objetivo: ej.objetivo || {},
+            permitidos: PJCode.bloquesPermitidos({ contenido: b }, i),
+            max_bloques: ej.max_bloques || null,
+            pistas: ej.pistas || []
+          });
+          kpEstado.push({ programa: [], superado: false, resultado: null });
+        });
       } else if (b.tipo === 'sopa_letras') {
         const { grid, size } = generarSopa(b.palabras, b.tamano);
         pantallas.push({ tipo: 'sopa', bi, grid, size });
@@ -422,6 +442,9 @@ function abrirJuego(act) {
       } else if (b.tipo === 'completar') {
         pantallas.push({ tipo: 'completar', bi });
         kpEstado.push({ estado: {} });
+      } else if (window.PJPNueva && PJPNueva.TIPOS.has(b.tipo) && !(b.tipo === 'calculo_mental' && Array.isArray(b.sumas) && b.sumas.length)) {
+        // Primaria Nueva: conserva el cálculo mental legado cuando usa sumas[].
+        PJPNueva.crear(b).forEach((x) => { pantallas.push(Object.assign({ tipo: 'pn-nueva', bi }, x.s)); kpEstado.push(x.e); });
       } else if (b.tipo === 'calculo_mental') {
         (b.sumas || []).forEach((s, si) => {
           const a = Number(s.a) || 0, bb = Number(s.b) || 0;
@@ -492,6 +515,9 @@ function abrirJuego(act) {
           pantallas.push({ tipo: 'nb', modo: modoNb, ei, n: ejesNb.length, a: aNb, b: bNb, objetivo: (modoNb === 'construir' || modoNb === 'contar') ? correctoNb : 0, correcto: correctoNb, opciones: opsNb.length ? opsNb : nbOpciones(correctoNb), piezas: piezasNb, preguntaNb });
           kpEstado.push({ contador: 0, historia: [], respondida: false, acierto: null, sel: null, aviso: '' });
         });
+      } else if (window.PJPrimaria && PJPrimaria.TIPOS.has(b.tipo)) {
+        // Tipos clásicos de Primaria (js/actividades/primaria-clasica.js): una pantalla por reto
+        PJPrimaria.crear(b).forEach((x) => { pantallas.push(Object.assign({ tipo: 'pp', bi }, x.s)); kpEstado.push(x.e); });
       } else if (['arrastrar','buscar','detective','laboratorio','construccion','presupuesto','dinero_euro','construir_frase','clasificar_palabras','completar_palabra','cazador_errores','lectura_interactiva','exploracion','simulacion','historia_interactiva','memoria','sonido','codigo_secreto','escape_room'].includes(b.tipo) && (b.datos || b.palabras || b.texto || b.escenas || b.elementos || b.categorias)) {
         pantallas.push({ tipo: 'interactivo', bi, nivelIndex: b.nivelIndex });
         kpEstado.push({ respondida: false, seleccion: [], lanzamientos: [], gastado: 0, clasificarIndice: 0, clasificarRespuestas: {} });
@@ -717,6 +743,8 @@ function renderPantalla() {
   else if (s.tipo === 'code') cuerpo = screenCode(s, est);
   else if (s.tipo === 'code_explica') cuerpo = screenCodeExplica(s);
   else if (s.tipo === 'interactivo') cuerpo = screenInteractive(s, est);
+  else if (s.tipo === 'pp') cuerpo = PJPrimaria.render(s, est);
+  else if (s.tipo === 'pn-nueva') cuerpo = PJPNueva.render(s, est);
   else if (s.tipo === 'final') { cuerpo = screenFinal(s); if (!kpCelebrado) { kpCelebrado = true; if (window.PJProgreso) { PJProgreso.sumar(kpScore.verdes, kpScore.rojos); try { window.dispatchEvent(new CustomEvent('pj:progreso')); } catch (e) { /* ok */ } } lluviaConfetti(); if (window.pjSonido) pjSonido.victoria(); } }
   ocultarFeedback();
   destruirMapas();
@@ -729,6 +757,7 @@ function renderPantalla() {
   if (s.tipo === 'test') etiqueta = 'Pregunta ' + (s.pi + 1) + ' de ' + s.nPreg;
   else if (s.tipo === 'calculo') etiqueta = 'Cálculo ' + (s.si + 1) + ' de ' + s.n;
   else if (s.tipo === 'problema') etiqueta = 'Problema ' + (s.pi + 1) + ' de ' + s.n;
+  else if (s.tipo === 'pp') etiqueta = 'Reto ' + ((s.qi || 0) + 1) + ' de ' + (s.n || 1);
   else if (s.tipo === 'code') etiqueta = 'Ejercicio ' + (s.ejercicio + 1) + ' de ' + s.total_ejercicios;
   else if (s.tipo === 'code_explica') etiqueta = '¿Cómo se juega?';
   else if (s.tipo === 'final') etiqueta = '¡Resultado!';
@@ -764,6 +793,8 @@ function renderPantalla() {
   if (s.tipo === 'portada') cargarPortadaImg(pantallaIdx);
   if (s.tipo === 'code') { kpCodeDibujarEscenario(); kpCodePintarPrograma(); }
   if (s.tipo === 'trazo') iniciarTrazo(pantallaIdx);
+  if (s.tipo === 'pp') PJPrimaria.init(s, pantallaIdx);
+  if (s.tipo === 'pn-nueva') PJPNueva.init(s, pantallaIdx);
 
   // Accesibilidad: exponer el texto de la pantalla para la lectura con audio
   document.dispatchEvent(new CustomEvent('junior:texto', { detail: textoPantallaWeb(s) }));
@@ -781,24 +812,31 @@ function asegurarFeedback() {
   const m = document.getElementById('game-page');
   (m || document.body).appendChild(fb);
 }
+let __pjRacha = 0;
+const FB_OK_T = ['¡Correcto!', '¡Genial!', '¡Muy bien!', '¡Eso es!', '¡Bien hecho!', '¡Crack!', '¡Perfecto!'];
+const FB_OK_S = ['Has sumado +1 punto verde. ¡Sigue así!', '¡Otro punto verde para ti!', '+1 punto verde. ¡Vas genial!', '¡Así se hace! +1 punto verde.'];
+const FB_BAD_T = ['¡Casi lo logras!', '¡Buen intento!', '¡Uy, por poco!', '¡Ánimo, tú puedes!'];
 function mostrarFeedback(acierto, correctaTexto, onNext) {
+  __pjRacha = acierto ? __pjRacha + 1 : 0;
+  const pick = (a) => a[Math.floor(Math.random() * a.length)];
   const fb = document.getElementById('kp-feedback');
   if (!fb) { if (onNext) onNext(); return; }
   window.__kpNext = function () { ocultarFeedback(); if (window.pjSonido) pjSonido.pop(); if (onNext) onNext(); };
   fb.innerHTML = acierto
     ? `<div class="kp-fb-card kp-fb-ok" role="alert">
         <div class="kp-fb-ico"><span class="material-symbols-rounded">check_circle</span></div>
-        <h3 class="kp-fb-title">¡Correcto!</h3>
-        <p class="kp-fb-sub">Has sumado +1 punto verde. ¡Sigue así!</p>
+        <h3 class="kp-fb-title">${__pjRacha >= 3 ? '🔥 ¡Racha de ' + __pjRacha + '!' : pick(FB_OK_T)}</h3>
+        <p class="kp-fb-sub">${__pjRacha >= 2 ? '¡' + __pjRacha + ' aciertos seguidos! +1 punto verde.' : pick(FB_OK_S)}</p>
         <button type="button" class="kp-btn kp-fb-next" onclick="window.__kpNext()">Siguiente</button>
       </div>`
     : `<div class="kp-fb-card kp-fb-bad" role="alert">
         <div class="kp-fb-ico"><span class="material-symbols-rounded">cancel</span></div>
-        <h3 class="kp-fb-title">Casi lo logras</h3>
-        <p class="kp-fb-sub">La respuesta correcta era «${esc(correctaTexto)}».</p>
+        <h3 class="kp-fb-title">${pick(FB_BAD_T)}</h3>
+        <p class="kp-fb-sub">${correctaTexto ? 'La respuesta correcta era «' + esc(correctaTexto) + '». ¡A por la siguiente!' : '¡A por la siguiente!'}</p>
         <button type="button" class="kp-btn kp-fb-next" onclick="window.__kpNext()">Continuar</button>
       </div>`;
   fb.classList.remove('hidden');
+  if (acierto && __pjRacha >= 3 && __pjRacha % 3 === 0 && typeof lluviaConfetti === 'function') lluviaConfetti();
   const nb = fb.querySelector('.kp-fb-next');
   if (nb) nb.focus();
 }
@@ -824,6 +862,8 @@ function textoPantallaWeb(s) {
   if (s.tipo === 'mapa') return 'Localiza en el mapamundi: ' + (s.pide || '');
   if (s.tipo === 'espana') return (s.modo === 'comunidades' ? 'Comunidades autónomas de España. ' : 'Provincias de España. ') + (s.pide || '');
   if (s.tipo === 'meca') return 'Escribe con el teclado la palabra: ' + (s.target || '');
+  if (s.tipo === 'pp') return window.PJPrimaria ? PJPrimaria.texto(s) : '';
+  if (s.tipo === 'pn-nueva') return window.PJPNueva ? PJPNueva.texto(s) : '';
   if (s.tipo === 'nb') return 'Números con bloques. ' + (s.pideTexto || s.pregunta || '');
   if (s.tipo === 'code') return 'Placeta Junior Code. Ejercicio ' + ((s.ejercicio || 0) + 1) + '. ' + (s.objetivo_texto || 'Lleva a Candela hasta la estrella.');
   if (s.tipo === 'code_explica') return 'Placeta Junior Code. ' + (s.explicacion || 'Pulsa los bloques para programar a Candela.');
@@ -1739,8 +1779,8 @@ function screenRelacionar(s, est) {
     <div class="kp-qt"><span class="material-symbols-rounded" aria-hidden="true">link</span> Relacionar</div>`;
   if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente, b.imagen_alt);
   html += `<div class="kp-match">
-      <div class="kp-col">${izqOrder.map((j) => `<div class="kp-pair${izqCls(j)}" onclick="kpIzq(${pantallaIdx},${j})">${hechas[j] ? '✅ ' : ''}${itemIzq(j)}</div>`).join('')}</div>
-      <div class="kp-col">${derOrder.map((j) => `<div class="kp-pair alt${derCls(j)}" onclick="kpDer(${pantallaIdx},${j})">${hechas[j] ? '✅ ' : ''}${esc(pares[j].der || '…')}</div>`).join('')}</div>
+      <div class="kp-col">${izqOrder.map((j) => `<button type="button" class="kp-pair${izqCls(j)}" onclick="kpIzq(${pantallaIdx},${j})" ${hechas[j] ? 'disabled' : ''} aria-pressed="${est.izq === j || !!hechas[j]}" aria-label="${esc(pares[j].izq_alt || pares[j].izq || 'Elemento para relacionar')}">${hechas[j] ? '✅ ' : ''}${itemIzq(j)}</button>`).join('')}</div>
+      <div class="kp-col">${derOrder.map((j) => `<button type="button" class="kp-pair alt${derCls(j)}" onclick="kpDer(${pantallaIdx},${j})" ${hechas[j] ? 'disabled' : ''} aria-label="${esc(pares[j].der || 'Elemento para relacionar')}">${hechas[j] ? '✅ ' : ''}${esc(pares[j].der || '…')}</button>`).join('')}</div>
     </div>`;
   if (pares.length > 0 && Object.keys(hechas).length >= pares.length) html += `<div class="kp-msg ok">¡Todo emparejado! 🎉</div>`;
   html += `<div class="kp-hint">👆 Toca una tarjeta de cada lado para emparejar</div></div>`;
@@ -1820,8 +1860,8 @@ function screenOrdenar(s, est) {
     <div class="kp-qt"><span class="material-symbols-rounded" aria-hidden="true">format_list_numbered</span> Ordena los pasos</div>`;
   if (b.imagen_url) html += kpImg(b.imagen_url, b.fuente, b.imagen_alt);
   html += `<div class="kp-steps">`;
-  done.forEach((ix, k) => { html += `<div class="kp-step done"><span class="kp-num">${k + 1}</span>${esc(b.items[ix] || '…')}</div>`; });
-  pend.forEach((ix) => { html += `<div class="kp-step" onclick="kpOrden(${pantallaIdx},${ix})"><span class="kp-num">?</span>${esc(b.items[ix] || '…')}</div>`; });
+  done.forEach((ix, k) => { html += `<div class="kp-step done"><span class="kp-num" aria-hidden="true">${k + 1}</span>${esc(b.items[ix] || '…')}</div>`; });
+  pend.forEach((ix) => { html += `<button type="button" class="kp-step" onclick="kpOrden(${pantallaIdx},${ix})" aria-label="Paso: ${esc(b.items[ix] || '…')}"><span class="kp-num" aria-hidden="true">?</span>${esc(b.items[ix] || '…')}</button>`; });
   html += `</div>`;
   if (est.hechas >= n) html += `<div class="kp-msg ok">¡Orden perfecto! 🎉</div>`;
   else if (est.err) html += `<div class="kp-msg bad">👀 Ese no es el siguiente paso</div>`;
