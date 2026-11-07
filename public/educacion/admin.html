@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#5B14C8" />
+  <title>Placeta Junior Education · Administración</title>
+  <link rel="icon" href="/favijunior.png" />
+  <link rel="stylesheet" href="/educacion/portal.css" />
+</head>
+<body>
+  <header class="cabecera">
+    <a href="/educacion/" aria-label="Placeta Junior Education">Placeta Junior Education</a>
+    <span id="usuario" class="usuario"></span>
+    <button id="salir" type="button" class="sec" hidden>Cerrar sesión</button>
+  </header>
+  <main>
+    <section id="login" class="tarjeta" aria-labelledby="login-titulo">
+      <h1 id="login-titulo">Administración de Placeta Junior</h1>
+      <p class="nota">Acceso para el personal autorizado de Placeta Junior Education.</p>
+      <form id="form-login" class="grid">
+        <label>Usuario<input name="usuario" autocomplete="username" required maxlength="64" /></label>
+        <label>Clave<input name="clave" type="password" autocomplete="current-password" required /></label>
+        <button type="submit">Entrar</button>
+        <p id="error-login" class="error" role="alert"></p>
+      </form>
+    </section>
+
+    <section id="panel" hidden>
+      <section id="cifras" class="cifras" aria-label="Resumen"></section>
+      <section class="tarjeta">
+        <nav class="pestanas" aria-label="Administración">
+          <button type="button" class="activa" data-vista="organizaciones">Organizaciones</button>
+          <button type="button" data-vista="documentos">Normativas y documentos</button>
+        </nav>
+        <section id="vista-organizaciones">
+          <h1>Administración de dispositivos</h1>
+          <form id="form-nueva-org" class="linea">
+            <input name="nombre" placeholder="Nombre del centro u organización" required minlength="2" maxlength="120" />
+            <button type="submit">Registrar y generar código</button>
+          </form>
+          <p id="aviso-org" class="aviso" role="status"></p>
+          <div class="tabla"><table>
+            <thead><tr><th>Nombre</th><th>Código de centro</th><th>Dispositivos</th><th>Último cambio</th><th></th></tr></thead>
+            <tbody id="tabla-orgs"></tbody>
+          </table></div>
+          <section id="detalle" class="tarjeta detalle-admin" hidden></section>
+        </section>
+        <section id="vista-documentos" hidden>
+          <h1>Normativas y documentos</h1>
+          <form id="form-doc" class="grid">
+            <label>Tipo
+              <select name="tipo" required>
+                <option value="condiciones">Condiciones de uso</option>
+                <option value="privacidad">Política de privacidad</option>
+                <option value="informacion">Información</option>
+              </select>
+            </label>
+            <label>Título<input name="titulo" required maxlength="160" /></label>
+            <label>Tipo de cambio
+              <select name="tipoCambio" required>
+                <option value="tecnico">Técnico (sin aceptación)</option>
+                <option value="organizativo">Organizativo (solo información)</option>
+                <option value="normativo">Normativo (requiere aceptación)</option>
+              </select>
+            </label>
+            <label class="check"><input name="requiereLectura" type="checkbox" /> Requiere confirmación de lectura</label>
+            <label class="check"><input name="requiereAceptacion" type="checkbox" /> Requiere aceptación</label>
+            <label class="ancho">Texto<textarea name="texto" required minlength="20" rows="8"></textarea></label>
+            <button type="submit">Publicar</button>
+          </form>
+          <p id="aviso-doc" class="aviso" role="status"></p>
+          <div id="lista-docs"></div>
+        </section>
+      </section>
+    </section>
+  </main>
+  <script src="/educacion/portal.js"></script>
+</body>
+</html>

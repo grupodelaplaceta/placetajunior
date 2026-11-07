@@ -423,6 +423,8 @@
           <label class="check"><input type="checkbox" name="permitirGuardarBiblioteca" ${c.restricciones.permitirGuardarBiblioteca ? 'checked' : ''}> Permitir guardar en la biblioteca</label>
           <label>Idioma por defecto<select name="idioma"><option value="es" ${c.interfaz.idioma === 'es' ? 'selected' : ''}>Español</option><option value="ca" ${c.interfaz.idioma === 'ca' ? 'selected' : ''}>Català</option><option value="en" ${c.interfaz.idioma === 'en' ? 'selected' : ''}>English</option></select></label>
           <label>Progreso<select name="progreso"><option value="local" ${c.progreso === 'local' ? 'selected' : ''}>Local</option><option value="centro" ${c.progreso === 'centro' ? 'selected' : ''}>Del centro</option><option value="ninguno" ${c.progreso === 'ninguno' ? 'selected' : ''}>No guardar</option></select></label>
+          <label class="check"><input type="checkbox" name="transmisionCentral" ${c.privacidad.transmisionCentral ? 'checked' : ''}> Permitir enviar el progreso al centro (IdAlum, sin DIP ni nombre)</label>
+          <p class="nota">El modo «Del centro» solo envía avances si esta opción está marcada. «No guardar» elimina los avances del centro.</p>
           <label>Identificación<select name="identificacion"><option value="anonimo" ${c.identificacion === 'anonimo' ? 'selected' : ''}>Anónima</option><option value="alias" ${c.identificacion === 'alias' ? 'selected' : ''}>Alias</option><option value="nominal" ${c.identificacion === 'nominal' ? 'selected' : ''}>Nominal</option></select></label>
         </fieldset>
         <fieldset><legend>PIN de salida</legend>
@@ -447,6 +449,7 @@
         restricciones: { tiempoMaxMinutos: entero, permitirGuardarBiblioteca: f.permitirGuardarBiblioteca.checked },
         interfaz: { ...c.interfaz, idioma: f.idioma.value },
         progreso: f.progreso.value,
+        privacidad: { ...c.privacidad, transmisionCentral: f.transmisionCentral.checked },
         identificacion: f.identificacion.value,
         seguridad: { pinNuevo: f.pinNuevo.value, quitarPin: !!f.quitarPin?.checked }
       };

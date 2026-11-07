@@ -85,9 +85,16 @@ test('los once tipos nuevos generan pantallas con el reproductor existente', () 
 
 test('el Studio ofrece controles de reloj, medida, dados y ejercicios sin editor JSON oculto', () => {
   const studio = read('public/studio-creadores.js');
+  const html = read('public/studio-creadores.html');
   for (const control of ['reloj', 'medida', 'measureTasks', 'diceTasks', 'balanceTasks', 'sequenceTasks', 'symmetryTasks', 'rouletteTasks', 'operationTasks', 'mentalTasks']) {
     assert.ok(studio.includes(control), `Debe tener controles visuales para ${control}`);
   }
+  for (const step of ['palette', 'canvas', 'inspector']) assert.match(html, new RegExp(`data-editor-view="${step}"`));
+  assert.match(studio, /data-option-correct=/);
+  assert.match(studio, /data-option-add=/);
+  assert.match(studio, /data-option-delete=/);
+  assert.match(studio, /data-primary-choice=/);
+  assert.doesNotMatch(studio, /formato JSON|en JSON|data-mode="json"|json-field/i);
   assert.doesNotMatch(studio, /Opciones avanzadas \(JSON\)/);
 });
 

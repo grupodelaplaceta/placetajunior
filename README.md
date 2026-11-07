@@ -48,7 +48,9 @@ Todo el backend vive en este mismo proyecto. Dos funciones de Vercel (`api/centr
 
 Subrutas:
 - `/centros`: alta de centro con cuenta de Google. `/centros/panel`: panel del centro. La revisión de solicitudes se hace en el panel externo RSP de La Placeta (no está en esta web).
-- `/educacion/`: portal de administración de Placeta Junior Education. Lo usa la app de escritorio Placeta Junior IO (`/api/dispositivo/*`).
+- `/educacion/`: información para centros y acceso al portal global de administración en `/educacion/administracion/`. Este portal está protegido por el inicio de sesión de Placeta Junior Education.
+- El portal global puede bloquear un dispositivo de forma reversible o suspender un centro hasta una fecha o indefinidamente. Ambos bloqueos requieren motivo, se registran en la auditoría y se muestran al equipo afectado; las suspensiones temporales vencen automáticamente.
+- La app Placeta Junior IO usa `/api/dispositivo/*` para vincularse, sincronizar su política y comprobar si sigue autorizada.
 
 Variables de entorno (Vercel → Settings → Environment Variables, Production y Preview):
 - `GOOGLE_CLIENT_ID`: ID de cliente de Google (Google Auth Platform → Clientes). No es secreto. No hace falta secreto de cliente.

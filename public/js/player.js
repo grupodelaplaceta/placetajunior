@@ -25,6 +25,38 @@ let dipGuardado = '';
 try { dipGuardado = localStorage.getItem('pj-dip') || ''; } catch (e) { /* sin almacenamiento */ }
 let msgGuardar = '';
 let guardandoDIP = false;
+let destinoProgresoIO = null;
+let versionDestinoProgresoIO = 0;
+
+function puenteIO() {
+  try {
+    const host = window.parent;
+    return host !== window && host.PJPerfiles && host.PJVinculo ? host : null;
+  } catch (e) { return null; }
+}
+
+function prepararDestinoProgresoIO() {
+  const version = ++versionDestinoProgresoIO;
+  destinoProgresoIO = null;
+  if (actividadActual?._preview) return;
+  const host = puenteIO();
+  if (!host) return;
+  destinoProgresoIO = { tipo: 'cargando' };
+  Promise.resolve().then(async () => {
+    const perfilId = host.PJPerfiles.activo();
+    if (!perfilId) return null;
+    const politica = await host.PJVinculo.leerPolitica();
+    if (!politica?.config || !['local', 'centro'].includes(politica.config.progreso)) return null;
+    if (!host.PJPerfiles.progresoPermitido(politica).permitido) return null;
+    return { tipo: 'perfil', host, perfilId, modo: politica.config.progreso };
+  }).then((destino) => {
+    if (version !== versionDestinoProgresoIO) return;
+    destinoProgresoIO = destino;
+    if (pantallas[pantallaIdx]?.tipo === 'final') renderPantalla();
+  }).catch(() => {
+    if (version === versionDestinoProgresoIO) destinoProgresoIO = null;
+  });
+}
 
 function esc(s) {
   return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -295,6 +327,8 @@ function abrirJuego(act) {
   // (por el ':' de URLs como …/wiki/Special:Redirect/file/X.svg).
   if (act) pjSaneaImagenes(act);
   actividadActual = act || null;
+  msgGuardar = '';
+  prepararDestinoProgresoIO();
   if (window.pjSonido) pjSonido.abrir();
   const esCode = act && (act.tipo === 'code_blocks' || (act.contenido && act.contenido.tipo === 'code_blocks'));
   bloquesJuego = (act && act.contenido && act.contenido.bloques) ? act.contenido.bloques : [];
@@ -1683,6 +1717,32 @@ function screenFinal(s) {
           : ''}
         <button type="button" class="kp-btn ${haySiguiente ? 'kp-btn-ghost' : ''}" onclick="volverAlMenu()"><span class="material-symbols-rounded">home</span> Volver al menú</button>
       </div>`;
+  const io = puenteIO();
+  let guardar = '';
+  if (!actividadActual?._preview) {
+    if (!io) {
+      guardar = `
+      <div class="kp-save">
+        <h4><span class="material-symbols-rounded" aria-hidden="true">save</span> Guardar mi progreso</h4>
+        <p class="kp-save-sub">En la web el progreso es local. Guarda con tu DIP para sumar los puntos y recibir ${recompensa} Pz.</p>
+        <div class="kp-save-row">
+          <input id="kp-dip" type="text" inputmode="text" autocomplete="off"
+            placeholder="Tu DIP (ej: 11111111D)" value="${esc(dipGuardado)}" maxlength="20">
+          <button class="kp-btn" onclick="guardarProgreso()" ${guardandoDIP ? 'disabled' : ''}>${guardandoDIP ? 'Guardando…' : '<span class="material-symbols-rounded" aria-hidden="true">save</span> Guardar'}</button>
+        </div>
+        <div id="kp-msg" class="kp-msg ${msgGuardar.startsWith('✅') ? 'ok' : (msgGuardar ? 'bad' : '')}">${msgGuardar}</div>
+      </div>`;
+    } else if (destinoProgresoIO?.tipo === 'perfil') {
+      const modo = destinoProgresoIO.modo || 'local';
+      guardar = `
+      <div class="kp-save">
+        <h4><span class="material-symbols-rounded" aria-hidden="true">save</span> Guardar mi progreso</h4>
+        <p class="kp-save-sub">${modo === 'centro' ? 'Se enviará al centro vinculado como progreso de este perfil, sin usar el DIP.' : 'Se guardará en el perfil de este equipo.'}</p>
+        <button class="kp-btn" onclick="guardarProgresoPerfil()" ${guardandoDIP ? 'disabled' : ''}>${guardandoDIP ? 'Guardando…' : '<span class="material-symbols-rounded" aria-hidden="true">save</span> Guardar'}</button>
+        <div id="kp-msg" class="kp-msg ${msgGuardar.startsWith('✅') ? 'ok' : (msgGuardar ? 'bad' : '')}">${msgGuardar}</div>
+      </div>`;
+    }
+  }
   return `
     <div class="kp-screen">
       <div class="kp-cover cover-${chipColor(s.cat)}">🎉</div>
@@ -1693,16 +1753,7 @@ function screenFinal(s) {
         <div class="kp-score-item rojos"><span class="kp-score-num">🔴</span>${kpScore.rojos} <small>puntos rojos</small></div>
       </div>
       <div class="kp-reward"><span class="material-symbols-rounded kp-reward-ico" aria-hidden="true">redeem</span> <strong>${recompensa} Pz</strong> ${recompensaMax > 0 ? `de ${recompensaMax} Pz máximas` : ''}</div>
-      <div class="kp-save">
-        <h4><span class="material-symbols-rounded" aria-hidden="true">save</span> Guardar mi progreso</h4>
-        <p class="kp-save-sub">En la web el progreso es local. Guarda con tu DIP para sumar los puntos y recibir ${recompensa} Pz.</p>
-        <div class="kp-save-row">
-          <input id="kp-dip" type="text" inputmode="text" autocomplete="off"
-            placeholder="Tu DIP (ej: 11111111D)" value="${esc(dipGuardado)}" maxlength="20">
-          <button class="kp-btn" onclick="guardarProgreso()" ${guardandoDIP ? 'disabled' : ''}>${guardandoDIP ? 'Guardando…' : '<span class="material-symbols-rounded" aria-hidden="true">save</span> Guardar'}</button>
-        </div>
-        <div id="kp-msg" class="kp-msg ${msgGuardar.startsWith('✅') ? 'ok' : (msgGuardar ? 'bad' : '')}">${msgGuardar}</div>
-      </div>
+      ${guardar}
       ${acciones}
       <div class="kp-hint">💪 ¡Sigue así, campeón!</div>
     </div>`;
@@ -1741,6 +1792,52 @@ async function guardarProgreso() {
   guardandoDIP = false;
   renderPantalla();
 }
+
+async function guardarProgresoPerfil() {
+  const destino = destinoProgresoIO;
+  if (actividadActual?._preview || destino?.tipo !== 'perfil' || !actividadActual?.id || guardandoDIP) return;
+  guardandoDIP = true;
+  msgGuardar = '';
+  renderPantalla();
+  try {
+    if (destino.host.PJPerfiles.activo() !== destino.perfilId) {
+      msgGuardar = '❌ El perfil activo ha cambiado; vuelve a abrir la actividad para guardar.';
+      guardandoDIP = false;
+      renderPantalla();
+      return;
+    }
+    const politica = await destino.host.PJVinculo.leerPolitica();
+    if (!politica?.config || !['local', 'centro'].includes(politica.config.progreso)
+        || !destino.host.PJPerfiles.progresoPermitido(politica).permitido) {
+      msgGuardar = '❌ La configuración no permite guardar el progreso.';
+      guardandoDIP = false;
+      renderPantalla();
+      return;
+    }
+    const previo = await destino.host.PJPerfiles.leerProgreso(destino.perfilId, politica);
+    const datos = previo && typeof previo === 'object' ? previo : {};
+    const actividades = datos.actividades && typeof datos.actividades === 'object' ? datos.actividades : {};
+    const clave = actividadActual._unidadIndex != null
+      ? `${actividadActual._actividadId || actividadActual.id}::unidad::${actividadActual._unidadIndex}`
+      : String(actividadActual.id);
+    const resumen = window.PJProgreso?.leer?.();
+    const guardado = await destino.host.PJPerfiles.guardarProgreso(destino.perfilId, {
+      ...datos,
+      ...(resumen && typeof resumen === 'object' ? { resumen } : {}),
+      actividades: { ...actividades, [clave]: { verdes: kpScore.verdes, rojos: kpScore.rojos, completada: true } }
+    }, politica);
+    msgGuardar = guardado?.remoto
+      ? '✅ Progreso enviado al centro para este perfil.'
+      : guardado?.guardado
+      ? '✅ Progreso guardado en el perfil de este equipo.'
+      : '❌ La configuración no permite guardar el progreso.';
+  } catch (e) {
+    msgGuardar = '❌ No se pudo guardar el progreso en este equipo.';
+  }
+  guardandoDIP = false;
+  renderPantalla();
+}
+
 function lluviaConfetti() {
   const cont = document.getElementById('confetti');
   if (!cont) return;

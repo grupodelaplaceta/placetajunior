@@ -8,6 +8,7 @@ const pol = require('../lib/educacion/politica.js');
 const cifrado = require('../lib/educacion/cifrado.js');
 const firma = require('../lib/educacion/firma.js');
 const sesion = require('../lib/educacion/sesion.js');
+const rutas = require('../lib/educacion/rutas.js');
 
 test('la política por defecto es válida y no cambia al validarla', () => {
   const d = pol.configDefecto();
@@ -27,6 +28,21 @@ test('clasifica cambios: técnico, organizativo y normativo', () => {
 test('rechaza configuraciones inválidas', () => {
   assert.throws(() => pol.validar({ identificacion: 'publico' }), (e) => e.message === 'identificacion_invalida');
   assert.throws(() => pol.validar({ restricciones: { tiempoMaxMinutos: 1 } }), (e) => e.message === 'tiempo_maximo_invalido');
+});
+
+test('valida progreso de perfil con IdAlum, resumen y actividades acotadas', () => {
+  const datos = rutas.progresoAlumnoValido({
+    datos: {
+      actividades: { 'actividad-1': { verdes: 4, rojos: 1, completada: true } },
+      resumen: { verdes: 4, rojos: 1, jugadas: 1, medallas: ['Primera victoria'] }
+    }
+  });
+  assert.deepEqual(datos.actividades['actividad-1'], { verdes: 4, rojos: 1, completada: true });
+  assert.deepEqual(datos.resumen, { verdes: 4, rojos: 1, jugadas: 1, medallas: ['Primera victoria'] });
+  assert.ok(rutas.buscar('GET', '/api/dispositivo/alumnos/alum_0123456789abcdef0123456789abcdef/progreso'));
+  assert.ok(rutas.buscar('POST', '/api/dispositivo/alumnos/alum_0123456789abcdef0123456789abcdef/progreso'));
+  assert.throws(() => rutas.progresoAlumnoValido({ datos: { actividades: { a: { verdes: -1, rojos: 0, completada: true } } } }), /progreso_no_valido/);
+  assert.throws(() => rutas.progresoAlumnoValido({ datos: { actividades: {}, resumen: { verdes: 'muchos' } } }), /progreso_no_valido/);
 });
 
 test('los secretos se cifran y solo se descifran con la clave correcta', () => {
@@ -104,4 +120,36 @@ test('un registro de PIN alterado o con parámetros fuera de rango se rechaza', 
   assert.equal(pin.registroPinValido({ ...r, iter: 10 }), false);
   assert.equal(pin.registroPinValido({ ...r, alg: 'md5' }), false);
   assert.throws(() => pol.validar({ seguridad: { pinApagado: { ...r, iter: 10 } } }), (e) => e.message === 'pin_no_valido');
+});
+
+test('los bloqueos globales requieren motivo y soportan suspensión temporal o indefinida', () => {
+  const ahora = Date.UTC(2030, 0, 1);
+  assert.equal(rutas.validarMotivoBloqueo('  Incumplimiento   de normativa  '), 'Incumplimiento de normativa');
+  assert.throws(() => rutas.validarMotivoBloqueo(''), (e) => e.message === 'motivo_obligatorio');
+  assert.throws(() => rutas.validarMotivoBloqueo('no'), (e) => e.message === 'motivo_no_valido');
+  assert.deepEqual(rutas.validarBloqueoOrganizacion({
+    tipo: 'temporal', motivo: 'Revisión administrativa pendiente', hasta: '2030-01-02'
+  }, ahora), {
+    tipo: 'temporal', motivo: 'Revisión administrativa pendiente', hasta: '2030-01-02T23:59:59.999Z'
+  });
+  assert.deepEqual(rutas.validarBloqueoOrganizacion({
+    tipo: 'indefinido', motivo: 'Incumplimiento grave de condiciones'
+  }, ahora), {
+    tipo: 'indefinido', motivo: 'Incumplimiento grave de condiciones', hasta: null
+  });
+  assert.throws(() => rutas.validarBloqueoOrganizacion({
+    tipo: 'temporal', motivo: 'Revisión administrativa pendiente', hasta: '2029-12-31'
+  }, ahora), (e) => e.message === 'fecha_fin_debe_ser_futura');
+  assert.equal(rutas.bloqueoOrganizacionActual({
+    bloqueo: { tipo: 'temporal', motivo: 'revisión', hasta: '2029-12-31T23:59:59.999Z' }
+  }, ahora), null);
+});
+
+test('las rutas de bloqueo están protegidas por el espacio de administración global', () => {
+  for (const [metodo, ruta] of [
+    ['POST', '/api/admin/dispositivos/dis_123/bloquear'],
+    ['POST', '/api/admin/dispositivos/dis_123/reactivar'],
+    ['POST', '/api/admin/organizaciones/org_123/bloquear'],
+    ['POST', '/api/admin/organizaciones/org_123/activar']
+  ]) assert.ok(rutas.buscar(metodo, ruta), `${metodo} ${ruta}`);
 });

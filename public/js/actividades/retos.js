@@ -64,7 +64,7 @@
   function rTesoro(s, e, idx) {
     const camino = s.modo === 'dibujar' ? arr(e.trazo) : s.modo === 'programar' ? recorrer(s, arr(e.prog)).camino : [];
     const puedes = !e.respondida;
-    let mapa = `<div class="pn-tgrid${s.modo === 'dibujar' ? ' pn-draw-grid' : ''}" style="grid-template-columns:repeat(${s.W},1fr)">`;
+    let mapa = `<div class="pn-tgrid${s.modo === 'dibujar' ? ' pn-draw-grid' : ''}" style="--pn-cols:${s.W}">`;
     for (let y = 0; y < s.H; y++) for (let x = 0; x < s.W; x++) {
       const key = x + ',' + y, lm = s.lms.find(q => q.x === x && q.y === y);
       const esS = s.S.x === x && s.S.y === y, malo = arr(e.malas).includes(key), paso = camino.indexOf(key);
@@ -384,7 +384,6 @@
   function rTangram(s, e, idx) {
     const pal = PALS.includes(e.pal) ? e.pal : 'clasico';
     const color = id => TPAL[pal][TPIECES.findIndex(p => p.id === id)];
-    const botones = PALS.map(k => `<button type="button" class="pn-btn sm${pal === k ? ' on' : ''}" data-pn="tg_pal" data-i="${idx}" data-v="${k}" aria-pressed="${pal === k}">${esc(t('tan.pal.' + k))}</button>`).join('');
     let figura;
     if (s.modo === 'completar') {
       figura = TPIECES.filter(p => p.id !== s.miss).map(p => polyEl(p, color(p.id))).join('') + polyEl(pieza(s.miss), '#f5f3ff', 'hole');
@@ -403,13 +402,8 @@
       pregunta = t('tan.identify');
       cuerpo = svg + opts(idx, e, s.op, s.cor, 'pn_q', k => esc(t('tan.' + k)), true);
     }
-    return cab('tangram', pregunta) + `<div class="pn-tanbar" role="group" aria-label="${esc(t('tan.pal'))}">${botones}</div>` + cuerpo + msg(e);
+    return cab('tangram', pregunta) + cuerpo + msg(e);
   }
-
-  /* ---------- acciones ---------- */
-  const PN_EXTRA = {
-    tg_pal(idx, v) { const e = st(idx); if (!e || e.respondida) return; e.pal = v; ref(); }
-  };
 
   /* ---------- textos para lectura en voz alta ---------- */
   const TXT_B = {
@@ -425,5 +419,5 @@
   C.reg('simetria_dibujo', { crear: crearSimetria, render: rSimetria, texto: s => TXT_B.simetria_dibujo(s), act: SIM_ACT });
   C.reg('patron_visual', { crear: crearPatron, render: rPatron, texto: s => TXT_B.patron_visual(s) });
   C.reg('batalla', { crear: crearBatalla, render: rBatalla, texto: s => TXT_B.batalla(s) });
-  C.reg('tangram', { crear: crearTangram, render: rTangram, texto: s => TXT_B.tangram(s), act: PN_EXTRA });
+  C.reg('tangram', { crear: crearTangram, render: rTangram, texto: s => TXT_B.tangram(s) });
 })();

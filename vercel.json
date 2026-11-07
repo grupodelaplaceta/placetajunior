@@ -171,6 +171,10 @@
       "dest": "/public/educacion/index.html"
     },
     {
+      "src": "/educacion/administracion/?$",
+      "dest": "/public/educacion/admin.html"
+    },
+    {
       "src": "/(.*)",
       "dest": "/public/$1"
     }

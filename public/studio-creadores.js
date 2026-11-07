@@ -56,8 +56,8 @@
   const PRIMARY_HELP = {
     reloj: 'Cambia la hora o el modo. Usa HH:MM en formato de 24 horas; 16:30 se representa como 4:30 en el reloj analógico.',
     recta_numerica: 'Ajusta los límites, el salto y los números que el alumnado colocará.',
-    grafico: 'Edita los datos y las preguntas en formato JSON. Cada dato lleva etiqueta y valor.',
-    balanza: 'Edita los ejercicios en JSON. Cada ejercicio incluye los pesos de ambos platos y las pesas disponibles.',
+    grafico: 'Añade los datos y las preguntas del gráfico con los controles de cada reto.',
+    balanza: 'Ajusta los pesos de ambos platos y las pesas disponibles en cada reto.',
     ahorcado: 'Escribe las palabras y una pista para cada una. Ajusta el número de intentos.',
     anagrama: 'Añade palabras y pistas. El alumnado tendrá que ordenar sus letras.',
     patrones: 'Cada serie contiene los elementos en orden; usa ? en el lugar que se debe descubrir.',
@@ -106,7 +106,7 @@
     ...Object.fromEntries(Object.entries(PRIMARY_DEFAULTS).map(([type, data]) => [type, () => ({ tipo: type, titulo: TYPES.find(([id]) => id === type)?.[1] || type, datos: structuredClone(data) })])),
     code_blocks: () => ({ tipo: 'code_blocks', titulo: 'Placeta Junior Code', lenguaje: 'placeta_blocks', objetivo_texto: 'Programa a Candela para completar la misión.', ejercicios: structuredClone(CODE_DEFAULT_EXERCISES) })
   };
-  const state = { title: '', description: '', category: 'General', age: '6-12', difficulty: 'media', blocks: [], selected: -1, templates: [], identity: null, identityKind: 'docente', authorName: '', center: null, centers: [], docenteAprobado: false, drafts: [], currentDraftId: null };
+  const state = { title: '', description: '', category: 'General', age: '6-12', difficulty: 'media', reward: 0, blocks: [], selected: -1, templates: [], identity: null, identityKind: 'docente', authorName: '', center: null, centers: [], docenteAprobado: false, drafts: [], currentDraftId: null };
   const $ = (id) => document.getElementById(id);
   const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const history = [];
@@ -114,7 +114,7 @@
   let historyTimer;
 
   function historyState() {
-    return { title: state.title, description: state.description, category: state.category, age: state.age, difficulty: state.difficulty, blocks: state.blocks };
+    return { title: state.title, description: state.description, category: state.category, age: state.age, difficulty: state.difficulty, reward: state.reward, blocks: state.blocks };
   }
 
   function updateHistoryButtons() {
@@ -184,6 +184,7 @@
       category: state.category,
       age: state.age,
       difficulty: state.difficulty,
+      reward: state.reward,
       blocks: state.blocks,
       updatedAt: new Date().toISOString()
     };
@@ -200,6 +201,8 @@
       localStorage.setItem(DRAFTS_KEY, JSON.stringify(state.drafts));
       localStorage.removeItem(DRAFT_KEY);
       renderSavedActivities();
+      paintCompensation();
+      scheduleLivePreview();
     } catch (error) {
       notice('No se pudo guardar la actividad en este dispositivo. Comprueba el espacio disponible.', 'error');
     }
@@ -213,6 +216,7 @@
       category: saved.category || 'General',
       age: saved.age || '6-12',
       difficulty: saved.difficulty || 'media',
+      reward: Math.max(0, Number(saved.reward) || 0),
       blocks: Array.isArray(saved.blocks) ? saved.blocks : [],
       currentDraftId: saved.id || null,
       selected: Array.isArray(saved.blocks) && saved.blocks.length ? 0 : -1
@@ -293,6 +297,7 @@
     restoreDraft(draft);
     paintTemplates('');
     showStudioView('edit');
+    showEditorPane('canvas');
   }
 
   function deleteSavedDraft(id) {
@@ -326,8 +331,25 @@
     if (name === 'edit') $('activity-title').textContent = state.title || 'Actividad sin título';
   }
 
-  function blockName(type) { return TYPES.find(([id]) => id === type)?.[1] || type; }
+  let editorPane = 'palette';
+  function showEditorPane(name) {
+    const selected = state.blocks[state.selected];
+    const next = name === 'inspector' && !selected ? 'palette' : name;
+    editorPane = next;
+    const wide = window.matchMedia('(min-width: 1100px)').matches;
+    document.querySelectorAll('[data-editor-panel]').forEach((panel) => { panel.hidden = !wide && panel.dataset.editorPanel !== next; });
+    $('editor-steps').hidden = wide;
+    document.querySelectorAll('[data-editor-view]').forEach((button) => {
+      const active = button.dataset.editorView === next;
+      button.setAttribute('aria-selected', String(active));
+      button.tabIndex = active ? 0 : -1;
+      if (button.hasAttribute('data-needs-selection')) button.disabled = !selected;
+    });
+  }
+
+  function blockName(type) { return type === 'salto_unidad' ? 'Salto de unidad' : TYPES.find(([id]) => id === type)?.[1] || type; }
   function blockSummary(block) {
+    if (block.tipo === 'salto_unidad') return `${block.titulo || 'Nueva unidad'} · ${Number(block.recompensa) || 0} Pz`;
     if (block.tipo === 'texto') return (block.contenido || '').replace(/\s+/g, ' ').slice(0, 72) || 'Añade una explicación';
     if (block.tipo === 'test') return `${(block.preguntas || []).length} pregunta(s)`;
     if (block.tipo === 'relacionar') return `${(block.pares || []).length} pareja(s)`;
@@ -349,6 +371,60 @@
     if (['geometria', 'dinero', 'abaco', 'dados', 'tesoro', 'simetria_dibujo', 'patron_visual', 'tangram'].includes(block.tipo)) return `${data.cantidad || 0} reto(s)`;
     if (block.tipo === 'batalla') return `Nivel ${data.nivel || 1}`;
     return '';
+  }
+
+  function rewardAssignedToBreaks() {
+    return state.blocks.reduce((total, block) => total + (block.tipo === 'salto_unidad' ? Math.max(0, Number(block.recompensa) || 0) : 0), 0);
+  }
+
+  function activityLevels() {
+    const levels = [{ orden: 1, titulo: 'Unidad 1', descripcion: state.description || '', recompensa: Math.max(0, state.reward - rewardAssignedToBreaks()), bloques: [] }];
+    state.blocks.forEach((block) => {
+      if (block.tipo === 'salto_unidad') {
+        levels.push({ orden: levels.length + 1, titulo: block.titulo || `Unidad ${levels.length + 1}`, descripcion: block.descripcion || '', recompensa: Math.max(0, Number(block.recompensa) || 0), bloques: [] });
+      } else {
+        levels[levels.length - 1].bloques.push(block);
+      }
+    });
+    return levels;
+  }
+
+  function activityContent() {
+    const levels = activityLevels();
+    const blocks = state.blocks.filter((block) => block.tipo !== 'salto_unidad');
+    return { version: 2, bloques: blocks, ...(levels.length > 1 ? { niveles: levels } : {}) };
+  }
+
+  function paintCompensation() {
+    const summary = $('compensation-summary');
+    if (!summary) return;
+    const markers = state.blocks.filter((block) => block.tipo === 'salto_unidad');
+    const first = Math.max(0, state.reward - rewardAssignedToBreaks());
+    const repartido = [`Unidad 1: ${first} Pz`, ...markers.map((block, index) => `${block.titulo || `Unidad ${index + 2}`}: ${Math.max(0, Number(block.recompensa) || 0)} Pz`)];
+    summary.textContent = `${repartido.join(' + ')} · Total: ${state.reward} Pz`;
+  }
+
+  let livePreviewTimer;
+  function scheduleLivePreview() {
+    clearTimeout(livePreviewTimer);
+    livePreviewTimer = setTimeout(() => {
+      const frame = $('live-preview-frame'), empty = $('live-preview-empty');
+      if (!frame || !empty) return;
+      const content = activityContent();
+      if (!content.bloques.length) {
+        frame.hidden = true;
+        empty.hidden = false;
+        frame.src = 'about:blank';
+        $('preview-live-status').textContent = 'Elige un ejercicio para empezar.';
+        return;
+      }
+      const activity = { id: 'preview-live', _preview: true, titulo: state.title || 'Mi actividad', descripcion: state.description || '', categoria: state.category, edad_recomendada: state.age, dificultad: state.difficulty, recompensa: state.reward, contenido: content };
+      try { sessionStorage.setItem('pj-preview-activity', JSON.stringify(activity)); } catch {}
+      frame.hidden = false;
+      empty.hidden = true;
+      $('preview-live-status').textContent = `${state.blocks.filter((block) => block.tipo === 'salto_unidad').length + 1} unidades · ${state.reward} Pz disponibles`;
+      frame.src = `/preview.html?embed=1&start=0&t=${Date.now()}`;
+    }, 350);
   }
 
   function paintTemplates(active) {
@@ -390,23 +466,124 @@
     $('meta-category').value = state.category;
     $('meta-age').value = state.age;
     $('meta-difficulty').value = state.difficulty;
-    canvas.innerHTML = state.blocks.length ? state.blocks.map((block, index) => `<article class="block-card${index === state.selected ? ' selected' : ''}" data-index="${index}" draggable="true"><span class="block-number">${String(index + 1).padStart(2, '0')}</span><button class="block-select block-copy" type="button" aria-label="Editar ${esc(blockName(block.tipo))}, bloque ${index + 1}"><strong>${esc(block.titulo || blockName(block.tipo))}</strong><small>${esc(blockName(block.tipo))} · ${esc(blockSummary(block))}</small></button><span class="block-actions"><button class="block-action" data-move="-1" data-index="${index}" type="button" aria-label="Mover bloque ${index + 1} antes" ${index === 0 ? 'disabled' : ''}>↑</button><button class="block-action" data-move="1" data-index="${index}" type="button" aria-label="Mover bloque ${index + 1} después" ${index === state.blocks.length - 1 ? 'disabled' : ''}>↓</button><button class="block-action" data-duplicate="${index}" type="button" aria-label="Duplicar bloque ${index + 1}">⧉</button><button class="remove-block" data-remove="${index}" type="button" aria-label="Eliminar bloque ${index + 1}">×</button></span></article>`).join('') : '<div class="empty-state"><strong>El lienzo está listo</strong>Elige una plantilla o añade bloques desde la izquierda. Arrastra para cambiar el orden.</div>';
+    $('meta-reward').value = state.reward;
+    canvas.innerHTML = state.blocks.length ? state.blocks.map((block, index) => `<article class="block-card${index === state.selected ? ' selected' : ''}${block.tipo === 'salto_unidad' ? ' unit-break' : ''}" data-index="${index}" data-unit-break="${block.tipo === 'salto_unidad'}" draggable="true"><span class="block-number">${String(index + 1).padStart(2, '0')}</span><button class="block-select block-copy" type="button" aria-label="Editar ${esc(blockName(block.tipo))}, bloque ${index + 1}"><strong>${esc(block.titulo || blockName(block.tipo))}</strong><small>${esc(block.tipo === 'salto_unidad' ? 'Nueva unidad · ' + (Number(block.recompensa) || 0) + ' Pz' : blockSummary(block))}</small></button><span class="block-actions"><button class="block-action" data-move="-1" data-index="${index}" type="button" aria-label="Mover bloque ${index + 1} antes" ${index === 0 ? 'disabled' : ''}>↑</button><button class="block-action" data-move="1" data-index="${index}" type="button" aria-label="Mover bloque ${index + 1} después" ${index === state.blocks.length - 1 ? 'disabled' : ''}>↓</button><button class="block-action" data-duplicate="${index}" type="button" aria-label="Duplicar bloque ${index + 1}">⧉</button><button class="remove-block" data-remove="${index}" type="button" aria-label="Eliminar bloque ${index + 1}">×</button></span></article>`).join('') : '<div class="empty-state"><strong>El lienzo está listo</strong>Elige un ejercicio en la barra izquierda para empezar.</div>';
     paintInspector();
+    paintCompensation();
     saveDraft();
     updateHistoryButtons();
   }
 
   function editorField(label, key, value, mode = 'text', rows = 3) {
-    const textarea = mode === 'multiline' || mode === 'json' || mode === 'lines';
-    const shown = mode === 'json' ? JSON.stringify(value ?? [], null, 2) : mode === 'lines' ? (Array.isArray(value) ? value.join('\n') : '') : value ?? '';
-    return `<div class="field"><label for="field-${key}">${esc(label)}</label>${textarea ? `<textarea id="field-${key}" data-key="${key}" data-mode="${mode}" rows="${rows}"${mode === 'json' ? ' class="json-field" spellcheck="false"' : ''}>${esc(shown)}</textarea>` : `<input id="field-${key}" data-key="${key}" value="${esc(shown)}" />`}</div>`;
+    const textarea = mode === 'multiline' || mode === 'lines';
+    const shown = mode === 'lines' ? (Array.isArray(value) ? value.join('\n') : '') : value ?? '';
+    return `<div class="field"><label for="field-${key}">${esc(label)}</label>${textarea ? `<textarea id="field-${key}" data-key="${key}" data-mode="${mode}" rows="${rows}">${esc(shown)}</textarea>` : `<input id="field-${key}" data-key="${key}" value="${esc(shown)}" />`}</div>`;
+  }
+
+  const PRIMARY_ROW_LABELS = {
+    lines: ['Número'], words: ['Elemento'], times: ['Hora'], hourTasks: ['Hora o inicio', 'Duración o fin'],
+    measureTasks: ['Ancho', 'Alto', 'Tipo de medida'], diceTasks: ['Caras de los dados', 'Operación'],
+    balanceTasks: ['Pesos del plato izquierdo', 'Pesos del plato derecho', 'Pesas disponibles', 'Ecuación'],
+    sequenceTasks: ['Serie', 'Opciones de respuesta', 'Respuesta correcta'], symmetryTasks: ['Ancho', 'Alto', 'Celdas del dibujo'],
+    rouletteTasks: ['Categoría', 'Pregunta', 'Opciones de respuesta', 'Respuesta correcta'],
+    operationTasks: ['Primer número', 'Segundo número', 'Operación'], mentalTasks: ['Enunciado', 'Respuesta'],
+    chartQuestions: ['Pregunta', 'Opciones de respuesta', 'Respuesta correcta'], wordHints: ['Palabra', 'Pista'],
+    syllables: ['Palabra', 'Sílabas'], truth: ['Afirmación', 'Respuesta', 'Explicación'], chartData: ['Etiqueta', 'Valor']
+  };
+
+  function primaryRowChoices(mode, parts, index) {
+    if (mode === 'measureTasks' && index === 2) return [['area', 'Área'], ['perimetro', 'Perímetro'], ['mixto', 'Alternar']];
+    if (mode === 'diceTasks' && index === 1) return [['suma', 'Sumar'], ['resta', 'Restar'], ['multiplicacion', 'Multiplicar']];
+    if (mode === 'operationTasks' && index === 2) return [['+', 'Sumar'], ['-', 'Restar']];
+    if (mode === 'truth' && index === 1) return [['verdadero', 'Verdadera'], ['falso', 'Falsa']];
+    const optionPart = { sequenceTasks: 1, rouletteTasks: 2, chartQuestions: 1 }[mode];
+    const correctPart = { sequenceTasks: 2, rouletteTasks: 3, chartQuestions: 2 }[mode];
+    if (index !== correctPart) return null;
+    const options = String(parts[optionPart] || '').split(',').map((value) => value.trim()).filter(Boolean);
+    return options.map((value, optionIndex) => [String(optionIndex), value || `Opción ${optionIndex + 1}`]);
+  }
+
+  function primaryRowsField(label, key, shown, mode, hint) {
+    const rows = String(shown || '').split(/\r?\n/).filter((line) => line.trim());
+    const labels = PRIMARY_ROW_LABELS[mode] || ['Contenido'];
+    const renderedRows = rows.map((line, rowIndex) => {
+      const parts = line.split('|');
+      const fields = labels.map((fieldLabel, partIndex) => {
+        const value = parts[partIndex] || '';
+        const choices = primaryRowChoices(mode, parts, partIndex);
+        if (choices) return `<div class="primary-row-choice"><span>${esc(fieldLabel)}</span><input type="hidden" data-row-part="${partIndex}" value="${esc(value)}" /><div class="choice-buttons" role="group" aria-label="${esc(fieldLabel)}">${choices.map(([choice, title]) => `<button type="button" class="choice-button" data-primary-row-choice="${rowIndex}" data-choice-part="${partIndex}" data-choice-value="${esc(choice)}" aria-pressed="${value === choice}">${esc(title)}</button>`).join('')}</div></div>`;
+        const number = mode === 'lines' || mode === 'measureTasks' && partIndex < 2 || mode === 'operationTasks' && partIndex < 2 || mode === 'mentalTasks' && partIndex === 1 || mode === 'chartData' && partIndex === 1 || mode === 'hourTasks' && partIndex === 1 && /^\d+$/.test(value);
+        const time = mode === 'times' || mode === 'hourTasks' && (partIndex === 0 || partIndex === 1 && value.includes(':'));
+        return `<label class="field"><span>${esc(fieldLabel)}</span><input data-row-part="${partIndex}" type="${number ? 'number' : time ? 'time' : 'text'}" value="${esc(value)}"${number ? ' step="any"' : ''} /></label>`;
+      }).join('');
+      return `<fieldset class="primary-row"><legend>Ejercicio ${rowIndex + 1}</legend><div class="primary-row-fields">${fields}</div><button type="button" class="quiet-button" data-primary-row-delete="${rowIndex}">Eliminar ejercicio</button></fieldset>`;
+    }).join('');
+    return `<section class="primary-rows" data-primary-rows="${key}" data-primary-mode="${mode}"><strong class="primary-rows-title">${esc(label)}</strong>${hint ? `<small class="primary-rows-hint">${esc(hint)}</small>` : ''}<div class="primary-row-list">${renderedRows || '<p class="inspector-empty">Aún no hay ejercicios personalizados. Puedes añadir el primero o dejar que se generen automáticamente.</p>'}</div><button type="button" class="add-row" data-primary-row-add>＋ Añadir ejercicio</button></section>`;
+  }
+
+  function primaryRowDefault(mode, data) {
+    if (mode === 'lines') return 0;
+    if (mode === 'words') return '';
+    if (mode === 'times') return { hora: '03:30' };
+    if (mode === 'hourTasks') return data.modo === 'sumar' ? { hora: '03:30', duracion: 30 } : data.modo === 'duracion' ? { inicio: '03:30', fin: '04:00' } : { hora: '03:30' };
+    if (mode === 'measureTasks') return { ancho: 5, alto: 3, medida: data.medida || 'area' };
+    if (mode === 'diceTasks') return { caras: [3, 5], operacion: data.operacion || 'suma' };
+    if (mode === 'balanceTasks') return { izq: [5, 3], der: [2], pesas: [1, 2, 3, 5], ecuacion: '' };
+    if (mode === 'sequenceTasks') return { serie: ['2', '4', '?', '8'], opciones: ['5', '6', '7'], correcta: 1 };
+    if (mode === 'symmetryTasks') return { ancho: 3, alto: 4, celdas: [[0, 0], [1, 1], [2, 2]] };
+    if (mode === 'rouletteTasks') return { categoria: 'General', pregunta: '', opciones: ['Opción 1', 'Opción 2', 'Opción 3'], correcta: 0 };
+    if (mode === 'operationTasks') return { a: 10, b: 5, op: '+' };
+    if (mode === 'mentalTasks') return { enunciado: '', respuesta: 0 };
+    if (mode === 'chartQuestions') return { pregunta: '', opciones: ['Opción 1', 'Opción 2', 'Opción 3'], correcta: 0 };
+    if (mode === 'wordHints') return { palabra: '', pista: '' };
+    if (mode === 'syllables') return { palabra: '', silabas: [] };
+    if (mode === 'truth') return { texto: '', verdadero: true, explicacion: '' };
+    if (mode === 'chartData') return { etiqueta: '', valor: 0 };
+    return '';
+  }
+
+  function syncPrimaryRows(root) {
+    const lines = [...root.querySelectorAll('.primary-row')].map((row) => [...row.querySelectorAll('[data-row-part]')]
+      .sort((a, b) => Number(a.dataset.rowPart) - Number(b.dataset.rowPart))
+      .map((field) => field.value).join('|'));
+    updatePrimaryField({ dataset: { primaryData: root.dataset.primaryRows, mode: root.dataset.primaryMode }, value: lines.join('\n') });
+  }
+
+  function changePrimaryRows(root, action, index) {
+    const block = state.blocks[state.selected];
+    if (!block || !PRIMARY_DEFAULTS[block.tipo]) return;
+    const data = block.datos || (block.datos = structuredClone(PRIMARY_DEFAULTS[block.tipo]));
+    const key = root.dataset.primaryRows, mode = root.dataset.primaryMode;
+    const rows = Array.isArray(data[key]) ? data[key] : [];
+    if (action === 'add' && rows.length >= 12) { $('field-error').textContent = 'Puedes añadir hasta 12 ejercicios personalizados.'; return; }
+    if (action === 'delete' && mode === 'chartData' && rows.length <= 2) { $('field-error').textContent = 'El gráfico necesita al menos dos datos.'; return; }
+    recordHistory();
+    if (action === 'add') rows.push(rows.length ? structuredClone(rows[rows.length - 1]) : primaryRowDefault(mode, data));
+    else rows.splice(index, 1);
+    data[key] = rows;
+    $('field-error').textContent = '';
+    paintInspector();
+    saveDraft();
+    recordHistory();
+  }
+
+  function updatePrimaryRowChoice(button) {
+    const row = button.closest('.primary-row');
+    const part = button.dataset.choicePart;
+    const value = row.querySelector(`[data-row-part="${part}"]`);
+    value.value = button.dataset.choiceValue;
+    row.querySelectorAll(`[data-choice-part="${part}"]`).forEach((choice) => choice.setAttribute('aria-pressed', String(choice === button)));
+    syncPrimaryRows(button.closest('[data-primary-rows]'));
   }
 
   function primaryField(label, key, value, mode = 'text', hint = '', choices = null) {
-    const textarea = ['lines', 'json', 'times', 'hourTasks', 'measureTasks', 'diceTasks', 'balanceTasks', 'sequenceTasks', 'symmetryTasks', 'rouletteTasks', 'operationTasks', 'mentalTasks', 'chartQuestions', 'words', 'wordHints', 'syllables', 'truth', 'chartData'].includes(mode);
+    if (mode === 'select') {
+      const options = choices || (key === 'modo' ? [['poner', 'Poner la hora'], ['leer', 'Leer la hora']] : [['barras', 'Barras'], ['pictograma', 'Pictograma']]);
+      return `<div class="field primary-field"><span>${esc(label)}</span><div class="choice-buttons" role="group" aria-label="${esc(label)}">${options.map(([option, title]) => `<button type="button" class="choice-button" data-primary-choice="${key}" data-choice-value="${esc(option)}" aria-pressed="${String(value) === option}">${esc(title)}</button>`).join('')}</div>${hint ? `<small>${esc(hint)}</small>` : ''}</div>`;
+    }
+    const textarea = ['lines', 'times', 'hourTasks', 'measureTasks', 'diceTasks', 'balanceTasks', 'sequenceTasks', 'symmetryTasks', 'rouletteTasks', 'operationTasks', 'mentalTasks', 'chartQuestions', 'words', 'wordHints', 'syllables', 'truth', 'chartData'].includes(mode);
     let shown = value ?? '';
-    if (mode === 'json') shown = JSON.stringify(value ?? [], null, 2);
-    else if (mode === 'lines') shown = Array.isArray(value) ? value.join('\n') : '';
+    if (mode === 'lines') shown = Array.isArray(value) ? value.join('\n') : '';
     else if (mode === 'times') shown = Array.isArray(value) ? value.map((item) => item.hora || '').join('\n') : '';
     else if (mode === 'hourTasks') shown = Array.isArray(value) ? value.map((item) => item.inicio && item.fin ? `${item.inicio}|${item.fin}` : item.duracion != null ? `${item.hora || ''}|${item.duracion}` : item.hora || '').join('\n') : '';
     else if (mode === 'measureTasks') shown = Array.isArray(value) ? value.map((item) => `${item.ancho}|${item.alto}|${item.medida || ''}`).join('\n') : '';
@@ -423,17 +600,12 @@
     else if (mode === 'syllables') shown = Array.isArray(value) ? value.map((item) => `${item.palabra || ''}|${(item.silabas || []).join('-')}`).join('\n') : '';
     else if (mode === 'truth') shown = Array.isArray(value) ? value.map((item) => `${item.texto || ''}|${item.verdadero ? 'verdadero' : 'falso'}|${item.explicacion || ''}`).join('\n') : '';
     else if (mode === 'chartData') shown = Array.isArray(value) ? value.map((item) => `${item.etiqueta || ''}|${item.valor ?? ''}`).join('\n') : '';
+    if (textarea) return primaryRowsField(label, key, shown, mode, hint);
     const id = `primary-${key.replace(/[^a-z0-9]/gi, '-')}`;
     let control;
-    if (textarea) control = `<textarea id="${id}" data-primary-data="${key}" data-mode="${mode}" rows="${mode === 'json' ? 9 : 4}"${mode === 'json' ? ' spellcheck="false"' : ''}>${esc(shown)}</textarea>`;
-    else if (mode === 'select') {
-      const options = choices || (key === 'modo' ? [['poner', 'Poner la hora'], ['leer', 'Leer la hora']] : [['barras', 'Barras'], ['pictograma', 'Pictograma']]);
-      control = `<select id="${id}" data-primary-data="${key}" data-mode="${mode}">${options.map(([option, title]) => `<option value="${option}" ${shown === option ? 'selected' : ''}>${title}</option>`).join('')}</select>`;
-    } else {
-      const numeric = ['number', 'level', 'quantity', 'columns', 'diceCount'].includes(mode);
-      const limits = { level: 'min="1" max="3" step="1"', quantity: 'min="1" max="12" step="1"', columns: 'min="2" max="4" step="1"', diceCount: 'min="2" max="4" step="1"' };
-      control = `<input id="${id}" data-primary-data="${key}" data-mode="${mode}" ${numeric ? `type="number" ${limits[mode] || ''}` : ''} value="${esc(shown)}" />`;
-    }
+    const numeric = ['number', 'level', 'quantity', 'columns', 'diceCount'].includes(mode);
+    const limits = { level: 'min="1" max="3" step="1"', quantity: 'min="1" max="12" step="1"', columns: 'min="2" max="4" step="1"', diceCount: 'min="2" max="4" step="1"' };
+    control = `<input id="${id}" data-primary-data="${key}" data-mode="${mode}" ${numeric ? `type="number" ${limits[mode] || ''}` : ''} value="${esc(shown)}" />`;
     return `<label class="field primary-field" for="${id}"><span>${esc(label)}</span>${control}${hint ? `<small>${esc(hint)}</small>` : ''}</label>`;
   }
 
@@ -448,41 +620,41 @@
     if (block.tipo === 'grafico') return primaryField('Título del gráfico', 'titulo_grafico', data.titulo_grafico) +
       primaryField('Unidad', 'unidad', data.unidad, 'text', 'Ejemplo: niños, libros, puntos.') +
       primaryField('Tipo de gráfico', 'tipo_grafico', data.tipo_grafico || 'barras', 'select') +
-      primaryField('Datos (etiqueta|valor, una línea por dato)', 'datos', data.datos, 'chartData', 'Ejemplo: Perro|8') +
-      primaryField('Preguntas (pregunta|opciones|índice correcto)', 'preguntas', data.preguntas || [], 'chartQuestions', 'Ejemplo: ¿Qué valor es mayor?|Perro,Gato,Pez|0');
-    if (block.tipo === 'balanza') return primaryField('Ejercicios (plato izquierdo|plato derecho|pesas|ecuación)', 'ejercicios', data.ejercicios, 'balanceTasks', 'Usa números separados por comas. Ejemplo: 5,3|2|1,2,3,5|2 + ? = 8.');
+      primaryField('Datos del gráfico', 'datos', data.datos, 'chartData', 'Añade una categoría y su cantidad en cada fila.') +
+      primaryField('Preguntas del gráfico', 'preguntas', data.preguntas || [], 'chartQuestions', 'Escribe la pregunta y las respuestas; marca la correcta con un botón.');
+    if (block.tipo === 'balanza') return primaryField('Retos de equilibrio', 'ejercicios', data.ejercicios, 'balanceTasks', 'Indica los pesos de ambos platos y las piezas disponibles.');
     if (block.tipo === 'ahorcado') return primaryField('Intentos disponibles', 'intentos', data.intentos, 'number') +
       primaryField('Palabras y pistas (palabra|pista)', 'palabras', data.palabras, 'wordHints', 'Ejemplo: MARIPOSA|Insecto con alas de colores.');
     if (block.tipo === 'anagrama') return primaryField('Palabras y pistas (palabra|pista)', 'palabras', data.palabras, 'wordHints', 'Ejemplo: ESCUELA|Donde aprendes.');
     if (block.tipo === 'patrones') return primaryField('Series (serie|opciones|índice correcto)', 'secuencias', data.secuencias, 'sequenceTasks', 'Separa elementos y opciones con comas, usa ? para el hueco e índice desde 0.');
-    if (block.tipo === 'simetria') return primaryField('Dibujos (ancho|alto|celdas x,y)', 'ejercicios', data.ejercicios, 'symmetryTasks', 'Ejemplo: 3|4|0,0;1,1;2,2. Las coordenadas empiezan en 0.');
-    if (block.tipo === 'silabas') return primaryField('Palabras separadas en sílabas (palabra|sílabas)', 'palabras', data.palabras, 'syllables', 'Ejemplo: MARIPOSA|MA-RI-PO-SA.');
+    if (block.tipo === 'simetria') return primaryField('Dibujos simétricos', 'ejercicios', data.ejercicios, 'symmetryTasks', 'Define el tamaño de la cuadrícula y las celdas que forman el dibujo.');
+    if (block.tipo === 'silabas') return primaryField('Palabras y sílabas', 'palabras', data.palabras, 'syllables', 'Separa las sílabas con guiones.');
     if (block.tipo === 'vf_rapido') return primaryField('Duración en segundos', 'segundos', data.segundos, 'number') +
-      primaryField('Afirmaciones (texto|verdadero/falso|explicación)', 'afirmaciones', data.afirmaciones, 'truth', 'Ejemplo: El Sol es una estrella.|verdadero|Es la estrella más cercana a la Tierra.');
-    if (block.tipo === 'ruleta_preguntas') return primaryField('Preguntas (categoría|enunciado|opciones|índice correcto)', 'preguntas', data.preguntas, 'rouletteTasks', 'Separa las opciones con comas. El índice de la respuesta correcta empieza en 0.');
+      primaryField('Afirmaciones', 'afirmaciones', data.afirmaciones, 'truth', 'Marca con botones si cada afirmación es verdadera o falsa.');
+    if (block.tipo === 'ruleta_preguntas') return primaryField('Preguntas de la ruleta', 'preguntas', data.preguntas, 'rouletteTasks', 'Añade una categoría, la pregunta y sus respuestas.');
     const count = (label = 'Número de retos') => primaryField(label, 'cantidad', data.cantidad, 'quantity');
     const level = () => primaryField('Nivel de dificultad', 'nivel', data.nivel, 'level', '1: inicial · 2: intermedio · 3: avanzado.');
     if (block.tipo === 'geometria') return primaryField('Tipo de reto', 'modo', data.modo, 'select', '', [['identificar', 'Identificar formas'], ['lados', 'Contar lados'], ['clasificar', 'Clasificar formas'], ['medir', 'Medir área o perímetro']]) +
       (data.modo === 'medir' ? primaryField('Medida', 'medida', data.medida || 'mixto', 'select', '', [['mixto', 'Alternar área y perímetro'], ['area', 'Área'], ['perimetro', 'Perímetro']]) +
-        primaryField('Dimensiones (ancho|alto|área/perímetro)', 'ejercicios', data.ejercicios || [], 'measureTasks', 'Ejemplo: 5|3|area. Deja vacío para generar dimensiones automáticamente.') : '') +
+        primaryField('Medidas de figuras', 'ejercicios', data.ejercicios || [], 'measureTasks', 'Indica el ancho, el alto y qué debe calcular el alumnado.') : '') +
       count() + level() + primaryField('Figuras (opcional, una por línea)', 'figuras', data.figuras || [], 'words', 'Ejemplo: triangulo, cuadrado, circulo.');
     if (block.tipo === 'dinero') return primaryField('Tipo de reto', 'modo', data.modo, 'select', '', [['contar', 'Contar monedas'], ['pagar', 'Pagar un importe'], ['cambio', 'Calcular el cambio']]) +
       count() + level();
     if (block.tipo === 'vertical') return primaryField('Operación', 'operacion', data.operacion, 'select', '', [['+', 'Sumas'], ['-', 'Restas']]) +
-      count() + level() + primaryField('Operaciones (primer número|segundo número|signo)', 'ejercicios', data.ejercicios || [], 'operationTasks', 'Ejemplo: 7856|2679|+. Usa + o -.');
+      count() + level() + primaryField('Operaciones personalizadas', 'ejercicios', data.ejercicios || [], 'operationTasks', 'Añade dos números y elige suma o resta.');
     if (block.tipo === 'abaco') return primaryField('Tipo de reto', 'modo', data.modo, 'select', '', [['poner', 'Representar el número'], ['leer', 'Leer el ábaco']]) +
       count() + primaryField('Columnas', 'columnas', data.columnas, 'columns', 'Entre 2 y 4 columnas.');
     if (block.tipo === 'calculo_mental') return count() + level() +
-      primaryField('Ejercicios (enunciado|respuesta)', 'ejercicios', data.ejercicios || [], 'mentalTasks', 'Ejemplo: ¿Cuánto es el doble de 24?|48.');
+      primaryField('Preguntas personalizadas', 'ejercicios', data.ejercicios || [], 'mentalTasks', 'Escribe cada pregunta y su respuesta numérica.');
     if (block.tipo === 'horas') {
       const modo = primaryField('Tipo de reto', 'modo', data.modo, 'select', '', [['leer', 'Leer el reloj'], ['poner', 'Poner la hora'], ['sumar', 'Sumar tiempo'], ['duracion', 'Calcular duración']]);
       const reloj = primaryField('Diseño del reloj', 'reloj', data.reloj || 'analogico', 'select', '', [['analogico', 'Analógico'], ['digital', 'Digital'], ['ambos', 'Analógico y digital']]);
-      const formato = primaryField('Retos de hora', 'ejercicios', data.ejercicios || [], 'hourTasks', 'Un reto por línea: HH:MM para leer/poner; HH:MM|minutos para sumar; HH:MM|HH:MM (inicio y fin) para calcular duración.');
+      const formato = primaryField('Retos de hora', 'ejercicios', data.ejercicios || [], 'hourTasks', 'Los campos cambian según el tipo de reto que hayas elegido.');
       return modo + reloj + count() + level() + formato;
     }
     if (block.tipo === 'dados') return primaryField('Operación', 'operacion', data.operacion || 'suma', 'select', '', [['suma', 'Sumar'], ['resta', 'Restar'], ['multiplicacion', 'Multiplicar']]) +
       primaryField('Número de dados', 'dados', data.dados || 2, 'diceCount', 'Entre 2 y 4 dados por reto.') + count() +
-      primaryField('Retos personalizados (caras|operación)', 'ejercicios', data.ejercicios || [], 'diceTasks', 'Ejemplo: 3,5|suma. Caras del 1 al 6.');
+      primaryField('Tiradas personalizadas', 'ejercicios', data.ejercicios || [], 'diceTasks', 'Elige las caras y si se suman, restan o multiplican.');
     if (block.tipo === 'tesoro') return primaryField('Tipo de reto', 'modo', data.modo, 'select', '', [['pista', 'Seguir una pista'], ['programar', 'Programar con flechas'], ['dibujar', 'Dibujar con ratón o pantalla táctil']]) +
       count() + level();
     if (block.tipo === 'simetria_dibujo') return primaryField('Eje de simetría', 'eje', data.eje, 'select', '', [['v', 'Vertical'], ['h', 'Horizontal']]) +
@@ -493,6 +665,17 @@
     if (block.tipo === 'tangram') return primaryField('Tipo de reto', 'modo', data.modo, 'select', '', [['completar', 'Completar la figura'], ['contar', 'Contar piezas'], ['identificar', 'Identificar una pieza']]) +
       count() + primaryField('Estilo de las piezas', 'estilo', data.estilo, 'select', '', [['clasico', 'Clásico'], ['pastel', 'Pastel'], ['neon', 'Neón'], ['madera', 'Madera'], ['silueta', 'Silueta']]);
     return '';
+  }
+
+  function updatePrimaryChoice(target) {
+    const block = state.blocks[state.selected];
+    if (!block || !PRIMARY_DEFAULTS[block.tipo]) return;
+    const data = block.datos || (block.datos = structuredClone(PRIMARY_DEFAULTS[block.tipo]));
+    data[target.dataset.primaryChoice] = target.dataset.choiceValue;
+    $('field-error').textContent = '';
+    scheduleHistory();
+    saveDraft();
+    paintInspector();
   }
 
   const CODE_COMMANDS = [
@@ -826,10 +1009,6 @@
       if (parsed.some((item) => !item.etiqueta || !item.rawValue || !Number.isFinite(item.valor) || item.valor < 0)) { $('field-error').textContent = 'Usa etiqueta|valor en cada línea. El valor debe ser un número igual o mayor que 0.'; return; }
       value = parsed.map(({ etiqueta, valor }) => ({ etiqueta, valor }));
     }
-    else if (mode === 'json') {
-      try { value = JSON.parse(raw); }
-      catch (_) { $('field-error').textContent = 'Revisa el JSON: todavía no es válido y se conserva la última versión correcta.'; return; }
-    }
     data[key] = value;
     $('field-error').textContent = '';
     scheduleHistory();
@@ -873,12 +1052,18 @@
       patron_visual: ['pattern', 'Patrones visuales', PRIMARY_HELP.patron_visual],
       batalla: ['sailing', 'Batalla matemática', PRIMARY_HELP.batalla],
       tangram: ['extension', 'Tangram', PRIMARY_HELP.tangram],
+      salto_unidad: ['skip_next', 'Salto de unidad', 'Marca el comienzo de una nueva parte de la actividad.'],
       code_blocks: ['code', 'Placeta Junior Code', 'Programa a Candela con bloques visuales y misiones progresivas.']
     };
     const art = typeArt[block.tipo] || ['auto_awesome', blockName(block.tipo), 'Personaliza este contenido.'];
     let fields = editorField('Título del bloque', 'titulo', block.titulo || '');
-    if (block.tipo === 'texto') fields += editorField('Contenido', 'contenido', block.contenido, 'multiline', 8);
-    else if (block.tipo === 'test') fields += `<div class="repeat-list">${(block.preguntas || []).map((item, index) => `<fieldset class="repeat-item"><legend>Pregunta ${index + 1}</legend>${fieldMarkup('Enunciado', 'preguntas', index, 'pregunta', item.pregunta)}<label class="field"><span>Opciones, una por línea</span><textarea data-collection="preguntas" data-index="${index}" data-key="opciones" data-mode="lines" rows="4">${esc((item.opciones || []).join('\n'))}</textarea></label><label class="field"><span>Índice correcto (empieza en 0)</span><input type="number" min="0" max="${Math.max(0, (item.opciones || []).length - 1)}" data-collection="preguntas" data-index="${index}" data-key="correcta" value="${Number(item.correcta) || 0}" /></label><button type="button" class="quiet-button" data-delete-row="preguntas" data-index="${index}">Eliminar pregunta</button></fieldset>`).join('')}</div><button type="button" class="add-row" data-add-row="preguntas">＋ Añadir pregunta</button>`;
+    if (block.tipo === 'salto_unidad') {
+      const disponible = Math.max(0, state.reward - rewardAssignedToBreaks() + (Number(block.recompensa) || 0));
+      fields += editorField('Qué aprenderán en esta unidad', 'descripcion', block.descripcion || '', 'multiline', 4);
+      fields += `<label class="field"><span>Recompensa de esta unidad (Pz)</span><input type="number" min="0" max="${disponible}" step="1" data-key="recompensa" data-mode="number" value="${Math.min(disponible, Math.max(0, Number(block.recompensa) || 0))}" /><small>Quedan ${disponible} Pz disponibles de un presupuesto total de ${state.reward} Pz.</small></label>`;
+    }
+    else if (block.tipo === 'texto') fields += editorField('Contenido', 'contenido', block.contenido, 'multiline', 8);
+    else if (block.tipo === 'test') fields += `<div class="repeat-list">${(block.preguntas || []).map((item, index) => `<fieldset class="repeat-item"><legend>Pregunta ${index + 1}</legend>${fieldMarkup('Enunciado', 'preguntas', index, 'pregunta', item.pregunta)}<div class="answer-options"><span class="field-label">Opciones · marca la correcta</span>${(item.opciones || []).map((option, optionIndex) => `<div class="answer-option"><button type="button" class="answer-correct" data-option-correct="${index}" data-option-index="${optionIndex}" aria-pressed="${Number(item.correcta) === optionIndex}">${Number(item.correcta) === optionIndex ? '✓ Correcta' : 'Marcar correcta'}</button><input aria-label="Opción ${optionIndex + 1}" data-collection="preguntas" data-index="${index}" data-key="opciones" data-option-index="${optionIndex}" value="${esc(option)}" placeholder="Escribe una opción" /><button type="button" class="answer-delete" data-option-delete="${index}" data-option-index="${optionIndex}" aria-label="Eliminar opción ${optionIndex + 1}">×</button></div>`).join('')}</div><button type="button" class="add-row" data-option-add="${index}">＋ Añadir opción</button><button type="button" class="quiet-button" data-delete-row="preguntas" data-index="${index}">Eliminar pregunta</button></fieldset>`).join('')}</div><button type="button" class="add-row" data-add-row="preguntas">＋ Añadir pregunta</button>`;
     else if (block.tipo === 'relacionar') fields += `<div class="repeat-list">${(block.pares || []).map((item, index) => `<fieldset class="repeat-item"><legend>Pareja ${index + 1}</legend>${fieldMarkup('Concepto', 'pares', index, 'izq', item.izq)}${fieldMarkup('Respuesta', 'pares', index, 'der', item.der)}<button type="button" class="quiet-button" data-delete-row="pares" data-index="${index}">Eliminar pareja</button></fieldset>`).join('')}</div><button type="button" class="add-row" data-add-row="pares">＋ Añadir pareja</button>`;
     else if (block.tipo === 'completar') fields += `<div class="repeat-list">${(block.frases || []).map((item, index) => `<fieldset class="repeat-item"><legend>Frase ${index + 1}</legend>${fieldMarkup('Frase con hueco ___', 'frases', index, 'texto', item.texto)}${fieldMarkup('Respuesta', 'frases', index, 'respuesta', item.respuesta)}<button type="button" class="quiet-button" data-delete-row="frases" data-index="${index}">Eliminar frase</button></fieldset>`).join('')}</div><button type="button" class="add-row" data-add-row="frases">＋ Añadir frase</button>`;
     else if (block.tipo === 'ordenar') fields += editorField('Pasos (uno por línea)', 'items', block.items, 'lines', 6);
@@ -905,6 +1090,7 @@
     state.selected = 0;
     paintTemplates(id);
     paintCanvas();
+    showEditorPane('canvas');
     recordHistory();
     notice('', '');
   }
@@ -916,6 +1102,22 @@
     state.selected = before;
     paintTemplates('');
     paintCanvas();
+    showEditorPane('inspector');
+    recordHistory();
+  }
+
+  function addUnitBreak() {
+    if (!state.blocks.length || state.selected < 0 || state.blocks[state.selected]?.tipo === 'salto_unidad') {
+      notice('Selecciona un ejercicio para insertar el salto después.', 'error');
+      return;
+    }
+    const index = state.selected + 1;
+    const number = state.blocks.filter((block) => block.tipo === 'salto_unidad').length + 2;
+    recordHistory();
+    state.blocks.splice(index, 0, { tipo: 'salto_unidad', titulo: `Unidad ${number}`, descripcion: '', recompensa: 0 });
+    state.selected = index;
+    paintCanvas();
+    showEditorPane('inspector');
     recordHistory();
   }
 
@@ -925,11 +1127,16 @@
     const { key, mode } = target.dataset;
     let value = target.value;
     const error = $('field-error');
-    if (mode === 'json') {
-      try { value = JSON.parse(value); error.textContent = ''; }
-      catch (_) { error.textContent = 'El JSON aún no es válido; se conserva el último valor correcto.'; return; }
+    if (mode === 'number') {
+      value = value === '' ? 0 : Number(value);
+      if (!Number.isInteger(value) || value < 0) { error.textContent = 'Escribe un número entero igual o mayor que 0.'; return; }
+      if (block.tipo === 'salto_unidad' && key === 'recompensa') {
+        const disponible = state.reward - rewardAssignedToBreaks() + (Number(block.recompensa) || 0);
+        if (value > disponible) { error.textContent = `La unidad no puede superar los ${disponible} Pz disponibles.`; return; }
+      }
     } else if (mode === 'lines') value = value.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
     block[key] = value;
+    error.textContent = '';
     scheduleHistory();
     const card = $('canvas').querySelector(`[data-index="${state.selected}"]`);
     if (card) {
@@ -946,14 +1153,36 @@
     const collection = block[target.dataset.collection];
     const item = collection && collection[Number(target.dataset.index)];
     if (!item) return;
-    let value = target.value;
-    if (target.dataset.key === 'opciones' && target.dataset.mode === 'lines') value = value.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-    if (target.dataset.key === 'correcta') value = Number(value) || 0;
-    item[target.dataset.key] = value;
+    const value = target.value;
+    if (target.dataset.optionIndex !== undefined) item[target.dataset.key][Number(target.dataset.optionIndex)] = value;
+    else if (target.dataset.key === 'opciones' && target.dataset.mode === 'lines') item[target.dataset.key] = value.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+    else if (target.dataset.key === 'correcta') item[target.dataset.key] = Number(value) || 0;
+    else item[target.dataset.key] = value;
     scheduleHistory();
     const card = $('canvas').querySelector(`[data-index="${state.selected}"]`);
     if (card) card.querySelector('.block-copy small').textContent = `${blockName(block.tipo)} · ${blockSummary(block)}`;
     saveDraft();
+  }
+
+  function changeTestOption(questionIndex, optionIndex, action) {
+    const block = state.blocks[state.selected];
+    const question = block?.tipo === 'test' ? block.preguntas?.[questionIndex] : null;
+    if (!question) return;
+    if (action === 'add' && question.opciones.length >= 8) { $('field-error').textContent = 'Cada pregunta puede tener hasta ocho opciones.'; return; }
+    if (action === 'delete' && question.opciones.length <= 2) { $('field-error').textContent = 'Mantén al menos dos opciones por pregunta.'; return; }
+    recordHistory();
+    if (action === 'add') question.opciones.push('');
+    else if (action === 'delete') {
+      question.opciones.splice(optionIndex, 1);
+      if (question.correcta === optionIndex) question.correcta = 0;
+      else if (question.correcta > optionIndex) question.correcta -= 1;
+    } else question.correcta = optionIndex;
+    $('field-error').textContent = '';
+    paintInspector();
+    const card = $('canvas').querySelector(`[data-index="${state.selected}"]`);
+    if (card) card.querySelector('.block-copy small').textContent = `${blockName(block.tipo)} · ${blockSummary(block)}`;
+    saveDraft();
+    recordHistory();
   }
 
   function changeCollection(collection, index) {
@@ -1074,6 +1303,18 @@
     }[block.tipo] || 0), 0);
   }
 
+  function unitBreakError() {
+    let hasContent = false;
+    for (const block of state.blocks) {
+      if (block.tipo === 'salto_unidad') {
+        if (!hasContent) return 'Cada salto de unidad debe tener ejercicios antes y después.';
+        hasContent = false;
+      } else hasContent = true;
+    }
+    return state.blocks.some((block) => block.tipo === 'salto_unidad') && !hasContent
+      ? 'Añade ejercicios después del último salto de unidad.' : '';
+  }
+
   async function submit() {
     const token = sessionStorage.getItem(SESSION_KEY);
     if (!token || !state.identity) { notice('Inicia sesión con Google antes de enviar a revisión.', 'error'); return; }
@@ -1083,6 +1324,9 @@
       return;
     }
     if (!state.blocks.length || !countItems()) { notice('Añade bloques con contenido antes de enviar.', 'error'); return; }
+    const unitError = unitBreakError();
+    if (unitError) { notice(unitError, 'error'); return; }
+    if (rewardAssignedToBreaks() > state.reward) { notice('Las recompensas de las unidades superan el presupuesto total de Pz.', 'error'); return; }
     const authorName = state.identityKind === 'centro' ? state.center?.nombre : state.authorName;
     if (!authorName) { notice('No se encontró el nombre de autoría de esta cuenta.', 'error'); return; }
     const button = $('submit-activity');
@@ -1094,7 +1338,8 @@
       titulo: state.title.trim(), descripcion: state.description.trim(), categoria: state.category,
       edad_recomendada: state.age, dificultad: state.difficulty, tiempo_estimado: 10,
       num_preguntas: countItems(),
-      contenido: { version: 2, bloques: state.blocks }
+      recompensa: state.reward,
+      contenido: activityContent()
     };
     try {
       const response = await fetch('/api/creadores/actividades', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(body) });
@@ -1112,6 +1357,7 @@
       state.category = 'General';
       state.age = '6-12';
       state.difficulty = 'media';
+      state.reward = 0;
       state.blocks = [];
       state.selected = -1;
       paintCanvas();
@@ -1151,6 +1397,13 @@
       if (event.target.id === 'identity-select') setAuthorScope(event.target.value);
     });
     $('new-activity').addEventListener('click', startNewActivity);
+    $('add-unit-break').addEventListener('click', addUnitBreak);
+    $('preview-device-options').addEventListener('click', (event) => {
+      const button = event.target.closest('[data-preview-device]');
+      if (!button) return;
+      $('preview-device-options').querySelectorAll('button').forEach((choice) => choice.setAttribute('aria-pressed', String(choice === button)));
+      $('live-preview-device').dataset.device = button.dataset.previewDevice;
+    });
     $('saved-activities').addEventListener('click', (event) => {
       const open = event.target.closest('[data-open-draft]');
       const remove = event.target.closest('[data-delete-draft]');
@@ -1158,7 +1411,20 @@
       if (remove) deleteSavedDraft(remove.dataset.deleteDraft);
       if (event.target.closest('[data-create-first]')) startNewActivity();
     });
-    $('continue-to-edit').addEventListener('click', () => showStudioView('edit'));
+    $('continue-to-edit').addEventListener('click', () => { showStudioView('edit'); showEditorPane(state.blocks.length ? 'canvas' : 'palette'); });
+    document.querySelectorAll('[data-editor-view]').forEach((button) => button.addEventListener('click', () => showEditorPane(button.dataset.editorView)));
+    $('editor-steps').addEventListener('keydown', (event) => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+      const tabs = [...document.querySelectorAll('[data-editor-view]:not(:disabled)')];
+      const current = tabs.indexOf(event.target.closest('[data-editor-view]'));
+      if (current < 0) return;
+      event.preventDefault();
+      const next = event.key === 'Home' ? 0
+        : event.key === 'End' ? tabs.length - 1
+          : (current + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+      showEditorPane(tabs[next].dataset.editorView);
+      tabs[next].focus();
+    });
     $('templates').addEventListener('click', (event) => { const button = event.target.closest('[data-template]'); if (button) useTemplate(button.dataset.template); });
     $('blank-template').addEventListener('click', () => { recordHistory(); state.blocks = []; state.selected = -1; state.title = ''; state.description = ''; paintTemplates(''); paintCanvas(); recordHistory(); });
     $('undo-action').addEventListener('click', () => { recordHistory(); if (historyIndex > 0) restoreHistory(historyIndex - 1); });
@@ -1194,7 +1460,7 @@
       if (remove) { recordHistory(); state.blocks.splice(Number(remove.dataset.remove), 1); state.selected = state.blocks.length ? Math.min(Number(remove.dataset.remove), state.blocks.length - 1) : -1; paintCanvas(); recordHistory(); return; }
       const select = event.target.closest('.block-select');
       const card = select?.closest('[data-index]');
-      if (card) { state.selected = Number(card.dataset.index); paintCanvas(); }
+      if (card) { state.selected = Number(card.dataset.index); paintCanvas(); showEditorPane('inspector'); }
     });
     const previewDialog = $('preview-dialog');
     const previewFrame = $('preview-frame');
@@ -1204,7 +1470,7 @@
     }
     $('preview-activity').addEventListener('click', () => {
       if (!state.blocks.length) { notice('Añade un bloque o elige una plantilla para previsualizar.', 'error'); return; }
-      const activity = { id: 'preview-' + Date.now(), _preview: true, titulo: state.title || 'Mi actividad', descripcion: state.description || '', categoria: state.category, edad_recomendada: state.age, dificultad: state.difficulty, contenido: { version: 2, bloques: state.blocks } };
+      const activity = { id: 'preview-' + Date.now(), _preview: true, titulo: state.title || 'Mi actividad', descripcion: state.description || '', categoria: state.category, edad_recomendada: state.age, dificultad: state.difficulty, recompensa: state.reward, contenido: activityContent() };
       sessionStorage.setItem('pj-preview-activity', JSON.stringify(activity));
       previewFrame.src = `/preview.html?embed=1&start=0&t=${Date.now()}`;
       if (!previewDialog.open) previewDialog.showModal();
@@ -1215,12 +1481,28 @@
     $('inspector-content').addEventListener('input', (event) => { if (event.target.dataset.collection) updateCollectionField(event.target); });
     $('inspector-content').addEventListener('input', (event) => { if (event.target.dataset.primaryData) updatePrimaryField(event.target); });
     $('inspector-content').addEventListener('change', (event) => { if (event.target.dataset.primaryData) updatePrimaryField(event.target); });
+    $('inspector-content').addEventListener('input', (event) => { const root = event.target.closest('[data-primary-rows]'); if (root && event.target.hasAttribute('data-row-part')) syncPrimaryRows(root); });
     $('inspector-content').addEventListener('input', (event) => { if (event.target.dataset.codeField) updateCodeExercise(event.target); });
     $('inspector-content').addEventListener('click', (event) => {
+      const primaryRows = event.target.closest('[data-primary-rows]');
+      const primaryRowAdd = event.target.closest('[data-primary-row-add]');
+      const primaryRowDelete = event.target.closest('[data-primary-row-delete]');
+      const primaryRowChoice = event.target.closest('[data-primary-row-choice]');
+      const primaryChoice = event.target.closest('[data-primary-choice]');
+      const addOption = event.target.closest('[data-option-add]');
+      const deleteOption = event.target.closest('[data-option-delete]');
+      const correctOption = event.target.closest('[data-option-correct]');
       const add = event.target.closest('[data-add-row]');
       const remove = event.target.closest('[data-delete-row]');
       const addCode = event.target.closest('[data-code-add]');
       const deleteCode = event.target.closest('[data-code-delete]');
+      if (primaryRowAdd && primaryRows) changePrimaryRows(primaryRows, 'add');
+      if (primaryRowDelete && primaryRows) changePrimaryRows(primaryRows, 'delete', Number(primaryRowDelete.dataset.primaryRowDelete));
+      if (primaryRowChoice) updatePrimaryRowChoice(primaryRowChoice);
+      if (primaryChoice) updatePrimaryChoice(primaryChoice);
+      if (addOption) changeTestOption(Number(addOption.dataset.optionAdd), null, 'add');
+      if (deleteOption) changeTestOption(Number(deleteOption.dataset.optionDelete), Number(deleteOption.dataset.optionIndex), 'delete');
+      if (correctOption) changeTestOption(Number(correctOption.dataset.optionCorrect), Number(correctOption.dataset.optionIndex), 'correct');
       if (add) changeCollection(add.dataset.addRow, null);
       if (remove) changeCollection(remove.dataset.deleteRow, Number(remove.dataset.index));
       if (addCode) addCodeExercise();
@@ -1239,6 +1521,36 @@
         saveDraft();
       });
     });
+    $('meta-reward').addEventListener('input', (event) => {
+      const value = Number(event.target.value);
+      if (!Number.isInteger(value) || value < rewardAssignedToBreaks() || value > 10000) {
+        event.target.setCustomValidity(`El presupuesto debe ser un entero entre ${rewardAssignedToBreaks()} y 10000 Pz.`);
+        event.target.reportValidity();
+        event.target.value = state.reward;
+        return;
+      }
+      event.target.setCustomValidity('');
+      state.reward = value;
+      scheduleHistory();
+      saveDraft();
+      paintCompensation();
+    });
+    window.addEventListener('resize', () => showEditorPane(editorPane));
+    $('meta-reward').addEventListener('input', (event) => {
+      const value = Number(event.target.value);
+      if (!Number.isInteger(value) || value < rewardAssignedToBreaks() || value > 10000) {
+        event.target.setCustomValidity(`El presupuesto debe ser un entero entre ${rewardAssignedToBreaks()} y 10000 Pz.`);
+        event.target.reportValidity();
+        event.target.value = state.reward;
+        return;
+      }
+      event.target.setCustomValidity('');
+      state.reward = value;
+      scheduleHistory();
+      saveDraft();
+      paintCompensation();
+    });
+    window.addEventListener('resize', () => showEditorPane(editorPane));
     $('clear-draft').addEventListener('click', () => { if (!window.confirm('¿Vaciar el lienzo actual?')) return; recordHistory(); state.blocks = []; state.selected = -1; paintCanvas(); recordHistory(); });
     $('submit-activity').addEventListener('click', submit);
       $('access-gate').hidden = true;

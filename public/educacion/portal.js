@@ -36,6 +36,13 @@
     'Todavía no hay organizaciones. Registra la primera arriba.': ['Encara no hi ha organitzacions. Registra la primera més amunt.', 'There are no organisations yet. Register the first one above.'],
     'No hay documentos publicados.': ['No hi ha documents publicats.', 'There are no published documents.'],
     'Gestionar': ['Gestiona', 'Manage'], 'Publicar nueva versión': ['Publica una versió nova', 'Publish new version'],
+    'Bloqueo de centro': ['Bloqueig de centre', 'School restriction'], 'Suspensión temporal': ['Suspensió temporal', 'Temporary suspension'],
+    'Prohibición indefinida': ['Prohibició indefinida', 'Indefinite ban'], 'Motivo (obligatorio, de 10 a 500 caracteres)': ['Motiu (obligatori, de 10 a 500 caràcters)', 'Reason (required, 10–500 characters)'],
+    'Fecha de finalización': ['Data de finalització', 'End date'], 'Bloquear centro': ['Bloqueja el centre', 'Block school'],
+    'Reactivar centro': ['Reactiva el centre', 'Reactivate school'], 'Bloquear dispositivo': ['Bloqueja el dispositiu', 'Block device'],
+    'Reactivar dispositivo': ['Reactiva el dispositiu', 'Reactivate device'], 'No bloqueado': ['No bloquejat', 'Not blocked'],
+    'Bloqueado hasta ': ['Bloquejat fins al ', 'Blocked until '], 'Prohibido indefinidamente': ['Prohibit indefinidament', 'Banned indefinitely'],
+    'Motivo: ': ['Motiu: ', 'Reason: '], '¿Bloquear este dispositivo? Introduce el motivo (mínimo 10 caracteres):': ['Vols bloquejar aquest dispositiu? Introdueix el motiu (mínim 10 caràcters):', 'Block this device? Enter the reason (at least 10 characters):'],
     'Sesión: ': ['Sessió: ', 'Signed in: '], 'Organización creada. Código de centro: ': ['Organització creada. Codi de centre: ', 'Organisation created. School code: '],
     '. Introdúcelo en Placeta Junior IO para vincular cada equipo.': ['. Introdueix-lo a Placeta Junior IO per a vincular cada equip.', '. Enter it in Placeta Junior IO to link each device.'],
     'No había cambios.': ['No hi havia canvis.', 'There were no changes.'], 'Guardado (': ['Desat (', 'Saved ('],
@@ -112,7 +119,13 @@
     sin_cambios_en_el_texto: 'El texto no ha cambiado respecto a la versión anterior.',
     tiempo_maximo_invalido: 'El tiempo máximo debe estar entre 5 y 240 minutos, o vacío.',
     conservacion_invalida: 'La conservación debe estar entre 1 y 3650 días.',
-    etapas_invalidas: 'Selecciona al menos una etapa.'
+    etapas_invalidas: 'Selecciona al menos una etapa.',
+    motivo_obligatorio: 'El motivo es obligatorio.',
+    motivo_no_valido: 'El motivo debe tener entre 10 y 500 caracteres.',
+    tipo_bloqueo_no_valido: 'Selecciona un tipo de bloqueo válido.',
+    fecha_fin_no_valida: 'Introduce una fecha de finalización válida.',
+    fecha_fin_debe_ser_futura: 'La fecha de finalización debe ser futura.',
+    dispositivo_no_bloqueable: 'Este dispositivo ya no está vinculado y no se puede bloquear.'
   };
   function traducirError(c) { return traducirTexto(ERRORES[c] || c || 'Error inesperado'); }
   function traducirTexto(texto) { return indiceIdioma >= 0 && TRADUCCIONES[texto] ? TRADUCCIONES[texto][indiceIdioma] : texto; }
@@ -152,7 +165,7 @@
   async function cargarOrgs() {
     const orgs = await api('GET', '/api/admin/organizaciones');
     $('#tabla-orgs').innerHTML = orgs.length ? orgs.map((o) => `<tr>
-        <td>${esc(o.nombre)}</td>
+        <td>${esc(o.nombre)}${o.bloqueo ? `<p class="aviso">${o.bloqueo.tipo === 'indefinido' ? 'Prohibido indefinidamente' : `Bloqueado hasta ${esc(o.bloqueo.hasta.slice(0, 10))}`}</p>` : ''}</td>
         <td class="codigo">${esc(o.codigoCentro)}</td>
         <td>${o.dispositivos}</td>
         <td>${esc(TIPOS_CAMBIO[o.ultimoCambio.tipo] || o.ultimoCambio.tipo)}<br><span class="nota">${new Date(o.ultimoCambio.fecha).toLocaleString('es-ES')}</span></td>
@@ -185,9 +198,34 @@
     const estados = Object.entries(c.juegos.estados).map(([k, v]) => `${k}: ${v}`).join('\n');
     const el = $('#detalle');
     el.hidden = false;
+    const bloqueoActual = o.bloqueo;
+    const textoBloqueo = bloqueoActual
+      ? `${bloqueoActual.tipo === 'indefinido' ? 'Prohibido indefinidamente' : `Bloqueado hasta ${bloqueoActual.hasta.slice(0, 10)}`} · Motivo: ${esc(bloqueoActual.motivo)}`
+      : 'No bloqueado';
     el.innerHTML = `
       <h2>${esc(o.nombre)} · <span class="codigo">${esc(o.codigoCentro)}</span></h2>
-      <p class="nota">Revisión ${o.revision}. Los cambios se aplican en los equipos al abrir la app o al recargarla.</p>
+      <p class="nota">Revisión ${o.revision}. La configuración se aplica al abrir o recargar IO; los bloqueos se aplican en la próxima sincronización.</p>
+      <section class="bloqueo-centro">
+        <h3>Bloqueo de centro</h3>
+        <p class="nota">${textoBloqueo}</p>
+        ${bloqueoActual ? '<button type="button" class="plana" data-activar-centro>Reactivar centro</button>' : ''}
+        <form id="form-bloqueo-org">
+          <label>Tipo de bloqueo
+            <select name="tipo">
+              <option value="temporal" ${bloqueoActual?.tipo === 'temporal' ? 'selected' : ''}>Suspensión temporal</option>
+              <option value="indefinido" ${bloqueoActual?.tipo === 'indefinido' ? 'selected' : ''}>Prohibición indefinida</option>
+            </select>
+          </label>
+          <label data-fecha-bloqueo ${bloqueoActual?.tipo === 'indefinido' ? 'hidden' : ''}>Fecha de finalización
+            <input name="hasta" type="date" ${bloqueoActual?.tipo !== 'indefinido' ? 'required' : ''} ${bloqueoActual?.hasta ? `value="${esc(bloqueoActual.hasta.slice(0, 10))}"` : ''} />
+          </label>
+          <label>Motivo (obligatorio, de 10 a 500 caracteres)
+            <textarea name="motivo" minlength="10" maxlength="500" required></textarea>
+          </label>
+          <button type="submit" class="peligro">Bloquear centro</button>
+          <span id="aviso-bloqueo-org" class="aviso" role="status"></span>
+        </form>
+      </section>
       <form id="form-config">
         <div class="bloque">
           <fieldset><legend>Herramientas disponibles</legend>
@@ -251,8 +289,8 @@
       <h2>Dispositivos vinculados</h2>
       <div class="tabla"><table><thead><tr><th>Equipo</th><th>Versión</th><th>Último contacto</th><th>Estado</th><th></th></tr></thead><tbody>
         ${disp.length ? disp.map((d) => `<tr><td>${esc(d.nombre)}</td><td>${esc(d.appVersion)}</td>
-          <td>${new Date(d.ultimoContacto).toLocaleString('es-ES')}</td><td><span class="insignia ${d.estado === 'activo' ? 'ok' : 'mal'}">${esc(d.estado)}</span></td>
-          <td>${d.estado === 'activo' ? `<button class="peligro" data-desvincular="${esc(d.id)}">Desvincular</button>` : ''}</td></tr>`).join('')
+          <td>${new Date(d.ultimoContacto).toLocaleString('es-ES')}</td><td><span class="insignia ${d.estado === 'activo' ? 'ok' : 'mal'}">${esc(d.estado)}</span>${d.motivoBloqueo ? `<p class="nota">Motivo: ${esc(d.motivoBloqueo)}</p>` : ''}</td>
+          <td>${d.estado === 'activo' ? `<button class="peligro" data-bloquear-dispositivo="${esc(d.id)}">Bloquear dispositivo</button> <button class="plana" data-desvincular="${esc(d.id)}">Desvincular</button>` : d.estado === 'bloqueado' ? `<button class="plana" data-reactivar-dispositivo="${esc(d.id)}">Reactivar dispositivo</button>` : ''}</td></tr>`).join('')
           : '<tr><td colspan="5">Ningún equipo vinculado todavía.</td></tr>'}
       </tbody></table></div>
       <h2>Aceptaciones registradas</h2>
@@ -291,6 +329,19 @@
   }
 
   $('#detalle').addEventListener('submit', async (e) => {
+    if (e.target.id === 'form-bloqueo-org') {
+      e.preventDefault();
+      const f = e.target;
+      const aviso = $('#aviso-bloqueo-org');
+      try {
+        await api('POST', `/api/admin/organizaciones/${encodeURIComponent(orgActual.id)}/bloquear`, {
+          tipo: f.tipo.value, motivo: f.motivo.value, hasta: f.hasta.value
+        });
+        await abrirDetalle(orgActual.id);
+        await cargarOrgs();
+      } catch (err) { aviso.textContent = err.message; }
+      return;
+    }
     if (e.target.id !== 'form-config') return;
     e.preventDefault();
     const aviso = $('#aviso-config');
@@ -304,11 +355,48 @@
   });
 
   $('#detalle').addEventListener('click', async (e) => {
-    const b = e.target.closest('[data-desvincular]');
-    if (!b) return;
-    if (!confirm('¿Desvincular este equipo? Dejará de recibir configuración y deberá vincularse de nuevo con el código del centro.')) return;
-    await api('POST', `/api/admin/dispositivos/${encodeURIComponent(b.dataset.desvincular)}/desvincular`, {});
-    await abrirDetalle(orgActual.id);
+    const activarCentro = e.target.closest('[data-activar-centro]');
+    if (activarCentro) {
+      if (!confirm('¿Reactivar este centro? Sus dispositivos podrán volver a sincronizarse.')) return;
+      try {
+        await api('POST', `/api/admin/organizaciones/${encodeURIComponent(orgActual.id)}/activar`, {});
+        await abrirDetalle(orgActual.id);
+        await cargarOrgs();
+      } catch (err) { alert(err.message); }
+      return;
+    }
+    const bloquear = e.target.closest('[data-bloquear-dispositivo]');
+    if (bloquear) {
+      const motivo = prompt('¿Bloquear este dispositivo? Introduce el motivo (mínimo 10 caracteres):');
+      if (!motivo) return;
+      try {
+        await api('POST', `/api/admin/dispositivos/${encodeURIComponent(bloquear.dataset.bloquearDispositivo)}/bloquear`, { motivo });
+        await abrirDetalle(orgActual.id);
+      } catch (err) { alert(err.message); }
+      return;
+    }
+    const reactivar = e.target.closest('[data-reactivar-dispositivo]');
+    if (reactivar) {
+      try {
+        await api('POST', `/api/admin/dispositivos/${encodeURIComponent(reactivar.dataset.reactivarDispositivo)}/reactivar`, {});
+        await abrirDetalle(orgActual.id);
+      } catch (err) { alert(err.message); }
+      return;
+    }
+    const desvincular = e.target.closest('[data-desvincular]');
+    if (!desvincular || !confirm('¿Desvincular este equipo? Dejará de recibir configuración y deberá vincularse de nuevo con el código del centro.')) return;
+    try {
+      await api('POST', `/api/admin/dispositivos/${encodeURIComponent(desvincular.dataset.desvincular)}/desvincular`, {});
+      await abrirDetalle(orgActual.id);
+    } catch (err) { alert(err.message); }
+  });
+
+  $('#detalle').addEventListener('change', (e) => {
+    if (e.target.name !== 'tipo' || e.target.closest('#form-bloqueo-org') === null) return;
+    const fecha = $('#form-bloqueo-org [data-fecha-bloqueo]');
+    const temporal = e.target.value === 'temporal';
+    fecha.hidden = !temporal;
+    fecha.querySelector('input').required = temporal;
   });
 
   // ── Documentos ────────────────────────────────────────────────────

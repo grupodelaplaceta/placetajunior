@@ -101,6 +101,7 @@ test('las subrutas de centros y educación están en el enrutado', () => {
   assert.ok(dests.includes('/public/centros/panel.html'));
   assert.ok(!dests.includes('/public/centros/rsp.html'), 'RSP es un panel externo');
   assert.ok(dests.includes('/public/educacion/index.html'));
+  assert.ok(dests.includes('/public/educacion/admin.html'));
 });
 
 test('el SQL completo incluye el esquema usado por Centros y Education y devuelve el contrato del RPC', () => {
@@ -115,7 +116,7 @@ test('el SQL completo incluye el esquema usado por Centros y Education y devuelv
 });
 
 test('las páginas de centros y educación existen en el sitio', () => {
-  for (const f of ['centros/index.html', 'centros/panel.html', 'centros/assets/app.js', 'css/pj-admin.css', 'educacion/index.html', 'educacion/portal.js']) {
+  for (const f of ['centros/index.html', 'centros/panel.html', 'centros/assets/app.js', 'css/pj-admin.css', 'educacion/index.html', 'educacion/admin.html', 'educacion/portal.js']) {
     assert.ok(fs.existsSync(path.join(raiz, 'public', f)), f);
   }
 });
@@ -134,7 +135,7 @@ test('el panel de centro solo se ofrece con sesión y CSP permite el estilo de G
 });
 
 test('ninguna página de centros ni de educación usa atributos en línea (compatible con la política de contenido)', () => {
-  const paginas = ['centros/index.html', 'centros/panel.html', 'centros/assets/app.js', 'educacion/index.html', 'educacion/portal.js'];
+  const paginas = ['centros/index.html', 'centros/panel.html', 'centros/assets/app.js', 'educacion/index.html', 'educacion/admin.html', 'educacion/portal.js'];
   for (const p of paginas) {
     const txt = fs.readFileSync(path.join(raiz, 'public', p), 'utf8');
     assert.ok(!/\son(click|submit|load|change)=/.test(txt), p);

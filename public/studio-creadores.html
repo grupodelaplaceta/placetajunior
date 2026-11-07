@@ -69,6 +69,7 @@
             <div class="field"><label for="meta-category">Materia</label><select id="meta-category"><option>General</option><option>Matemáticas</option><option>Lengua</option><option>Ciencias</option><option>Geografía</option><option>Tecnología</option><option>Lógica</option><option>Pensamiento computacional</option><option>Cultura</option></select><small>Integra matemáticas, pensamiento lógico, informática y robótica para resolver problemas.</small></div>
             <div class="field"><label for="meta-age">Edad recomendada</label><input id="meta-age" value="6-12" maxlength="20" /></div>
             <div class="field"><label for="meta-difficulty">Dificultad</label><select id="meta-difficulty"><option value="facil">Fácil</option><option value="media" selected>Media</option><option value="dificil">Difícil</option></select></div>
+            <div class="field"><label for="meta-reward">Recompensa máxima (Pz)</label><input id="meta-reward" type="number" min="0" max="10000" step="1" value="0" /><small>Presupuesto total disponible para repartir entre unidades.</small></div>
           </div>
         </div>
         <section class="template-section" aria-labelledby="template-title">
@@ -79,16 +80,24 @@
       </section>
       <section class="studio-view edit-view" id="studio-panel-edit" role="tabpanel" data-studio-panel="edit" hidden aria-labelledby="studio-tab-edit">
         <div class="studio-view-heading"><div><p class="eyebrow">PASO 2 · DALE FORMA</p><h2 id="editor-view-title">Personaliza tu actividad</h2><p>Añade bloques, edita su contenido y arrástralos para cambiar el orden.</p></div></div>
+        <nav class="editor-steps" id="editor-steps" role="tablist" aria-label="Pasos para personalizar la actividad">
+          <button type="button" role="tab" id="editor-tab-palette" aria-controls="editor-panel-palette" data-editor-view="palette" aria-selected="true"><span>1</span>Añadir ejercicios</button>
+          <button type="button" role="tab" id="editor-tab-canvas" aria-controls="editor-panel-canvas" data-editor-view="canvas" aria-selected="false"><span>2</span>Ordenar actividad</button>
+          <button type="button" role="tab" id="editor-tab-inspector" aria-controls="editor-panel-inspector" data-editor-view="inspector" data-needs-selection disabled aria-selected="false"><span>3</span>Personalizar ejercicio</button>
+        </nav>
         <section class="workspace" aria-label="Editor de actividad">
-          <aside class="toolbox">
+          <aside class="toolbox" id="editor-panel-palette" role="tabpanel" aria-labelledby="editor-tab-palette" data-editor-panel="palette">
             <div class="section-heading compact"><div><p class="eyebrow">CONTENIDO</p><h2>Añade un bloque</h2></div></div>
             <div class="block-palette" id="palette"></div>
           </aside>
-          <section class="builder">
+          <section class="builder" id="editor-panel-canvas" role="tabpanel" aria-labelledby="editor-tab-canvas" data-editor-panel="canvas" hidden>
             <div class="builder-top"><div><p class="eyebrow">TU LIENZO</p><h2 id="activity-title">Actividad sin título</h2></div><div class="builder-actions"><button id="undo-action" class="quiet-button history-button" type="button" disabled aria-label="Deshacer">↶ Deshacer</button><button id="redo-action" class="quiet-button history-button" type="button" disabled aria-label="Rehacer">↷ Rehacer</button><button id="preview-activity" class="quiet-button" type="button">Vista previa</button><button id="clear-draft" class="quiet-button" type="button">Vaciar lienzo</button></div></div>
-            <div class="canvas" id="canvas" aria-live="polite"></div>
+            <div class="live-preview-toolbar"><strong>Vista previa en vivo</strong><div class="preview-device-options" role="group" aria-label="Tamaño de vista previa"><button type="button" data-preview-device="movil" aria-pressed="true">Móvil</button><button type="button" data-preview-device="tablet" aria-pressed="false">Tableta</button><button type="button" data-preview-device="pc" aria-pressed="false">Ordenador</button></div><span id="preview-live-status" aria-live="polite">Elige una plantilla para empezar.</span></div>
+            <div class="live-preview-stage" id="live-preview-stage"><div class="live-preview-device" id="live-preview-device"><iframe id="live-preview-frame" title="Simulación en vivo de la actividad" src="about:blank" hidden></iframe><div class="live-preview-empty" id="live-preview-empty"><strong>Tu actividad aparecerá aquí</strong><span>Elige un ejercicio en la barra izquierda para empezar.</span></div></div></div>
+            <div class="slide-strip-heading"><div><strong>Diapositivas y unidades</strong><small id="compensation-summary" aria-live="polite">Total: 0 Pz · aún sin unidades</small></div><button id="add-unit-break" class="add-unit-button" type="button" title="Insertar un salto de unidad"><span aria-hidden="true">＋</span> Salto de unidad</button></div>
+            <div class="canvas slide-strip" id="canvas" aria-label="Diapositivas y saltos de unidad" aria-live="polite"></div>
           </section>
-          <aside class="inspector">
+          <aside class="inspector" id="editor-panel-inspector" role="tabpanel" aria-labelledby="editor-tab-inspector" data-editor-panel="inspector" hidden>
             <div class="section-heading compact"><div><p class="eyebrow">PERSONALIZACIÓN</p><h2>Propiedades</h2></div></div>
             <div id="inspector-content" class="inspector-content"></div>
           </aside>
