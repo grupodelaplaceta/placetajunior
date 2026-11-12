@@ -125,11 +125,12 @@ test('la vista previa se abre integrada y explica el acabado editorial', () => {
   assert.doesNotMatch(js, /window\.open\('\/preview\.html'/);
   assert.match(preview, /src="js\/player-icons\.js"/);
   assert.match(gamePage, /src="js\/player-icons\.js"/);
-  assert.match(playerIcons, /document\.fonts\.load\('24px "Material Symbols Rounded"', 'home'\)/);
-  assert.match(playerIcons, /iconFallbacks\[icon\.textContent\.trim\(\)\]/);
+  assert.match(playerIcons, /createElementNS\('http:\/\/www\.w3\.org\/2000\/svg', 'svg'\)/);
+  assert.match(playerIcons, /paths\[name\]/);
+  assert.match(playerIcons, /pj-svg-icon/);
   assert.match(playerIcons, /observer\.observe\(document\.body/);
-  assert.match(playerIcons, /chevron_left: '‹', chevron_right: '›'/);
-  assert.match(playerIcons, /setTimeout\(useIconFallbacks, 2200\)/);
+  assert.match(playerIcons, /check_circle:/);
+  assert.doesNotMatch(playerIcons, /document\.fonts\.load/);
   assert.doesNotMatch(gamePage, /if \(n > 40\) clearInterval\(t\)/);
   assert.match(read('public/sw.js'), /'\/js\/player-icons\.js'/);
 });

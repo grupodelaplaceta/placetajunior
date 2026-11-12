@@ -847,27 +847,80 @@ function asegurarFeedback() {
   (m || document.body).appendChild(fb);
 }
 let __pjRacha = 0;
-const FB_OK_T = ['¡Correcto!', '¡Genial!', '¡Muy bien!', '¡Eso es!', '¡Bien hecho!', '¡Crack!', '¡Perfecto!'];
-const FB_OK_S = ['Has sumado +1 punto verde. ¡Sigue así!', '¡Otro punto verde para ti!', '+1 punto verde. ¡Vas genial!', '¡Así se hace! +1 punto verde.'];
-const FB_BAD_T = ['¡Casi lo logras!', '¡Buen intento!', '¡Uy, por poco!', '¡Ánimo, tú puedes!'];
+const FB_TEXT = {
+  es: {
+    ok: ['¡Correcto!', '¡Genial!', '¡Muy bien!', '¡Eso es!', '¡Bien hecho!', '¡Perfecto!'],
+    okSub: '+1 punto verde. ¡Sigue así!',
+    streakTitle: '¡Racha de {n}!',
+    streak: '¡{n} aciertos seguidos! +1 punto verde.',
+    bad: ['¡Casi lo logras!', '¡Buen intento!', '¡Uy, por poco!', '¡Ánimo, tú puedes!'],
+    answer: 'La respuesta correcta era «{answer}». ¡A por la siguiente!',
+    tryNext: '¡A por la siguiente!',
+    next: 'Siguiente',
+    continue: 'Continuar'
+  },
+  ca: {
+    ok: ['Correcte!', 'Genial!', 'Molt bé!', 'Això és!', 'Ben fet!', 'Perfecte!'],
+    okSub: '+1 punt verd. Continua així!',
+    streakTitle: '{n} seguides!',
+    streak: '{n} respostes correctes seguides! +1 punt verd.',
+    bad: ['Quasi ho tens!', 'Bon intent!', 'Ui, gairebé!', 'Ànims, tu pots!'],
+    answer: 'La resposta correcta era «{answer}». Som-hi amb la següent!',
+    tryNext: 'Som-hi amb la següent!',
+    next: 'Següent',
+    continue: 'Continua'
+  },
+  en: {
+    ok: ['Correct!', 'Great!', 'Well done!', 'That’s it!', 'Nice work!', 'Perfect!'],
+    okSub: '+1 green point. Keep it up!',
+    streakTitle: '{n} in a row!',
+    streak: '{n} correct answers in a row! +1 green point.',
+    bad: ['Almost there!', 'Good try!', 'So close!', 'You can do it!'],
+    answer: 'The correct answer was “{answer}”. On to the next one!',
+    tryNext: 'On to the next one!',
+    next: 'Next',
+    continue: 'Continue'
+  },
+  eu: {
+    ok: ['Zuzena!', 'Bikain!', 'Oso ondo!', 'Hori da!', 'Lan bikaina!', 'Primeran!'],
+    okSub: '+1 puntu berde. Jarraitu horrela!',
+    streakTitle: '{n} jarraian!',
+    streak: '{n} erantzun zuzen jarraian! +1 puntu berde.',
+    bad: ['Ia lortu duzu!', 'Saiakera ona!', 'Gutxi falta da!', 'Ahal duzu!'],
+    answer: 'Erantzun zuzena «{answer}» zen. Goazen hurrengora!',
+    tryNext: 'Goazen hurrengora!',
+    next: 'Hurrengoa',
+    continue: 'Jarraitu'
+  }
+};
+function pjFeedbackIdioma() {
+  let saved = '';
+  try {
+    saved = JSON.parse(localStorage.getItem('junior_acc_web') || '{}').idioma || '';
+  } catch (e) { /* se conserva el idioma de la página */ }
+  const lang = String(window.__juniorLocale || saved || 'es').toLowerCase().replace('_', '-').split('-')[0];
+  return lang === 'val' || lang === 'va' ? 'ca' : (FB_TEXT[lang] ? lang : 'es');
+}
 function mostrarFeedback(acierto, correctaTexto, onNext) {
   __pjRacha = acierto ? __pjRacha + 1 : 0;
   const pick = (a) => a[Math.floor(Math.random() * a.length)];
+  const lang = pjFeedbackIdioma();
+  const t = FB_TEXT[lang];
   const fb = document.getElementById('kp-feedback');
   if (!fb) { if (onNext) onNext(); return; }
   window.__kpNext = function () { ocultarFeedback(); if (window.pjSonido) pjSonido.pop(); if (onNext) onNext(); };
   fb.innerHTML = acierto
     ? `<div class="kp-fb-card kp-fb-ok" role="alert">
         <div class="kp-fb-ico"><span class="material-symbols-rounded">check_circle</span></div>
-        <h3 class="kp-fb-title">${__pjRacha >= 3 ? '🔥 ¡Racha de ' + __pjRacha + '!' : pick(FB_OK_T)}</h3>
-        <p class="kp-fb-sub">${__pjRacha >= 2 ? '¡' + __pjRacha + ' aciertos seguidos! +1 punto verde.' : pick(FB_OK_S)}</p>
-        <button type="button" class="kp-btn kp-fb-next" onclick="window.__kpNext()">Siguiente</button>
+        <h3 class="kp-fb-title">${__pjRacha >= 3 ? '🔥 ' + t.streakTitle.replace('{n}', __pjRacha) : pick(t.ok)}</h3>
+        <p class="kp-fb-sub">${__pjRacha >= 2 ? t.streak.replace('{n}', __pjRacha) : t.okSub}</p>
+        <button type="button" class="kp-btn kp-fb-next" onclick="window.__kpNext()">${t.next}</button>
       </div>`
     : `<div class="kp-fb-card kp-fb-bad" role="alert">
         <div class="kp-fb-ico"><span class="material-symbols-rounded">cancel</span></div>
-        <h3 class="kp-fb-title">${pick(FB_BAD_T)}</h3>
-        <p class="kp-fb-sub">${correctaTexto ? 'La respuesta correcta era «' + esc(correctaTexto) + '». ¡A por la siguiente!' : '¡A por la siguiente!'}</p>
-        <button type="button" class="kp-btn kp-fb-next" onclick="window.__kpNext()">Continuar</button>
+        <h3 class="kp-fb-title">${pick(t.bad)}</h3>
+        <p class="kp-fb-sub">${correctaTexto ? t.answer.replace('{answer}', esc(correctaTexto)) : t.tryNext}</p>
+        <button type="button" class="kp-btn kp-fb-next" onclick="window.__kpNext()">${t.continue}</button>
       </div>`;
   fb.classList.remove('hidden');
   if (acierto && __pjRacha >= 3 && __pjRacha % 3 === 0 && typeof lluviaConfetti === 'function') lluviaConfetti();

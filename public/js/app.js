@@ -404,7 +404,7 @@ function cardActividad(a) {
       <div class="card-foot">
         <span class="chip" data-color="${color}">${escapeHtml(a.categoria)}</span>
         <span class="card-visits" title="Número de visitas"><span class="material-symbols-rounded" aria-hidden="true">visibility</span>${visitas.toLocaleString('es-ES')}</span>
-        ${!bloqueada ? `<button type="button" class="cover-play" onclick="event.stopPropagation();abrirActividad('${a.id}', false)" title="${enCurso ? 'Continuar' : 'Jugar'}"><span class="material-symbols-rounded">play_arrow</span> ${enCurso ? 'Continuar' : 'Jugar'}</button>` : ''}
+        ${!bloqueada ? `<button type="button" class="cover-play${tieneUnidades ? ' cover-units' : ''}" onclick="event.stopPropagation();${tieneUnidades ? `verInfo('${a.id}')` : `abrirActividad('${a.id}', false)`}" title="${tieneUnidades ? pjTextoUnidades('chooser') : (enCurso ? 'Continuar' : 'Jugar')}"><span class="material-symbols-rounded">${tieneUnidades ? 'view_timeline' : 'play_arrow'}</span> ${tieneUnidades ? pjTextoUnidades('card', { n: obtenerUnidadesActividad(a).length }) : (enCurso ? 'Continuar' : 'Jugar')}</button>` : ''}
       </div>
     </div>`;
 }
@@ -423,6 +423,48 @@ function cambiarPestanaDetalle(tab, nombre) {
   if (window.pjSonido) pjSonido.clic();
 }
 
+function pjTextoUnidades(key, values = {}) {
+  const idiomaRaw = typeof pjNormalizarIdioma === 'function' ? pjNormalizarIdioma(pjIdiomaActivo()) : 'es';
+  const idioma = idiomaRaw === 'val' ? 'ca' : idiomaRaw;
+  const textos = {
+    es: {
+      countOne: '{n} unidad', countMany: '{n} unidades', title: 'Elige una unidad para empezar',
+      lead: 'Cada unidad es una parte diferente de la aventura. ¡Escoge la que quieras jugar!',
+      unit: 'Unidad {n}', completed: ' · Completada', playUnit: 'Jugar unidad {n}: {title}',
+      lockedUnit: 'Unidad {n} bloqueada. Completa la unidad anterior', start: 'Empezar',
+      replay: 'Volver a jugar', locked: '🔒 Completa la anterior', chooser: 'Escoger unidad',
+      card: 'Escoger · {n}', tab: 'Unidades', hint: 'Escoge una unidad para empezar'
+    },
+    ca: {
+      countOne: '{n} unitat', countMany: '{n} unitats', title: 'Tria una unitat per començar',
+      lead: 'Cada unitat és una part diferent de l’aventura. Tria la que vulgues jugar!',
+      unit: 'Unitat {n}', completed: ' · Completada', playUnit: 'Jugar la unitat {n}: {title}',
+      lockedUnit: 'Unitat {n} bloquejada. Completa la unitat anterior', start: 'Començar',
+      replay: 'Tornar a jugar', locked: '🔒 Completa l’anterior', chooser: 'Tria una unitat',
+      card: 'Triar · {n}', tab: 'Unitats', hint: 'Tria una unitat per començar'
+    },
+    en: {
+      countOne: '{n} unit', countMany: '{n} units', title: 'Choose a unit to get started',
+      lead: 'Each unit is a different part of the adventure. Pick one to play!',
+      unit: 'Unit {n}', completed: ' · Completed', playUnit: 'Play unit {n}: {title}',
+      lockedUnit: 'Unit {n} locked. Complete the previous unit', start: 'Start',
+      replay: 'Play again', locked: '🔒 Complete the previous unit', chooser: 'Choose a unit',
+      card: 'Choose · {n}', tab: 'Units', hint: 'Choose a unit to get started'
+    },
+    eu: {
+      countOne: '{n} unitate', countMany: '{n} unitate', title: 'Aukeratu unitate bat hasteko',
+      lead: 'Unitate bakoitza abenturaren zati desberdin bat da. Aukeratu jolasteko!',
+      unit: '{n}. unitatea', completed: ' · Osatuta', playUnit: 'Jolastu {n}. unitatean: {title}',
+      lockedUnit: '{n}. unitatea blokeatuta. Osatu aurreko unitatea', start: 'Hasi',
+      replay: 'Berriro jolastu', locked: '🔒 Osatu aurrekoa', chooser: 'Aukeratu unitatea',
+      card: 'Aukeratu · {n}', tab: 'Unitateak', hint: 'Aukeratu unitate bat hasteko'
+    }
+  };
+  let text = (textos[idioma] || textos.es)[key] || textos.es[key] || key;
+  Object.entries(values).forEach(([name, value]) => { text = text.replaceAll(`{${name}}`, String(value)); });
+  return text;
+}
+
 // Página de DETALLE de la actividad (a pantalla completa, no popup)
 function verInfo(id) {
   const a = pjAplicarTraduccionActividad(TODAS.find(x => x.id === id));
@@ -438,12 +480,15 @@ function verInfo(id) {
   const colaborador = a.colaborador_nombre || a.colaborador || a.autor_nombre || a.autor || a.creador_nombre || a.creador || a.entidad_nombre || a.entidad || 'Equipo Placeta Junior';
   const fechaRaw = a.created_at || a.createdAt || a.fecha_publicacion || a.fechaPublicacion || a.publicado_at || '';
   const fecha = fechaRaw ? new Date(fechaRaw).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Actividad publicada';
-  const unidadesHtml = unidades.length ? `<div class="detail-panel detail-panel-slides" data-detail-panel="slides" id="detalle-unidades"><div class="detail-card detail-unidades"><h2>Diapositivas de la aventura</h2><p class="detail-units-lead">Avanza a tu ritmo. Cada parte desbloquea un nuevo reto.</p>${unidades.map((n, i) => {
+  const unidadesHtml = unidades.length ? `<div class="detail-panel detail-panel-slides is-active" data-detail-panel="slides" id="detalle-unidades"><div class="detail-card detail-unidades"><div class="detail-units-heading"><span class="detail-units-count">${pjTextoUnidades(unidades.length === 1 ? 'countOne' : 'countMany', { n: unidades.length })}</span><h2>${pjTextoUnidades('title')}</h2><p class="detail-units-lead">${pjTextoUnidades('lead')}</p></div><div class="detail-units-list">${unidades.map((n, i) => {
     const recompensa = Number(n.recompensa || 0);
     const desc = typeof n.descripcion === 'string' ? n.descripcion : '';
     const disponible = i === 0 || (window.PJPartidas && window.PJPartidas.estaCompletada(`${a.id}::unidad::${i - 1}`));
-    return `<button class="detail-unit${disponible ? '' : ' is-locked'}" type="button" ${disponible ? `onclick="abrirUnidad('${a.id}',${i})"` : 'disabled'}><div><strong>Unidad ${i + 1}</strong><span>${escapeHtml(n.titulo || 'Siguiente unidad')}</span>${desc ? `<small>${escapeHtml(desc)}</small>` : ''}</div><b>${disponible ? (recompensa ? `+${recompensa} Pz · Empezar` : 'Empezar') : '🔒 Completa la anterior'}</b></button>`;
-  }).join('')}</div></div>` : '';
+    const completada = window.PJPartidas && window.PJPartidas.estaCompletada(`${a.id}::unidad::${i}`);
+    const tituloUnidad = n.titulo || 'Siguiente unidad';
+    const accionUnidad = completada ? pjTextoUnidades('replay') : (recompensa ? `+${recompensa} Pz · ${pjTextoUnidades('start')}` : pjTextoUnidades('start'));
+    return `<button class="detail-unit${disponible ? '' : ' is-locked'}${completada ? ' is-complete' : ''}" type="button" ${disponible ? `onclick="abrirUnidad('${a.id}',${i})"` : 'disabled'} aria-label="${disponible ? escapeHtml(pjTextoUnidades('playUnit', { n: i + 1, title: tituloUnidad })) : escapeHtml(pjTextoUnidades('lockedUnit', { n: i + 1 }))}"><span class="detail-unit-number">${i + 1}</span><span class="detail-unit-copy"><strong>${pjTextoUnidades('unit', { n: i + 1 })}${completada ? pjTextoUnidades('completed') : ''}</strong><span>${escapeHtml(tituloUnidad)}</span>${desc ? `<small>${escapeHtml(desc)}</small>` : ''}</span><b>${disponible ? accionUnidad : pjTextoUnidades('locked')}</b></button>`;
+  }).join('')}</div></div></div>` : '';
   document.getElementById('detail-page').innerHTML = `
     <a class="detail-back" href="javascript:cerrarDetalle()"><span class="material-symbols-rounded">arrow_back</span> Volver a Actividades</a>
     <div class="detail-top">
@@ -457,15 +502,15 @@ function verInfo(id) {
         <span><span class="material-symbols-rounded">person</span><b>Creado por</b> ${escapeHtml(colaborador)}</span>
         <span><span class="material-symbols-rounded">calendar_today</span>${escapeHtml(fecha)}</span>
       </div>
-      ${!bloqueada ? `<button class="detail-play" type="button" onclick="abrirActividad('${a.id}', false)"><span class="material-symbols-rounded">play_arrow</span> Jugar ahora</button>` : '<span class="chip red detail-locked"><span class="material-symbols-rounded">lock</span> Actividad premium</span>'}
+      ${unidades.length && !bloqueada ? `<button class="detail-play detail-units-cta" type="button" onclick="document.getElementById('detalle-unidades-tab')?.click()"><span class="material-symbols-rounded">view_timeline</span> ${pjTextoUnidades('chooser')}</button>` : (!bloqueada ? `<button class="detail-play" type="button" onclick="abrirActividad('${a.id}', false)"><span class="material-symbols-rounded">play_arrow</span> Jugar ahora</button>` : '<span class="chip red detail-locked"><span class="material-symbols-rounded">lock</span> Actividad premium</span>')}
     </div>
     </div>
     <div class="detail-body">
       <nav class="detail-tabs" role="tablist" aria-label="Secciones de la actividad">
-        <button class="is-active" type="button" role="tab" aria-selected="true" onclick="cambiarPestanaDetalle(this, 'info')">Información</button>
-        ${unidades.length ? `<button type="button" role="tab" aria-selected="false" onclick="cambiarPestanaDetalle(this, 'slides')">Diapositivas <span>${unidades.length}</span></button>` : ''}
+        <button class="${unidades.length ? '' : 'is-active'}" type="button" role="tab" aria-selected="${unidades.length ? 'false' : 'true'}" onclick="cambiarPestanaDetalle(this, 'info')">Información</button>
+        ${unidades.length ? `<button id="detalle-unidades-tab" class="is-active" type="button" role="tab" aria-selected="true" onclick="cambiarPestanaDetalle(this, 'slides')">${pjTextoUnidades('tab')} <span>${unidades.length}</span></button>` : ''}
       </nav>
-      <div class="detail-panel detail-panel-info is-active" data-detail-panel="info">
+      <div class="detail-panel detail-panel-info${unidades.length ? '' : ' is-active'}" data-detail-panel="info">
       <div class="detail-stats">
         <div class="dstat"><span class="material-symbols-rounded">child_care</span><span class="dstat-lbl">Edad</span><span class="dstat-val">${escapeHtml(a.edad_recomendada || '6-12')}</span></div>
         <div class="dstat"><span class="material-symbols-rounded">trending_up</span><span class="dstat-lbl">Dificultad</span><span class="dstat-val">${escapeHtml(a.dificultad || 'media')}</span></div>
@@ -480,7 +525,7 @@ function verInfo(id) {
       </div>
       ${unidadesHtml}
       <div class="detail-actions">
-        ${unidades.length ? '<span class="detail-select-hint">Puedes empezar desde una diapositiva</span>' : (bloqueada
+        ${unidades.length ? `<span class="detail-select-hint">${pjTextoUnidades('hint')}</span>` : (bloqueada
           ? '<span class="chip red">🔒 De pago (no subvencionada)</span>'
           : '')}
         <button class="btn btn-outline btn-lg" onclick="mostrarSelectorPdf('${a.id}')"><span class="material-symbols-rounded">download</span> Descargar PDF</button>

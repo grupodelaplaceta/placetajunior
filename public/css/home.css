@@ -1843,6 +1843,34 @@ body.pj-home.mostrando-juego #player-content { min-height: 100%; }
 /* Tarjeta compacta final: solo ocupa el espacio de su contenido. */
 .pj-home .h-row { align-items: flex-start; }
 .pj-home .card { height: auto; min-height: 0; overflow: visible; }
+
+/* La selección de unidades es la acción principal de estas actividades. */
+.pj-home .detail-units-heading { margin: -2px 0 12px; padding: 0 0 14px; border-bottom: 1px solid var(--pj-line); }
+.pj-home .detail-units-heading h2 { margin: 8px 0 5px; font-size: clamp(22px, 3vw, 29px); line-height: 1.15; text-wrap: balance; }
+.pj-home .detail-units-heading .detail-units-lead { max-width: 62ch; font-size: 15px; }
+.pj-home .detail-units-count { display: inline-flex; align-items: center; min-height: 28px; padding: 4px 11px; border-radius: 999px; background: #f0eafe; color: var(--pj-purple); font-size: 12px; font-weight: 800; }
+.pj-home .detail-units-list { display: grid; gap: 8px; }
+.pj-home .detail-units-list .detail-unit { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 13px 10px; border: 1px solid var(--pj-line); border-radius: 15px; background: #fff; text-align: left; transition: background .18s ease, transform .18s ease, border-color .18s ease, box-shadow .18s ease; }
+.pj-home .detail-units-list .detail-unit:not(:disabled):hover,.pj-home .detail-units-list .detail-unit:not(:disabled):focus-visible { transform: translateY(-2px); border-color: #b6a0f4; background: #fbf9ff; box-shadow: 0 8px 18px rgba(48,22,113,.09); outline: none; }
+.pj-home .detail-units-list .detail-unit .detail-unit-number { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 13px; background: #f0eafe; color: var(--pj-purple); font-size: 18px; font-weight: 900; }
+.pj-home .detail-units-list .detail-unit .detail-unit-copy { display: flex; flex-direction: column; min-width: 0; gap: 3px; }
+.pj-home .detail-units-list .detail-unit .detail-unit-copy strong { font-size: 12px; color: var(--pj-purple); }
+.pj-home .detail-units-list .detail-unit .detail-unit-copy > span { font-size: 16px; font-weight: 800; line-height: 1.2; text-wrap: balance; }
+.pj-home .detail-units-list .detail-unit .detail-unit-copy small { font-size: 12px; line-height: 1.4; }
+.pj-home .detail-units-list .detail-unit b { justify-self: end; padding: 9px 13px; border-radius: 999px; background: #fff3e8; color: #a64b00; font-size: 12px; white-space: nowrap; }
+.pj-home .detail-units-list .detail-unit.is-complete .detail-unit-number,.pj-home .detail-units-list .detail-unit.is-complete b { background: #e7f8ed; color: #13783c; }
+.pj-home .detail-units-list .detail-unit.is-locked { cursor: not-allowed; opacity: .64; background: #f8f7fa; }
+.pj-home .detail-units-list .detail-unit.is-locked b { color: #676273; background: #eeedf1; }
+.pj-home .detail-top .detail-units-cta { background: linear-gradient(110deg,#5b14c8,#8045e8); box-shadow: 0 8px 20px rgba(91,20,200,.25); }
+.pj-home .cover-play.cover-units { background: #5b14c8; }
+@media(max-width:520px) {
+  .pj-home .detail-units-list .detail-unit { grid-template-columns: 38px minmax(0,1fr); gap: 10px; }
+  .pj-home .detail-units-list .detail-unit .detail-unit-number { width: 36px; height: 36px; }
+  .pj-home .detail-units-list .detail-unit b { grid-column: 2; justify-self: start; padding: 7px 11px; white-space: normal; }
+  .pj-home .detail-units-heading .detail-units-lead { font-size: 14px; }
+}
+.pj-home .cover-play.cover-units { display: inline-flex; align-items: center; justify-content: center; gap: 5px; width: auto; min-width: 46px; height: 40px; padding: 0 12px; border-radius: 999px; font-size: 11px; }
+.pj-home .cover-play.cover-units .material-symbols-rounded { font-size: 18px; }
 .pj-home .h-row > .card { height: auto !important; min-height: 0 !important; }
 .pj-home .card-foot { margin-top: 0 !important; }
 .pj-home .card-cover { position: relative; flex: none; }
