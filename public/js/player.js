@@ -3528,4 +3528,66 @@ document.addEventListener('DOMContentLoaded', () => {
       if (window.pjSonido) pjSonido.soltar();
     }
   });
+
+  let codeTouchDrag = null;
+  let suppressCodeTouchClickUntil = 0;
+  document.addEventListener('pointerdown', (event) => {
+    if (!event.isPrimary || event.button !== 0 || !['touch', 'pen'].includes(event.pointerType)) return;
+    const block = event.target.closest('.cute-block[data-op]');
+    if (!block) return;
+    codeTouchDrag = {
+      pointerId: event.pointerId,
+      block,
+      op: block.dataset.op,
+      dir: block.dataset.dir || '',
+      startX: event.clientX,
+      startY: event.clientY,
+      dragging: false,
+      ghost: null
+    };
+  });
+  document.addEventListener('pointermove', (event) => {
+    if (!codeTouchDrag || event.pointerId !== codeTouchDrag.pointerId) return;
+    const distance = Math.hypot(event.clientX - codeTouchDrag.startX, event.clientY - codeTouchDrag.startY);
+    if (!codeTouchDrag.dragging && distance < 10) return;
+    if (!codeTouchDrag.dragging) {
+      codeTouchDrag.dragging = true;
+      codeTouchDrag.block.classList.add('touch-drag-source');
+      codeTouchDrag.ghost = document.createElement('span');
+      codeTouchDrag.ghost.className = 'code-touch-drag-ghost';
+      codeTouchDrag.ghost.textContent = codeTouchDrag.block.innerText.trim();
+      codeTouchDrag.ghost.setAttribute('aria-hidden', 'true');
+      Object.assign(codeTouchDrag.ghost.style, { position: 'fixed', zIndex: '10000', pointerEvents: 'none' });
+      document.body.appendChild(codeTouchDrag.ghost);
+    }
+    event.preventDefault();
+    const { ghost } = codeTouchDrag;
+    ghost.style.left = `${event.clientX + 12}px`;
+    ghost.style.top = `${event.clientY + 12}px`;
+    document.getElementById('kp-code-programa')?.classList.toggle('drag-over', Boolean(document.elementFromPoint(event.clientX, event.clientY)?.closest('#kp-code-programa')));
+  }, { passive: false });
+  const finishCodeTouchDrag = (event) => {
+    if (!codeTouchDrag || event.pointerId !== codeTouchDrag.pointerId) return;
+    const drag = codeTouchDrag;
+    codeTouchDrag = null;
+    drag.block.classList.remove('touch-drag-source');
+    drag.ghost?.remove();
+    const program = document.getElementById('kp-code-programa');
+    if (program) program.classList.remove('drag-over');
+    if (event.type === 'pointercancel') return;
+    if (!drag.dragging) return;
+    suppressCodeTouchClickUntil = Date.now() + 700;
+    event.preventDefault();
+    if (!document.elementFromPoint(event.clientX, event.clientY)?.closest('#kp-code-programa') || typeof kpCodeAñadir !== 'function') return;
+    if (drag.op === 'girar' && drag.dir) kpCodeAñadir('girar', { dir: drag.dir });
+    else kpCodeAñadir(drag.op);
+    if (window.pjSonido) pjSonido.soltar();
+  };
+  document.addEventListener('pointerup', finishCodeTouchDrag);
+  document.addEventListener('pointercancel', finishCodeTouchDrag);
+  document.addEventListener('click', (event) => {
+    if (Date.now() >= suppressCodeTouchClickUntil || !event.target.closest('.cute-block[data-op]')) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+  }, true);
 });

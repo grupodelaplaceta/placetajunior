@@ -2162,3 +2162,23 @@ h1, h2, h3, h4, h5,
 .kp-fb-ok .kp-fb-ico .material-symbols-rounded{animation:kp-pop .55s cubic-bezier(.2,.9,.3,1.3) both}
 .kp-fb-bad .kp-fb-ico .material-symbols-rounded{animation:kp-pop .45s ease-out both}
 @media (prefers-reduced-motion:reduce){.kp-fb-ok .kp-fb-ico .material-symbols-rounded,.kp-fb-bad .kp-fb-ico .material-symbols-rounded{animation:none}}
+.kp-code .cute-block{touch-action:none}
+.kp-code .cute-block.touch-drag-source{opacity:.55}
+.code-touch-drag-ghost{padding:10px 14px;border:2px solid #fff;border-radius:14px;background:#30235f;color:#fff;font-weight:800;box-shadow:0 8px 24px #21113f55}
+.code-board-editor{display:grid;gap:10px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--paper)}
+.code-board-editor-heading{display:grid;gap:3px}
+.code-board-editor-heading strong{font-size:13px;color:var(--ink)}
+.code-board-editor-heading span{font-size:11px;line-height:1.4;color:var(--muted)}
+.code-board-tools{display:flex;flex-wrap:wrap;gap:6px}
+.code-board-tools button{display:inline-flex;align-items:center;gap:5px;min-height:38px;padding:6px 9px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);font-size:11px;font-weight:700}
+.code-board-tools button[aria-pressed=true]{border-color:#16834b;background:#e8f7ed;color:#12633b;box-shadow:inset 0 0 0 1px #16834b}
+.code-board-tools button span{font-size:16px}
+.code-board-grid{display:grid;grid-template-columns:repeat(var(--board-columns),minmax(0,1fr));gap:4px;padding:6px;border:1px solid #c8d7c7;border-radius:12px;background:#eaf1e8}
+.code-board-cell{display:grid;place-items:center;aspect-ratio:1;min-width:0;padding:0;border:1px solid #d1ddcf;border-radius:7px;background:#fff;color:#2b3840;font-size:clamp(12px,3vw,20px);touch-action:none;user-select:none}
+.code-board-cell:hover{border-color:#668c68;background:#f3f8ef}
+.code-board-cell:focus-visible,.code-board-tools button:focus-visible{outline:3px solid #3d7c55;outline-offset:2px}
+.code-board-cell.is-start{background:#e2f5e8}.code-board-cell.is-goal{background:#fff5cb}.code-board-cell.is-obstacle{background:#edf0f3}.code-board-cell.is-coin{background:#fff4d8}
+.code-board-start{font-size:1.15em}.code-board-goal{color:#e2a300}.code-board-obstacle{color:#485461}.code-board-coin{color:#dc9910}
+.code-board-legend{display:flex;flex-wrap:wrap;gap:8px;margin:0;color:var(--muted);font-size:10px}
+.code-board-legend span{white-space:nowrap}
+@media(max-width:480px){.code-board-tools button{flex:1 1 28%;justify-content:center}.code-board-grid{gap:3px;padding:4px}}

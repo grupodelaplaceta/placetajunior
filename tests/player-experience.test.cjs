@@ -57,3 +57,12 @@ test('code blocks have an organized workbench and accessible edit controls', () 
   assert.match(read('public/jugar.html'), /css\/code-responsive\.css/);
   assert.match(read('public/preview.html'), /css\/code-responsive\.css/);
 });
+
+test('Code supports touch and pen dragging blocks into the program without duplicate taps', () => {
+  const player = read('public/js/player.js');
+  assert.match(player, /\['touch', 'pen'\]\.includes\(event\.pointerType\)/);
+  assert.match(player, /codeTouchDrag\.dragging = true/);
+  assert.match(player, /elementFromPoint\(event\.clientX, event\.clientY\)\?\.closest\('#kp-code-programa'\)/);
+  assert.match(player, /suppressCodeTouchClickUntil = Date\.now\(\) \+ 700/);
+  assert.match(player, /stopImmediatePropagation\(\)/);
+});

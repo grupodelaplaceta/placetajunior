@@ -687,12 +687,70 @@
     ['avanzar', 'Avanzar'], ['retroceder', 'Retroceder'], ['girar', 'Girar'], ['girar_180', 'Girar 180°'],
     ['saltar', 'Saltar'], ['repetir', 'Repetir'], ['si', 'Si']
   ];
+  const codeBoardTools = {};
+  let codeBoardPointer = null;
+  let ignoreCodeBoardClickUntil = 0;
+
+  function codeBoardCell(exercise, index, x, y) {
+    const start = exercise.inicio || {};
+    const goal = exercise.objetivo?.posicion || {};
+    const obstacle = (exercise.escenario?.obstaculos || []).some((cell) => cell.x === x && cell.y === y);
+    const coin = (exercise.escenario?.monedas || []).some((cell) => cell.x === x && cell.y === y);
+    const isStart = start.x === x && start.y === y;
+    const isGoal = goal.x === x && goal.y === y;
+    const content = `${isStart ? '<span class="code-board-start" aria-hidden="true">🤖</span>' : ''}${isGoal ? '<span class="code-board-goal" aria-hidden="true">★</span>' : ''}${obstacle ? '<span class="code-board-obstacle" aria-hidden="true">■</span>' : ''}${coin ? '<span class="code-board-coin" aria-hidden="true">●</span>' : ''}`;
+    const label = [isStart ? 'Inicio' : '', isGoal ? 'Meta' : '', obstacle ? 'Obstáculo' : '', coin ? 'Moneda' : ''].filter(Boolean).join(', ');
+    return `<button type="button" class="code-board-cell${isStart ? ' is-start' : ''}${isGoal ? ' is-goal' : ''}${obstacle ? ' is-obstacle' : ''}${coin ? ' is-coin' : ''}" role="gridcell" data-code-index="${index}" data-code-board-cell="${x},${y}" aria-label="Casilla ${x}, ${y}${label ? `: ${label}` : ''}">${content}</button>`;
+  }
+
+  function codeBoardEditor(exercise, index) {
+    const width = Math.min(10, Math.max(3, Number(exercise.escenario?.ancho) || 6));
+    const height = Math.min(10, Math.max(3, Number(exercise.escenario?.alto) || 6));
+    const tools = [['start', 'Candela', '🤖'], ['goal', 'Meta', '★'], ['obstacle', 'Obstáculo', '■'], ['coin', 'Moneda', '●'], ['erase', 'Borrar', '⌫']];
+    const selectedTool = codeBoardTools[index] || 'start';
+    return `<section class="code-board-editor" aria-label="Diseña el tablero del reto ${index + 1}">
+      <div class="code-board-editor-heading"><strong>Diseña el tablero</strong><span>Elige una pieza y toca o arrastra por las casillas.</span></div>
+      <div class="code-board-tools" role="toolbar" aria-label="Piezas para el tablero">${tools.map(([id, label, icon]) => `<button type="button" data-code-board-tool="${id}" data-code-index="${index}" aria-pressed="${selectedTool === id}"><span aria-hidden="true">${icon}</span>${label}</button>`).join('')}</div>
+      <div class="code-board-grid" role="grid" aria-label="Tablero de ${width} columnas por ${height} filas" style="--board-columns:${width}">${Array.from({ length: width * height }, (_, cell) => codeBoardCell(exercise, index, cell % width, Math.floor(cell / width))).join('')}</div>
+      <label class="field code-direction"><span>Dirección inicial de Candela</span><select data-code-index="${index}" data-code-field="direccion"><option value="derecha"${exercise.inicio.direccion === 'derecha' ? ' selected' : ''}>→ Derecha</option><option value="abajo"${exercise.inicio.direccion === 'abajo' ? ' selected' : ''}>↓ Abajo</option><option value="izquierda"${exercise.inicio.direccion === 'izquierda' ? ' selected' : ''}>← Izquierda</option><option value="arriba"${exercise.inicio.direccion === 'arriba' ? ' selected' : ''}>↑ Arriba</option></select></label>
+      <p class="code-board-legend"><span>🤖 Inicio</span><span>★ Meta</span><span>■ Obstáculo</span><span>● Moneda</span></p>
+    </section>`;
+  }
+
+  function paintCodeBoardCell(exercise, index, x, y, tool) {
+    const scenario = exercise.escenario;
+    const start = exercise.inicio;
+    const goal = exercise.objetivo.posicion;
+    const obstacles = scenario.obstaculos || (scenario.obstaculos = []);
+    const coins = scenario.monedas || (scenario.monedas = []);
+    const same = (cell) => cell.x === x && cell.y === y;
+    const hasObstacle = obstacles.some(same);
+    const hasCoin = coins.some(same);
+    if (tool === 'start' && !(goal.x === x && goal.y === y)) {
+      start.x = x; start.y = y;
+    } else if (tool === 'goal' && !(start.x === x && start.y === y)) {
+      goal.x = x; goal.y = y;
+    } else if (tool === 'obstacle' && !(start.x === x && start.y === y) && !(goal.x === x && goal.y === y)) {
+      scenario.monedas = coins.filter((cell) => !same(cell));
+      if (!hasObstacle) obstacles.push({ x, y });
+    } else if (tool === 'coin' && !(start.x === x && start.y === y) && !(goal.x === x && goal.y === y)) {
+      scenario.obstaculos = obstacles.filter((cell) => !same(cell));
+      if (!hasCoin) coins.push({ x, y });
+    } else if (tool === 'erase') {
+      scenario.obstaculos = obstacles.filter((cell) => !same(cell));
+      scenario.monedas = coins.filter((cell) => !same(cell));
+    }
+    const cell = $('inspector-content').querySelector(`[data-code-index="${index}"][data-code-board-cell="${x},${y}"]`);
+    if (cell) cell.outerHTML = codeBoardCell(exercise, index, x, y);
+    scheduleHistory();
+    saveDraft();
+  }
 
   function codeExerciseEditor(exercise, index) {
     const scenario = exercise.escenario || (exercise.escenario = { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [] });
-    const start = exercise.inicio || (exercise.inicio = { x: 0, y: 0, direccion: 'derecha' });
+    exercise.inicio = exercise.inicio || { x: 0, y: 0, direccion: 'derecha' };
     const objective = exercise.objetivo || (exercise.objetivo = { posicion: { x: 2, y: 0 } });
-    const target = objective.posicion || (objective.posicion = { x: 2, y: 0 });
+    objective.posicion = objective.posicion || { x: 2, y: 0 };
     const allowed = Array.isArray(exercise.bloques_permitidos) ? exercise.bloques_permitidos : [];
     const required = Array.isArray(objective.debe_usar) ? objective.debe_usar : [];
     const field = (label, key, value, type = 'text', attrs = '') => `<label class="field"><span>${label}</span>${
@@ -712,14 +770,10 @@
       ${field('Instrucción breve', 'explicacion', exercise.explicacion)}
       ${field('Misión para el alumnado', 'objetivo_texto', exercise.objetivo_texto)}
       <div class="code-field-grid">${field('Ancho del tablero', 'ancho', scenario.ancho || 6, 'number', 'min="3" max="10"')} ${field('Alto del tablero', 'alto', scenario.alto || 6, 'number', 'min="3" max="10')}</div>
-      <div class="code-field-grid">${field('Inicio X', 'inicioX', start.x ?? 0, 'number', 'min="0"')} ${field('Inicio Y', 'inicioY', start.y ?? 0, 'number', 'min="0"')}</div>
-      ${field('Candela empieza mirando', 'direccion', start.direccion || 'derecha', 'text', 'list="code-directions-' + index + '"')}<datalist id="code-directions-${index}"><option value="derecha"><option value="abajo"><option value="izquierda"><option value="arriba"></datalist>
-      <div class="code-field-grid">${field('Estrella X', 'objetivoX', target.x ?? 2, 'number', 'min="0"')} ${field('Estrella Y', 'objetivoY', target.y ?? 0, 'number', 'min="0"')}</div>
+      ${codeBoardEditor(exercise, index)}
       ${field('Máximo de pasos (opcional)', 'max_pasos', objective.max_pasos ?? '', 'number', 'min="1" max="200"')}
       <label class="field"><span>Bloques disponibles</span><span class="code-commands">${commands('allowed', allowed)}</span></label>
       <label class="field"><span>Bloques que debe usar</span><span class="code-commands">${commands('required', required)}</span></label>
-      ${field('Obstáculos: una coordenada X,Y por línea', 'obstaculos', (scenario.obstaculos || []).map(({ x, y }) => `${x},${y}`).join('\n'), 'textarea')}
-      ${field('Monedas: una coordenada X,Y por línea (opcional)', 'monedas', (scenario.monedas || []).map(({ x, y }) => `${x},${y}`).join('\n'), 'textarea')}
       ${field('Pistas: una por línea', 'pistas', (exercise.pistas || []).join('\n'), 'textarea')}
       <button type="button" class="quiet-button" data-code-delete="${index}">Eliminar reto</button>
     </fieldset>`;
@@ -743,22 +797,7 @@
     if (!exercise) return;
     const error = $('field-error');
     const value = target.value;
-    const numeric = {
-      ancho: [3, 10], alto: [3, 10], inicioX: [0, 9], inicioY: [0, 9],
-      objetivoX: [0, 9], objetivoY: [0, 9], max_pasos: [1, 200]
-    };
-    const coord = key => {
-      const entries = value.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
-      const parsed = entries.map(line => {
-        const match = /^(\d+)\s*,\s*(\d+)$/.exec(line);
-        return match ? { x: Number(match[1]), y: Number(match[2]) } : null;
-      });
-      if (parsed.some(item => !item)) return null;
-      const width = Number(exercise.escenario.ancho) || 6, height = Number(exercise.escenario.alto) || 6;
-      if (parsed.some(item => item.x >= width || item.y >= height)) return null;
-      exercise.escenario[key] = parsed;
-      return true;
-    };
+    const numeric = { ancho: [3, 10], alto: [3, 10], max_pasos: [1, 200] };
     const key = target.dataset.codeField;
     if (key in numeric) {
       if (value.trim() === '' && key === 'max_pasos') delete exercise.objetivo.max_pasos;
@@ -769,22 +808,16 @@
           return;
         }
         if (key === 'ancho' || key === 'alto') {
-          const extent = key === 'ancho' ? 'x' : 'y';
-          const coords = [...(exercise.escenario.obstaculos || []), ...(exercise.escenario.monedas || [])];
-          if (exercise.inicio[extent] >= number || exercise.objetivo.posicion[extent] >= number || coords.some(item => item[extent] >= number)) {
-            error.textContent = `El tablero no puede ser menor que las posiciones de inicio, objetivo y objetos del eje ${extent.toUpperCase()}.`;
+          const axis = key === 'ancho' ? 'x' : 'y';
+          const cells = [...(exercise.escenario.obstaculos || []), ...(exercise.escenario.monedas || [])];
+          if (exercise.inicio[axis] >= number || exercise.objetivo.posicion[axis] >= number || cells.some((cell) => cell[axis] >= number)) {
+            error.textContent = `El tablero no puede ser menor que las posiciones ocupadas del eje ${axis.toUpperCase()}.`;
             return;
           }
           exercise.escenario[key] = number;
         }
-        else if (key === 'inicioX') exercise.inicio.x = number;
-        else if (key === 'inicioY') exercise.inicio.y = number;
-        else if (key === 'objetivoX') exercise.objetivo.posicion.x = number;
-        else if (key === 'objetivoY') exercise.objetivo.posicion.y = number;
         else exercise.objetivo.max_pasos = number;
       }
-    } else if (key === 'obstaculos' || key === 'monedas') {
-      if (!coord(key)) { error.textContent = 'Usa una coordenada X,Y por línea, dentro del tablero.'; return; }
     } else if (key === 'pistas') exercise.pistas = value.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
     else if (key === 'direccion') {
       if (!['derecha', 'abajo', 'izquierda', 'arriba'].includes(value)) { error.textContent = 'Elige derecha, abajo, izquierda o arriba.'; return; }
@@ -1492,7 +1525,32 @@
     $('inspector-content').addEventListener('change', (event) => { if (event.target.dataset.primaryData) updatePrimaryField(event.target); });
     $('inspector-content').addEventListener('input', (event) => { const root = event.target.closest('[data-primary-rows]'); if (root && event.target.hasAttribute('data-row-part')) syncPrimaryRows(root); });
     $('inspector-content').addEventListener('input', (event) => { if (event.target.dataset.codeField) updateCodeExercise(event.target); });
+    $('inspector-content').addEventListener('change', (event) => {
+      if (event.target.dataset.codeField === 'ancho' || event.target.dataset.codeField === 'alto') paintInspector();
+    });
     $('inspector-content').addEventListener('click', (event) => {
+      const boardTool = event.target.closest('[data-code-board-tool]');
+      if (boardTool) {
+        const index = Number(boardTool.dataset.codeIndex);
+        codeBoardTools[index] = boardTool.dataset.codeBoardTool;
+        boardTool.closest('.code-board-tools').querySelectorAll('[data-code-board-tool]').forEach((button) => {
+          button.setAttribute('aria-pressed', String(button === boardTool));
+        });
+        return;
+      }
+      const boardCell = event.target.closest('[data-code-board-cell]');
+      if (boardCell) {
+        if (Date.now() < ignoreCodeBoardClickUntil) return;
+        const [x, y] = boardCell.dataset.codeBoardCell.split(',').map(Number);
+        const exercise = state.blocks[state.selected]?.ejercicios?.[Number(boardCell.dataset.codeIndex)];
+        if (!exercise) return;
+        recordHistory();
+        paintCodeBoardCell(exercise, Number(boardCell.dataset.codeIndex), x, y, codeBoardTools[boardCell.dataset.codeIndex] || 'start');
+        recordHistory();
+        const card = $('canvas').querySelector(`[data-index="${state.selected}"]`);
+        if (card) card.querySelector('.block-copy small').textContent = `${blockName(state.blocks[state.selected].tipo)} · ${blockSummary(state.blocks[state.selected])}`;
+        return;
+      }
       const primaryRows = event.target.closest('[data-primary-rows]');
       const primaryRowAdd = event.target.closest('[data-primary-row-add]');
       const primaryRowDelete = event.target.closest('[data-primary-row-delete]');
@@ -1517,6 +1575,48 @@
       if (addCode) addCodeExercise();
       if (deleteCode) deleteCodeExercise(Number(deleteCode.dataset.codeDelete));
     });
+    $('inspector-content').addEventListener('pointerdown', (event) => {
+      const cell = event.target.closest('[data-code-board-cell]');
+      if (!cell || !event.isPrimary || event.button !== 0) return;
+      const [x, y] = cell.dataset.codeBoardCell.split(',').map(Number);
+      codeBoardPointer = { pointerId: event.pointerId, index: Number(cell.dataset.codeIndex), x, y, last: '', moved: false };
+    });
+    document.addEventListener('pointermove', (event) => {
+      if (!codeBoardPointer || event.pointerId !== codeBoardPointer.pointerId) return;
+      const distance = Math.hypot(event.clientX - (codeBoardPointer.startX ?? event.clientX), event.clientY - (codeBoardPointer.startY ?? event.clientY));
+      if (codeBoardPointer.startX == null) {
+        codeBoardPointer.startX = event.clientX;
+        codeBoardPointer.startY = event.clientY;
+      }
+      const target = document.elementFromPoint(event.clientX, event.clientY)?.closest('[data-code-board-cell]');
+      if (!target || Number(target.dataset.codeIndex) !== codeBoardPointer.index) return;
+      const [x, y] = target.dataset.codeBoardCell.split(',').map(Number);
+      if (x === codeBoardPointer.x && y === codeBoardPointer.y && !codeBoardPointer.moved) return;
+      if (!codeBoardPointer.moved && distance < 8) return;
+      if (!codeBoardPointer.moved) {
+        codeBoardPointer.moved = true;
+        const first = $('inspector-content').querySelector(`[data-code-index="${codeBoardPointer.index}"][data-code-board-cell="${codeBoardPointer.x},${codeBoardPointer.y}"]`);
+        if (first) first.click();
+      }
+      if (codeBoardPointer.last === `${x},${y}`) return;
+      const exercise = state.blocks[state.selected]?.ejercicios?.[codeBoardPointer.index];
+      if (!exercise) return;
+      paintCodeBoardCell(exercise, codeBoardPointer.index, x, y, codeBoardTools[codeBoardPointer.index] || 'start');
+      codeBoardPointer.last = `${x},${y}`;
+      ignoreCodeBoardClickUntil = Date.now() + 500;
+    });
+    const stopCodeBoardPaint = (event) => {
+      if (codeBoardPointer && event.pointerId === codeBoardPointer.pointerId) {
+        if (codeBoardPointer.moved) {
+          recordHistory();
+          const card = $('canvas').querySelector(`[data-index="${state.selected}"]`);
+          if (card) card.querySelector('.block-copy small').textContent = `${blockName(state.blocks[state.selected].tipo)} · ${blockSummary(state.blocks[state.selected])}`;
+        }
+        codeBoardPointer = null;
+      }
+    };
+    document.addEventListener('pointerup', stopCodeBoardPaint);
+    document.addEventListener('pointercancel', stopCodeBoardPaint);
     $('inspector-content').addEventListener('change', (event) => { if (event.target.dataset.codeCommand) updateCodeCommand(event.target); });
     ['title', 'description', 'category', 'age', 'difficulty'].forEach((key) => {
       const input = $(`meta-${key}`);

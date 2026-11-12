@@ -105,6 +105,19 @@ test('el Studio ofrece controles de reloj, medida, dados y ejercicios sin editor
   assert.doesNotMatch(studio, /Opciones avanzadas \(JSON\)/);
 });
 
+test('los retos de Code se diseñan directamente en una cuadrícula con herramientas accesibles', () => {
+  const studio = read('public/studio-creadores.js');
+  const styles = read('public/css/styles.css');
+  assert.match(studio, /data-code-board-tool="\$\{id\}"/);
+  assert.match(studio, /data-code-board-cell="\$\{x\},\$\{y\}"/);
+  assert.match(studio, /data-code-board-tool[\s\S]*aria-pressed/);
+  assert.match(studio, /addEventListener\('pointermove'[\s\S]*codeBoardPointer/);
+  assert.match(studio, /paintCodeBoardCell\(exercise, codeBoardPointer\.index/);
+  assert.doesNotMatch(studio, /field\('Inicio X'|field\('Inicio Y'|field\('Objetivo X'|field\('Objetivo Y'/);
+  assert.match(styles, /\.code-board-grid\{display:grid/);
+  assert.match(styles, /\.code-board-cell\{[^}]*touch-action:none/);
+});
+
 test('el lienzo permite deshacer, rehacer, duplicar y mover bloques', () => {
   const html = read('public/studio-creadores.html');
   const js = read('public/studio-creadores.js');
