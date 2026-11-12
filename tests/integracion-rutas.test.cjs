@@ -21,10 +21,14 @@ test('cada destino de /api apunta a una función existente', () => {
 
 test('el sitio incluye una página 404 estática y la ruta comodín queda al final', () => {
   const page404 = fs.readFileSync(path.join(raiz, 'public/404.html'), 'utf8');
-  const fallbackIndex = vercel.routes.findIndex((route) => route.src === '/(.*)');
+  const fileRouteIndex = vercel.routes.findIndex((route) => route.src === '/(.*)' && route.dest === '/public/$1');
+  const fallback = vercel.routes.at(-1);
 
-  assert.ok(fallbackIndex >= 0);
-  assert.equal(fallbackIndex, vercel.routes.length - 1);
+  assert.ok(fileRouteIndex >= 0);
+  assert.equal(vercel.routes[fileRouteIndex].check, true);
+  assert.equal(fallback.src, '/(.*)');
+  assert.equal(fallback.dest, '/public/404.html');
+  assert.equal(fallback.status, 404);
   assert.match(page404, /<title>404 · Página no encontrada \| Placeta Junior<\/title>/);
   assert.match(page404, /href="\/#\/actividades"/);
   assert.match(page404, /name="robots" content="noindex"/);
