@@ -528,7 +528,7 @@ function verInfo(id) {
         ${unidades.length ? `<span class="detail-select-hint">${pjTextoUnidades('hint')}</span>` : (bloqueada
           ? '<span class="chip red">🔒 De pago (no subvencionada)</span>'
           : '')}
-        <button class="btn btn-outline btn-lg" onclick="mostrarSelectorPdf('${a.id}')"><span class="material-symbols-rounded">download</span> Descargar PDF</button>
+        <button class="btn btn-outline btn-lg" onclick="mostrarSelectorPdf('${a.id}')"><span class="material-symbols-rounded">download</span> ${unidades.length > 1 ? 'Descargar todas las unidades (PDF)' : 'Descargar ficha (PDF)'}</button>
       </div>
     </div>`;
   document.body.classList.add('mostrando-detalle');
@@ -588,7 +588,7 @@ function generarPdfCode(a) {
     const ini = ej.inicio || {};
     const obst = new Set((esc.obstaculos || []).map(o => o.x + ',' + o.y));
     const mon = new Set((esc.monedas || []).map(m => m.x + ',' + m.y));
-    const cellMm = Math.max(6, Math.min(12, Math.floor(150 / ancho)));
+    const cellMm = Math.max(6, Math.min(10, Math.floor(82 / ancho)));
     const fs = Math.max(8, cellMm - 3);
     let html = '<table class="ws-code-grid" style="border-collapse:collapse;margin:8px auto;">';
     for (let r = 0; r < alto; r++) {
@@ -607,62 +607,8 @@ function generarPdfCode(a) {
     return html;
   }
 
-  // Calcula el programa solución con BFS (bloques simples) y lo VERIFICA
-  // con el motor real. Devuelve null si no se puede resolver (p. ej. ejercicios
-  // que exigen REPETIR/SI) → entonces se muestra una zona de escritura.
-  function resolverPrograma(ej, permitidos) {
-    const obj = ej.objetivo || {};
-    if (!obj.posicion || !window.PJCode) return null;
-    if ((obj.debe_usar || []).some(op => op === 'repetir' || op === 'si')) return null;
-    const ops = [];
-    if (permitidos.includes('avanzar')) ops.push('avanzar');
-    if (permitidos.includes('retroceder')) ops.push('retroceder');
-    if (permitidos.includes('saltar')) ops.push('saltar');
-    if (permitidos.includes('girar')) { ops.push('girar:der'); ops.push('girar:izq'); }
-    if (!ops.length) return null;
-    const esc = ej.escenario || {};
-    const ancho = esc.ancho || 6, alto = esc.alto || 6;
-    const obst = new Set((esc.obstaculos || []).map(o => o.x + ',' + o.y));
-    const ini = ej.inicio || {};
-    const sx = ini.x ?? 0, sy = ini.y ?? 0;
-    const sd = ['derecha', 'abajo', 'izquierda', 'arriba'].indexOf(ini.direccion || 'derecha');
-    const d0 = sd < 0 ? 0 : sd;
-    const deltas = [{ x: 1, y: 0 }, { x: 0, y: 1 }, { x: -1, y: 0 }, { x: 0, y: -1 }];
-    const tx = Number(obj.posicion.x), ty = Number(obj.posicion.y);
-    const maxDepth = Math.min(Number(obj.max_pasos) || (ancho * alto * 2), 40);
-    const dentro = (xx, yy) => xx >= 0 && xx < ancho && yy >= 0 && yy < alto;
-    const visitado = new Set();
-    const cola = [{ x: sx, y: sy, d: d0, acc: [] }];
-    visitado.add(sx + ',' + sy + ',' + d0);
-    let solucion = null;
-    while (cola.length) {
-      const st = cola.shift();
-      if (st.acc.length > maxDepth) continue;
-      if (st.x === tx && st.y === ty) { solucion = st.acc; break; }
-      for (const op of ops) {
-        let nx = st.x, ny = st.y, nd = st.d, acc = null;
-        if (op === 'avanzar') { nx = st.x + deltas[st.d].x; ny = st.y + deltas[st.d].y; if (!dentro(nx, ny) || obst.has(nx + ',' + ny)) continue; acc = { op: 'avanzar' }; }
-        else if (op === 'retroceder') { nx = st.x - deltas[st.d].x; ny = st.y - deltas[st.d].y; if (!dentro(nx, ny) || obst.has(nx + ',' + ny)) continue; acc = { op: 'retroceder' }; }
-        else if (op === 'saltar') { nx = st.x + deltas[st.d].x * 2; ny = st.y + deltas[st.d].y * 2; if (!dentro(nx, ny)) continue; acc = { op: 'saltar' }; }
-        else if (op === 'girar:der') { nd = (st.d + 1) % 4; acc = { op: 'girar', dir: 'derecha' }; }
-        else if (op === 'girar:izq') { nd = (st.d + 3) % 4; acc = { op: 'girar', dir: 'izquierda' }; }
-        const key = nx + ',' + ny + ',' + nd;
-        if (visitado.has(key)) continue;
-        visitado.add(key);
-        cola.push({ x: nx, y: ny, d: nd, acc: st.acc.concat([acc]) });
-      }
-    }
-    if (!solucion) return null;
-    // Verificación final con el motor real (incluye monedas)
-    const res = PJCode.ejecutarCode(esc, ini, solucion, { maxPasos: maxDepth });
-    const monedasReq = Number(obj.monedas) || 0;
-    const ok = res && res.posicion_final && res.posicion_final.x === tx && res.posicion_final.y === ty
-      && (res.monedas_recogidas ? res.monedas_recogidas.length : 0) >= monedasReq;
-    return ok ? solucion : null;
-  }
-
-  let cuerpo = '<div class="ws-sec ws-code"><h4>💻 Placeta Junior Code — Programa</h4>';
-  cuerpo += '<p class="ws-hint">Programa a Candela 👧 para llegar a la estrella ⭐. Revisa la guía de bloques y el programa completo de cada ejercicio.</p>';
+  let cuerpo = '<div class="ws-sec ws-code"><h4>💻 Placeta Junior Code — Retos</h4>';
+  cuerpo += '<div class="ws-code-web"><b>¿Quieres probarlo en la web?</b><ol><li>Abre junior.laplaceta.org y entra en Placeta Junior Code.</li><li>Abre esta actividad y elige el reto.</li><li>Añade los bloques con un toque o arrastrándolos a tu programa.</li><li>Pulsa <b>Ejecutar</b>, revisa el resultado y vuelve a intentarlo.</li></ol><span>También puedes resolver los retos de esta ficha con lápiz y papel.</span></div>';
   ejercicios.forEach((ej, i) => {
     const permitidos = (ej.bloques_permitidos && ej.bloques_permitidos.length) ? ej.bloques_permitidos : ['avanzar', 'girar'];
     cuerpo += '<div class="ws-code-ej">';
@@ -677,22 +623,8 @@ function generarPdfCode(a) {
     });
     cuerpo += '</div>';
     cuerpo += cuadricula(ej);
-    // PROGRAMA COMPLETO (solución del autor o calculada; si no, zona de escritura)
-    const sol = (Array.isArray(ej.programa_solucion) && ej.programa_solucion.length)
-      ? ej.programa_solucion
-      : resolverPrograma(ej, permitidos);
-    cuerpo += '<div class="ws-programa">';
-    if (sol && sol.length) {
-      const texto = sol.map(bl => {
-        const g = guiaBloque[bl.op];
-        if (bl.op === 'girar') return (String(bl.dir || 'derecha').toLowerCase().startsWith('izq') ? 'GIRAR ←' : 'GIRAR →');
-        return g ? g.nombre : String(bl.op || '').toUpperCase();
-      }).join('  ·  ');
-      cuerpo += '<p class="ws-words"><b>Programa:</b> ' + esc(texto) + '</p>';
-    } else {
-      cuerpo += '<p class="ws-words"><b>Programa:</b> ______________________________</p>';
-    }
-    cuerpo += '</div>';
+    cuerpo += '<p class="ws-code-paper-task"><b>En papel:</b> dibuja el recorrido en la cuadrícula y escribe los bloques en orden.</p>';
+    cuerpo += '<div class="ws-code-answer"><b>Mi programa</b><div>1. ____________________ &nbsp; 2. ____________________</div><div>3. ____________________ &nbsp; 4. ____________________</div><div>5. ____________________ &nbsp; 6. ____________________</div></div>';
     cuerpo += '</div>';
   });
   cuerpo += '</div>';
@@ -979,13 +911,15 @@ async function descargarPdf(id, pref = null) {
     ? `<div class="ws-img"><img src="${esc(url)}" alt=""><span class="ws-fuente">${esc(normalizarTextoPdf(fuente || 'Imagen', opciones.mayusculas))}</span></div>`
     : '';
   let cuerpo = '';
-  if (esCode) {
+  if (esCode && !unidadesPdf.length) {
     cuerpo = generarPdfCode(a);
   }
   const textoPdf = (valor, fallback = '') => normalizarTextoPdf(valor ?? fallback, opciones.mayusculas);
   const imprimirBloque = (b) => {
     b = { ...b, imagen_url: b.imagen_url || b.imagenUrl || b.imagen || b.image_url || b.imageUrl || '' };
-    if (b.tipo === 'test' && b.preguntas && b.preguntas.length) {
+    if (b.tipo === 'code_blocks') {
+      cuerpo += generarPdfCode({ contenido: b });
+    } else if (b.tipo === 'test' && b.preguntas && b.preguntas.length) {
       cuerpo += '<div class="ws-sec ws-test"><h4>' + esc(textoPdf('Preguntas')) + '</h4>';
       b.preguntas.forEach((p, k) => {
         const opts = (p.opciones || []).map((o, oi) => '<span class="ws-opt">' + ('ABCDEFGH'[oi] || '') + ') ' + esc(textoPdf(o)) + '</span>').join(' ');

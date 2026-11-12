@@ -83,7 +83,7 @@ test('las nuevas actividades adaptan sus componentes a pantallas estrechas', () 
   assert.match(css, /\.pn-screen \.pn-keys\s*\{[^}]*minmax\(0,\s*1fr\)/);
   assert.match(jugar, /primaria-nueva\.css\?v=20261028-hints/);
   assert.match(preview, /primaria-nueva\.css\?v=20261028-hints/);
-  assert.match(sw, /placetajunior-assets-v21/);
+  assert.match(sw, /placetajunior-assets-v22/);
 });
 
 test('el editor del Studio configura todos los tipos nuevos', () => {
@@ -263,6 +263,48 @@ test('las modalidades de Primaria generan fichas imprimibles específicas', () =
   assert.match(render({ tipo: 'horas', reloj: 'digital', modo: 'leer', ejercicios: [{ hora: '16:30' }] }, helpers), /16:30/);
   assert.match(render({ tipo: 'geometria', modo: 'medir', ejercicios: [{ ancho: 5, alto: 3, medida: 'area' }] }, helpers), /cm²/);
   assert.match(render({ tipo: 'dados', ejercicios: [{ caras: [3, 5], operacion: 'suma' }] }, helpers), / = __________/);
+});
+
+test('la ficha PDF de Code se puede resolver en papel y explica cómo abrirla en la web', () => {
+  const app = fs.readFileSync(path.join(root, 'public', 'js', 'app.js'), 'utf8');
+  const start = app.indexOf('function generarPdfCode(a) {');
+  const end = app.indexOf('\n}\n\n// ── Fichas imprimibles', start);
+  assert.ok(start >= 0 && end > start, 'debe encontrar la ficha imprimible de Code');
+  const source = app.slice(start, end + 2) + '\nthis.renderPdf = generarPdfCode;';
+  const pjCode = {
+    obtenerEjercicios: content => content.ejercicios
+  };
+  const context = {
+    window: { PJCode: pjCode },
+    PJCode: pjCode,
+    esc(value) { return String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]); }
+  };
+  vm.runInNewContext(source, context);
+  const html = context.renderPdf({
+    contenido: {
+      ejercicios: [{
+        titulo: 'Llegada',
+        escenario: { ancho: 10, alto: 4, obstaculos: [{ x: 4, y: 1 }], monedas: [] },
+        inicio: { x: 0, y: 0, direccion: 'derecha' },
+        objetivo: { posicion: { x: 8, y: 0 } },
+        objetivo_texto: 'Llega a la estrella',
+        bloques_permitidos: ['avanzar', 'girar'],
+        programa_solucion: [{ op: 'avanzar' }]
+      }]
+    }
+  });
+  assert.match(html, /junior\.laplaceta\.org/);
+  assert.match(html, /arrastrándolos a tu programa/);
+  assert.match(html, /lápiz y papel/);
+  assert.match(html, /Mi programa/);
+  assert.match(html, /width:8mm/);
+  assert.doesNotMatch(html, /Programa:<\/b>\s*AVANZAR/);
+
+  const rootCode = app.slice(app.indexOf('function descargarPdf'), app.indexOf('async function generarMapaPdf'));
+  assert.match(rootCode, /if \(esCode && !unidadesPdf\.length\)/);
+  assert.match(rootCode, /if \(b\.tipo === 'code_blocks'\)[\s\S]*generarPdfCode\(\{ contenido: b \}\)/);
+  assert.match(app, /Descargar todas las unidades \(PDF\)/);
+  assert.match(fs.readFileSync(path.join(root, 'public', 'css', 'home.css'), 'utf8'), /\.ws-code \{ column-count: 2/);
 });
 
 test('las modalidades nuevas están declaradas en Primaria y en el Studio', () => {
