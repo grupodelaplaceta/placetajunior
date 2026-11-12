@@ -1,0 +1,65 @@
+#juniorAccBtn {
+  position: fixed;
+  right: max(18px, env(safe-area-inset-right));
+  bottom: max(18px, env(safe-area-inset-bottom));
+  z-index: 9999;
+  display: grid;
+  width: 56px;
+  height: 56px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #5b14c8;
+  color: #fff;
+  box-shadow: 0 6px 18px #3f00d866;
+  cursor: pointer;
+}
+
+#juniorAccBtn:hover { transform: scale(1.06); }
+#juniorAccBtn:focus-visible { outline: 3px solid #ff8a00; outline-offset: 3px; }
+
+#juniorAccPanel {
+  position: fixed;
+  right: max(18px, env(safe-area-inset-right));
+  bottom: max(84px, calc(env(safe-area-inset-bottom) + 84px));
+  z-index: 9999;
+  display: flex;
+  width: min(260px, calc(100vw - 36px));
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  border: 2px solid #ece8f7;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 12px 32px #1d174455;
+  color: #1d1744;
+  font: 600 14px/1.35 system-ui, sans-serif;
+}
+
+#juniorAccPanel[hidden] { display: none !important; }
+#juniorAccPanel .acc-head { padding: 2px 4px 6px; color: #5b14c8; font-weight: 800; }
+#juniorAccPanel .acc-toggle {
+  display: flex;
+  min-height: 42px;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid #e4e0ed;
+  border-radius: 11px;
+  background: #faf9fc;
+  color: #27213c;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+#juniorAccPanel .acc-toggle:hover { border-color: #5b14c8; }
+#juniorAccPanel .acc-toggle.on { border-color: #5b14c8; background: #5b14c8; color: #fff; }
+#juniorAccPanel .acc-ico { display: inline-grid; min-width: 24px; place-items: center; font-weight: 800; }
+
+body.acces-mayusculas, body.acces-mayusculas * { text-transform: uppercase !important; }
+body.acces-mayusculas input, body.acces-mayusculas textarea, body.acces-mayusculas select { text-transform: none !important; }
+body.acces-letra-grande { font-size: 112.5%; }
+body.acces-contraste { background: #fff !important; color: #000 !important; }
+body.acces-contraste a { color: #0000a8 !important; }
+body.acces-contraste button, body.acces-contraste input, body.acces-contraste select, body.acces-contraste textarea { border-color: #000 !important; }

@@ -18,6 +18,13 @@
   let idioma = 'es';
   const KEY = 'junior_acc_web';
   let guardado = false;
+  const TEXTOS = {
+    es: ['Accesibilidad', 'Mayúsculas', 'Audio', 'Letra grande', 'Alto contraste', 'Sonidos', 'Leer'],
+    ca: ['Accessibilitat', 'Majúscules', 'Àudio', 'Lletra gran', 'Contrast alt', 'Sons', 'Llegir'],
+    val: ['Accessibilitat', 'Majúscules', 'Àudio', 'Lletra gran', 'Contrast alt', 'Sons', 'Llegir'],
+    en: ['Accessibility', 'Uppercase', 'Audio', 'Large text', 'High contrast', 'Sounds', 'Read'],
+    eu: ['Irisgarritasuna', 'Maiuskulak', 'Audioa', 'Letra handia', 'Kontraste handia', 'Soinuak', 'Irakurri']
+  };
 
   function idiomaElegidoGuardado() {
     try {
@@ -72,6 +79,7 @@
     idioma = ['es', 'ca', 'eu', 'en', 'val'].includes(nuevo) ? nuevo : 'es';
     guardar();
     aplicar();
+    actualizarTextos();
     if (window.PJApplyUiTranslation) window.PJApplyUiTranslation(idioma);
   };
 
@@ -102,27 +110,53 @@
   btn.id = 'juniorAccBtn';
   btn.setAttribute('aria-label', 'Accesibilidad');
   btn.setAttribute('title', 'Accesibilidad');
+  btn.setAttribute('aria-controls', 'juniorAccPanel');
+  btn.setAttribute('aria-expanded', 'false');
   // Icono vectorial SVG (nada de emojis) para que se vea nítido en cualquier pantalla.
   btn.innerHTML = '<svg aria-hidden="true" viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M12 2c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm8 7h-5v12c0 .55-.45 1-1 1s-1-.45-1-1v-5h-2v5c0 .55-.45 1-1 1s-1-.45-1-1V9H4c-.55 0-1-.45-1-1s.45-1 1-1h16c.55 0 1 .45 1 1s-.45 1-1 1z"/></svg>';
 
   const panel = document.createElement('div');
   panel.id = 'juniorAccPanel';
+  panel.setAttribute('role', 'group');
   panel.hidden = true;
   panel.innerHTML =
-    '<div class="acc-head"><span class="acc-ico material-symbols-rounded" aria-hidden="true">accessible</span> Accesibilidad</div>' +
-    '<button type="button" class="acc-toggle" id="accMayus"><span class="acc-ico material-symbols-rounded">text_fields</span> MAYÚSCULAS</button>' +
-    '<button type="button" class="acc-toggle" id="accAudio"><span class="acc-ico material-symbols-rounded">volume_up</span> AUDIO</button>' +
-    '<button type="button" class="acc-toggle" id="accGrande"><span class="acc-ico material-symbols-rounded">text_increase</span> Letra grande</button>' +
-    '<button type="button" class="acc-toggle" id="accContraste"><span class="acc-ico material-symbols-rounded">contrast</span> Alto contraste</button>' +
-    '<button type="button" class="acc-toggle" id="accSonido"><span class="acc-ico material-symbols-rounded">volume_up</span> Sonidos</button>' +
-    '<button type="button" class="acc-toggle" id="accLeer"><span class="acc-ico material-symbols-rounded">record_voice_over</span> Leer</button>';
+    '<div class="acc-head"><span class="acc-head-label"></span></div>' +
+    '<button type="button" class="acc-toggle" id="accMayus"><span class="acc-ico" aria-hidden="true">Aa</span><span class="acc-label"></span></button>' +
+    '<button type="button" class="acc-toggle" id="accAudio"><span class="acc-ico" aria-hidden="true">◖</span><span class="acc-label"></span></button>' +
+    '<button type="button" class="acc-toggle" id="accGrande"><span class="acc-ico" aria-hidden="true">A+</span><span class="acc-label"></span></button>' +
+    '<button type="button" class="acc-toggle" id="accContraste"><span class="acc-ico" aria-hidden="true">◐</span><span class="acc-label"></span></button>' +
+    '<button type="button" class="acc-toggle" id="accSonido"><span class="acc-ico" aria-hidden="true">♪</span><span class="acc-label"></span></button>' +
+    '<button type="button" class="acc-toggle" id="accLeer"><span class="acc-ico" aria-hidden="true">▣</span><span class="acc-label"></span></button>';
 
   const localeBtn = document.getElementById('juniorTopbarLocaleBtn');
 
   document.body.appendChild(btn);
   document.body.appendChild(panel);
 
-  btn.addEventListener('click', () => { panel.hidden = !panel.hidden; if (window.pjSonido) pjSonido.clic(); });
+  function actualizarTextos() {
+    const locale = String(idioma || 'es').toLowerCase().split('-')[0];
+    const textos = TEXTOS[locale] || TEXTOS.es;
+    btn.setAttribute('aria-label', textos[0]);
+    btn.setAttribute('title', textos[0]);
+    panel.setAttribute('aria-label', textos[0]);
+    panel.querySelector('.acc-head-label').textContent = textos[0];
+    ['#accMayus', '#accAudio', '#accGrande', '#accContraste', '#accSonido', '#accLeer'].forEach((selector, index) => {
+      panel.querySelector(selector + ' .acc-label').textContent = textos[index + 1];
+    });
+  }
+  actualizarTextos();
+
+  btn.addEventListener('click', () => {
+    panel.hidden = !panel.hidden;
+    btn.setAttribute('aria-expanded', String(!panel.hidden));
+    if (window.pjSonido) pjSonido.clic();
+  });
+  window.addEventListener('junior:idioma', (event) => {
+    const nuevo = String(event.detail || 'es').trim().toLowerCase();
+    idioma = ['es', 'ca', 'eu', 'en', 'val'].includes(nuevo) ? nuevo : 'es';
+    window.__juniorLocale = idioma;
+    actualizarTextos();
+  });
   if (localeBtn) {
     localeBtn.addEventListener('click', () => {
       if (typeof window.mostrarSelectorEscritura === 'function') {
@@ -168,7 +202,7 @@
     document.getElementById('accGrande').classList.toggle('on', grande);
     document.getElementById('accContraste').classList.toggle('on', contraste);
     var sIco = document.querySelector('#accSonido .acc-ico');
-    if (sIco) sIco.textContent = sonido ? 'volume_up' : 'volume_off';
+    if (sIco) sIco.textContent = sonido ? '♪' : '◌';
     document.getElementById('accSonido').classList.toggle('on', sonido);
     aplicar();
   }

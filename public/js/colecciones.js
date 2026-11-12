@@ -47,9 +47,18 @@
     const age = minAge(activity);
     return age !== null && age >= range.min && age <= range.max;
   };
-  const subjectList = () => [...new Set(state.activities.map((activity) => activity.categoria).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
+  const language = () => {
+    try { return JSON.parse(localStorage.getItem('junior_acc_web') || '{}').idioma || 'es'; }
+    catch (error) { return 'es'; }
+  };
+  const translateSubject = (subject) => window.PJTranslateSubject ? window.PJTranslateSubject(subject, language()) : subject;
+  const allSubjectsLabel = () => ({ ca: 'Totes', val: 'Totes', en: 'All' }[language()] || 'Todas');
+  const subjectList = () => [...new Set(state.activities.map((activity) => activity.categoria).filter(Boolean))].sort((a, b) => translateSubject(a).localeCompare(translateSubject(b), language().startsWith('ca') || language() === 'val' ? 'ca' : language().startsWith('en') ? 'en' : 'es'));
   const renderFilter = (root, values, selected, onSelect, allLabel) => {
-    root.innerHTML = [allLabel, ...values].map((value) => `<button class="collection-filter${value === selected ? ' is-active' : ''}" type="button" data-value="${escapeHtml(value)}">${escapeHtml(value)}</button>`).join('');
+    root.innerHTML = [allLabel, ...values].map((value) => {
+      const label = root === subjectFilters ? (value === 'Todas' ? allSubjectsLabel() : translateSubject(value)) : value;
+      return `<button class="collection-filter${value === selected ? ' is-active' : ''}" type="button" data-value="${escapeHtml(value)}">${escapeHtml(label)}</button>`;
+    }).join('');
     root.querySelectorAll('button').forEach((button) => button.addEventListener('click', () => onSelect(button.dataset.value)));
   };
   const render = () => {
@@ -65,7 +74,7 @@
       return;
     }
     grid.innerHTML = activities.map((activity) => `<a class="collection-card" data-color="${colorFor(activity.categoria)}" href="/?id=${encodeURIComponent(activity.id)}" aria-label="Ver ${escapeHtml(activity.titulo)}">
-      <span class="collection-chip">${escapeHtml(activity.categoria || 'General')}</span>
+      <span class="collection-chip">${escapeHtml(translateSubject(activity.categoria || 'General'))}</span>
       <h3>${escapeHtml(activity.titulo || 'Actividad educativa')}</h3>
       <p>${escapeHtml(activity.descripcion || 'Aprende jugando con Placeta Junior.')}</p>
       <div class="collection-card-meta"><span>${escapeHtml(activity.edad_recomendada || 'Edad recomendada')}</span><span>Ver actividad →</span></div>

@@ -2,6 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const vm = require('node:vm');
 
 const raiz = path.join(__dirname, '..');
 const leer = (f) => fs.readFileSync(path.join(raiz, f), 'utf8');
@@ -96,4 +97,39 @@ test('las tarjetas usan portada traducida y solo muestran la insignia del idioma
   assert.match(html, /traducida:!!clave&&loc!=='es',idioma:clave&&loc!=='es'\?loc:''/);
   assert.match(html, /ribbon=meta\.traducida&&lang===activeLang/);
   assert.match(html, /ca:'Català'/);
+});
+
+test('las asignaturas comunes se muestran en el idioma seleccionado', () => {
+  const context = { window: {}, localStorage: { getItem: () => '{"idioma":"ca"}' } };
+  vm.runInNewContext(leer('public/js/subjects-i18n.js'), context);
+  const translate = context.window.PJTranslateSubject;
+  assert.equal(translate('Matemáticas', 'ca'), 'Matemàtiques');
+  assert.equal(translate('Ciencias', 'en'), 'Science');
+  assert.equal(translate('Geografía e historia', 'en'), 'Geography & history');
+  assert.equal(translate('Ciencias sociales', 'en'), 'Social studies');
+  assert.equal(translate('Pensamiento computacional', 'ca'), 'BOTXIFRA');
+  assert.equal(translate('Materia personalizada', 'en'), 'Materia personalizada');
+
+  const home = leer('public/index.html');
+  const collections = leer('public/js/colecciones.js');
+  assert.match(home, /SUBJECTS=\{mates:\['Matemáticas','Matemàtiques','Mathematics'\][\s\S]*computacional:\['Pensamiento computacional','BOTXIFRA','STEM'\]/);
+  assert.match(collections, /window\.PJTranslateSubject/);
+  assert.match(collections, /translateSubject\(activity\.categoria/);
+});
+
+test('todas las páginas HTML cargan el botón global de accesibilidad y sus estilos', () => {
+  const walk = (directory) => fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const file = path.join(directory, entry.name);
+    return entry.isDirectory() ? walk(file) : entry.name.endsWith('.html') ? [file] : [];
+  });
+  const pages = walk(path.join(raiz, 'public'));
+  assert.ok(pages.length > 0);
+  for (const page of pages) {
+    const html = fs.readFileSync(page, 'utf8');
+    assert.match(html, /accesibilidad\.css/, `${path.relative(raiz, page)} debe cargar los estilos`);
+    assert.match(html, /accesibilidad\.js/, `${path.relative(raiz, page)} debe cargar el panel`);
+  }
+  const accessibility = leer('public/js/accesibilidad.js');
+  assert.match(accessibility, /TEXTOS/);
+  assert.match(accessibility, /junior:idioma/);
 });
