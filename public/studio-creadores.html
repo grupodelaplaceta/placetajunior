@@ -10,10 +10,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
   <link rel="stylesheet" href="/css/education-nav.css" />
-  <link rel="stylesheet" href="/studio-creadores.css" />
+  <link rel="stylesheet" href="/edu/assets/studio-creadores.css" />
   <link rel="stylesheet" href="/css/ui-polish.css" />
 <link rel="stylesheet" href="/css/accesibilidad.css" />
 <script src="/js/accesibilidad.js" defer></script>
+<script src="/js/edu-legacy-redirect.js"></script>
 </head>
 <body>
   <header class="education-topbar">
@@ -21,10 +22,10 @@
       <a class="education-brand" href="/" aria-label="Placeta Junior, inicio"><img src="/img/PJ-BLANCO-LOGO.png" alt="Placeta Junior" /></a>
       <span class="education-brand-title">Placeta Junior Education</span>
       <nav class="education-nav" aria-label="Navegación">
-        <a href="/#/educacion">Para educación</a>
-        <a href="/crear-actividad" aria-current="page">Studio</a>
-        <a href="/centros" data-nav-register>Alta de centro</a>
-        <span class="education-centers-nav"><a href="/centros/panel" data-requiere-sesion>Mis centros</a><a class="education-add-center" href="/centros?tipo=centro" data-nav-add-center hidden aria-label="Añadir otro centro" title="Añadir otro centro">+</a></span>
+        <a href="/edu">Para educación</a>
+        <a href="/edu/studio" aria-current="page">Studio</a>
+        <a href="/edu/alta" data-nav-register>Alta de centro</a>
+        <span class="education-centers-nav"><a href="/edu/centros" data-requiere-sesion>Mis centros</a><a class="education-add-center" href="/edu/alta?tipo=centro" data-nav-add-center hidden aria-label="Añadir otro centro" title="Añadir otro centro">+</a></span>
       </nav>
       <button class="education-signout" id="cerrar" data-nav-signout type="button" hidden>Salir</button>
     </div>
@@ -46,8 +47,8 @@
       <h2 id="access-title">Comprobando permisos…</h2>
       <p id="access-message">El editor solo está disponible para docentes aprobados y centros activos autorizados.</p>
       <div class="access-links">
-        <a href="/centros?tipo=docente">Acceso docente</a>
-        <a href="/centros?tipo=centro">Acceso de centro</a>
+        <a href="/edu/alta?tipo=docente">Acceso docente</a>
+        <a href="/edu/alta?tipo=centro">Acceso de centro</a>
       </div>
     </section>
     <div id="creator-tools" hidden>
@@ -94,7 +95,7 @@
           </aside>
           <section class="builder" id="editor-panel-canvas" role="tabpanel" aria-labelledby="editor-tab-canvas" data-editor-panel="canvas" hidden>
             <div class="builder-top"><div><p class="eyebrow">TU LIENZO</p><h2 id="activity-title">Actividad sin título</h2></div><div class="builder-actions"><button id="undo-action" class="quiet-button history-button" type="button" disabled aria-label="Deshacer">↶ Deshacer</button><button id="redo-action" class="quiet-button history-button" type="button" disabled aria-label="Rehacer">↷ Rehacer</button><button id="preview-activity" class="quiet-button" type="button">Vista previa</button><button id="clear-draft" class="quiet-button" type="button">Vaciar lienzo</button></div></div>
-            <div class="live-preview-toolbar"><strong>Vista previa en vivo</strong><div class="preview-device-options" role="group" aria-label="Tamaño de vista previa"><button type="button" data-preview-device="movil" aria-pressed="true">Móvil</button><button type="button" data-preview-device="tablet" aria-pressed="false">Tableta</button><button type="button" data-preview-device="pc" aria-pressed="false">Ordenador</button></div><span id="preview-live-status" aria-live="polite">Elige una plantilla para empezar.</span></div>
+            <div class="live-preview-toolbar"><strong>Vista previa en vivo</strong><div class="preview-device-options" id="preview-device-options" role="group" aria-label="Tamaño de vista previa"><button type="button" data-preview-device="movil" aria-pressed="true">Móvil</button><button type="button" data-preview-device="tablet" aria-pressed="false">Tableta</button><button type="button" data-preview-device="pc" aria-pressed="false">Ordenador</button></div><span id="preview-live-status" aria-live="polite">Elige una plantilla para empezar.</span></div>
             <div class="live-preview-stage" id="live-preview-stage"><div class="live-preview-device" id="live-preview-device"><iframe id="live-preview-frame" title="Simulación en vivo de la actividad" src="about:blank" hidden></iframe><div class="live-preview-empty" id="live-preview-empty"><strong>Tu actividad aparecerá aquí</strong><span>Elige un ejercicio en la barra izquierda para empezar.</span></div></div></div>
             <div class="slide-strip-heading"><div><strong>Diapositivas y unidades</strong><small id="compensation-summary" aria-live="polite">Total: 0 Pz · aún sin unidades</small></div><button id="add-unit-break" class="add-unit-button" type="button" title="Insertar un salto de unidad"><span aria-hidden="true">＋</span> Salto de unidad</button></div>
             <div class="canvas slide-strip" id="canvas" aria-label="Diapositivas y saltos de unidad" aria-live="polite"></div>
@@ -127,7 +128,7 @@
     </div>
     <p id="notice" class="notice" role="status" aria-live="polite"></p>
   </main>
-  <script src="/centros/assets/education-nav.js" defer></script>
-  <script src="/studio-creadores.js" defer></script>
+  <script src="/edu/assets/centros/education-nav.js" defer></script>
+  <script src="/edu/assets/studio-creadores.js" defer></script>
 </body>
 </html>

@@ -15,7 +15,7 @@
   function cerrarSesion() {
     sessionStorage.removeItem(CLAVE);
     if (window.google && google.accounts && google.accounts.id) google.accounts.id.disableAutoSelect();
-    location.href = '/centros';
+    location.href = '/edu/alta';
   }
 
   async function config() {
@@ -193,7 +193,7 @@
           <div class="centro-card-main"><span class="centro-mark" aria-hidden="true">${esc(String(o.nombre || 'C').slice(0, 1).toUpperCase())}</span>
             <div><p class="centro-eyebrow">${esc(o.rol === 'administrador' ? 'ADMINISTRADOR' : 'MIEMBRO')}</p><h2>${esc(o.nombre)}</h2><p class="centro-card-meta">Código <span class="codigo">${esc(o.codigoCentro)}</span></p></div>
           </div>
-          <div class="centro-card-side"><span class="estado-centro ${o.estado === 'activo' ? 'is-active' : ''}">${esc(o.estado)}</span><a class="btn centro-card-action" href="/centros/panel?org=${encodeURIComponent(o.id)}">Abrir dashboard <span aria-hidden="true">→</span></a></div>
+          <div class="centro-card-side"><span class="estado-centro ${o.estado === 'activo' ? 'is-active' : ''}">${esc(o.estado)}</span><a class="btn centro-card-action" href="/edu/centros?org=${encodeURIComponent(o.id)}">Abrir dashboard <span aria-hidden="true">→</span></a></div>
         </article>`).join('');
     } else {
       $('#enlaces-centro').innerHTML = '';
@@ -228,7 +228,7 @@
     if (token() && tipoSolicitado !== 'centro' && tipoSolicitado !== 'docente') {
       const datos = await api('/api/centros/mi');
       if (datos.organizaciones.length) {
-        location.replace('/centros/panel');
+        location.replace('/edu/centros');
         return;
       }
     }
@@ -273,7 +273,7 @@
   // ── Panel del centro ──────────────────────────────────────────────
   async function paginaPanel() {
     $('#cargando').hidden = true;
-    if (!token()) { location.href = '/centros'; return; }
+    if (!token()) { location.href = '/edu/alta'; return; }
     $('#cerrar').hidden = false;
     $('#cerrar').onclick = cerrarSesion;
     const id = new URLSearchParams(location.search).get('org');
@@ -284,7 +284,7 @@
       if (!datos) {
         const mi = await api('/api/centros/mi');
         contenido.innerHTML = mi.organizaciones.length
-          ? '<div class="centros-list-heading"><div><h1>Tus centros</h1><p class="nota">Abre un centro para consultar su actividad y configuración.</p></div><a class="add-center-card" href="/centros?tipo=centro" aria-label="Añadir otro centro"><span aria-hidden="true">+</span><strong>Añadir otro centro</strong></a></div><div class="centros-list-grid">' + mi.organizaciones.map((o) => `<a class="center-list-card" href="/centros/panel?org=${encodeURIComponent(o.id)}"><span class="center-list-mark" aria-hidden="true">${esc(String(o.nombre || 'C').slice(0, 1).toUpperCase())}</span><span><strong>${esc(o.nombre)}</strong><small>${esc(o.rol === 'administrador' ? 'Administrador' : 'Miembro')} · ${esc(o.estado)}</small></span><span class="center-list-arrow" aria-hidden="true">→</span></a>`).join('') + '</div>'
+          ? '<div class="centros-list-heading"><div><h1>Tus centros</h1><p class="nota">Abre un centro para consultar su actividad y configuración.</p></div><a class="add-center-card" href="/edu/alta?tipo=centro" aria-label="Añadir otro centro"><span aria-hidden="true">+</span><strong>Añadir otro centro</strong></a></div><div class="centros-list-grid">' + mi.organizaciones.map((o) => `<a class="center-list-card" href="/edu/centros?org=${encodeURIComponent(o.id)}"><span class="center-list-mark" aria-hidden="true">${esc(String(o.nombre || 'C').slice(0, 1).toUpperCase())}</span><span><strong>${esc(o.nombre)}</strong><small>${esc(o.rol === 'administrador' ? 'Administrador' : 'Miembro')} · ${esc(o.estado)}</small></span><span class="center-list-arrow" aria-hidden="true">→</span></a>`).join('') + '</div>'
           : '<h1>Panel del centro</h1><p>Todavía no tienes ningún centro activo. Cuando se apruebe tu solicitud, aparecerá aquí.</p>';
         return;
       }

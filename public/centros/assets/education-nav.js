@@ -13,7 +13,7 @@
     if (!document.body.dataset.pagina) signOutButton.addEventListener('click', () => {
       sessionStorage.removeItem(SESSION_KEY);
       if (window.google?.accounts?.id) window.google.accounts.id.disableAutoSelect();
-      location.href = '/centros';
+      location.href = '/edu/alta';
     });
   }
 

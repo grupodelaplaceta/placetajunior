@@ -10,11 +10,12 @@
   <link rel="stylesheet" href="/css/ui-polish.css" />
 <link rel="stylesheet" href="/css/accesibilidad.css" />
 <script src="/js/accesibilidad.js" defer></script>
+<script src="/js/edu-legacy-redirect.js"></script>
 </head>
 <body data-pagina="registro">
   <header class="education-topbar"><div class="education-topbar-inner">
     <a class="education-brand" href="/" aria-label="Placeta Junior"><img src="/img/PJ-BLANCO-LOGO.png" alt="Placeta Junior" /></a><span class="education-brand-title">Placeta Junior Education</span>
-    <nav class="education-nav" aria-label="Navegación"><a href="/#/educacion">Para educación</a><a href="/crear-actividad">Studio</a><a href="/centros" data-nav-register aria-current="page">Alta de centro</a><span class="education-centers-nav"><a href="/centros/panel" data-requiere-sesion>Mis centros</a><a class="education-add-center" href="/centros?tipo=centro" data-nav-add-center hidden aria-label="Añadir otro centro" title="Añadir otro centro">+</a></span></nav>
+    <nav class="education-nav" aria-label="Navegación"><a href="/edu">Para educación</a><a href="/edu/studio">Studio</a><a href="/edu/alta" data-nav-register aria-current="page">Alta de centro</a><span class="education-centers-nav"><a href="/edu/centros" data-requiere-sesion>Mis centros</a><a class="education-add-center" href="/edu/alta?tipo=centro" data-nav-add-center hidden aria-label="Añadir otro centro" title="Añadir otro centro">+</a></span></nav>
     <button class="education-signout" id="cerrar" data-nav-signout type="button" hidden>Salir</button>
   </div></header>
   <main id="principal">
@@ -82,9 +83,9 @@
           <legend>Condiciones y privacidad</legend>
           <p class="nota">Lee los documentos antes de aceptarlos.</p>
           <label class="check"><input type="checkbox" name="aceptaCondiciones" required />
-            Acepto las <a href="/centros/docs/condiciones.html" target="_blank" rel="noopener">condiciones de uso para centros</a> (versión <span data-version="condiciones"></span>).</label>
+            Acepto las <a href="/edu/documentos/condiciones.html" target="_blank" rel="noopener">condiciones de uso para centros</a> (versión <span data-version="condiciones"></span>).</label>
           <label class="check"><input type="checkbox" name="aceptaPrivacidad" required />
-            He leído la <a href="/centros/docs/privacidad.html" target="_blank" rel="noopener">información sobre protección de datos</a> (versión <span data-version="privacidad"></span>).</label>
+            He leído la <a href="/edu/documentos/privacidad.html" target="_blank" rel="noopener">información sobre protección de datos</a> (versión <span data-version="privacidad"></span>).</label>
           <label class="check"><input type="checkbox" name="declaraVeracidad" required />
             Declaro que los datos son veraces y que tengo autorización para dar de alta este centro.</label>
         </fieldset>
@@ -100,8 +101,8 @@
     </section>
   </main>
   <footer><div class="wrap"><p>© 2026 Placeta Junior · Grupo de La Placeta · <a href="/privacidad.html">Privacidad</a> · <a href="/aviso-legal.html">Aviso legal</a> · <a href="mailto:junta@laplaceta.org">junta@laplaceta.org</a></p></div></footer>
-  <script src="/centros/assets/education-nav.js"></script>
+  <script src="/edu/assets/centros/education-nav.js"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="/centros/assets/app.js"></script>
+  <script src="/edu/assets/centros/app.js"></script>
 </body>
 </html>

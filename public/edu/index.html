@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#4d0db3" />
+  <meta name="description" content="Gestiona Placeta Junior en tu centro: actividades, dispositivos y recursos para docentes." />
+  <link rel="canonical" href="https://junior.laplaceta.org/edu" />
+  <title>Placeta Junior Education</title>
+  <link rel="icon" href="/favijunior.png" />
+  <link rel="stylesheet" href="/css/edu-hub.css" />
+  <link rel="stylesheet" href="/css/accesibilidad.css" />
+  <script src="/js/accesibilidad.js" defer></script>
+  <script src="/js/edu-hub.js" defer></script>
+</head>
+<body>
+  <header class="edu-header">
+    <a class="edu-brand" href="/" aria-label="Placeta Junior, inicio">
+      <img src="/img/PJ-BLANCO-LOGO.png" alt="Placeta Junior" />
+      <span>Education</span>
+    </a>
+    <nav aria-label="Navegación de Education">
+      <a href="/edu/alta" data-i18n="registerNav">Alta de centro</a>
+      <a href="/edu/centros" data-i18n="centersNav">Mis centros</a>
+      <a href="/edu/administracion" data-i18n="adminNav">Administración</a>
+      <a class="edu-nav-cta" href="/edu/studio" data-i18n="studioNav">Abrir Studio</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="edu-hero" aria-labelledby="edu-title">
+      <div class="edu-hero-copy">
+        <p class="edu-eyebrow"><span aria-hidden="true">✦</span> Placeta Junior Education</p>
+        <h1 id="edu-title"><span class="edu-title-intro" data-i18n="titleIntro">Todo lo que tu centro necesita para</span> <span data-i18n="titleFocus">aprender jugando.</span></h1>
+        <p class="edu-lead" data-i18n="lead">Crea actividades para el aula, gestiona tus centros y configura Placeta Junior IO desde un espacio sencillo y seguro.</p>
+        <div class="edu-hero-actions">
+          <a class="edu-button edu-button-primary" href="/edu/studio"><span aria-hidden="true">✎</span><span data-i18n="createActivity">Crear una actividad</span></a>
+          <a class="edu-button edu-button-secondary" href="/edu/alta"><span aria-hidden="true">＋</span><span data-i18n="registerCenter">Dar de alta un centro</span></a>
+        </div>
+        <p class="edu-footnote"><span data-i18n="alreadyAccount">¿Ya tienes una cuenta?</span> <a href="/edu/centros"><span data-i18n="goCenters">Entra en tus centros</span> <span aria-hidden="true">→</span></a></p>
+      </div>
+      <div class="edu-hero-art" aria-hidden="true">
+        <div class="edu-orbit edu-orbit-one"></div>
+        <div class="edu-orbit edu-orbit-two"></div>
+        <div class="edu-dashboard">
+          <div class="edu-dashboard-top"><span></span><span></span><span></span><b>Tu espacio educativo</b></div>
+          <div class="edu-dashboard-card"><span class="edu-dashboard-icon">✦</span><div><strong>Aprender haciendo</strong><small>Actividades para cada aula</small></div><span class="edu-check">✓</span></div>
+          <div class="edu-dashboard-stats"><div><strong>01</strong><span>CREA</span></div><div><strong>02</strong><span>ORGANIZA</span></div><div><strong>03</strong><span>APRENDE</span></div></div>
+          <div class="edu-dashboard-progress"><span></span></div>
+        </div>
+        <span class="edu-float edu-float-star">✦</span>
+        <span class="edu-float edu-float-plus">＋</span>
+      </div>
+    </section>
+
+    <section class="edu-workspaces" aria-labelledby="workspaces-title">
+      <div class="edu-section-heading">
+        <p class="edu-eyebrow" data-i18n="sectionEyebrow">UN ESPACIO PARA CADA TAREA</p>
+        <h2 id="workspaces-title" data-i18n="sectionTitle">Empieza por lo que necesitas</h2>
+        <p data-i18n="sectionLead">Accesos directos y claros para docentes y centros educativos.</p>
+      </div>
+      <div class="edu-card-grid">
+        <a class="edu-card edu-card-studio" href="/edu/studio">
+          <span class="edu-card-icon" aria-hidden="true">✎</span>
+          <span class="edu-card-kicker" data-i18n="studioKicker">CREA PARA TU AULA</span>
+          <strong data-i18n="studioTitle">Placeta Junior Studio</strong>
+          <span class="edu-card-text" data-i18n="studioText">Diseña actividades educativas con plantillas guiadas y vista previa.</span>
+          <span class="edu-card-link"><span data-i18n="studioLink">Abrir Studio</span> <span aria-hidden="true">→</span></span>
+        </a>
+        <a class="edu-card edu-card-register" href="/edu/alta">
+          <span class="edu-card-icon" aria-hidden="true">＋</span>
+          <span class="edu-card-kicker" data-i18n="registerKicker">EMPIEZA AQUÍ</span>
+          <strong data-i18n="registerTitle">Alta de centro o docente</strong>
+          <span class="edu-card-text" data-i18n="registerText">Solicita acceso para tu centro o regístrate como docente individual.</span>
+          <span class="edu-card-link"><span data-i18n="registerLink">Ver opciones</span> <span aria-hidden="true">→</span></span>
+        </a>
+        <a class="edu-card edu-card-centers" href="/edu/centros">
+          <span class="edu-card-icon" aria-hidden="true">▦</span>
+          <span class="edu-card-kicker" data-i18n="centersKicker">GESTIONA TUS EQUIPOS</span>
+          <strong data-i18n="centersTitle">Mis centros</strong>
+          <span class="edu-card-text" data-i18n="centersText">Consulta tus centros, dispositivos y configuración de aula.</span>
+          <span class="edu-card-link"><span data-i18n="centersLink">Entrar con Google</span> <span aria-hidden="true">→</span></span>
+        </a>
+        <a class="edu-card edu-card-admin" href="/edu/administracion">
+          <span class="edu-card-icon" aria-hidden="true">⚙</span>
+          <span class="edu-card-kicker" data-i18n="adminKicker">PERSONAL AUTORIZADO</span>
+          <strong data-i18n="adminTitle">Administración</strong>
+          <span class="edu-card-text" data-i18n="adminText">Gestiona organizaciones y documentos de Placeta Junior Education.</span>
+          <span class="edu-card-link"><span data-i18n="adminLink">Acceso de administración</span> <span aria-hidden="true">→</span></span>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="edu-footer">
+    <a href="/" aria-label="Placeta Junior, inicio">Placeta Junior</a>
+    <span data-i18n="footerBrand">Education · Grupo de La Placeta</span>
+    <nav aria-label="Enlaces legales">
+      <a href="/privacidad" data-i18n="privacy">Privacidad</a>
+      <a href="/aviso-legal" data-i18n="legal">Aviso legal</a>
+    </nav>
+  </footer>
+</body>
+</html>

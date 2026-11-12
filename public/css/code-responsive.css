@@ -1,0 +1,83 @@
+body.pj-home .kp-stage > .kp-screen.kp-code {
+  width: 100%;
+  max-width: 1440px;
+  min-width: 0;
+  text-align: left;
+}
+
+.kp-code > * { min-width: 0; }
+.kp-code .code-topline { justify-content: flex-start; }
+.kp-code .kp-qt { width: 100%; max-width: none; }
+.kp-code .code-scenario-wrap { width: 100%; }
+.kp-code .code-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.kp-code .code-workbench { min-width: 0; }
+.kp-code .code-palette { grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); }
+.kp-code .code-palette-items { min-width: 0; }
+.kp-code .cute-block { min-width: min(78px, 100%); }
+.kp-code .cute-linea { min-width: 0; }
+.kp-code .cute-chip { min-width: 0; overflow-wrap: anywhere; }
+.kp-code .cute-chip :is(select, input) { max-width: 100%; }
+.kp-code .code-acciones { display: flex; flex-wrap: wrap; }
+.kp-code .code-acciones > button { flex: 1 1 150px; }
+
+@media (min-width: 1080px) {
+  .kp-code {
+    display: grid;
+    grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+    grid-template-areas:
+      "meta meta"
+      "explain explain"
+      "objective objective"
+      "scene workbench"
+      "chips workbench"
+      "hints actions"
+      "hint hint";
+    align-items: start;
+    column-gap: clamp(16px, 2vw, 28px);
+    row-gap: 12px;
+  }
+  .kp-code > .code-topline { grid-area: meta; margin: 0; }
+  .kp-code > .code-explica { grid-area: explain; }
+  .kp-code > .kp-qt { grid-area: objective; margin: 0 !important; }
+  .kp-code > .code-scenario-wrap { grid-area: scene; align-self: center; margin: 0; }
+  .kp-code > .code-chips { grid-area: chips; align-self: start; }
+  .kp-code > .code-workbench { grid-area: workbench; width: 100%; margin: 0; }
+  .kp-code > .code-acciones { grid-area: actions; align-self: start; margin: 0; }
+  .kp-code > .code-pistas { grid-area: hints; align-self: start; }
+  .kp-code > .kp-hint { grid-area: hint; margin: 0; }
+}
+
+@media (min-width: 621px) and (max-width: 1079px) {
+  .kp-code .code-workbench { padding: clamp(14px, 2.5vw, 22px); }
+  .kp-code .code-acciones > button { flex-basis: 130px; }
+}
+
+@media (max-width: 620px) {
+  .kp-code .code-topline { gap: 6px; }
+  .kp-code .code-explica { padding: 12px; font-size: 15px; }
+  .kp-code .kp-qt { padding: 12px; font-size: clamp(17px, 5vw, 21px); }
+  .kp-code .code-scenario-wrap { margin-block: 4px; }
+  .kp-code .code-scenario { width: 100%; height: auto; aspect-ratio: 600 / 380; }
+  .kp-code .code-chips { justify-content: flex-start; }
+  .kp-code .code-line-label { align-items: flex-start; }
+  .kp-code .cute-linea { min-height: 100px; padding: 10px; }
+  .kp-code .cute-chip.contenedor { max-width: 100%; }
+  .kp-code .cute-sub { margin-left: 0; }
+  .kp-code .code-acciones { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kp-code .code-acciones > button { min-width: 0; min-height: 48px; }
+}
+
+@media (max-width: 360px) {
+  .kp-code .code-workbench { padding: 10px; }
+  .kp-code .code-acciones { display: grid; grid-template-columns: 1fr; }
+  .kp-code .code-acciones .code-run-btn { grid-column: auto; }
+  .kp-code .code-acciones > button { grid-column: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.pj-home .kp-stage[data-screen-type="code"],
+  body.pj-home .kp-stage[data-screen-type="code"] > .kp-code,
+  body.pj-home .kp-stage[data-screen-type="code"] > .kp-code::before {
+    animation: none !important;
+  }
+}

@@ -6,10 +6,14 @@
    ═══════════════════════════════════════════════════════════════════ */
 // Versionar la caché fuerza la actualización del reproductor y estilos en
 // dispositivos que ya visitaron la web.
-const CACHE = 'placetajunior-assets-v19';
+const CACHE = 'placetajunior-assets-v21';
 
 const ASSETS = [
   '/css/styles.css',
+  '/css/code-responsive.css',
+  '/css/edu-hub.css',
+  '/js/edu-legacy-redirect.js',
+  '/js/edu-hub.js',
   '/css/home.css',
   '/css/accesibilidad.css',
   '/css/leaflet.css',

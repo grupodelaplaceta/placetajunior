@@ -33,7 +33,7 @@ test('DevAI ofrece una plantilla ejecutable de Placeta Junior Code para Primaria
   const end = html.indexOf('    function plantillaPrim(tipo) {', start);
   assert.ok(start >= 0 && end > start, 'debe estar definida la plantilla antes de las plantillas de Primaria');
   assert.match(html, /onclick="plantillaCode\(\)">Placeta Junior Code · 8 retos/);
-  assert.match(html, /href="\/crear-actividad">Abrir en Studio/);
+  assert.match(html, /href="\/edu\/studio">Abrir en Studio/);
   assert.match(html, /CODE_BLOCKS \(Placeta Junior Code\)[\s\S]*`bloques_no` \(rama SI NO\)/);
 
   const fields = Object.fromEntries(['codigo', 'titulo', 'descripcion', 'categoria', 'edad', 'dificultad', 'tiempo']

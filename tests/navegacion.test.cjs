@@ -12,7 +12,7 @@ const destinos = new Set(vercel.routes.map((r) => r.dest).filter(Boolean));
 test('la barra tiene "Para educación" en lugar de "Para docentes" y "Altas y admin"', () => {
   const html = leer('public/index.html');
   const nav = html.slice(html.indexOf('function nav(r){'), html.indexOf('function header(r){'));
-  for (const ruta of ["'#/'", "'#/actividades'", "'#/juegos'", "['#/educacion','ednav','users']"]) assert.ok(nav.includes(ruta), ruta);
+  for (const ruta of ["'#/'", "'#/actividades'", "'#/juegos'", "['/edu','ednav','users']"]) assert.ok(nav.includes(ruta), ruta);
   assert.ok(!nav.includes('docnav') && !nav.includes('altanav'));
   assert.ok(html.includes('ednav:["Para educación"'));
 });
@@ -29,10 +29,9 @@ test('la página Para educación enlaza solo a rutas que existen y no expone RSP
   assert.equal(enlaces.length, 5);
   for (const e of enlaces) {
     const base = e.split('?')[0];
-    const ok = base === '/centros' ? '/public/centros/index.html'
-      : base === '/centros/panel' ? '/public/centros/panel.html'
-      : base === '/crear-actividad' ? '/public/studio-creadores.html'
-      : base === '/educacion/' ? '/public/educacion/index.html' : null;
+    const ok = base === '/edu/alta' ? '/public/centros/index.html'
+      : base === '/edu/centros' ? '/public/centros/panel.html'
+      : base === '/edu/studio' ? '/public/studio-creadores.html' : null;
     assert.ok(ok && destinos.has(ok), e);
   }
   assert.ok(!/rsp/i.test(pagina));
@@ -57,10 +56,10 @@ test('Studio, alta y mis centros comparten navegación y el alta de un segundo c
   const nav = leer('public/centros/assets/education-nav.js');
   for (const html of [studio, registro, panel]) {
     assert.ok(html.includes('class="education-topbar"'));
-    assert.match(html, /href="\/crear-actividad"[^>]*>Studio<\/a>/);
-    assert.ok(html.includes('href="/centros/panel" data-requiere-sesion'));
-    assert.ok(html.includes('href="/centros?tipo=centro" data-nav-add-center hidden'));
-    assert.ok(html.includes('/centros/assets/education-nav.js'));
+    assert.match(html, /href="\/edu\/studio"[^>]*>Studio<\/a>/);
+    assert.ok(html.includes('href="/edu/centros" data-requiere-sesion'));
+    assert.ok(html.includes('href="/edu/alta?tipo=centro" data-nav-add-center hidden'));
+    assert.ok(html.includes('/edu/assets/centros/education-nav.js'));
   }
   assert.match(nav, /fetch\('\/api\/centros\/mi'/);
   assert.match(nav, /data\.organizaciones\.length/);
@@ -71,9 +70,9 @@ test('Studio, alta y mis centros comparten navegación y el alta de un segundo c
 test('las cuentas con centros vuelven al panel; el botón + abre el alta independiente', () => {
   const app = leer('public/centros/assets/app.js');
   assert.match(app, /async function paginaRegistro\(\)/);
-  assert.match(app, /tipoSolicitado !== 'centro' && tipoSolicitado !== 'docente'[\s\S]*?datos\.organizaciones\.length[\s\S]*?location\.replace\('\/centros\/panel'\)/);
-  assert.match(app, /href="\/centros\?tipo=centro" aria-label="Añadir otro centro"/);
-  assert.match(app, /href="\/centros\/panel\?org=/);
+  assert.match(app, /tipoSolicitado !== 'centro' && tipoSolicitado !== 'docente'[\s\S]*?datos\.organizaciones\.length[\s\S]*?location\.replace\('\/edu\/centros'\)/);
+  assert.match(app, /href="\/edu\/alta\?tipo=centro" aria-label="Añadir otro centro"/);
+  assert.match(app, /href="\/edu\/centros\?org=/);
 });
 
 test('el script de la página principal es JavaScript válido', () => {

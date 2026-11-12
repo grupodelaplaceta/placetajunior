@@ -33,6 +33,47 @@
       "continue": true
     },
     {
+      "src": "/edu/?$",
+      "headers": {
+        "X-Content-Type-Options": "nosniff",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "X-Frame-Options": "DENY",
+        "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+      },
+      "continue": true
+    },
+    {
+      "src": "/edu/(alta|centros)(.*)",
+      "headers": {
+        "X-Content-Type-Options": "nosniff",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "X-Frame-Options": "DENY",
+        "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
+        "Content-Security-Policy": "default-src 'self'; script-src 'self' https://accounts.google.com/gsi/client; style-src 'self' https://accounts.google.com/gsi/style 'unsafe-hashes' 'sha256-RU4sU0AaS8IBGZx8XrGt/pa9A5SLA3dQszGeqT5L3Kw='; img-src 'self' data:; connect-src 'self' https://accounts.google.com/gsi/; frame-src https://accounts.google.com/gsi/; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+      },
+      "continue": true
+    },
+    {
+      "src": "/edu/administracion(.*)",
+      "headers": {
+        "X-Content-Type-Options": "nosniff",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "X-Frame-Options": "DENY",
+        "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+      },
+      "continue": true
+    },
+    {
+      "src": "/edu/documentos/(.*)",
+      "headers": {
+        "X-Content-Type-Options": "nosniff",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "X-Frame-Options": "DENY",
+        "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+      },
+      "continue": true
+    },
+    {
       "src": "/api/junior/(.*)",
       "dest": "https://rsp.laplaceta.org/api/junior/$1"
     },
@@ -133,15 +174,59 @@
       "src": "/studio/?$",
       "status": 308,
       "headers": {
-        "Location": "/crear-actividad"
+        "Location": "/edu/studio"
       }
     },
     {
       "src": "/studio.html",
       "status": 308,
       "headers": {
-        "Location": "/crear-actividad"
+        "Location": "/edu/studio"
       }
+    },
+    {
+      "src": "/edu/?$",
+      "dest": "/public/edu/index.html"
+    },
+    {
+      "src": "/edu/alta/?$",
+      "dest": "/public/centros/index.html"
+    },
+    {
+      "src": "/edu/centros/?$",
+      "dest": "/public/centros/panel.html"
+    },
+    {
+      "src": "/edu/administracion/?$",
+      "dest": "/public/educacion/admin.html"
+    },
+    {
+      "src": "/edu/studio/?$",
+      "dest": "/public/studio-creadores.html"
+    },
+    {
+      "src": "/edu/documentos/(.*)",
+      "dest": "/public/centros/docs/$1"
+    },
+    {
+      "src": "/edu/assets/centros/(.*)",
+      "dest": "/public/centros/assets/$1"
+    },
+    {
+      "src": "/edu/assets/portal\\.css",
+      "dest": "/public/educacion/portal.css"
+    },
+    {
+      "src": "/edu/assets/portal\\.js",
+      "dest": "/public/educacion/portal.js"
+    },
+    {
+      "src": "/edu/assets/studio-creadores\\.css",
+      "dest": "/public/studio-creadores.css"
+    },
+    {
+      "src": "/edu/assets/studio-creadores\\.js",
+      "dest": "/public/studio-creadores.js"
     },
     {
       "src": "/crear-actividad",
@@ -163,7 +248,7 @@
       "src": "/educacion$",
       "status": 308,
       "headers": {
-        "Location": "/educacion/"
+        "Location": "/edu/centros"
       }
     },
     {

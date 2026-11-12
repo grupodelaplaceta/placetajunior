@@ -10,9 +10,9 @@ const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 test('el editor de creación es la única ruta pública de Studio y redirige el acceso antiguo', () => {
   const config = JSON.parse(read('vercel.json'));
   assert.ok(config.routes.some((route) => route.src === '/crear-actividad' && route.dest === '/public/studio-creadores.html'));
-  assert.ok(config.routes.some((route) => route.src === '/studio/?$' && route.status === 308 && route.headers.Location === '/crear-actividad'));
-  assert.ok(config.routes.some((route) => route.src === '/studio.html' && route.status === 308 && route.headers.Location === '/crear-actividad'));
-  assert.match(read('public/centros/panel.html'), /href="\/crear-actividad">Studio<\/a>/);
+  assert.ok(config.routes.some((route) => route.src === '/studio/?$' && route.status === 308 && route.headers.Location === '/edu/studio'));
+  assert.ok(config.routes.some((route) => route.src === '/studio.html' && route.status === 308 && route.headers.Location === '/edu/studio'));
+  assert.match(read('public/centros/panel.html'), /href="\/edu\/studio">Studio<\/a>/);
   assert.match(read('public/centros/panel.html'), /data-nav-add-center hidden/);
 });
 
@@ -27,6 +27,13 @@ test('el lienzo y el borrador solo se inicializan tras verificar permisos activo
   const handler = read('lib/centros/handlers.js');
   assert.match(handler, /docenteAprobado, solicitudes/);
   assert.match(handler, /res\.setHeader\('Cache-Control', 'no-store'\);\s+const u = await exigirUsuario\(req\)/);
+});
+
+test('la barra de dispositivos de la vista previa tiene el id que enlaza Studio', () => {
+  const html = read('public/studio-creadores.html');
+  const js = read('public/studio-creadores.js');
+  assert.match(html, /class="preview-device-options" id="preview-device-options"/);
+  assert.match(js, /\$\('preview-device-options'\)\.addEventListener\('click'/);
 });
 
 test('el editor incluye cuatro plantillas y editor visual para tipos comunes', () => {
@@ -138,7 +145,7 @@ test('la vista previa se abre integrada y explica el acabado editorial', () => {
 test('el portal educativo ofrece el editor en castellano, catalán e inglés', () => {
   const html = read('public/index.html');
   const pagina = html.slice(html.indexOf('function educacionPage()'), html.indexOf('function home()'));
-  assert.match(pagina, /ac\('\/crear-actividad'/);
+  assert.match(pagina, /ac\('\/edu\/studio'/);
   assert.match(pagina, /Crear una actividad/);
   assert.match(pagina, /Crear una activitat/);
   assert.match(pagina, /Create an activity/);
