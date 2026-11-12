@@ -142,7 +142,7 @@
       { "tipo": "silabas", "datos": { "palabras": [ { "palabra": "MARIPOSA", "silabas": ["MA","RI","PO","SA"] } ] } },
       { "tipo": "vf_rapido", "datos": { "segundos": 12, "afirmaciones": [ { "texto": "El Sol es una estrella.", "verdadero": true, "explicacion": "Es la más cercana." } ] } },
       { "tipo": "ruleta_preguntas", "datos": { "preguntas": [ { "categoria": "Ciencias", "pregunta": "¿Cuántos planetas hay?", "opciones": ["7","8","9"], "correcta": 1 } ] } },
-      { "tipo": "code_blocks", "titulo": "Haz llegar a Candela a la estrella", "lenguaje": "placeta_blocks", "objetivo_texto": "Programa a Candela para llegar a la estrella", "ejercicios": [ { "titulo": "Avanza 1 casilla", "explicacion": "Pulsa el bloque AVANZAR una vez.", "objetivo_texto": "Lleva a Candela hasta la estrella (1,0).", "bloques_permitidos": ["avanzar"], "escenario": { "tipo": "cuadricula", "ancho": 6, "alto": 6, "obstaculos": [], "monedas": [] }, "inicio": { "x": 0, "y": 0, "direccion": "derecha" }, "objetivo": { "posicion": { "x": 1, "y": 0 }, "max_pasos": 4 }, "pistas": ["Añade 1 bloque AVANZAR."] }, { "titulo": "Esquiva la roca", "explicacion": "Ahora hay una roca. Usa GIRAR para esquivarla.", "objetivo_texto": "Lleva a Candela hasta la estrella (3,1).", "bloques_permitidos": ["avanzar", "girar"], "escenario": { "tipo": "cuadricula", "ancho": 6, "alto": 6, "obstaculos": [{"x": 2, "y": 0}], "monedas": [] }, "inicio": { "x": 0, "y": 0, "direccion": "derecha" }, "objetivo": { "posicion": { "x": 3, "y": 1 }, "max_pasos": 10 }, "pistas": ["Avanza, gira, pasa y vuelve."] } ] }
+      { "tipo": "code_blocks", "titulo": "Misión de Candela", "lenguaje": "placeta_blocks", "objetivo_texto": "Resuelve retos progresivos programando a Candela.", "ejercicios": [ { "identificador": "PJC-001", "etapa": "Primaria", "dificultad": "Inicial", "titulo": "Primeros pasos", "explicacion": "Cada bloque AVANZAR mueve una casilla.", "objetivo_texto": "Llega a la estrella (2,0).", "bloques_permitidos": ["avanzar"], "escenario": { "tipo": "cuadricula", "ancho": 6, "alto": 6, "obstaculos": [], "monedas": [] }, "inicio": { "x": 0, "y": 0, "direccion": "derecha" }, "objetivo": { "posicion": { "x": 2, "y": 0 }, "max_pasos": 4 }, "pistas": ["Añade dos bloques AVANZAR."] }, { "identificador": "PJC-002", "etapa": "Primaria", "dificultad": "Intermedia", "titulo": "Rodea la roca", "explicacion": "Planifica cómo evitar el obstáculo.", "objetivo_texto": "Llega a la estrella (1,1).", "bloques_permitidos": ["avanzar", "girar"], "escenario": { "tipo": "cuadricula", "ancho": 6, "alto": 6, "obstaculos": [{ "x": 1, "y": 0 }], "monedas": [] }, "inicio": { "x": 0, "y": 0, "direccion": "derecha" }, "objetivo": { "posicion": { "x": 1, "y": 1 }, "max_pasos": 4 }, "pistas": ["Avanza una casilla, gira y vuelve a avanzar."] }, { "identificador": "PJC-003", "etapa": "Secundaria", "dificultad": "Avanzada", "titulo": "Decide qué hacer", "explicacion": "SI ejecuta una rama y SI NO la alternativa.", "objetivo_texto": "Si hay un obstáculo, gira y avanza.", "bloques_permitidos": ["avanzar", "girar", "si"], "escenario": { "tipo": "cuadricula", "ancho": 6, "alto": 6, "obstaculos": [{ "x": 1, "y": 0 }], "monedas": [] }, "inicio": { "x": 0, "y": 0, "direccion": "derecha" }, "objetivo": { "posicion": { "x": 0, "y": 1 }, "max_pasos": 2, "debe_usar": ["si"] }, "pistas": ["Abre SI y añade una rama SI NO si te ayuda."] } ] }
     ]
   }
 }
@@ -158,7 +158,7 @@ Reglas:
 - FUENTES DE IMÁGENES: si usas una imagen real, indica SIEMPRE su procedencia en "fuente" (bloque) o "izq_fuente" (pareja), p. ej. "Foto: NASA · dominio público". Si la imagen es decorativa o inventada, deja la fuente en blanco.
 - URLS DE IMAGEN: escribe SIEMPRE la URL directa ("https://...") en "imagen_url" o "izq_img". NUNCA la envuelvas como enlace Markdown [texto](url), aunque la URL contenga ':' (p. ej. https://commons.wikimedia.org/wiki/Special:FilePath/Bandera_de_España.svg o .../wiki/Special:Redirect/file/X.svg): el ':' parte el enlace y la imagen no se muestra.
 - PRECIOS Y RECOMPENSA (en Pz, IVA incluido): usa 0 para gratis. "precio_licencia" es lo que cuesta desbloquear la actividad para siempre, "precio_intento" lo que cuesta cada intento, "recompensa" el MÁXIMO que gana el niño al completarla (el backend la ajusta según aciertos y errores) y "subvencionada" true solo si una entidad la cubre (entonces es gratis para el niño).
-- CODE_BLOCKS (Placeta Junior Code): crea una lista `ejercicios` con 3-5 retos progresivos (del más fácil al más difícil). Cada ejercicio tiene: `titulo`, `explicacion` (frase corta explicando qué hacer), `objetivo_texto`, `bloques_permitidos` (solo los necesarios para ese ejercicio: avanzar, retroceder, girar, saltar, repetir, si), `escenario` de cuadrícula (ancho/alto, obstáculos y monedas), `inicio` (x,y,direccion de Candela) y `objetivo` (posicion x,y, opcionalmente monedas/max_pasos/debe_usar) y `pistas`. El objetivo siempre es llevar a Candela (👧) a la estrella (⭐) sin chocar. Empieza con ejercicios muy sencillos (solo AVANZAR) y añade GIRAR, luego obstáculos, REPETIR y SI poco a poco.
+- CODE_BLOCKS (Placeta Junior Code): si la petición incluye programación o pensamiento computacional, genera una actividad `code_blocks` con `lenguaje: "placeta_blocks"` y entre 5 y 8 retos progresivos (salvo que el usuario pida otra cantidad). Cada reto debe tener `identificador` único tipo `PJC-001`, `etapa` (`Primaria` o `Secundaria`), `dificultad` (`Inicial`, `Intermedia` o `Avanzada`), `titulo`, `explicacion` breve, `objetivo_texto`, `bloques_permitidos`, `escenario`, `inicio`, `objetivo` y una o más `pistas`. Usa `escenario: {"tipo":"cuadricula","ancho":6,"alto":6,"obstaculos":[],"monedas":[]}` y coordenadas enteras desde 0; el inicio, la estrella, monedas y obstáculos deben caber dentro de la cuadrícula y no ocupar una misma casilla. `inicio.direccion` será `derecha`, `abajo`, `izquierda` o `arriba`; `objetivo.posicion` marca la estrella. Comprueba mentalmente que existe una solución válida con los bloques permitidos y respeta `max_pasos`. Escalona el aprendizaje: secuencias y giros; planificación y obstáculos; monedas; bucles `repetir` (`veces` entre 1 y 50); decisiones `si` con condición `obstaculo`, `moneda`, `libre`, `borde` o `estrella`; y, si conviene, giro `girar_180`. Para los condicionales puedes incluir `bloques` (rama SI) y `bloques_no` (rama SI NO); cada bloque anidado es `{ "op": "avanzar" }`, `{ "op": "girar", "dir": "derecha" }` o `{ "op": "repetir", "veces": 2, "bloques": [...] }`. No escribas la solución en el reto que debe resolver el alumnado. Usa `objetivo.debe_usar` solo si ese bloque está permitido y es necesario para el aprendizaje. Incluye `objetivo.monedas` solo si el escenario tiene suficientes monedas alcanzables. Distribuye retos entre Primaria y Secundaria y aumenta gradualmente la dificultad; el enunciado y las pistas deben ser claros para la edad elegida.
 - En completar, usa palabras en SINGULAR y, en modo opciones, escribe "opciones" (distractores).
 - En mapa_mundi, usa solo países conocidos (España, Francia, Italia, Portugal, Reino Unido, Alemania, Egipto, Brasil, México, Estados Unidos, Canadá, China, India, Japón, Australia…).
 - En mapa_espana, escribe "modo": "comunidades" o "provincias" y en "objetivos" nombres en español (p. ej. "Asturias", "Toledo", "Castilla y León"). NUNCA añadas listas ni pistas que revelen dónde está la respuesta: el niño debe localizarla mirando el mapa.
@@ -186,6 +186,12 @@ Reglas:
         <button class="btn btn-outline" onclick="plantilla('cazador_errores')">Errores</button>
         <button class="btn btn-outline" onclick="plantilla('lectura_interactiva')">Lectura</button>
         <button class="btn btn-outline" onclick="plantilla('dinero_euro')">Euros</button>
+      </div>
+      <h3>Placeta Junior Code</h3>
+      <p class="sub">Crea retos de pensamiento computacional para Primaria y Secundaria con bloques, bucles y decisiones.</p>
+      <div class="row">
+        <button class="btn btn-outline" onclick="plantillaCode()">Placeta Junior Code · 8 retos</button>
+        <a class="btn btn-outline" href="/crear-actividad">Abrir en Studio</a>
       </div>
       <h3>Juegos matemáticos</h3>
       <div class="row">
@@ -334,6 +340,112 @@ Reglas:
       $('codigo').value = JSON.stringify({ titulo: plantilla.titulo, descripcion:'Actividad educativa Placeta Junior', categoria:'Matemáticas', edad_recomendada:'6-12', dificultad:'media', tiempo_estimado:10, recompensa:0, contenido:{version:2,bloques:[bloque]} }, null, 2);
       $('titulo').value = plantilla.titulo; $('descripcion').value = 'Actividad educativa Placeta Junior'; $('categoria').value = 'Matemáticas'; $('codigo').focus(); detectarCampos();
     }
+    function plantillaCode() {
+      const ejercicios = [
+        {
+          identificador: 'PJC-001', etapa: 'Primaria', dificultad: 'Inicial',
+          titulo: 'Primeros pasos', explicacion: 'Cada bloque AVANZAR mueve a Candela una casilla.',
+          objetivo_texto: 'Llega a la estrella (2,0).', bloques_permitidos: ['avanzar'],
+          escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [] },
+          inicio: { x: 0, y: 0, direccion: 'derecha' },
+          objetivo: { posicion: { x: 2, y: 0 }, max_pasos: 4 },
+          pistas: ['Cuenta las casillas que separan a Candela de la estrella.']
+        },
+        {
+          identificador: 'PJC-002', etapa: 'Primaria', dificultad: 'Inicial',
+          titulo: 'Gira correctamente', explicacion: 'Un giro cambia hacia dónde mira Candela.',
+          objetivo_texto: 'Llega a la estrella girando y avanzando.', bloques_permitidos: ['avanzar', 'girar'],
+          escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [] },
+          inicio: { x: 0, y: 0, direccion: 'derecha' },
+          objetivo: { posicion: { x: 1, y: 1 }, max_pasos: 4 },
+          pistas: ['Avanza una casilla, gira a la derecha y vuelve a avanzar.']
+        },
+        {
+          identificador: 'PJC-003', etapa: 'Primaria', dificultad: 'Intermedia',
+          titulo: 'El laberinto', explicacion: 'Planifica cómo rodear la roca sin chocar.',
+          objetivo_texto: 'Llega a la estrella usando el camino libre.', bloques_permitidos: ['avanzar', 'girar'],
+          escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [{ x: 1, y: 0 }], monedas: [] },
+          inicio: { x: 0, y: 0, direccion: 'derecha' },
+          objetivo: { posicion: { x: 1, y: 1 }, max_pasos: 4 },
+          pistas: ['Gira a la derecha para pasar por debajo de la roca.']
+        },
+        {
+          identificador: 'PJC-004', etapa: 'Primaria', dificultad: 'Intermedia',
+          titulo: 'Recoge la moneda', explicacion: 'Agrupa pasos repetidos en un bucle.',
+          objetivo_texto: 'Recoge la moneda y llega a la estrella usando REPETIR.',
+          bloques_permitidos: ['avanzar', 'repetir'],
+          escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [{ x: 1, y: 0 }] },
+          inicio: { x: 0, y: 0, direccion: 'derecha' },
+          objetivo: { posicion: { x: 3, y: 0 }, monedas: 1, max_pasos: 4, debe_usar: ['repetir'] },
+          pistas: ['Repite AVANZAR tres veces.']
+        },
+        {
+          identificador: 'PJC-005', etapa: 'Primaria', dificultad: 'Avanzada',
+          titulo: 'La puerta secreta', explicacion: 'Un condicional permite decidir según lo que haya delante.',
+          objetivo_texto: 'Si hay un obstáculo delante, gira y avanza.',
+          bloques_permitidos: ['avanzar', 'girar', 'si'],
+          escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [{ x: 1, y: 0 }], monedas: [] },
+          inicio: { x: 0, y: 0, direccion: 'derecha' },
+          objetivo: { posicion: { x: 0, y: 1 }, max_pasos: 3, debe_usar: ['si'] },
+          pistas: ['Dentro de SI coloca GIRAR a la derecha y AVANZAR.']
+        },
+        {
+          identificador: 'PJC-006', etapa: 'Secundaria', dificultad: 'Intermedia',
+          titulo: 'El robot perdido', explicacion: 'Usa un sensor para detectar una moneda.',
+          objetivo_texto: 'Usa SI para recoger la moneda que está delante.',
+          bloques_permitidos: ['avanzar', 'si'],
+          escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [{ x: 1, y: 0 }] },
+          inicio: { x: 0, y: 0, direccion: 'derecha' },
+          objetivo: { posicion: { x: 1, y: 0 }, monedas: 1, max_pasos: 2, debe_usar: ['si'] },
+          pistas: ['Cambia la condición de SI a moneda e incluye AVANZAR dentro.']
+        },
+        {
+          identificador: 'PJC-007', etapa: 'Secundaria', dificultad: 'Intermedia',
+          titulo: 'Rescate espacial', explicacion: 'GIRAR 180° invierte la dirección.',
+          objetivo_texto: 'Da media vuelta y vuelve una casilla.',
+          bloques_permitidos: ['avanzar', 'girar_180'],
+          escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [] },
+          inicio: { x: 2, y: 0, direccion: 'derecha' },
+          objetivo: { posicion: { x: 1, y: 0 }, max_pasos: 2, debe_usar: ['girar_180'] },
+          pistas: ['Primero gira 180 grados y después avanza.']
+        },
+        {
+          identificador: 'PJC-008', etapa: 'Secundaria', dificultad: 'Avanzada',
+          titulo: 'El tesoro escondido', explicacion: 'Resuelve el reto con menos instrucciones.',
+          objetivo_texto: 'Llega a la estrella con un bucle REPETIR.',
+          bloques_permitidos: ['avanzar', 'repetir'],
+          escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [] },
+          inicio: { x: 0, y: 0, direccion: 'derecha' },
+          objetivo: { posicion: { x: 5, y: 0 }, max_pasos: 5, debe_usar: ['repetir'] },
+          pistas: ['Un bucle con cinco AVANZAR dentro reduce bloques duplicados.']
+        }
+      ];
+      const titulo = 'Placeta Junior Code: misión de Candela';
+      const descripcion = 'Itinerario progresivo de pensamiento computacional para Primaria y Secundaria.';
+      const actividad = {
+        titulo, descripcion, categoria: 'Pensamiento computacional',
+        edad_recomendada: '8-14', dificultad: 'media', tiempo_estimado: 20,
+        precio_licencia: 0, precio_intento: 0, recompensa: 0, subvencionada: false,
+        contenido: {
+          version: 2,
+          bloques: [{
+            tipo: 'code_blocks', titulo, lenguaje: 'placeta_blocks',
+            objetivo_texto: 'Resuelve retos progresivos programando a Candela con bloques.',
+            ejercicios
+          }]
+        }
+      };
+      $('codigo').value = JSON.stringify(actividad, null, 2);
+      $('titulo').value = titulo;
+      $('descripcion').value = descripcion;
+      $('categoria').value = 'Pensamiento computacional';
+      $('edad').value = '8-14';
+      $('dificultad').value = 'media';
+      $('tiempo').value = '20';
+      $('codigo').focus();
+      detectarCampos();
+    }
+
     function plantillaPrim(tipo) {
       const D = {
         reloj: ['El reloj', 'Pon el reloj a la hora que se pide.', { modo: 'poner', ejercicios: [{ hora: '03:30' }, { hora: '09:00' }, { hora: '06:15', modo: 'leer' }] }],

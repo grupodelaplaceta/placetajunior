@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#4d0db3">
+  <meta name="robots" content="noindex">
+  <title>404 · Página no encontrada | Placeta Junior</title>
+  <meta name="description" content="No encontramos esta página. Vuelve a Placeta Junior y sigue aprendiendo jugando.">
+  <link rel="icon" type="image/png" href="/favijunior.png">
+  <link rel="stylesheet" href="/css/accesibilidad.css">
+  <script src="/js/accesibilidad.js" defer></script>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --page: #f7f4ff;
+      --card: #fff;
+      --ink: #21164a;
+      --muted: #625b80;
+      --purple: #5b14c8;
+      --purple-dark: #3f0c95;
+      --orange: #ff8a00;
+      --yellow: #ffd21f;
+      font-family: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --page: #150f2e;
+        --card: #211946;
+        --ink: #f4f1ff;
+        --muted: #c2bce0;
+        --purple: #b99aff;
+        --purple-dark: #d3c4ff;
+      }
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      min-height: 100svh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      padding: max(24px, env(safe-area-inset-top)) 20px max(24px, env(safe-area-inset-bottom));
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 12% 18%, rgba(255, 210, 31, .19), transparent 28rem),
+        radial-gradient(ellipse at 88% 82%, rgba(122, 43, 230, .13), transparent 30rem),
+        var(--page);
+    }
+    main { width: min(100%, 620px); text-align: center; }
+    .card {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(28px, 7vw, 56px);
+      border: 1px solid rgba(122, 43, 230, .13);
+      border-radius: 32px;
+      background: var(--card);
+      box-shadow: 0 24px 70px rgba(48, 22, 105, .15);
+      animation: arrive .55s cubic-bezier(.2, .8, .2, 1) both;
+    }
+    .card::before {
+      position: absolute;
+      inset: 0 0 auto;
+      height: 8px;
+      background: linear-gradient(90deg, #ff4b4b 0 20%, var(--orange) 20% 40%, var(--yellow) 40% 60%, #2fcb3b 60% 80%, #2e8bff 80%);
+      content: "";
+    }
+    .logo { display: inline-flex; margin: 0 auto 18px; }
+    .logo img { display: block; width: min(210px, 58vw); height: auto; }
+    .illustration { display: block; width: min(100%, 310px); height: auto; margin: 0 auto 12px; }
+    h1 { margin: 0; color: var(--purple); font-size: clamp(28px, 6vw, 42px); line-height: 1.15; }
+    p { max-width: 39ch; margin: 14px auto 0; color: var(--muted); font-size: clamp(16px, 2.5vw, 19px); line-height: 1.55; }
+    .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 28px; }
+    .button {
+      display: inline-flex;
+      min-height: 48px;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 20px;
+      border: 2px solid transparent;
+      border-radius: 999px;
+      color: #fff;
+      background: var(--purple);
+      box-shadow: 0 4px 0 var(--purple-dark);
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.2;
+      text-decoration: none;
+      transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
+    }
+    .button:hover { transform: translateY(-2px); box-shadow: 0 6px 0 var(--purple-dark); }
+    .button.secondary { border-color: rgba(122, 43, 230, .25); color: var(--purple); background: var(--card); box-shadow: none; }
+    .button.secondary:hover { background: var(--page); }
+    .button:focus-visible { outline: 3px solid #2e8bff; outline-offset: 4px; }
+    .code { margin-top: 24px; color: var(--muted); font-size: 13px; font-weight: 600; letter-spacing: .12em; }
+    @keyframes arrive { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+    @media (max-width: 420px) {
+      .card { border-radius: 24px; }
+      .actions { flex-direction: column; }
+      .button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="card" aria-labelledby="page-title">
+      <a class="logo" href="/" aria-label="Placeta Junior, ir al inicio">
+        <img src="/img/PJ-COLOR-LOGO.png" alt="Placeta Junior" width="210" height="92">
+      </a>
+      <svg class="illustration" viewBox="0 0 320 180" role="img" aria-labelledby="illustration-title">
+        <title id="illustration-title">Una estrella se ha perdido en el espacio</title>
+        <path d="M56 127c28-19 47-20 72-12m65-59c20 7 37 21 51 42" fill="none" stroke="#a78bfa" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 12"/>
+        <circle cx="160" cy="91" r="67" fill="#efe8ff"/>
+        <circle cx="160" cy="91" r="55" fill="#5b14c8"/>
+        <path d="M160 53l10 23 25 2-19 16 6 25-22-13-22 13 6-25-19-16 25-2z" fill="#ffd21f" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>
+        <circle cx="72" cy="54" r="7" fill="#ff8a00"/>
+        <circle cx="252" cy="132" r="6" fill="#2fcb3b"/>
+        <path d="M245 42l3 8 9 1-7 6 2 9-7-5-8 5 3-9-7-6 9-1zM80 132l2 5 6 1-5 4 1 6-4-3-5 3 2-6-5-4 6-1z" fill="#ffd21f"/>
+        <text x="160" y="157" fill="#5b14c8" font-family="system-ui,sans-serif" font-size="15" font-weight="800" text-anchor="middle">404</text>
+      </svg>
+      <h1 id="page-title">¡Vaya! Esta página se ha perdido</h1>
+      <p>La dirección no existe o ha cambiado. Volvamos a un lugar conocido y seguimos aprendiendo juntos.</p>
+      <nav class="actions" aria-label="Opciones para continuar">
+        <a class="button" href="/">⌂ <span>Ir al inicio</span></a>
+        <a class="button secondary" href="/#/actividades">★ <span>Ver actividades</span></a>
+      </nav>
+      <div class="code">ERROR 404 · PÁGINA NO ENCONTRADA</div>
+    </section>
+  </main>
+</body>
+</html>

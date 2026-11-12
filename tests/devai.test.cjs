@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
+const vm = require('node:vm');
 
 const html = fs.readFileSync(path.join(__dirname, '..', 'public', 'devai.html'), 'utf8');
 
@@ -25,6 +26,54 @@ test('DevAI incluye Pensamiento computacional y sus nombres regionales en traduc
   assert.match(html, /categoría `Pensamiento computacional`[\s\S]*`BOTXIFRA` en `ca`[\s\S]*`Pensament computacional` en `val`[\s\S]*`STEM` en `en`/);
   assert.match(html, /actividad educativa de Primaria que combina matemáticas, pensamiento lógico, informática y robótica/);
   assert.match(html, /<option>Pensamiento computacional<\/option>/);
+});
+
+test('DevAI ofrece una plantilla ejecutable de Placeta Junior Code para Primaria y Secundaria', () => {
+  const start = html.indexOf('    function plantillaCode() {');
+  const end = html.indexOf('    function plantillaPrim(tipo) {', start);
+  assert.ok(start >= 0 && end > start, 'debe estar definida la plantilla antes de las plantillas de Primaria');
+  assert.match(html, /onclick="plantillaCode\(\)">Placeta Junior Code · 8 retos/);
+  assert.match(html, /href="\/crear-actividad">Abrir en Studio/);
+  assert.match(html, /CODE_BLOCKS \(Placeta Junior Code\)[\s\S]*`bloques_no` \(rama SI NO\)/);
+
+  const fields = Object.fromEntries(['codigo', 'titulo', 'descripcion', 'categoria', 'edad', 'dificultad', 'tiempo']
+    .map((id) => [id, { value: '', focus() {} }]));
+  const context = { $, detectarCampos() {} };
+  function $(id) { return fields[id]; }
+  vm.runInNewContext(`${html.slice(start, end)}; plantillaCode();`, context);
+
+  const activity = JSON.parse(fields.codigo.value);
+  const block = activity.contenido.bloques[0];
+  assert.equal(block.tipo, 'code_blocks');
+  assert.equal(block.lenguaje, 'placeta_blocks');
+  assert.equal(block.ejercicios.length, 8);
+  assert.deepEqual(block.ejercicios.map((exercise) => exercise.identificador), [
+    'PJC-001', 'PJC-002', 'PJC-003', 'PJC-004',
+    'PJC-005', 'PJC-006', 'PJC-007', 'PJC-008'
+  ]);
+  assert.ok(block.ejercicios.some((exercise) => exercise.etapa === 'Primaria'));
+  assert.ok(block.ejercicios.some((exercise) => exercise.etapa === 'Secundaria'));
+  assert.ok(block.ejercicios[6].bloques_permitidos.includes('girar_180'));
+  assert.equal(fields.categoria.value, 'Pensamiento computacional');
+
+  const engineWindow = {};
+  const engineSource = fs.readFileSync(path.join(__dirname, '..', 'public', 'js', 'code-engine.js'), 'utf8');
+  vm.runInNewContext(engineSource, { window: engineWindow });
+  const solutions = [
+    [{ op: 'avanzar' }, { op: 'avanzar' }],
+    [{ op: 'avanzar' }, { op: 'girar', dir: 'derecha' }, { op: 'avanzar' }],
+    [{ op: 'girar', dir: 'derecha' }, { op: 'avanzar' }, { op: 'girar', dir: 'izquierda' }, { op: 'avanzar' }],
+    [{ op: 'repetir', veces: 3, bloques: [{ op: 'avanzar' }] }],
+    [{ op: 'si', condicion: 'obstaculo', bloques: [{ op: 'girar', dir: 'derecha' }, { op: 'avanzar' }] }],
+    [{ op: 'si', condicion: 'moneda', bloques: [{ op: 'avanzar' }] }],
+    [{ op: 'girar_180' }, { op: 'avanzar' }],
+    [{ op: 'repetir', veces: 5, bloques: [{ op: 'avanzar' }] }]
+  ];
+  block.ejercicios.forEach((exercise, index) => {
+    const result = engineWindow.PJCode.ejecutarCode(exercise.escenario, exercise.inicio, solutions[index]);
+    const evaluation = engineWindow.PJCode.evaluarCode(exercise.escenario, exercise.inicio, exercise.objetivo, solutions[index], result);
+    assert.equal(evaluation.superado, true, `${exercise.identificador}: ${evaluation.fallos.join('; ')}`);
+  });
 });
 
 test('DevAI ofrece plantillas para las actividades matemáticas nuevas', () => {

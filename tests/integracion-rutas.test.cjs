@@ -19,6 +19,17 @@ test('cada destino de /api apunta a una función existente', () => {
   }
 });
 
+test('el sitio incluye una página 404 estática y la ruta comodín queda al final', () => {
+  const page404 = fs.readFileSync(path.join(raiz, 'public/404.html'), 'utf8');
+  const fallbackIndex = vercel.routes.findIndex((route) => route.src === '/(.*)');
+
+  assert.ok(fallbackIndex >= 0);
+  assert.equal(fallbackIndex, vercel.routes.length - 1);
+  assert.match(page404, /<title>404 · Página no encontrada \| Placeta Junior<\/title>/);
+  assert.match(page404, /href="\/#\/actividades"/);
+  assert.match(page404, /name="robots" content="noindex"/);
+});
+
 test('las rutas API apuntan a los archivos de función generados por Vercel', () => {
   for (const r of vercel.routes.filter((ruta) => ruta.src.startsWith('/api/') && ruta.src !== '/api/junior/(.*)')) {
     assert.match(r.dest || '', /^\/api\/(centros|educacion)\.js\?/ , r.src);
