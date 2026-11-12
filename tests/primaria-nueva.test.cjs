@@ -81,9 +81,9 @@ test('las nuevas actividades adaptan sus componentes a pantallas estrechas', () 
   assert.match(css, /\.pn-screen \.pn-vrow\s*\{[^}]*minmax\(38px,\s*1fr\)/);
   assert.match(css, /\.pn-screen \.pn-clockwrap:has\([^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/);
   assert.match(css, /\.pn-screen \.pn-keys\s*\{[^}]*minmax\(0,\s*1fr\)/);
-  assert.match(jugar, /primaria-nueva\.css\?v=20261028-responsive/);
-  assert.match(preview, /primaria-nueva\.css\?v=20261028-responsive/);
-  assert.match(sw, /placetajunior-assets-v16/);
+  assert.match(jugar, /primaria-nueva\.css\?v=20261028-hints/);
+  assert.match(preview, /primaria-nueva\.css\?v=20261028-hints/);
+  assert.match(sw, /placetajunior-assets-v17/);
 });
 
 test('el editor del Studio configura todos los tipos nuevos', () => {
@@ -113,6 +113,34 @@ test('el tipo horas respeta las horas y ejercicios que define el docente', () =>
   const duracion = motor.crear({ tipo: 'horas', datos: { modo: 'duracion', ejercicios: [{ inicio: '23:30', fin: '00:30' }] } })[0].s;
   assert.equal(duracion.start, 1410);
   assert.equal(duracion.end, 1470);
+});
+
+test('el reloj explica sus controles con etiquetas y traducciones accesibles', () => {
+  for (const [idioma, instruccion] of [['es', 'Cambia la hora'], ['ca', 'Canvia l’hora'], ['en', 'Change the hour']]) {
+    const context = cargarMotor();
+    context.localStorage.getItem = () => JSON.stringify({ idioma });
+    const motor = context.PJPNueva;
+    const task = motor.crear({ tipo: 'horas', datos: { modo: 'poner', ejercicios: [{ hora: '09:15' }] } })[0];
+    const html = motor.render(task.s, task.e);
+    assert.match(html, /data-v="h-" aria-label="[^"]+"/);
+    assert.match(html, /data-v="h\+" aria-label="[^"]+"/);
+    assert.match(html, /data-v="m-" aria-label="[^"]+"/);
+    assert.match(html, /data-v="m\+" aria-label="[^"]+"/);
+    assert.ok(html.includes(instruccion), `debe traducir los controles al idioma ${idioma}`);
+    assert.ok(html.includes('<strong>+1 / −1</strong>'));
+    assert.match(html, /class="pn-control-note"[^>]*>[\s\S]*<strong>/);
+  }
+});
+
+test('las ayudas emergentes tienen alto contraste, animación y movimiento reducido', () => {
+  const css = fs.readFileSync(path.join(root, 'public', 'css', 'actividades', 'primaria-nueva.css'), 'utf8');
+  const core = fs.readFileSync(path.join(root, 'public', 'js', 'actividades', 'core.js'), 'utf8');
+  assert.match(css, /\.pn-tooltip\s*\{[^}]*background:\s*#24134d[^}]*color:\s*#fff/);
+  assert.match(css, /\.pn-tooltip\.is-visible\s*\{[^}]*pn-hint-in/);
+  assert.match(css, /prefers-reduced-motion:\s*reduce\)\s*\{\s*\.pn-tooltip/);
+  assert.match(core, /aria-describedby/);
+  assert.match(core, /pointerover/);
+  assert.match(core, /focusin/);
 });
 
 test('horas usa el diseño de reloj elegido y mide figuras rectangulares', () => {

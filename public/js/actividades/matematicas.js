@@ -439,13 +439,16 @@
     if (s.modo === 'sumar') return cab('horas', t('hora.end', { a: fmt24(s.start), d: durFmt(s.dur) })) + `<div class="pn-clockwrap">${clockView(Math.floor(s.start / 60) % 12, s.start % 60, s.reloj, Math.floor(s.start / 60) % 24)}</div>` + opts(idx, e, s.op, s.cor, 'pn_q', mn => esc(fmt24(mn)), true) + msg(e);
     if (s.modo === 'duracion') return cab('horas', t('hora.dur', { a: fmt24(s.start), b: fmt24(s.end) })) + opts(idx, e, s.op, s.cor, 'pn_q', dm => esc(durFmt(dm)), true) + msg(e);
     const h12 = e.h || 12;
+    const textoAjuste = esc(t('hora.adjustHint')).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    const ariaHint = key => esc(t(key).replace(/\*\*/g, ''));
     return cab('horas', t('hora.set', { h: s.label })) +
       `<div class="pn-clockwrap">${clockView(e.h, e.m, s.reloj, s.reloj === 'analogico' ? h12 : e.h)}</div>` +
       (s.reloj === 'analogico' ? `<div class="pn-digital" aria-live="polite">${h12}:${pad2(e.m)}</div>` : '') +
-      `<div class="pn-tadj">` +
-      `<div class="pn-adj"><span>${esc(t('hora.hour'))}</span><button type="button" class="pn-btn sm" data-pn="hr_adj" data-i="${idx}" data-v="h-">−</button><button type="button" class="pn-btn sm" data-pn="hr_adj" data-i="${idx}" data-v="h+">+</button></div>` +
-      `<div class="pn-adj"><span>${esc(t('hora.min'))}</span><button type="button" class="pn-btn sm" data-pn="hr_adj" data-i="${idx}" data-v="m-">−5</button><button type="button" class="pn-btn sm" data-pn="hr_adj" data-i="${idx}" data-v="m+">+5</button></div>` +
+      `<div class="pn-tadj" role="group" aria-label="${esc(t('hora.adjustHint').replace(/\*\*/g, ''))}">` +
+      `<div class="pn-adj"><span>${esc(t('hora.hour'))}</span><button type="button" class="pn-btn sm" data-pn="hr_adj" data-i="${idx}" data-v="h-" aria-label="${ariaHint('hint.clock.hourDown')}">−1</button><button type="button" class="pn-btn sm" data-pn="hr_adj" data-i="${idx}" data-v="h+" aria-label="${ariaHint('hint.clock.hourUp')}">+1</button></div>` +
+      `<div class="pn-adj"><span>${esc(t('hora.min'))}</span><button type="button" class="pn-btn sm" data-pn="hr_adj" data-i="${idx}" data-v="m-" aria-label="${ariaHint('hint.clock.minuteDown')}">−5</button><button type="button" class="pn-btn sm" data-pn="hr_adj" data-i="${idx}" data-v="m+" aria-label="${ariaHint('hint.clock.minuteUp')}">+5</button></div>` +
       `</div>` +
+      `<p class="pn-control-note">${textoAjuste}</p>` +
       `<div class="pn-row">${btn('hr_chk', idx, t('check'), 'primary')}${btn('pn_show', idx, t('show'), 'ghost')}</div>` + msg(e);
   }
 

@@ -57,6 +57,104 @@
 
   const btn = (act, idx, label, cls) => `<button type="button" class="pn-btn${cls ? ' ' + cls : ''}" data-pn="${act}" data-i="${idx}">${esc(label)}</button>`;
 
+  const tooltips = {
+    hr_adj: { 'h+': 'hint.clock.hourUp', 'h-': 'hint.clock.hourDown', 'm+': 'hint.clock.minuteUp', 'm-': 'hint.clock.minuteDown' },
+    hr_chk: 'hint.clock.check',
+    pn_q: 'hint.answer',
+    pn_show: 'hint.solution',
+    v_dig: 'hint.number',
+    v_del: 'hint.delete',
+    v_chk: 'hint.check',
+    te_run: 'hint.run',
+    te_del: 'hint.undo',
+    din_add: 'hint.money.add',
+    din_quita: 'hint.money.remove',
+    ab_bead: 'hint.abacus',
+    si_cell: 'hint.symmetry'
+  };
+  let hintBubble = null, hintTarget = null, hintPending = null, hintTimer = 0;
+
+  function hintFor(el) {
+    const action = el.dataset.pn, value = el.dataset.v;
+    if (action === 'te_add') {
+      const direction = { n: 'dir.nb', s: 'dir.sb', e: 'dir.eb', o: 'dir.ob' }[value];
+      return direction ? t('hint.arrow', { direction: t(direction) }) : '';
+    }
+    const key = tooltips[action];
+    return typeof key === 'string' ? t(key) : (key && key[value] ? t(key[value]) : '');
+  }
+
+  function hideHint() {
+    window.clearTimeout(hintTimer);
+    hintPending = null;
+    if (hintTarget) {
+      const previous = hintTarget.dataset.pnHintDescription;
+      if (previous) hintTarget.setAttribute('aria-describedby', previous);
+      else hintTarget.removeAttribute('aria-describedby');
+      delete hintTarget.dataset.pnHintDescription;
+    }
+    hintBubble?.remove();
+    hintBubble = null;
+    hintTarget = null;
+  }
+
+  function showHint(el) {
+    const text = hintFor(el);
+    if (!text || el.disabled || hintTarget === el) return;
+    hideHint();
+    hintTarget = el;
+    hintBubble = document.createElement('div');
+    hintBubble.className = 'pn-tooltip';
+    hintBubble.id = 'pn-tooltip';
+    hintBubble.setAttribute('role', 'tooltip');
+    hintBubble.innerHTML = esc(text).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    const describedBy = el.getAttribute('aria-describedby') || '';
+    el.dataset.pnHintDescription = describedBy;
+    el.setAttribute('aria-describedby', `${describedBy} pn-tooltip`.trim());
+    document.body.appendChild(hintBubble);
+    requestAnimationFrame(() => {
+      if (!hintTarget || !hintBubble) return;
+      const rect = el.getBoundingClientRect(), bubble = hintBubble.getBoundingClientRect();
+      const left = Math.max(12, Math.min(window.innerWidth - bubble.width - 12, rect.left + rect.width / 2 - bubble.width / 2));
+      const top = rect.top >= bubble.height + 16 ? rect.top - bubble.height - 10 : Math.min(window.innerHeight - bubble.height - 12, rect.bottom + 10);
+      hintBubble.style.left = `${left}px`;
+      hintBubble.style.top = `${Math.max(12, top)}px`;
+      hintBubble.classList.add('is-visible');
+    });
+  }
+
+  document.addEventListener('pointerover', ev => {
+    if (ev.pointerType === 'touch' || !matchMedia('(hover: hover)').matches) return;
+    const el = ev.target?.closest?.('[data-pn]');
+    if (!el || (ev.relatedTarget && el.contains(ev.relatedTarget))) return;
+    window.clearTimeout(hintTimer);
+    hintPending = el;
+    hintTimer = window.setTimeout(() => {
+      if (hintPending === el) {
+        hintPending = null;
+        showHint(el);
+      }
+    }, 240);
+  });
+  document.addEventListener('pointerout', ev => {
+    const el = ev.target?.closest?.('[data-pn]');
+    if (el && !el.contains(ev.relatedTarget)) {
+      if (hintPending === el) {
+        window.clearTimeout(hintTimer);
+        hintPending = null;
+      }
+      if (hintTarget === el) hideHint();
+    }
+  });
+  document.addEventListener('focusin', ev => {
+    const el = ev.target?.closest?.('[data-pn]');
+    if (el) showHint(el);
+  });
+  document.addEventListener('focusout', ev => {
+    const el = ev.target?.closest?.('[data-pn]');
+    if (el && hintTarget === el) hideHint();
+  });
+
   // Mensaje de estado (texto traducido o texto libre en e.msg.txt)
   function msg(e) {
     const m = e && e.msg;
@@ -104,6 +202,7 @@
   document.addEventListener('click', ev => {
     const el = ev.target && ev.target.closest ? ev.target.closest('[data-pn]') : null;
     if (!el || el.disabled) return;
+    hideHint();
     const fn = ACT[el.getAttribute('data-pn')];
     if (!fn) return;
     ev.preventDefault();
