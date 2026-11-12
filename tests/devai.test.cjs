@@ -13,9 +13,10 @@ test('DevAI instruye a generar traducciones completas en el mismo JSON', () => {
   assert.match(html, /misma estructura completa que la actividad original/);
 });
 
-test('DevAI conserva las traducciones raíz o anidadas al publicar', () => {
-  assert.match(html, /const traducciones = obj\.traducciones \?\? contenido\.traducciones/);
-  assert.match(html, /\.\.\.\(traducciones \? \{ traducciones \} : \{\}\)/);
+test('DevAI conserva todas las traducciones raíz o anidadas al publicar', () => {
+  assert.match(html, /const traducciones = \{\s*\.\.\.\(contenido\.traducciones \|\| \{\}\),\s*\.\.\.\(obj\.traducciones \|\| \{\}\)\s*\}/);
+  assert.match(html, /if \(hayTraducciones\) contenido\.traducciones = traducciones/);
+  assert.match(html, /\.\.\.\(hayTraducciones \? \{ traducciones \} : \{\}\)/);
   assert.match(html, /Puedes incluir `traducciones` \(ca, val y en\) en el mismo objeto/);
 });
 

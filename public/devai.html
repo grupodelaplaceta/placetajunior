@@ -612,11 +612,14 @@ Reglas:
       const titulo = (obj.titulo || $('titulo').value || '').trim();
       const descripcion = (obj.descripcion || $('descripcion').value || '').trim();
       if (!titulo || !descripcion) { aviso('❌ Faltan título y descripción.', true); return; }
-      const traducciones = obj.traducciones ?? contenido.traducciones;
-      if (traducciones != null && (typeof traducciones !== 'object' || Array.isArray(traducciones))) {
+      const fuentesTraducciones = [contenido.traducciones, obj.traducciones];
+      if (fuentesTraducciones.some(traducciones => traducciones != null && (typeof traducciones !== 'object' || Array.isArray(traducciones)))) {
         aviso('❌ Las traducciones deben ser un objeto con una entrada por idioma (ca, val, en).', true);
         return;
       }
+      const traducciones = { ...(contenido.traducciones || {}), ...(obj.traducciones || {}) };
+      const hayTraducciones = Object.keys(traducciones).length > 0;
+      if (hayTraducciones) contenido.traducciones = traducciones;
       const body = {
         tipo_titular: 'interno', dip: null, eip: null, nombre_entidad: null, nombre_autor: null,
         titulo, descripcion,
@@ -632,7 +635,7 @@ Reglas:
         num_preguntas: contarPreguntas(bloques.length ? bloques : nivelesPublicar.flatMap(n => n.bloques || [])),
         num_fases: nivelesPublicar.length || bloques.length,
         contenido,
-        ...(traducciones ? { traducciones } : {})
+        ...(hayTraducciones ? { traducciones } : {})
       };
       m.textContent = '⏳ Enviando…'; m.className = '';
       try {

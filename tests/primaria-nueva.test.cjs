@@ -83,7 +83,7 @@ test('las nuevas actividades adaptan sus componentes a pantallas estrechas', () 
   assert.match(css, /\.pn-screen \.pn-keys\s*\{[^}]*minmax\(0,\s*1fr\)/);
   assert.match(jugar, /primaria-nueva\.css\?v=20261028-responsive/);
   assert.match(preview, /primaria-nueva\.css\?v=20261028-responsive/);
-  assert.match(sw, /placetajunior-assets-v13/);
+  assert.match(sw, /placetajunior-assets-v14/);
 });
 
 test('el editor del Studio configura todos los tipos nuevos', () => {

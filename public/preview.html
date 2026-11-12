@@ -12,54 +12,10 @@
 <link rel="icon" type="image/png" href="favijunior.png"></head>
 <body class="pj-home mostrando-juego"><div id="game-page" class="game-page"><div id="player-content"></div></div><div id="kp-feedback" class="kp-feedback hidden"></div>
 <script src="js/sonidos.js"></script><script src="js/mapa-mundi.js"></script><script src="js/progreso.js?v=20261007-games"></script><script src="js/code-engine.js"></script><script src="js/modalidades.js?v=20261028-pn"></script><script src="js/player.js?v=20261028-pn"></script><script src="js/actividades/primaria-clasica.js?v=20261028"></script><script src="js/actividades/i18n.js?v=20261028-review"></script><script src="js/actividades/core.js?v=20261028-review"></script><script src="js/actividades/matematicas.js?v=20261028-review"></script><script src="js/actividades/retos.js?v=20261028-review"></script>
+<script src="js/player-icons.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   try {
-    const iconFallbacks = {
-      close: '×', emoji_events: '🏆', check_circle: '✓', cancel: '✕',
-      chevron_left: '‹', chevron_right: '›', calculate: '∑', description: '▤',
-      extension: '◆', view_timeline: '↔', draw: '✎', compare_arrows: '↔',
-      drag_indicator: '⠿', search: '⌕', visibility: '◉', science: '⚗',
-      construction: '⚒', shopping_cart: '🛒', explore: '◎', casino: '🎲',
-      menu_book: '▤', quiz: '?', abc: 'ABC', arrow_forward: '→', home: '⌂',
-      redeem: '🎁', save: '▣', link: '↔', edit_note: '✎',
-      format_list_numbered: '≡', public: '◎', map: '▧', keyboard: '⌨', '123': '123'
-    };
-    let fallbackActive = false;
-    const replaceIconLigatures = (root) => {
-      if (root.nodeType !== Node.ELEMENT_NODE) return;
-      const icons = [];
-      if (root.matches('.material-symbols-rounded')) icons.push(root);
-      icons.push(...root.querySelectorAll('.material-symbols-rounded'));
-      icons.forEach((icon) => {
-        if (icon.classList.contains('pj-icon-fallback')) return;
-        const glyph = iconFallbacks[icon.textContent.trim()] || '•';
-        icon.textContent = glyph;
-        icon.classList.add('pj-icon-fallback');
-      });
-    };
-    const replaceCurrentIcons = () => {
-      const currentContent = document.getElementById('player-content');
-      if (currentContent) replaceIconLigatures(currentContent);
-    };
-    const iconObserver = new MutationObserver(() => {
-      if (fallbackActive) replaceCurrentIcons();
-    });
-    iconObserver.observe(document.body, { childList: true, subtree: true });
-    const useIconFallbacks = () => {
-      if (fallbackActive) return;
-      fallbackActive = true;
-      replaceCurrentIcons();
-      document.documentElement.classList.add('ic-ok');
-    };
-    const useIconFont = (fonts) => {
-      if (!fonts.some((font) => font.family === 'Material Symbols Rounded' && font.status === 'loaded')) {
-        useIconFallbacks();
-        return;
-      }
-      document.documentElement.classList.add('ic-ok');
-      iconObserver.disconnect();
-    };
     const raw = sessionStorage.getItem('pj-preview-activity') || localStorage.getItem('pj-preview-activity');
     const activity = raw ? JSON.parse(raw) : null;
     if (!activity) throw new Error('No hay actividad para previsualizar.');
@@ -69,8 +25,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (typeof abrirJuego !== 'function') throw new Error('No se pudo cargar el reproductor.');
     var q = new URLSearchParams(location.search);
     abrirJuego(activity);
-    if (fallbackActive) replaceCurrentIcons();
-    document.fonts.load('24px "Material Symbols Rounded"', 'home').then(useIconFont, useIconFallbacks);
     if (q.get('embed')) {
       document.body.classList.add('embed');
       var st = parseInt(q.get('start'), 10);

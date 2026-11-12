@@ -114,6 +114,8 @@ test('la vista previa se abre integrada y explica el acabado editorial', () => {
   const html = read('public/studio-creadores.html');
   const js = read('public/studio-creadores.js');
   const preview = read('public/preview.html');
+  const playerIcons = read('public/js/player-icons.js');
+  const gamePage = read('public/jugar.html');
   assert.match(html, /<dialog[^>]+id="preview-dialog"/);
   assert.match(html, /id="preview-frame"/);
   assert.match(html, /Placeta Junior se ocupa de la revisión editorial/);
@@ -121,11 +123,15 @@ test('la vista previa se abre integrada y explica el acabado editorial', () => {
   assert.match(js, /previewDialog\.showModal\(\)/);
   assert.match(js, /previewDialog\.addEventListener\('close', closePreview\)/);
   assert.doesNotMatch(js, /window\.open\('\/preview\.html'/);
-  assert.match(preview, /document\.fonts\.load\('24px "Material Symbols Rounded"', 'home'\)\.then\(useIconFont, useIconFallbacks\)/);
-  assert.match(preview, /iconFallbacks\[icon\.textContent\.trim\(\)\]/);
-  assert.match(preview, /iconObserver\.observe\(document\.body/);
-  assert.match(preview, /chevron_left: '‹', chevron_right: '›'/);
-  assert.doesNotMatch(preview, /catch\(e\)\{clearInterval\(t\);d\.classList\.add\('ic-ok'\)\}/);
+  assert.match(preview, /src="js\/player-icons\.js"/);
+  assert.match(gamePage, /src="js\/player-icons\.js"/);
+  assert.match(playerIcons, /document\.fonts\.load\('24px "Material Symbols Rounded"', 'home'\)/);
+  assert.match(playerIcons, /iconFallbacks\[icon\.textContent\.trim\(\)\]/);
+  assert.match(playerIcons, /observer\.observe\(document\.body/);
+  assert.match(playerIcons, /chevron_left: '‹', chevron_right: '›'/);
+  assert.match(playerIcons, /setTimeout\(useIconFallbacks, 2200\)/);
+  assert.doesNotMatch(gamePage, /if \(n > 40\) clearInterval\(t\)/);
+  assert.match(read('public/sw.js'), /'\/js\/player-icons\.js'/);
 });
 
 test('el portal educativo ofrece el editor en castellano, catalán e inglés', () => {

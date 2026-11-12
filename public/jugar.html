@@ -18,19 +18,6 @@
   <link rel="stylesheet" href="css/player-skin.css?v=1" />
   <link rel="stylesheet" href="css/actividades/primaria-nueva.css?v=20261028-responsive" />
   <link rel="stylesheet" href="css/ui-polish.css?v=20261028-brand" />
-  <script>
-    /* Los iconos no se muestran hasta que la fuente está lista (evita ver "close", "chevron_left"...) */
-    (function () {
-      var d = document.documentElement, n = 0;
-      function listo() { d.classList.add('ic-ok'); }
-      if (!document.fonts || !document.fonts.load) { listo(); return; }
-      var t = setInterval(function () {
-        n++;
-        try { document.fonts.load('24px "Material Symbols Rounded"', 'home'); if (Array.from(document.fonts).some(function (f) { return /Material Symbols Rounded/.test(f.family) && f.status === 'loaded'; })) { clearInterval(t); listo(); } } catch (e) { clearInterval(t); listo(); }
-        if (n > 40) clearInterval(t);
-      }, 100);
-    })();
-  </script>
 </head>
 <body class="pj-home">
   <!-- Entrada única (se retira cuando el juego ya está pintado) -->
@@ -86,6 +73,7 @@
   <script src="js/actividades/matematicas.js?v=20261028-review"></script>
   <script src="js/actividades/retos.js?v=20261028-review"></script>
   <script src="js/accesibilidad.js?v=20260902-ico"></script>
+  <script src="js/player-icons.js"></script>
   <script>
     /* Aviso a la página principal cuando se sale del juego (o si no hay juego que mostrar) */
     (function () {
