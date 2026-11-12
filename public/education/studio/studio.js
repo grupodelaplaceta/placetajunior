@@ -769,7 +769,7 @@
       ${field('Título', 'titulo', exercise.titulo)}
       ${field('Instrucción breve', 'explicacion', exercise.explicacion)}
       ${field('Misión para el alumnado', 'objetivo_texto', exercise.objetivo_texto)}
-      <div class="code-field-grid">${field('Ancho del tablero', 'ancho', scenario.ancho || 6, 'number', 'min="3" max="10"')} ${field('Alto del tablero', 'alto', scenario.alto || 6, 'number', 'min="3" max="10')}</div>
+      <div class="code-field-grid">${field('Ancho del tablero', 'ancho', scenario.ancho || 6, 'number', 'min="3" max="10"')} ${field('Alto del tablero', 'alto', scenario.alto || 6, 'number', 'min="3" max="10"')}</div>
       ${codeBoardEditor(exercise, index)}
       ${field('Máximo de pasos (opcional)', 'max_pasos', objective.max_pasos ?? '', 'number', 'min="1" max="200"')}
       <label class="field"><span>Bloques disponibles</span><span class="code-commands">${commands('allowed', allowed)}</span></label>

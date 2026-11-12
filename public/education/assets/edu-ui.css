@@ -1,0 +1,215 @@
+/* ═══════════════════════════════════════════════════════════════════
+   Placeta Junior Education — capa de interfaz compartida
+   Se carga la última en todas las páginas de /edu. Unifica fuentes,
+   cabeceras, controles, tablas, estados y accesibilidad sin cambiar
+   el marcado ni los identificadores que usa el JavaScript.
+   ═══════════════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --f1: 'Fredoka', 'Arial Rounded MT Bold', system-ui, sans-serif;
+  --f2: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --edu-control-min: 44px;
+  --edu-ring: 0 0 0 4px color-mix(in srgb, var(--purple, #5B14C8) 18%, transparent);
+  --edu-card-shadow: 0 1px 0 var(--line, #E6E2F6), 0 12px 26px -20px rgba(60, 20, 140, .45);
+}
+
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { font-family: var(--f2); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+
+/* Foco visible coherente en todo el sitio de Education */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid #2E8BFF;
+  outline-offset: 3px;
+  border-radius: 10px;
+}
+
+/* ── Cabeceras ─────────────────────────────────────────────────── */
+/* Cabecera de navegación (navigation.css) y cabecera de páginas admin.css */
+.education-topbar, .top {
+  box-shadow: 0 6px 18px -10px rgba(60, 10, 140, .55);
+}
+.education-topbar-inner, .top .bar { min-height: 68px; }
+.education-nav a, .top .mn a {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  transition: background .16s ease, color .16s ease;
+}
+.education-nav a:hover, .top .mn a:hover { background: rgba(255, 255, 255, .2); }
+
+/* ── Botones ───────────────────────────────────────────────────── */
+button, .btn {
+  min-height: var(--edu-control-min);
+  letter-spacing: .01em;
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease, color .15s ease;
+}
+button:not(:disabled):hover { transform: translateY(-1px); }
+button:not(:disabled):active { transform: translateY(1px); }
+button.sec, .b-wh { border: 1.5px solid color-mix(in srgb, var(--purple, #5B14C8) 25%, transparent); }
+button.plana:hover { background: color-mix(in srgb, var(--purple, #5B14C8) 20%, var(--card, #fff)); }
+button[disabled] { cursor: not-allowed; }
+
+/* ── Campos de formulario ──────────────────────────────────────── */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+select,
+textarea {
+  font: inherit;
+  font-size: 16px;                        /* evita el zoom automático en iOS */
+  min-width: 0;
+  min-height: var(--edu-control-min);
+  padding: 10px 13px;
+  border: 1.5px solid color-mix(in srgb, var(--purple, #5B14C8) 22%, var(--line, #E6E2F6));
+  border-radius: 12px;
+  background: var(--card, #fff);
+  color: var(--ink, #1D1744);
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):focus,
+select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--purple, #5B14C8);
+  box-shadow: var(--edu-ring);
+}
+input::placeholder, textarea::placeholder { color: color-mix(in srgb, var(--mute, #5A5680) 75%, transparent); opacity: 1; }
+input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-color: var(--purple, #5B14C8); }
+label { line-height: 1.4; }
+
+/* ── Tarjetas, tablas y estados ────────────────────────────────── */
+.tarjeta { box-shadow: var(--edu-card-shadow); }
+.tarjeta > h1:first-child, .tarjeta > h2:first-child { margin-top: 0; }
+
+table { width: 100%; border-collapse: separate; border-spacing: 0; }
+th, td { padding: 12px 14px; border-bottom: 1px solid var(--line, #E6E2F6); text-align: left; vertical-align: middle; }
+th {
+  color: var(--mute, #5A5680);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+tbody tr:hover td { background: color-mix(in srgb, var(--purple, #5B14C8) 4%, transparent); }
+.tabla { border-radius: 16px; }
+
+.nota { color: var(--mute, #5A5680); }
+.aviso { min-height: 1.4em; font-weight: 700; }
+.error { color: var(--red, #C0264A); font-weight: 700; }
+.insignia { letter-spacing: .02em; }
+
+/* ── Estructura general de página ──────────────────────────────── */
+main { gap: 18px; }
+@media (max-width: 700px) {
+  main { padding: 16px 14px 40px; }
+  .tarjeta { padding: 18px; border-radius: 20px; }
+  h1 { font-size: clamp(24px, 7vw, 30px); }
+}
+
+/* Mismo color de foco y de selección en todas las páginas */
+::selection { background: color-mix(in srgb, var(--purple, #5B14C8) 25%, transparent); }
+
+/* ── Móvil: cabecera con navegación deslizable ────────────────── */
+@media (max-width: 700px) {
+  .education-topbar-inner { flex-wrap: wrap; row-gap: 4px; }
+  .education-nav {
+    order: 3;
+    flex: 1 0 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 6px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .education-nav::-webkit-scrollbar { display: none; }
+  .education-nav a { flex: none; }
+  .education-brand-title { font-size: 13px; }
+  .top .bar { min-height: 0; }
+  .top .mn { overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; }
+  .top .mn::-webkit-scrollbar { display: none; }
+  .top .mn a { flex: none; }
+}
+
+/* Táctil: áreas de toque cómodas */
+@media (pointer: coarse) {
+  :where(a, button, [role="tab"]) { min-height: var(--edu-control-min); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* El código de centro puede ir en una celda de tabla: sin píldora de fondo a toda la celda */
+td.codigo, th.codigo {
+  background: none;
+  border-radius: 0;
+  padding: 12px 14px;
+  color: var(--purple, #5B14C8);
+  font-family: var(--f1);
+  font-size: 15px;
+  letter-spacing: .06em;
+  white-space: nowrap;
+}
+.codigo { font-family: var(--f1); letter-spacing: .06em; }
+
+@media (max-width: 700px) {
+  th, td { padding: 10px 8px; font-size: 14px; }
+  th { font-size: 11px; }
+}
+
+/* Cabecera del hub (.edu-header): en móvil, navegación en una fila deslizable */
+@media (max-width: 700px) {
+  .edu-header { flex-wrap: wrap; row-gap: 6px; padding: 10px 16px 6px; }
+  .edu-header nav {
+    order: 3;
+    flex: 1 0 100%;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 8px;
+  }
+  .edu-header nav::-webkit-scrollbar { display: none; }
+  .edu-header nav a { flex: none; }
+  .edu-brand img { width: 92px; }
+}
+
+/* Pista de desplazamiento: el borde derecho del menú se desvanece en móvil */
+@media (max-width: 700px) {
+  .edu-header nav, .education-nav, .top .mn {
+    padding-right: 28px;
+    -webkit-mask-image: linear-gradient(90deg, #000 84%, transparent);
+            mask-image: linear-gradient(90deg, #000 84%, transparent);
+  }
+}
+
+.codigo { white-space: nowrap; }
+
+/* Pestañas del panel de centro: fila deslizable en móvil */
+@media (max-width: 700px) {
+  .dashboard-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+  .dashboard-tabs::-webkit-scrollbar { display: none; }
+  .dashboard-tabs button { flex: none; }
+}
+
+/* ── Modo oscuro: el morado de marca como texto pierde contraste; usamos una variante clara ── */
+@media (prefers-color-scheme: dark) {
+  .cifra b,
+  .codigo,
+  td.codigo, th.codigo,
+  .dashboard-code strong,
+  .centro-eyebrow,
+  .studio-view-heading .eyebrow { color: #C9B8FF; }
+  .dashboard-tabs button.activa { background: var(--purple, #5B14C8); color: #fff; }
+  .tarjeta, .cifra { box-shadow: none; border: 1px solid var(--line, #362C6B); }
+  .tabla { border: 1px solid var(--line, #362C6B); }
+  .bloqueo-centro { color: #FF9AAE; }
+}

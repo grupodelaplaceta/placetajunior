@@ -1,53 +1,60 @@
-:root { --morado: #5B14C8; --texto: #1d1530; --suave: #6d6485; --fondo: #F6F3FF; --rojo: #B3261E; }
-* { box-sizing: border-box; }
-body { margin: 0; font-family: system-ui, 'Segoe UI', sans-serif; background: var(--fondo); color: var(--texto); }
-[hidden] { display: none !important; }
-.cabecera { display: flex; align-items: center; gap: 16px; padding: 14px 24px; background: var(--morado); color: #fff; }
-.cabecera .usuario { flex: 1; opacity: .85; font-size: 14px; }
-main { max-width: 1100px; margin: 24px auto; padding: 0 16px; display: flex; flex-direction: column; gap: 16px; }
-.cabecera a { color: #fff; font-weight: 700; text-decoration: none; }
-.cifras { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 12px; }
-.cifra { display: flex; flex-direction: column; gap: 4px; padding: 16px; border-radius: 12px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
-.cifra b { color: var(--morado); font-size: 24px; }
-.cifra span { color: var(--suave); font-size: 13px; }
-.tarjeta { background: #fff; border-radius: 14px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
-#login { width: min(760px, 100%); align-self: center; }
+/* Portal de administración: solo lo específico de esta página.
+   La base visual viene de /education/assets/admin.css y edu-ui.css. */
+
+body { background: var(--bg); }
+main { max-width: 1120px; }
+
+/* Acceso */
+#login { width: min(560px, 100%); align-self: center; margin-top: 28px; }
+#login h1 { margin-bottom: 6px; }
+#form-login { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px; }
+#form-login label { display: grid; gap: 6px; font-size: 14px; font-weight: 700; color: var(--mute); }
 #form-login button { grid-column: 1 / -1; }
-.detalle-admin { margin-top: 20px; }
-h1, h2 { margin: 0 0 12px; }
-h2 { font-size: 18px; }
-label { display: flex; flex-direction: column; gap: 4px; font-size: 14px; color: var(--suave); }
-label.check { flex-direction: row; align-items: center; gap: 8px; color: var(--texto); }
-input, select, textarea { font: inherit; padding: 9px 11px; border: 1px solid #cfc6e8; border-radius: 8px; color: var(--texto); }
-textarea { resize: vertical; }
-button { font: inherit; padding: 9px 16px; border: 0; border-radius: 8px; background: var(--morado); color: #fff; cursor: pointer; font-weight: 600; }
-button.sec { background: rgba(255,255,255,.2); }
-button.peligro { background: var(--rojo); }
-button.plana { background: #efe9ff; color: var(--morado); }
-.linea { display: flex; gap: 10px; }
-.linea input { flex: 1; }
-.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.grid .ancho { grid-column: 1 / -1; }
-.pestanas { display: flex; gap: 8px; }
-.pestanas button { background: #fff; color: var(--morado); border: 1px solid #cfc6e8; }
-.pestanas button.activa { background: var(--morado); color: #fff; }
-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-.tabla { width: 100%; overflow-x: auto; }
-th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #eee; vertical-align: top; }
-th { color: var(--suave); font-weight: 600; }
-.codigo { font-family: ui-monospace, Consolas, monospace; font-weight: 700; letter-spacing: .05em; }
-.aviso { color: var(--morado); font-weight: 600; }
-.error { color: var(--rojo); font-weight: 600; min-height: 1em; }
-.bloque { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 12px; }
-.bloque fieldset { border: 1px solid #e3dcf5; border-radius: 10px; padding: 12px; }
-.bloque legend { font-weight: 700; padding: 0 6px; }
-.bloque label { margin-bottom: 6px; }
-.nota { font-size: 13px; color: var(--suave); }
-.bloqueo-centro { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,220px),1fr)); gap: 12px; align-items: end; margin: 18px 0; padding: 16px; border: 1px solid #e6dced; border-radius: 12px; background: #fbf8ff; }
-.bloqueo-centro h3,.bloqueo-centro > p { grid-column: 1 / -1; margin: 0; }
-.bloqueo-centro form { display: contents; }
-.bloqueo-centro textarea { min-height: 76px; }
-.bloqueo-centro #aviso-bloqueo-org { grid-column: 1 / -1; }
-.bloqueo-centro button { min-height: 40px; }
-.insignia.mal { color: #a52e38; font-weight: 700; }
-@media (max-width: 700px) { .grid, .bloque { grid-template-columns: 1fr; } .linea { flex-direction: column; } }
+@media (max-width: 600px) { #form-login { grid-template-columns: 1fr; } }
+
+/* Resumen */
+.cifras { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+.cifra {
+  display: grid;
+  gap: 4px;
+  padding: 18px 20px;
+  border-radius: 20px;
+  background: var(--card);
+  box-shadow: 0 1px 0 var(--line), 0 10px 22px -18px rgba(60, 20, 140, .4);
+}
+.cifra b { font-family: var(--f1); font-weight: 600; font-size: 30px; line-height: 1.05; color: var(--purple); }
+.cifra span { color: var(--mute); font-size: 13px; font-weight: 700; }
+
+/* Pestañas de vista */
+.pestanas { margin-bottom: 4px; }
+.pestanas button { min-height: 44px; padding: 0 18px; font-size: 15px; }
+
+/* Vistas */
+#vista-organizaciones, #vista-documentos { display: grid; gap: 16px; }
+#vista-organizaciones > h1, #vista-documentos > h1 { margin: 6px 0 0; }
+.linea { align-items: center; }
+.linea input { flex: 1 1 260px; }
+.detalle-admin { margin-top: 6px; }
+#lista-docs { display: grid; gap: 12px; }
+.fila-doc { background: var(--card); }
+.ancho { grid-column: 1 / -1; }
+.check { display: flex; align-items: center; gap: 10px; font-weight: 700; color: var(--ink); }
+
+/* Estados de bloqueo */
+.bloqueo-centro {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--red) 14%, var(--card));
+  color: var(--red);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* Nombre de la cuenta en la cabecera */
+.usuario { margin-left: auto; color: #fff; font-size: 14px; font-weight: 700; opacity: .92; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 36ch; }
+
+@media (max-width: 700px) {
+  .linea input { flex: none; width: 100%; }
+  .linea button { width: 100%; }
+}
