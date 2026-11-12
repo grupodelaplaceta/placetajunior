@@ -58,6 +58,12 @@ main>*{animation:in .45s cubic-bezier(.2,.8,.2,1) both}
 .menu button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:0;background:none;color:inherit;font:500 15px var(--f2);padding:8px 12px;border-radius:10px;cursor:pointer}
 .menu button[aria-pressed="true"]{background:var(--bg);color:var(--purple)}
 .menu hr{border:0;border-top:2px solid var(--line);margin:6px 4px}
+:root[data-theme="dark"] .mn a[aria-current="page"],
+:root[data-theme="dark"] .menu button[aria-pressed="true"]{background:#ffd21f;color:#1d1744}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) .mn a[aria-current="page"],
+  :root:not([data-theme="light"]) .menu button[aria-pressed="true"]{background:#ffd21f;color:#1d1744}
+}
 /* hero */
 .hero{position:relative;overflow:hidden;background:linear-gradient(180deg,var(--card),var(--bg))}
 .blob{position:absolute;border-radius:50%;animation:pjfl 9s ease-in-out infinite alternate}

@@ -117,6 +117,13 @@ test('las asignaturas comunes se muestran en el idioma seleccionado', () => {
   assert.match(collections, /translateSubject\(activity\.categoria/);
 });
 
+test('la barra y el selector de idioma mantienen contraste en modo oscuro', () => {
+  const html = leer('public/index.html');
+  assert.match(html, /:root\[data-theme="dark"\] \.mn a\[aria-current="page"\],[\s\S]*?color:#1d1744/);
+  assert.match(html, /:root:not\(\[data-theme="light"\]\) \.mn a\[aria-current="page"\],[\s\S]*?color:#1d1744/);
+  assert.match(html, /\.menu button\[aria-pressed="true"\]\{background:var\(--bg\);color:var\(--purple\)\}/);
+});
+
 test('todas las páginas HTML cargan el botón global de accesibilidad y sus estilos', () => {
   const walk = (directory) => fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const file = path.join(directory, entry.name);
