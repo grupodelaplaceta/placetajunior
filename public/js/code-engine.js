@@ -13,6 +13,7 @@ window.PJCode = (function () {
     avanzar:    { cat: 'movimiento', nombre: 'AVANZAR', params: [], desc: 'Avanza una casilla' },
     retroceder: { cat: 'movimiento', nombre: 'RETROCEDER', params: [], desc: 'Retrocede una casilla' },
     girar:      { cat: 'movimiento', nombre: 'GIRAR', params: ['dir'], desc: 'Gira a la derecha o izquierda' },
+    girar_180:  { cat: 'movimiento', nombre: 'GIRAR 180°', params: [], desc: 'Da media vuelta' },
     saltar:     { cat: 'movimiento', nombre: 'SALTAR', params: [], desc: 'Salta a la siguiente casilla' },
     repetir:    { cat: 'control', nombre: 'BUCLE', params: ['veces'], bloques: true, desc: 'Bucle: repite los pasos dentro N veces' },
     si:         { cat: 'control', nombre: 'SI', params: ['condicion', 'hacia', 'negado'], bloques: true, desc: 'Si la condición se cumple, ejecuta (admite "si no" y negación)' },
@@ -168,6 +169,12 @@ window.PJCode = (function () {
           registrar('girar', { a: d });
           break;
         }
+        case 'girar_180': {
+          pasos++;
+          dir = (dir + 2) % 4;
+          registrar('girar', { a: '180' });
+          break;
+        }
         case 'repetir': {
           const veces = Math.min(Math.max(Number(b.veces) || 0, 0), 50);
           for (let i = 0; i < veces; i++) {
@@ -260,6 +267,9 @@ window.PJCode = (function () {
     const c = contenido || {};
     if (Array.isArray(c.ejercicios) && c.ejercicios.length) {
       return c.ejercicios.map((ej, i) => ({
+        identificador: ej.identificador || `PJC-${String(i + 1).padStart(3, '0')}`,
+        etapa: ej.etapa || '',
+        dificultad: ej.dificultad || '',
         titulo: ej.titulo || 'Ejercicio ' + (i + 1),
         explicacion: ej.explicacion || '',
         objetivo_texto: ej.objetivo_texto || 'Lleva a Candela hasta la estrella.',
@@ -272,6 +282,9 @@ window.PJCode = (function () {
       }));
     }
     return [{
+      identificador: c.identificador || 'PJC-001',
+      etapa: c.etapa || '',
+      dificultad: c.dificultad || '',
       titulo: c.titulo || 'Ejercicio 1',
       explicacion: c.explicacion || '',
       objetivo_texto: c.objetivo_texto || 'Lleva a Candela hasta la estrella.',

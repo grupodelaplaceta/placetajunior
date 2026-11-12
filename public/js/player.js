@@ -395,7 +395,10 @@ function abrirJuego(act) {
         bi: 0,
         ejercicio: i,
         total_ejercicios: ejercicios.length,
+        identificador: ej.identificador || '',
         titulo: ej.titulo || ('Ejercicio ' + (i + 1)),
+        etapa: ej.etapa || '',
+        dificultad: ej.dificultad || '',
         explicacion: ej.explicacion || '',
         objetivo_texto: ej.objetivo_texto || 'Lleva a Candela hasta la estrella.',
         escenario: ej.escenario || { tipo: 'cuadricula', ancho: 6, alto: 6 },
@@ -449,7 +452,10 @@ function abrirJuego(act) {
             bi,
             ejercicio: i,
             total_ejercicios: ejercicios.length,
+            identificador: ej.identificador || '',
             titulo: ej.titulo || `Ejercicio ${i + 1}`,
+            etapa: ej.etapa || '',
+            dificultad: ej.dificultad || '',
             explicacion: ej.explicacion || '',
             objetivo_texto: ej.objetivo_texto || 'Lleva a Candela hasta la estrella.',
             escenario: ej.escenario || { tipo: 'cuadricula', ancho: 6, alto: 6 },
@@ -2404,13 +2410,14 @@ document.addEventListener('keydown', function (e) {
 // Estética "cute": botones redondeados con iconos SVG descriptivos (no emojis).
 // Cada icono es una flecha clara que muestra EXACTAMENTE qué hace Candela.
 const CODE_BLOQUES_INFO = {
-  avanzar:    { cat: 'mov', nombre: 'AVANZAR', clase: 'b-move', color: '#4c8dff', params: [], desc: 'Avanza 1 casilla', icono: 'flecha-derecha' },
-  retroceder: { cat: 'mov', nombre: 'RETROCEDER', clase: 'b-move', color: '#4c8dff', params: [], desc: 'Retrocede 1 casilla', icono: 'flecha-izquierda' },
-  girar:      { cat: 'mov', nombre: 'GIRAR', clase: 'b-move', color: '#4c8dff', params: [{ k: 'dir', o: ['derecha', 'izquierda'] }], desc: 'Gira', icono: 'flecha-curva' },
-  saltar:     { cat: 'mov', nombre: 'SALTAR', clase: 'b-move', color: '#4c8dff', params: [], desc: 'Salta 2 casillas', icono: 'flecha-salto' },
-  repetir:    { cat: 'ctrl', nombre: 'BUCLE', clase: 'b-control', color: '#ff9f1c', params: [{ k: 'veces', n: 1 }], anida: true, desc: 'Bucle: repite los pasos dentro N veces', icono: 'bucle' },
-  si:         { cat: 'ctrl', nombre: 'SI', clase: 'b-control', color: '#ff9f1c', params: [{ k: 'condicion', o: ['obstáculo', 'moneda', 'libre'] }], anida: true, desc: 'Si se cumple…', icono: 'diamante' },
-  sonido:     { cat: 'efe', nombre: 'SONIDO', clase: 'b-sound', color: '#e8618c', params: [{ k: 'sonido', o: ['pop', 'clic', 'exito', 'moneda', 'aplauso'] }], desc: 'Reproduce un sonido', icono: 'altavoz' },
+  avanzar:    { cat: 'mov', nombre: 'AVANZAR', clase: 'b-move', color: '#2457bd', params: [], desc: 'Avanza 1 casilla', icono: 'flecha-derecha' },
+  retroceder: { cat: 'mov', nombre: 'RETROCEDER', clase: 'b-move', color: '#2457bd', params: [], desc: 'Retrocede 1 casilla', icono: 'flecha-izquierda' },
+  girar:      { cat: 'mov', nombre: 'GIRAR', clase: 'b-move', color: '#2457bd', params: [{ k: 'dir', o: ['derecha', 'izquierda'] }], desc: 'Gira 90 grados', icono: 'flecha-curva' },
+  girar_180:  { cat: 'mov', nombre: 'GIRAR 180°', clase: 'b-move', color: '#2457bd', params: [], desc: 'Da media vuelta', icono: 'flecha-curva' },
+  saltar:     { cat: 'mov', nombre: 'SALTAR', clase: 'b-move', color: '#2457bd', params: [], desc: 'Salta 2 casillas', icono: 'flecha-salto' },
+  repetir:    { cat: 'ctrl', nombre: 'REPETIR', clase: 'b-control', color: '#9a4f00', params: [{ k: 'veces', n: 1 }], anida: true, desc: 'Repite los pasos de dentro varias veces', icono: 'bucle' },
+  si:         { cat: 'ctrl', nombre: 'SI', clase: 'b-control', color: '#9a4f00', params: [{ k: 'condicion', o: ['obstáculo', 'moneda', 'libre'] }], anida: true, desc: 'Comprueba qué hay delante antes de actuar', icono: 'diamante' },
+  sonido:     { cat: 'efe', nombre: 'SONIDO', clase: 'b-sound', color: '#a83358', params: [{ k: 'sonido', o: ['pop', 'clic', 'exito', 'moneda', 'aplauso'] }], desc: 'Reproduce un sonido', icono: 'altavoz' },
 };
 
 // Iconos SVG 100% descriptivos (16x16, trazo blanco) para los bloques
@@ -2445,65 +2452,314 @@ function pjSonidoReproducir(nombre) {
   } catch (e) { /* sin sonido */ }
 }
 
+function pjCodeIdioma() {
+  const raw = typeof pjIdiomaActivo === 'function' ? pjIdiomaActivo() : (() => {
+    try { return JSON.parse(localStorage.getItem('junior_acc_web') || '{}').idioma || 'es'; }
+    catch (_) { return 'es'; }
+  })();
+  const lang = String(raw).toLowerCase().split(/[-_]/)[0];
+  return lang === 'ca' || lang === 'val' || lang === 'va' ? 'ca' : lang === 'en' ? 'en' : lang === 'eu' || lang === 'eus' ? 'eu' : 'es';
+}
+
+function pjCodeTexto(key) {
+  const lang = pjCodeIdioma();
+  const texts = {
+    es: {
+      movement: 'Movimiento', control: 'Lógica y control', sound: 'Sonidos',
+      addBlocks: '1. Elige tus bloques', paletteHelp: 'Pulsa un bloque para añadirlo. También puedes arrastrarlo.',
+      program: 'Tu programa', reorder: 'Usa ↑ y ↓ para ordenar',
+      run: 'Probar mi programa', undo: 'Deshacer', reset: 'Empezar de nuevo',
+      hint: 'Añade bloques, ordénalos y prueba tu programa. ¡Guía a Candela hasta la estrella!',
+      empty: 'Elige bloques arriba para construir tu programa.',
+      add: 'Añadir', board: 'Tablero del reto de programación',
+      avanzar: 'AVANZAR', retroceder: 'RETROCEDER', girar: 'GIRAR',
+      girar180: 'GIRAR 180°', saltar: 'SALTAR', repetir: 'REPETIR', si: 'SI', sonido: 'SONIDO',
+      turnRight: 'Gira a la derecha', turnLeft: 'Gira a la izquierda',
+      tutOrder: 'Ordena los pasos con ↑ ↓ y quita los que no quieras con ✕.',
+      tutRun: 'Pulsa Probar mi programa para ver cómo se ejecuta paso a paso.',
+      tuto: '¡Vamos a programar!', play: '¡A jugar!',
+      exercise: 'Ejercicio', step: 'paso', steps: 'pasos', editor: 'Editor de programación',
+      stepOne: 'Toca las <b>flechas redondas</b> o <b>arrástralas</b> hasta tu programa para añadir pasos.',
+      stepFour: 'Llega a la <b>estrella ⭐</b> para superar el reto.',
+      progression: 'Cada ejercicio es un poco más difícil. ¡Tú puedes!',
+      hints: 'Pistas', inside: 'dentro', close: 'Cerrar: los siguientes pasos van fuera',
+      addInside: 'Añadir pasos dentro', turnDirection: 'Dirección del giro',
+      optionFor: 'Opción para', amountFor: 'Cantidad para',
+      changeRight: 'Cambiar a giro a la derecha', changeLeft: 'Cambiar a giro a la izquierda',
+      repeatCount: 'Número de repeticiones, entre 1 y 50', soundChoice: 'Sonido que se reproducirá',
+      removeBlock: 'Quitar este bloque', moveUp: 'Subir', moveDown: 'Bajar',
+      else: 'SI NO', addElse: 'Añadir pasos si la condición no se cumple',
+      condition: 'Condición que se comprobará delante', ahead: '¿delante?',
+      obstacle: 'obstáculo', coin: 'moneda', clear: 'libre', edge: 'borde', star: 'estrella',
+      addBlock: 'Añadir', descAdvance: 'Avanza una casilla', descBack: 'Retrocede una casilla',
+      descTurn: 'Gira a la derecha o a la izquierda', descTurn180: 'Da media vuelta',
+      descJump: 'Salta a la siguiente casilla', descRepeat: 'Repite los pasos que hay dentro',
+      descIf: 'Comprueba una condición y elige qué pasos ejecutar', descSound: 'Reproduce un sonido',
+      completed: '¡Actividad completada!', exercisePassed: '¡Ejercicio {0} superado!',
+      greenPoint: 'punto verde', tryAgain: 'No superado. Inténtalo de nuevo.',
+      failPosition: 'La posición final ({0},{1}) no coincide con el objetivo ({2},{3}).',
+      failCoins: 'Faltan monedas: {0}/{1}.', failSteps: 'Demasiados pasos: {0} (máx. {1}).',
+      failRequired: 'Debes usar el bloque {0}.', failOutside: 'Candela se salió del tablero.',
+      failObstacle: 'Candela chocó con un obstáculo.', failJumpOutside: 'Candela saltó fuera del tablero.',
+      failJumpObstacle: 'Candela cayó sobre un obstáculo.', failDepth: 'Hay demasiados bloques anidados.',
+      engineMissing: 'El motor de código no está cargado.',
+      times: 'veces',
+      preview: 'prevista'
+    },
+    ca: {
+      movement: 'Moviment', control: 'Lògica i control', sound: 'Sons',
+      addBlocks: '1. Tria els blocs', paletteHelp: 'Prem un bloc per a afegir-lo. També el pots arrossegar.',
+      program: 'El teu programa', reorder: 'Usa ↑ i ↓ per a ordenar',
+      run: 'Prova el meu programa', undo: 'Desfés', reset: 'Comença de nou',
+      hint: 'Afig blocs, ordena’ls i prova el programa. Guia Candela fins a l’estrela!',
+      empty: 'Tria blocs de dalt per a construir el programa.',
+      add: 'Afig', board: 'Tauler del repte de programació',
+      avanzar: 'AVANÇA', retroceder: 'RETROCEDEIX', girar: 'GIRA',
+      girar180: 'GIRA 180°', saltar: 'SALTA', repetir: 'REPETIX', si: 'SI', sonido: 'SO',
+      turnRight: 'Gira a la dreta', turnLeft: 'Gira a l’esquerra',
+      tutOrder: 'Ordena els passos amb ↑ ↓ i elimina els que no vulgues amb ✕.',
+      tutRun: 'Prem Prova el meu programa per a veure com s’executa pas a pas.',
+      tuto: 'Programem!', play: 'A jugar!',
+      exercise: 'Exercici', step: 'pas', steps: 'passos', editor: 'Editor de programació',
+      stepOne: 'Toca les <b>fletxes redones</b> o <b>arrossega-les</b> fins al programa per a afegir passos.',
+      stepFour: 'Arriba a l’<b>estrela ⭐</b> per a superar el repte.',
+      progression: 'Cada exercici és una mica més difícil. Tu pots!',
+      hints: 'Pistes', inside: 'dins', close: 'Tanca: els passos següents aniran fora',
+      addInside: 'Afig passos dins', turnDirection: 'Direcció del gir',
+      optionFor: 'Opció per a', amountFor: 'Quantitat per a',
+      changeRight: 'Canvia al gir cap a la dreta', changeLeft: 'Canvia al gir cap a l’esquerra',
+      repeatCount: 'Nombre de repeticions, entre 1 i 50', soundChoice: 'So que es reproduirà',
+      removeBlock: 'Elimina aquest bloc', moveUp: 'Puja', moveDown: 'Baixa',
+      else: 'SI NO', addElse: 'Afig passos si no es compleix la condició',
+      condition: 'Condició que es comprovarà davant', ahead: '¿davant?',
+      obstacle: 'obstacle', coin: 'moneda', clear: 'lliure', edge: 'vora', star: 'estrela',
+      addBlock: 'Afig', descAdvance: 'Avança una casella', descBack: 'Retrocedeix una casella',
+      descTurn: 'Gira a la dreta o a l’esquerra', descTurn180: 'Fes mitja volta',
+      descJump: 'Salta a la casella següent', descRepeat: 'Repeteix els passos de dins',
+      descIf: 'Comprova una condició i tria quins passos executar', descSound: 'Reprodueix un so',
+      completed: 'Activitat completada!', exercisePassed: 'Repte {0} superat!',
+      greenPoint: 'punt verd', tryAgain: 'No superat. Torna-ho a provar.',
+      failPosition: 'La posició final ({0},{1}) no coincideix amb l’objectiu ({2},{3}).',
+      failCoins: 'Falten monedes: {0}/{1}.', failSteps: 'Hi ha massa passos: {0} (màx. {1}).',
+      failRequired: 'Has d’usar el bloc {0}.', failOutside: 'Candela ha eixit del tauler.',
+      failObstacle: 'Candela ha xocat amb un obstacle.', failJumpOutside: 'Candela ha saltat fora del tauler.',
+      failJumpObstacle: 'Candela ha caigut damunt d’un obstacle.', failDepth: 'Hi ha massa blocs imbricats.',
+      engineMissing: 'No s’ha carregat el motor de codi.',
+      times: 'vegades',
+      preview: 'prevista'
+    },
+    en: {
+      movement: 'Movement', control: 'Logic & control', sound: 'Sounds',
+      addBlocks: '1. Choose your blocks', paletteHelp: 'Select a block to add it, or drag it into your program.',
+      program: 'Your program', reorder: 'Use ↑ and ↓ to reorder',
+      run: 'Run my program', undo: 'Undo', reset: 'Start over',
+      hint: 'Add blocks, put them in order, and run your program. Guide Candela to the star!',
+      empty: 'Choose blocks above to build your program.',
+      add: 'Add', board: 'Programming challenge board',
+      avanzar: 'MOVE FORWARD', retroceder: 'MOVE BACK', girar: 'TURN',
+      girar180: 'TURN 180°', saltar: 'JUMP', repetir: 'REPEAT', si: 'IF', sonido: 'SOUND',
+      turnRight: 'Turn right', turnLeft: 'Turn left',
+      tutOrder: 'Reorder steps with ↑ ↓ and remove unwanted ones with ✕.',
+      tutRun: 'Select Run my program to watch it execute step by step.',
+      tuto: 'Let’s code!', play: 'Let’s play!',
+      exercise: 'Challenge', step: 'step', steps: 'steps', editor: 'Programming editor',
+      stepOne: 'Tap the <b>round arrows</b> or <b>drag them</b> into your program to add steps.',
+      stepFour: 'Reach the <b>star ⭐</b> to complete the challenge.',
+      progression: 'Each challenge gets a little harder. You can do it!',
+      hints: 'Hints', inside: 'inside', close: 'Close: the next steps go outside',
+      addInside: 'Add steps inside', turnDirection: 'Turn direction',
+      optionFor: 'Option for', amountFor: 'Amount for',
+      changeRight: 'Switch to a right turn', changeLeft: 'Switch to a left turn',
+      repeatCount: 'Number of repetitions, from 1 to 50', soundChoice: 'Sound to play',
+      removeBlock: 'Remove this block', moveUp: 'Move up', moveDown: 'Move down',
+      else: 'IF NOT', addElse: 'Add steps if the condition is false',
+      condition: 'Condition to check ahead', ahead: 'ahead?',
+      obstacle: 'obstacle', coin: 'coin', clear: 'clear', edge: 'edge', star: 'star',
+      addBlock: 'Add', descAdvance: 'Move forward one square', descBack: 'Move back one square',
+      descTurn: 'Turn right or left', descTurn180: 'Turn around',
+      descJump: 'Jump to the next square', descRepeat: 'Repeat the steps inside',
+      descIf: 'Check a condition and choose which steps to run', descSound: 'Play a sound',
+      completed: 'Activity complete!', exercisePassed: 'Challenge {0} complete!',
+      greenPoint: 'green point', tryAgain: 'Not completed. Try again.',
+      failPosition: 'The final position ({0},{1}) does not match the goal ({2},{3}).',
+      failCoins: 'Coins missing: {0}/{1}.', failSteps: 'Too many steps: {0} (max {1}).',
+      failRequired: 'You must use the {0} block.', failOutside: 'Candela moved off the board.',
+      failObstacle: 'Candela hit an obstacle.', failJumpOutside: 'Candela jumped off the board.',
+      failJumpObstacle: 'Candela landed on an obstacle.', failDepth: 'There are too many nested blocks.',
+      engineMissing: 'The code engine did not load.',
+      times: 'times',
+      preview: 'preview'
+    },
+    eu: {
+      movement: 'Mugimendua', control: 'Logika eta kontrola', sound: 'Soinuak',
+      addBlocks: '1. Aukeratu blokeak', paletteHelp: 'Sakatu bloke bat gehitzeko, edo arrastatu zure programara.',
+      program: 'Zure programa', reorder: 'Erabili ↑ eta ↓ ordenatzeko',
+      run: 'Probatu nire programa', undo: 'Desegin', reset: 'Berriro hasi',
+      hint: 'Gehitu blokeak, ordenatu eta probatu programa. Eraman Candela izarreraino!',
+      empty: 'Aukeratu goiko blokeak zure programa eraikitzeko.',
+      add: 'Gehitu', board: 'Programazio-erronkaren taula',
+      avanzar: 'AURRERA', retroceder: 'ATZERA', girar: 'BIRATU',
+      girar180: '180° BIRATU', saltar: 'SALTO EGIN', repetir: 'ERREPIKATU', si: 'BALDIN', sonido: 'SOINUA',
+      turnRight: 'Biratu eskuinera', turnLeft: 'Biratu ezkerrera',
+      tutOrder: 'Ordenatu urratsak ↑ ↓ erabiliz eta kendu nahi ez dituzunak ✕ sakatuz.',
+      tutRun: 'Sakatu Probatu nire programa urratsez urrats nola exekutatzen den ikusteko.',
+      tuto: 'Programatzen hasiko gara!', play: 'Jolastera!',
+      exercise: 'Erronka', step: 'urrats', steps: 'urrats', editor: 'Programazio-editorea',
+      stepOne: 'Sakatu <b>gezi biribilak</b> edo <b>arrastatu</b> programara urratsak gehitzeko.',
+      stepFour: 'Iritsi <b>izarrera ⭐</b> erronka gainditzeko.',
+      progression: 'Erronka bakoitza pixka bat zailagoa da. Lortuko duzu!',
+      hints: 'Iradokizunak', inside: 'barruan', close: 'Itxi: hurrengo urratsak kanpoan joango dira',
+      addInside: 'Gehitu urratsak barruan', turnDirection: 'Biraketaren noranzkoa',
+      optionFor: 'Aukera honentzat:', amountFor: 'Kopurua honentzat:',
+      changeRight: 'Aldatu eskuinerako bira', changeLeft: 'Aldatu ezkerrerako bira',
+      repeatCount: 'Errepikapen kopurua, 1etik 50era', soundChoice: 'Erreproduzitu beharreko soinua',
+      removeBlock: 'Kendu bloke hau', moveUp: 'Mugitu gora', moveDown: 'Mugitu behera',
+      else: 'BESTELA', addElse: 'Gehitu urratsak baldintza betetzen ez bada',
+      condition: 'Aurrera begirako baldintza', ahead: 'aurrean?',
+      obstacle: 'oztopoa', coin: 'txanpona', clear: 'libre', edge: 'ertza', star: 'izarra',
+      addBlock: 'Gehitu', descAdvance: 'Egin aurrera lauki bat', descBack: 'Egin atzera lauki bat',
+      descTurn: 'Biratu eskuinera edo ezkerrera', descTurn180: 'Eman bira osoa',
+      descJump: 'Egin salto hurrengo laukira', descRepeat: 'Errepikatu barruko urratsak',
+      descIf: 'Egiaztatu baldintza eta aukeratu exekutatzeko urratsak', descSound: 'Erreproduzitu soinu bat',
+      completed: 'Jarduera osatu da!', exercisePassed: '{0}. erronka gaindituta!',
+      greenPoint: 'puntu berde', tryAgain: 'Ez da gainditu. Saiatu berriro.',
+      failPosition: 'Azken posizioa ({0},{1}) ez dator bat helburuarekin ({2},{3}).',
+      failCoins: 'Txanponak falta dira: {0}/{1}.', failSteps: 'Urrats gehiegi: {0} (gehienez {1}).',
+      failRequired: '{0} blokea erabili behar duzu.', failOutside: 'Candela taulatik atera da.',
+      failObstacle: 'Candelak oztopo baten aurka jo du.', failJumpOutside: 'Candelak taulatik kanpora salto egin du.',
+      failJumpObstacle: 'Candela oztopo baten gainera erori da.', failDepth: 'Bloke habiaratu gehiegi daude.',
+      engineMissing: 'Kode-motorra ez da kargatu.',
+      times: 'aldiz',
+      preview: 'aurreikuspena'
+    }
+  };
+  return texts[lang][key] || texts.es[key] || key;
+}
+
+function pjCodeNombreBloque(op, fallback) {
+  const keys = { girar_180: 'girar180' };
+  const key = keys[op] || op;
+  const translated = pjCodeTexto(key);
+  return translated === key ? fallback : translated;
+}
+
+function pjCodeDescripcionBloque(op) {
+  const keys = {
+    avanzar: 'descAdvance', retroceder: 'descBack', girar: 'descTurn',
+    girar_180: 'descTurn180', saltar: 'descJump', repetir: 'descRepeat',
+    si: 'descIf', sonido: 'descSound'
+  };
+  return pjCodeTexto(keys[op] || op);
+}
+
+function pjCodeTraducirFallo(texto) {
+  const fallos = [
+    [/^La posición final \(([^,]+),([^)]+)\) no es la objetivo \(([^,]+),([^)]+)\)\./, 'failPosition'],
+    [/^Faltan monedas: (\d+)\/(\d+)\./, 'failCoins'],
+    [/^Demasiados pasos: (\d+) \(máx\.? (\d+)\)\./, 'failSteps'],
+    [/^Debes usar el bloque (.+)\./, 'failRequired'],
+    [/^Candela se salió del tablero\./, 'failOutside'],
+    [/^Candela chocó con un obstáculo\./, 'failObstacle'],
+    [/^Candela saltó fuera del tablero\./, 'failJumpOutside'],
+    [/^Candela cayó sobre un obstáculo\./, 'failJumpObstacle'],
+    [/^Demasiados bloques anidados\./, 'failDepth']
+  ];
+  for (const [pattern, key] of fallos) {
+    const match = pattern.exec(texto);
+    if (match) {
+      const args = key === 'failRequired' ? [pjCodeNombreBloque(
+        Object.keys(CODE_BLOQUES_INFO).find(op => CODE_BLOQUES_INFO[op].nombre === match[1]) || match[1],
+        match[1]
+      )] : match.slice(1);
+      return pjCodeTexto(key).replace(/\{(\d+)\}/g, (_, index) => args[Number(index)] ?? '');
+    }
+  }
+  return texto;
+}
+
 // Pantalla de explicación de la actividad de código (tutorial de uso)
 function screenCodeExplica(s) {
   return `
     <div class="kp-screen kp-code">
       <div class="kp-cover cover-purple">💻</div>
-      <h3 class="kp-title">¡Vamos a programar!</h3>
+      <h3 class="kp-title">${pjCodeTexto('tuto')}</h3>
       <p class="kp-desc">${esc(s.explicacion)}</p>
       <div class="code-tutorial">
-        <div class="code-tut-step"><span class="code-tut-n">1</span><span>Toca las <b>flechas redondas</b> o <b>arrástralas</b> hasta tu programa para añadir pasos.</span></div>
-        <div class="code-tut-step"><span class="code-tut-n">2</span><span>El programa se monta en <b>una línea</b> como un código de verdad. Quita pasos con <b>✕</b>.</span></div>
-        <div class="code-tut-step"><span class="code-tut-n">3</span><span>Pulsa <b>▶ Ejecutar</b>: verás a Candela 👧 moverse <b>paso a paso</b> con sus sonidos.</span></div>
-        <div class="code-tut-step"><span class="code-tut-n">4</span><span>Llega a la <b>estrella ⭐</b> para superar el reto.</span></div>
+        <div class="code-tut-step"><span class="code-tut-n">1</span><span>${pjCodeTexto('stepOne')}</span></div>
+        <div class="code-tut-step"><span class="code-tut-n">2</span><span>${pjCodeTexto('tutOrder')}</span></div>
+        <div class="code-tut-step"><span class="code-tut-n">3</span><span>${pjCodeTexto('tutRun')}</span></div>
+        <div class="code-tut-step"><span class="code-tut-n">4</span><span>${pjCodeTexto('stepFour')}</span></div>
       </div>
-      <button type="button" class="kp-btn kp-start" onclick="pantallaNext()">🚀 ¡A jugar!</button>
-      <div class="kp-hint">Cada ejercicio es un poco más difícil. ¡Tú puedes!</div>
+      <button type="button" class="kp-btn kp-start" onclick="pantallaNext()">🚀 ${pjCodeTexto('play')}</button>
+      <div class="kp-hint">${pjCodeTexto('progression')}</div>
     </div>`;
 }
 
 function screenCode(s, est) {
-  const escen = s.escenario || {};
-  const ini = s.inicio || {};
   const obj = s.objetivo || {};
   const pistas = s.pistas || [];
   const total = s.total_ejercicios || 1;
   const actual = (s.ejercicio || 0) + 1;
+  const grupos = [
+    { cat: 'mov', nombre: pjCodeTexto('movement') },
+    { cat: 'ctrl', nombre: pjCodeTexto('control') },
+    { cat: 'efe', nombre: pjCodeTexto('sound') },
+  ];
+  const nombresBloque = {
+    avanzar: pjCodeTexto('avanzar'), retroceder: pjCodeTexto('retroceder'), girar: pjCodeTexto('girar'),
+    girar_180: pjCodeTexto('girar180'), saltar: pjCodeTexto('saltar'), repetir: pjCodeTexto('repetir'),
+    si: pjCodeTexto('si'), sonido: pjCodeTexto('sonido')
+  };
+  const pintarBloquePaleta = op => {
+    const b = CODE_BLOQUES_INFO[op];
+    if (!b) return '';
+    const crearBoton = (dir, icono, etiqueta, ayuda) => `<button type="button" class="code-block cute-block" draggable="true" data-op="${op}"${dir ? ` data-dir="${dir}"` : ''} style="--blk:${b.color}" onclick="kpCodeAñadir('${op}'${dir ? `, {dir:'${dir}'}` : ''})" title="${esc(ayuda)}" aria-label="${pjCodeTexto('addBlock')} ${esc(etiqueta)}: ${esc(ayuda)}"><span class="blk-emoji">${codeIconoSVG(icono)}</span><span class="blk-nombre">${esc(etiqueta)}</span></button>`;
+    if (op === 'girar') return crearBoton('derecha', 'flecha-curva-der', `${nombresBloque.girar} →`, pjCodeTexto('turnRight')) + crearBoton('izquierda', 'flecha-curva-izq', `${nombresBloque.girar} ←`, pjCodeTexto('turnLeft'));
+    return crearBoton('', b.icono, nombresBloque[op] || b.nombre, pjCodeDescripcionBloque(op));
+  };
   return `
     <div class="kp-screen kp-code">
       <div class="code-topline">
-        <span class="code-pill code-pill-prog">Ejercicio ${actual} / ${total}</span>
+        <span class="code-pill code-pill-prog">${pjCodeTexto('exercise')} ${actual} / ${total}</span>
+        ${s.identificador ? `<span class="code-pill code-pill-id">${esc(s.identificador)}</span>` : ''}
+        ${s.etapa ? `<span class="code-pill code-pill-stage">${esc(s.etapa)}</span>` : ''}
+        ${s.dificultad ? `<span class="code-pill code-pill-level">${esc(s.dificultad)}</span>` : ''}
         <span class="code-pill code-pill-tit">${esc(s.titulo || '')}</span>
       </div>
       ${s.explicacion ? `<div class="code-explica">💡 ${esc(s.explicacion)}</div>` : ''}
       <div class="kp-qt" style="margin-bottom:4px;">${esc(s.objetivo_texto)}</div>
       <div class="code-scenario-wrap">
-        <svg id="kp-code-escenario" class="code-scenario" viewBox="0 0 600 380"></svg>
+        <svg id="kp-code-escenario" class="code-scenario" viewBox="0 0 600 380" role="img" aria-label="${pjCodeTexto('board')}"></svg>
       </div>
       <div class="code-chips">
         <span class="kp-chip chip-blue">🎯 ${obj.posicion ? obj.posicion.x + ',' + obj.posicion.y : '—'}</span>
         ${obj.monedas ? `<span class="kp-chip chip-green">🪙 ${obj.monedas}</span>` : ''}
-        ${obj.max_pasos ? `<span class="kp-chip chip-orange">⏱ ${obj.max_pasos} pasos</span>` : ''}
+        ${obj.max_pasos ? `<span class="kp-chip chip-orange">⏱ ${obj.max_pasos} ${pjCodeTexto('steps')}</span>` : ''}
       </div>
-      <div class="code-palette" id="kp-code-paleta">
-        ${s.permitidos.filter(op => op !== 'girar').map(op => { const b = CODE_BLOQUES_INFO[op]; if (!b) return ''; return `<button type="button" class="code-block cute-block" draggable="true" data-op="${op}" style="--blk:${b.color}" onclick="kpCodeAñadir('${op}')" title="${esc(b.desc)}"><span class="blk-emoji">${codeIconoSVG(b.icono)}</span><span class="blk-nombre">${esc(b.nombre)}</span></button>`; }).join('')}
-        ${s.permitidos.includes('girar') ? `
-          <button type="button" class="code-block cute-block" draggable="true" data-op="girar" data-dir="derecha" style="--blk:#4c8dff" onclick="kpCodeAñadir('girar', {dir:'derecha'})" title="Gira a la derecha"><span class="blk-emoji">${codeIconoSVG('flecha-curva-der')}</span><span class="blk-nombre">GIRAR →</span></button>
-          <button type="button" class="code-block cute-block" draggable="true" data-op="girar" data-dir="izquierda" style="--blk:#4c8dff" onclick="kpCodeAñadir('girar', {dir:'izquierda'})" title="Gira a la izquierda"><span class="blk-emoji">${codeIconoSVG('flecha-curva-izq')}</span><span class="blk-nombre">GIRAR ←</span></button>` : ''}
-      </div>
-      <div class="code-line-wrap">
-        <div class="code-line-label">📝 Tu programa</div>
-        <div class="code-programa cute-linea" id="kp-code-programa"></div>
-      </div>
+      <section class="code-workbench" aria-label="${pjCodeTexto('editor')}">
+        <div class="code-workbench-head">
+          <div><h3 class="code-section-title">${pjCodeTexto('addBlocks')}</h3><p class="code-section-help">${pjCodeTexto('paletteHelp')}</p></div>
+        </div>
+        <div class="code-palette" id="kp-code-paleta">
+          ${grupos.map(g => {
+            const ops = s.permitidos.filter(op => CODE_BLOQUES_INFO[op]?.cat === g.cat);
+            return ops.length ? `<section class="code-palette-group" aria-label="${pjCodeTexto('add')} ${g.nombre.toLowerCase()}"><h4>${g.nombre}</h4><div class="code-palette-items">${ops.map(pintarBloquePaleta).join('')}</div></section>` : '';
+          }).join('')}
+        </div>
+        <div class="code-line-wrap">
+          <div class="code-line-label"><span><span class="code-step-number">2</span> ${pjCodeTexto('program')}</span><span class="code-key-help">${pjCodeTexto('reorder')}</span></div>
+          <div class="code-programa cute-linea" id="kp-code-programa" role="list" aria-label="${pjCodeTexto('program')}"></div>
+        </div>
+      </section>
       <div class="code-acciones">
-        <button type="button" class="code-run-btn" id="kp-code-run" onclick="kpCodeEjecutar()">▶ Ejecutar</button>
-        <button type="button" class="code-clear-btn" onclick="kpCodeVaciar()">🗑 Vaciar</button>
+        <button type="button" class="code-run-btn" id="kp-code-run" onclick="kpCodeEjecutar()" disabled><span aria-hidden="true">▶</span> ${pjCodeTexto('run')}</button>
+        <button type="button" class="code-undo-btn" id="kp-code-undo" onclick="kpCodeDeshacer()" disabled><span aria-hidden="true">↶</span> ${pjCodeTexto('undo')}</button>
+        <button type="button" class="code-clear-btn" id="kp-code-clear" onclick="kpCodeVaciar()" disabled><span aria-hidden="true">⌫</span> ${pjCodeTexto('reset')}</button>
       </div>
       <div class="code-pistas">
-        ${pistas.length ? `<details><summary>💡 Pistas</summary><ul>${pistas.map(p => `<li>${esc(p)}</li>`).join('')}</ul></details>` : ''}
+        ${pistas.length ? `<details><summary>💡 ${pjCodeTexto('hints')}</summary><ul>${pistas.map(p => `<li>${esc(p)}</li>`).join('')}</ul></details>` : ''}
       </div>
-      <div class="kp-hint">👆 Pulsa las flechas para montar el programa y luego ▶ Ejecutar. Lleva a Candela 👧 hasta la estrella ⭐.</div>
+      <div class="kp-hint">${pjCodeTexto('hint')}</div>
     </div>`;
 }
 
@@ -2594,9 +2850,10 @@ function kpCodePintarPrograma() {
   if (!cont) return;
   const programa = est.programa || [];
   const abierto = est.contenedorAbierto;
+  const ejecutando = !!est.ejecutando;
   cont.innerHTML = '';
   if (!programa.length) {
-    cont.innerHTML = '<div class="code-vacio">👉 Toca las flechas para montar tu programa</div>';
+    cont.innerHTML = '<div class="code-vacio" role="status">Elige bloques arriba para construir tu programa.</div>';
   }
   function dibujarBloque(item, idx, profundidad, esContenedorAbierto, destino, arr) {
     const lista = arr || programa;
@@ -2604,54 +2861,79 @@ function kpCodePintarPrograma() {
     const color = b.color || '#4c8dff';
     const chip = document.createElement('span');
     chip.className = 'cute-chip' + (esContenedorAbierto ? ' abierto' : '') + (item.bloques !== undefined ? ' contenedor' : '');
+    chip.setAttribute('role', 'listitem');
     chip.style.setProperty('--blk', color);
     // Icono SVG descriptivo + nombre
     const etiq = document.createElement('span');
     etiq.className = 'cute-chip-etiqueta';
-    etiq.innerHTML = codeIconoSVG(b.icono) + ' ' + esc(b.nombre);
+    etiq.innerHTML = codeIconoSVG(b.icono) + ' ' + esc(pjCodeNombreBloque(item.op, b.nombre));
     chip.appendChild(etiq);
     // Parámetros: para GIRAR mostramos un botón de dirección (→/←) alternable;
     // para REPETIR/SI, número/condición + etiqueta explicativa.
-    if (b.op === 'girar') {
+    if (item.op === 'girar') {
       const dirBtn = document.createElement('button');
       dirBtn.className = 'cute-dir';
       const esIzq = String(item.dir || 'derecha').toLowerCase().startsWith('izq');
       dirBtn.innerHTML = codeIconoSVG(esIzq ? 'flecha-curva-izq' : 'flecha-curva-der', 'class="blk-icono"');
-      dirBtn.title = esIzq ? 'Gira a la izquierda' : 'Gira a la derecha';
+      dirBtn.title = pjCodeTexto(esIzq ? 'changeRight' : 'changeLeft');
+      dirBtn.setAttribute('aria-label', dirBtn.title);
       dirBtn.onclick = () => {
         item.dir = esIzq ? 'derecha' : 'izquierda';
         if (window.pjSonido) pjSonido.girar();
         kpCodeGuardarPrograma(); kpCodePintarPrograma();
       };
       chip.appendChild(dirBtn);
-    } else if (b.op === 'repetir') {
+    } else if (item.op === 'repetir') {
       const veces = document.createElement('input');
       veces.type = 'number'; veces.min = 1; veces.max = 50;
       veces.value = item.veces != null ? item.veces : 1;
-      veces.style.width = '42px';
-      veces.title = '¿Cuántas veces repetimos el bucle?';
-      veces.onchange = () => { item.veces = parseInt(veces.value, 10) || 1; kpCodeGuardarPrograma(); kpCodePintarPrograma(); };
+      veces.className = 'cute-param';
+      veces.inputMode = 'numeric';
+      veces.title = pjCodeTexto('repeatCount');
+      veces.setAttribute('aria-label', veces.title);
+      veces.onchange = () => {
+        item.veces = Math.min(50, Math.max(1, parseInt(veces.value, 10) || 1));
+        kpCodeGuardarPrograma(); kpCodePintarPrograma();
+      };
       chip.appendChild(veces);
       const vecesLbl = document.createElement('span');
       vecesLbl.className = 'cute-chip-explica';
-      vecesLbl.textContent = 'veces';
+      vecesLbl.textContent = pjCodeTexto('times');
       chip.appendChild(vecesLbl);
-    } else if (b.op === 'sonido') {
+    } else if (item.op === 'sonido') {
       const sel = document.createElement('select');
       ['pop', 'clic', 'exito', 'moneda', 'aplauso'].forEach(o => { const op = document.createElement('option'); op.value = o; op.textContent = o === 'aplauso' ? '👏 aplausos' : '🔊 ' + o; sel.appendChild(op); });
       sel.value = item.sonido != null ? item.sonido : 'pop';
+      sel.setAttribute('aria-label', pjCodeTexto('soundChoice'));
       sel.onchange = () => { item.sonido = sel.value; kpCodeGuardarPrograma(); kpCodePintarPrograma(); if (window.pjSonido) pjSonidoReproducir(item.sonido); };
       sel.onclick = () => { if (window.pjSonido) pjSonidoReproducir(item.sonido || sel.value); };
       chip.appendChild(sel);
-    } else if (b.op === 'si') {
+    } else if (item.op === 'si') {
       const sel = document.createElement('select');
-      ['obstáculo', 'moneda', 'libre'].forEach(o => { const op = document.createElement('option'); op.value = o; op.textContent = o; sel.appendChild(op); });
+      const condiciones = [
+        ['obstáculo', 'obstacle'], ['moneda', 'coin'], ['libre', 'clear'], ['borde', 'edge'], ['estrella', 'star']
+      ];
+      condiciones.forEach(([value, key]) => { const op = document.createElement('option'); op.value = value; op.textContent = pjCodeTexto(key); sel.appendChild(op); });
       sel.value = item.condicion != null ? item.condicion : 'obstáculo';
+      sel.setAttribute('aria-label', pjCodeTexto('condition'));
       sel.onchange = () => { item.condicion = sel.value; kpCodeGuardarPrograma(); kpCodePintarPrograma(); };
       chip.appendChild(sel);
+      const noBtn = document.createElement('button');
+      noBtn.type = 'button';
+      noBtn.className = 'cute-cerrar';
+      noBtn.textContent = pjCodeTexto('else');
+      noBtn.title = pjCodeTexto('addElse');
+      noBtn.setAttribute('aria-label', noBtn.title);
+      noBtn.onclick = () => {
+        item.bloques_no = Array.isArray(item.bloques_no) ? item.bloques_no : [];
+        est.contenedorAbierto = idx;
+        est.ramaSi = 'bloques_no';
+        kpCodePintarPrograma();
+      };
+      chip.appendChild(noBtn);
       const condLbl = document.createElement('span');
       condLbl.className = 'cute-chip-explica';
-      condLbl.textContent = '¿delante?';
+      condLbl.textContent = pjCodeTexto('ahead');
       chip.appendChild(condLbl);
     } else {
       (b.params || []).forEach(p => {
@@ -2659,29 +2941,58 @@ function kpCodePintarPrograma() {
           const sel = document.createElement('select');
           p.o.forEach(o => { const op = document.createElement('option'); op.value = o; op.textContent = o; sel.appendChild(op); });
           sel.value = item[p.k] != null ? item[p.k] : p.o[0];
+          sel.setAttribute('aria-label', p.k === 'dir' ? pjCodeTexto('turnDirection') : `${pjCodeTexto('optionFor')} ${b.nombre.toLowerCase()}`);
           sel.onchange = () => { item[p.k] = sel.value; kpCodeGuardarPrograma(); kpCodePintarPrograma(); };
           chip.appendChild(sel);
         } else if (p.n) {
           const inp = document.createElement('input'); inp.type = 'number'; inp.min = 1; inp.max = 50;
           inp.value = item[p.k] != null ? item[p.k] : 1;
-          inp.style.width = '42px'; inp.onchange = () => { item[p.k] = parseInt(inp.value, 10) || 1; kpCodeGuardarPrograma(); };
+          inp.className = 'cute-param'; inp.inputMode = 'numeric';
+          inp.setAttribute('aria-label', `${pjCodeTexto('amountFor')} ${b.nombre.toLowerCase()}`);
+          inp.onchange = () => { item[p.k] = Math.min(50, Math.max(1, parseInt(inp.value, 10) || 1)); kpCodeGuardarPrograma(); kpCodePintarPrograma(); };
           chip.appendChild(inp);
         }
       });
     }
+    const ordenar = (delta, simbolo, accion) => {
+      const boton = document.createElement('button');
+      boton.type = 'button';
+      boton.className = 'cute-order';
+      boton.textContent = simbolo;
+      const actionLabel = delta < 0 ? pjCodeTexto('moveUp') : pjCodeTexto('moveDown');
+      boton.title = `${actionLabel} ${b.nombre.toLowerCase()}`;
+      boton.setAttribute('aria-label', boton.title);
+      boton.disabled = idx + delta < 0 || idx + delta >= lista.length;
+      boton.onclick = () => {
+        const destino = idx + delta;
+        if (destino < 0 || destino >= lista.length) return;
+        lista.splice(destino, 0, lista.splice(idx, 1)[0]);
+        if (lista === programa && est.contenedorAbierto !== null) {
+          if (est.contenedorAbierto === idx) est.contenedorAbierto = destino;
+          else if (idx < est.contenedorAbierto && destino >= est.contenedorAbierto) est.contenedorAbierto--;
+          else if (idx > est.contenedorAbierto && destino <= est.contenedorAbierto) est.contenedorAbierto++;
+        }
+        kpCodeGuardarPrograma(); kpCodePintarPrograma();
+      };
+      chip.appendChild(boton);
+    };
+    ordenar(-1, '↑', 'Subir');
+    ordenar(1, '↓', 'Bajar');
     // Botón contenedor (solo para repetir/si): + para añadir pasos dentro, ✓ para cerrar
     if (item.bloques !== undefined) {
       const cerrar = document.createElement('button');
       cerrar.className = 'cute-cerrar';
       if (esContenedorAbierto) {
         cerrar.textContent = '✓';
-        cerrar.title = 'Cerrar: los siguientes pasos van fuera';
+        cerrar.title = pjCodeTexto('close');
       } else {
         cerrar.textContent = '+';
-        cerrar.title = 'Añadir pasos dentro';
+        cerrar.title = pjCodeTexto('addInside');
       }
       cerrar.onclick = () => {
         est.contenedorAbierto = esContenedorAbierto ? null : idx;
+        if (!esContenedorAbierto) est.ramaSi = item.op === 'si' ? 'bloques' : null;
+        else est.ramaSi = null;
         kpCodePintarPrograma();
       };
       chip.appendChild(cerrar);
@@ -2690,16 +3001,19 @@ function kpCodePintarPrograma() {
     if (item.bloques !== undefined && (item.bloques || []).length > 0) {
       const dentro = document.createElement('span');
       dentro.className = 'cute-chip-explica';
-      dentro.textContent = '(' + item.bloques.length + ' paso' + (item.bloques.length > 1 ? 's' : '') + ' dentro)';
+      dentro.textContent = `(${item.bloques.length} ${pjCodeTexto(item.bloques.length === 1 ? 'step' : 'steps')} ${pjCodeTexto('inside')})`;
       chip.appendChild(dentro);
     }
     const del = document.createElement('button');
+    del.type = 'button';
     del.className = 'cute-del'; del.textContent = '✕';
+    del.title = pjCodeTexto('removeBlock');
+    del.setAttribute('aria-label', del.title);
     del.onclick = () => {
       lista.splice(idx, 1);
       // Solo se reajusta el contenedor abierto si se borró del nivel raíz.
       if (lista === programa) {
-        if (est.contenedorAbierto === idx) est.contenedorAbierto = null;
+        if (est.contenedorAbierto === idx) { est.contenedorAbierto = null; est.ramaSi = null; }
         else if (est.contenedorAbierto !== null && est.contenedorAbierto > idx) est.contenedorAbierto--;
       }
       if (window.pjSonido) pjSonido.quitarBloque();
@@ -2710,14 +3024,38 @@ function kpCodePintarPrograma() {
     if (item.bloques !== undefined) {
       const sub = document.createElement('span');
       sub.className = 'cute-sub';
+      sub.setAttribute('role', 'list');
       (item.bloques || []).forEach((sb, si) => dibujarBloque(sb, si, profundidad + 1, false, sub, item.bloques));
       chip.appendChild(sub);
+      if (item.op === 'si' && Array.isArray(item.bloques_no) && item.bloques_no.length) {
+        const subNo = document.createElement('span');
+        subNo.className = 'cute-sub cute-sub-no';
+        subNo.setAttribute('role', 'list');
+        const labelNo = document.createElement('span');
+        labelNo.className = 'cute-chip-explica';
+        labelNo.textContent = pjCodeTexto('else');
+        subNo.appendChild(labelNo);
+        item.bloques_no.forEach((sb, si) => dibujarBloque(sb, si, profundidad + 1, false, subNo, item.bloques_no));
+        chip.appendChild(subNo);
+      }
     }
     (destino || cont).appendChild(chip);
   }
+  cont.querySelectorAll('button, input, select').forEach(control => { control.disabled = ejecutando; });
   programa.forEach((item, idx) => dibujarBloque(item, idx, 0, abierto === idx));
   const run = document.getElementById('kp-code-run');
-  if (run) run.disabled = !programa.length;
+  if (run) run.disabled = !programa.length || ejecutando;
+  const undo = document.getElementById('kp-code-undo');
+  if (undo) {
+    const contenedorAbierto = abierto == null ? null : programa[abierto];
+    const listaAbierta = contenedorAbierto
+      ? est.ramaSi === 'bloques_no' ? contenedorAbierto.bloques_no || [] : contenedorAbierto.bloques || []
+      : programa;
+    undo.disabled = !listaAbierta.length || ejecutando;
+  }
+  const clear = document.getElementById('kp-code-clear');
+  if (clear) clear.disabled = !programa.length || ejecutando;
+  document.querySelectorAll('#kp-code-paleta button').forEach(boton => { boton.disabled = ejecutando; });
 }
 
 // Añade un bloque al programa; si hay un contenedor (repetir/si) abierto,
@@ -2726,12 +3064,16 @@ function kpCodeAñadir(op, opts) {
   const s = pantallas[pantallaIdx];
   if (!s || s.tipo !== 'code') return;
   const est = kpEstado[pantallaIdx] || {};
+  if (est.ejecutando) return;
   if (!est.programa) est.programa = [];
   const b = CODE_BLOQUES_INFO[op];
   if (!b || !s.permitidos.includes(op)) return;
   const item = { op };
   if (b.params) b.params.forEach(p => { item[p.k] = (opts && opts[p.k] != null) ? opts[p.k] : (p.n ? 1 : (p.o ? p.o[0] : '')); });
-  if (b.anida) item.bloques = [];
+  if (b.anida) {
+    item.bloques = [];
+    if (op === 'si') item.bloques_no = [];
+  }
   // Si hay un contenedor abierto y este bloque es de movimiento → dentro
   if (est.contenedorAbierto != null) {
     const cont = est.programa[est.contenedorAbierto];
@@ -2740,8 +3082,11 @@ function kpCodeAñadir(op, opts) {
         // Contenedores no se anidan: se añaden al nivel raíz y se abren
         est.programa.push(item);
         est.contenedorAbierto = est.programa.length - 1;
+        est.ramaSi = op === 'si' ? 'bloques' : null;
       } else {
-        cont.bloques.push(item);
+        const rama = cont.op === 'si' && est.ramaSi === 'bloques_no' ? 'bloques_no' : 'bloques';
+        cont[rama] = Array.isArray(cont[rama]) ? cont[rama] : [];
+        cont[rama].push(item);
       }
       if (window.pjSonido) pjSonido.colocarBloque();
       kpCodeGuardarPrograma(); kpCodePintarPrograma();
@@ -2750,6 +3095,7 @@ function kpCodeAñadir(op, opts) {
   }
   est.programa.push(item);
   if (op === 'repetir' || op === 'si') est.contenedorAbierto = est.programa.length - 1;
+  est.ramaSi = op === 'si' ? 'bloques' : null;
   if (window.pjSonido) pjSonido.colocarBloque();
   kpCodeGuardarPrograma();
   kpCodePintarPrograma();
@@ -2759,6 +3105,7 @@ function kpCodeGuardarPrograma() {
   const s = pantallas[pantallaIdx];
   if (!s || s.tipo !== 'code') return;
   const est = kpEstado[pantallaIdx] || {};
+  if (est.ejecutando) return;
   est.resultado = null; est.superado = false;
   guardarPartidaLocal();
   // Previsualización en vivo: muestra el camino que haría Candela con el
@@ -2771,6 +3118,7 @@ function kpCodePrevisualizar() {
   const s = pantallas[pantallaIdx];
   if (!s || s.tipo !== 'code') return;
   const est = kpEstado[pantallaIdx] || {};
+  if (est.ejecutando) return;
   const svg = document.getElementById('kp-code-escenario');
   if (!svg) return;
   const programa = est.programa || [];
@@ -2804,7 +3152,7 @@ function kpCodePrevisualizar() {
   // Candela final con su flecha de dirección (para ver hacia dónde queda mirando)
   html += kpCandelaSVG(ox + ultimo.x * cell + cell / 2, oy + ultimo.y * cell + cell / 2, cell, ultimo.dir, fillFinal);
   // Etiqueta de vista previa
-  html += `<text x="${W - 16}" y="22" text-anchor="end" font-size="13" font-weight="800" fill="#8a93b8">👀 prevista</text>`;
+  html += `<text x="${W - 16}" y="22" text-anchor="end" font-size="13" font-weight="800" fill="#8a93b8">👀 ${pjCodeTexto('preview')}</text>`;
   svg.innerHTML = html;
 }
 
@@ -2812,10 +3160,27 @@ function kpCodeVaciar() {
   const s = pantallas[pantallaIdx];
   if (!s || s.tipo !== 'code') return;
   const est = kpEstado[pantallaIdx] || {};
-  est.programa = []; est.resultado = null; est.superado = false;
+  if (est.ejecutando) return;
+  est.programa = []; est.contenedorAbierto = null; est.ramaSi = null; est.resultado = null; est.superado = false;
   if (window.pjSonido) pjSonido.quitarBloque();
   kpCodePintarPrograma(); kpCodeDibujarEscenario();
   guardarPartidaLocal();
+}
+
+function kpCodeDeshacer() {
+  const s = pantallas[pantallaIdx];
+  if (!s || s.tipo !== 'code') return;
+  const est = kpEstado[pantallaIdx] || {};
+  if (est.ejecutando) return;
+  const contenedor = est.contenedorAbierto == null ? null : est.programa?.[est.contenedorAbierto];
+  const rama = contenedor?.op === 'si' && est.ramaSi === 'bloques_no' ? 'bloques_no' : 'bloques';
+  const lista = contenedor && Array.isArray(contenedor[rama]) ? contenedor[rama] : est.programa;
+  if (!Array.isArray(lista) || !lista.length) return;
+  lista.pop();
+  if (window.pjSonido) pjSonido.quitarBloque();
+  kpCodeGuardarPrograma();
+  kpCodePintarPrograma();
+  kpCodeDibujarEscenario();
 }
 
 function kpCodeSerializar(prog) {
@@ -2842,9 +3207,15 @@ async function kpCodeEjecutar() {
   if (!programa.length) return;
   const run = document.getElementById('kp-code-run');
   if (run && run.disabled) return; // evita doble ejecución (dobles toques)
-  if (run) run.disabled = true;
+  est.ejecutando = true;
+  kpCodePintarPrograma();
   const idxInicial = pantallaIdx; // no avanzar si el usuario navegó durante la animación
-  if (!window.PJCode) { kpCodeMostrarMsg('El motor de código no está cargado.', false); if (run) run.disabled = false; return; }
+  if (!window.PJCode) {
+    est.ejecutando = false;
+    kpCodePintarPrograma();
+    kpCodeMostrarMsg(pjCodeTexto('engineMissing'), false);
+    return;
+  }
 
   // 1) Evaluación LOCAL (funciona sin red ni DIP)
   const resultado = PJCode.ejecutarCode(s.escenario, s.inicio, kpCodeSerializar(programa), { maxPasos: (s.max_bloques || 10) * 20 });
@@ -2884,8 +3255,8 @@ async function kpCodeEjecutar() {
     const esUltimo = s.ejercicio >= (s.total_ejercicios || 1) - 1;
     const extraMonedas = monedasCogidas > 0 ? ` +${monedasCogidas} 🪙` : '';
     kpCodeMostrarMsg(esUltimo
-      ? '🎉 ¡Actividad completada! +1 punto verde' + extraMonedas
-      : `🎉 ¡Ejercicio ${(s.ejercicio || 0) + 1} superado!` + extraMonedas, true);
+      ? `🎉 ${pjCodeTexto('completed')} +1 ${pjCodeTexto('greenPoint')}` + extraMonedas
+      : `🎉 ${pjCodeTexto('exercisePassed').replace('{0}', String((s.ejercicio || 0) + 1))}` + extraMonedas, true);
     // Guarda el progreso (local); solo se marca completada al superar el último
     if (actividadActual && actividadActual.id && window.PJPartidas) {
       if (esUltimo) {
@@ -2900,11 +3271,12 @@ async function kpCodeEjecutar() {
   } else {
     kpScore.rojos++;
     if (window.pjSonido) pjSonido.error();
-    const primerFallo = (evalRes.fallos && evalRes.fallos[0]) || 'No superado. Inténtalo de nuevo.';
+    const primerFallo = pjCodeTraducirFallo((evalRes.fallos && evalRes.fallos[0]) || pjCodeTexto('tryAgain'));
     kpCodeMostrarMsg('💪 ' + primerFallo, false);
     guardarPartidaLocal();
   }
-  if (run) run.disabled = false;
+  est.ejecutando = false;
+  if (pantallaIdx === idxInicial) kpCodePintarPrograma();
 }
 
 // Dibuja a Candela en el paso indicado del trazado (animación por pasos).
@@ -2927,6 +3299,9 @@ function kpCodeMostrarMsg(texto, ok) {
     msg = document.createElement('div');
     msg.id = 'kp-code-msg';
     msg.className = 'kp-msg';
+    msg.setAttribute('role', 'status');
+    msg.setAttribute('aria-live', 'polite');
+    msg.setAttribute('aria-atomic', 'true');
     const acciones = document.querySelector('.code-acciones');
     if (acciones) acciones.after(msg);
   }

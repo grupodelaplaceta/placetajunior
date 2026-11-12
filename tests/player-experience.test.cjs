@@ -33,5 +33,21 @@ test('player icons render as inline SVG and the SVG assets are cached offline', 
   assert.match(icons, /createElementNS\('http:\/\/www\.w3\.org\/2000\/svg', 'svg'\)/);
   assert.match(icons, /svg\.setAttribute\('aria-hidden', 'true'\)/);
   assert.match(icons, /observer\.observe\(document\.body/);
-  assert.match(read('public/sw.js'), /placetajunior-assets-v17/);
+  assert.match(read('public/sw.js'), /placetajunior-assets-v19/);
+});
+
+test('code blocks have an organized workbench and accessible edit controls', () => {
+  const player = read('public/js/player.js');
+  const styles = read('public/css/styles.css');
+  assert.match(player, /code-palette-group/);
+  assert.match(player, /kpCodeDeshacer/);
+  assert.match(player, /className = 'cute-order'/);
+  assert.match(player, /setAttribute\('aria-live', 'polite'\)/);
+  assert.match(player, /if \(item\.op === 'girar'\)/);
+  assert.match(player, /if \(item\.op === 'repetir'\)/);
+  assert.match(styles, /\.code-workbench/);
+  assert.match(styles, /@media \(max-width: 620px\)/);
+  assert.match(styles, /prefers-reduced-motion: reduce/);
+  assert.match(read('public/jugar.html'), /player\.js\?v=code-curriculum-1/);
+  assert.match(read('public/preview.html'), /player\.js\?v=code-curriculum-1/);
 });

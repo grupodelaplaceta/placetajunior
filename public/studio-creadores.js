@@ -49,9 +49,14 @@
     tangram: { modo: 'completar', estilo: 'clasico', cantidad: 4 }
   };
   const CODE_DEFAULT_EXERCISES = [
-    { titulo: 'Avanza hasta la estrella', explicacion: 'Añade dos bloques AVANZAR.', objetivo_texto: 'Lleva a Candela hasta la estrella.', bloques_permitidos: ['avanzar'], escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [] }, inicio: { x: 0, y: 0, direccion: 'derecha' }, objetivo: { posicion: { x: 2, y: 0 }, max_pasos: 4 }, pistas: ['Cada bloque AVANZAR mueve una casilla.'] },
-    { titulo: 'Rodea la roca', explicacion: 'Gira a la derecha para rodear la roca.', objetivo_texto: 'Llega a la estrella sin chocar con la roca.', bloques_permitidos: ['avanzar', 'girar'], escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [{ x: 1, y: 0 }], monedas: [] }, inicio: { x: 0, y: 0, direccion: 'derecha' }, objetivo: { posicion: { x: 1, y: 1 }, max_pasos: 4 }, pistas: ['Gira a la derecha y avanza una casilla.'] },
-    { titulo: 'Repite el recorrido', explicacion: 'Usa un bucle para avanzar cuatro casillas.', objetivo_texto: 'Programa a Candela para llegar a la estrella usando REPETIR.', bloques_permitidos: ['avanzar', 'repetir'], escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [] }, inicio: { x: 0, y: 0, direccion: 'derecha' }, objetivo: { posicion: { x: 4, y: 0 }, max_pasos: 5, debe_usar: ['repetir'] }, pistas: ['Crea un bloque REPETIR 4 veces e incluye AVANZAR dentro.'] }
+    { identificador: 'PJC-001', etapa: 'Primaria', dificultad: 'Inicial', titulo: 'Primeros pasos', explicacion: 'Cada bloque AVANZAR mueve a Candela una casilla.', objetivo_texto: 'Programa los pasos para llegar a la estrella.', bloques_permitidos: ['avanzar'], escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [] }, inicio: { x: 0, y: 0, direccion: 'derecha' }, objetivo: { posicion: { x: 2, y: 0 }, max_pasos: 4 }, pistas: ['Cuenta las casillas que separan a Candela de la estrella.'] },
+    { identificador: 'PJC-002', etapa: 'Primaria', dificultad: 'Inicial', titulo: 'Gira correctamente', explicacion: 'Un giro cambia hacia dónde mira Candela, pero no la mueve.', objetivo_texto: 'Llega a la estrella girando y avanzando.', bloques_permitidos: ['avanzar', 'girar'], escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [] }, inicio: { x: 0, y: 0, direccion: 'derecha' }, objetivo: { posicion: { x: 1, y: 1 }, max_pasos: 3 }, pistas: ['Avanza una casilla, gira a la derecha y vuelve a avanzar.'] },
+    { identificador: 'PJC-003', etapa: 'Primaria', dificultad: 'Intermedia', titulo: 'El laberinto', explicacion: 'Planifica cómo rodear la roca sin chocar.', objetivo_texto: 'Llega a la estrella usando el camino libre.', bloques_permitidos: ['avanzar', 'girar'], escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [{ x: 1, y: 0 }], monedas: [] }, inicio: { x: 0, y: 0, direccion: 'derecha' }, objetivo: { posicion: { x: 1, y: 1 }, max_pasos: 4 }, pistas: ['Gira a la derecha para pasar por debajo de la roca.'] },
+    { identificador: 'PJC-004', etapa: 'Primaria', dificultad: 'Intermedia', titulo: 'Recoge la moneda', explicacion: 'Puedes agrupar pasos repetidos en un bucle.', objetivo_texto: 'Recoge la moneda y llega a la estrella usando REPETIR.', bloques_permitidos: ['avanzar', 'repetir'], escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [{ x: 1, y: 0 }] }, inicio: { x: 0, y: 0, direccion: 'derecha' }, objetivo: { posicion: { x: 3, y: 0 }, monedas: 1, max_pasos: 4, debe_usar: ['repetir'] }, pistas: ['Repite AVANZAR tres veces. La moneda se recoge al pasar por ella.'] },
+    { identificador: 'PJC-005', etapa: 'Primaria', dificultad: 'Avanzada', titulo: 'La puerta secreta', explicacion: 'Un condicional permite decidir según lo que haya delante.', objetivo_texto: 'Si hay un obstáculo delante, gira y avanza.', bloques_permitidos: ['avanzar', 'girar', 'si'], escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [{ x: 1, y: 0 }], monedas: [] }, inicio: { x: 0, y: 0, direccion: 'derecha' }, objetivo: { posicion: { x: 0, y: 1 }, max_pasos: 3, debe_usar: ['si'] }, pistas: ['Dentro de SI coloca GIRAR a la derecha y AVANZAR.'] },
+    { identificador: 'PJC-006', etapa: 'Secundaria', dificultad: 'Intermedia', titulo: 'El robot perdido', explicacion: 'Los sensores permiten reaccionar a objetos cercanos.', objetivo_texto: 'Usa SI para recoger la moneda que está delante.', bloques_permitidos: ['avanzar', 'si'], escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [{ x: 1, y: 0 }] }, inicio: { x: 0, y: 0, direccion: 'derecha' }, objetivo: { posicion: { x: 1, y: 0 }, monedas: 1, max_pasos: 2, debe_usar: ['si'] }, pistas: ['Cambia la condición de SI a moneda e incluye AVANZAR dentro.'] },
+    { identificador: 'PJC-007', etapa: 'Secundaria', dificultad: 'Intermedia', titulo: 'Rescate espacial', explicacion: 'GIRAR 180° invierte la dirección en un solo bloque.', objetivo_texto: 'Da media vuelta y vuelve una casilla.', bloques_permitidos: ['avanzar', 'girar_180'], escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [] }, inicio: { x: 2, y: 0, direccion: 'derecha' }, objetivo: { posicion: { x: 1, y: 0 }, max_pasos: 2, debe_usar: ['girar_180'] }, pistas: ['Primero gira 180 grados y después avanza.'] },
+    { identificador: 'PJC-008', etapa: 'Secundaria', dificultad: 'Avanzada', titulo: 'El tesoro escondido', explicacion: 'Resuelve el reto con el menor número de instrucciones.', objetivo_texto: 'Llega a la estrella con un bucle REPETIR.', bloques_permitidos: ['avanzar', 'repetir'], escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [] }, inicio: { x: 0, y: 0, direccion: 'derecha' }, objetivo: { posicion: { x: 5, y: 0 }, max_pasos: 5, debe_usar: ['repetir'] }, pistas: ['Un bucle con cinco AVANZAR dentro reduce bloques duplicados.'] }
   ];
   const PRIMARY_HELP = {
     reloj: 'Cambia la hora o el modo. Usa HH:MM en formato de 24 horas; 16:30 se representa como 4:30 en el reloj analógico.',
@@ -679,7 +684,7 @@
   }
 
   const CODE_COMMANDS = [
-    ['avanzar', 'Avanzar'], ['retroceder', 'Retroceder'], ['girar', 'Girar'],
+    ['avanzar', 'Avanzar'], ['retroceder', 'Retroceder'], ['girar', 'Girar'], ['girar_180', 'Girar 180°'],
     ['saltar', 'Saltar'], ['repetir', 'Repetir'], ['si', 'Si']
   ];
 
@@ -699,6 +704,10 @@
       `<label class="code-command"><input type="checkbox" data-code-index="${index}" data-code-command="${group}" value="${id}"${selected.includes(id) ? ' checked' : ''}><span>${label}</span></label>`
     ).join('');
     return `<fieldset class="repeat-item code-exercise"><legend>Reto ${index + 1}</legend>
+      ${field('Identificador del reto', 'identificador', exercise.identificador || `PJC-${String(index + 1).padStart(3, '0')}`)}
+      <div class="code-field-grid">${field('Etapa', 'etapa', exercise.etapa || 'Primaria', 'text', 'list="code-stages-' + index + '"')}${field('Dificultad', 'dificultad', exercise.dificultad || 'Inicial', 'text', 'list="code-difficulties-' + index + '"')}</div>
+      <datalist id="code-stages-${index}"><option value="Primaria"><option value="Secundaria"></datalist>
+      <datalist id="code-difficulties-${index}"><option value="Inicial"><option value="Intermedia"><option value="Avanzada"></datalist>
       ${field('Título', 'titulo', exercise.titulo)}
       ${field('Instrucción breve', 'explicacion', exercise.explicacion)}
       ${field('Misión para el alumnado', 'objetivo_texto', exercise.objetivo_texto)}

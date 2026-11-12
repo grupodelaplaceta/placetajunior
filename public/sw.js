@@ -6,7 +6,7 @@
    ═══════════════════════════════════════════════════════════════════ */
 // Versionar la caché fuerza la actualización del reproductor y estilos en
 // dispositivos que ya visitaron la web.
-const CACHE = 'placetajunior-assets-v17';
+const CACHE = 'placetajunior-assets-v19';
 
 const ASSETS = [
   '/css/styles.css',
@@ -15,6 +15,7 @@ const ASSETS = [
   '/css/leaflet.css',
   '/js/app.js',
   '/js/player.js',
+  '/js/code-engine.js',
   '/js/player-icons.js',
   '/js/subjects-i18n.js',
   '/js/actividades/primaria-clasica.js',
