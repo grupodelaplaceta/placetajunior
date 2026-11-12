@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { validarSolicitud, DOCUMENTOS } = require('../lib/centros/validacion.js');
+const { validarSolicitud, DOCUMENTOS } = require('../lib/education/centers/validacion.js');
 
 const buena = () => ({
   nombreCentro: 'CEIP Los Olivos', tipoCentro: 'primaria', ciudad: 'Sevilla',

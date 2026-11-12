@@ -9,36 +9,36 @@ const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 
 test('el editor de creación es la única ruta pública de Studio y redirige el acceso antiguo', () => {
   const config = JSON.parse(read('vercel.json'));
-  assert.ok(config.routes.some((route) => route.src === '/crear-actividad' && route.dest === '/public/studio-creadores.html'));
+  assert.ok(config.routes.some((route) => route.src === '/crear-actividad' && route.dest === '/public/education/studio/index.html'));
   assert.ok(config.routes.some((route) => route.src === '/studio/?$' && route.status === 308 && route.headers.Location === '/edu/studio'));
   assert.ok(config.routes.some((route) => route.src === '/studio.html' && route.status === 308 && route.headers.Location === '/edu/studio'));
-  assert.match(read('public/centros/panel.html'), /href="\/edu\/studio">Studio<\/a>/);
-  assert.match(read('public/centros/panel.html'), /data-nav-add-center hidden/);
+  assert.match(read('public/education/centers/panel.html'), /href="\/edu\/studio">Studio<\/a>/);
+  assert.match(read('public/education/centers/panel.html'), /data-nav-add-center hidden/);
 });
 
 test('el lienzo y el borrador solo se inicializan tras verificar permisos activos', () => {
-  const html = read('public/studio-creadores.html');
-  const js = read('public/studio-creadores.js');
+  const html = read('public/education/studio/index.html');
+  const js = read('public/education/studio/studio.js');
   assert.match(html, /id="creator-tools" hidden/);
   assert.match(html, /id="access-gate"/);
   assert.match(js, /data\.docenteAprobado === true/);
   assert.match(js, /org\.estado === 'activo' && String\(org\.rol\)\.toLowerCase\(\) === 'administrador'/);
   assert.ok(js.indexOf('if (!authorized) return;') < js.indexOf('loadDrafts();'));
-  const handler = read('lib/centros/handlers.js');
+  const handler = read('lib/education/centers/handlers.js');
   assert.match(handler, /docenteAprobado, solicitudes/);
   assert.match(handler, /res\.setHeader\('Cache-Control', 'no-store'\);\s+const u = await exigirUsuario\(req\)/);
 });
 
 test('la barra de dispositivos de la vista previa tiene el id que enlaza Studio', () => {
-  const html = read('public/studio-creadores.html');
-  const js = read('public/studio-creadores.js');
+  const html = read('public/education/studio/index.html');
+  const js = read('public/education/studio/studio.js');
   assert.match(html, /class="preview-device-options" id="preview-device-options"/);
   assert.match(js, /\$\('preview-device-options'\)\.addEventListener\('click'/);
 });
 
 test('el editor incluye cuatro plantillas y editor visual para tipos comunes', () => {
-  const html = read('public/studio-creadores.html');
-  const js = read('public/studio-creadores.js');
+  const html = read('public/education/studio/index.html');
+  const js = read('public/education/studio/studio.js');
   assert.match(html, /class="studio-visual"/);
   assert.match(html, /data-nav-register/);
   assert.match(html, /data-nav-add-center hidden/);
@@ -91,8 +91,8 @@ test('los once tipos nuevos generan pantallas con el reproductor existente', () 
 });
 
 test('el Studio ofrece controles de reloj, medida, dados y ejercicios sin editor JSON oculto', () => {
-  const studio = read('public/studio-creadores.js');
-  const html = read('public/studio-creadores.html');
+  const studio = read('public/education/studio/studio.js');
+  const html = read('public/education/studio/index.html');
   for (const control of ['reloj', 'medida', 'measureTasks', 'diceTasks', 'balanceTasks', 'sequenceTasks', 'symmetryTasks', 'rouletteTasks', 'operationTasks', 'mentalTasks']) {
     assert.ok(studio.includes(control), `Debe tener controles visuales para ${control}`);
   }
@@ -106,7 +106,7 @@ test('el Studio ofrece controles de reloj, medida, dados y ejercicios sin editor
 });
 
 test('los retos de Code se diseñan directamente en una cuadrícula con herramientas accesibles', () => {
-  const studio = read('public/studio-creadores.js');
+  const studio = read('public/education/studio/studio.js');
   const styles = read('public/css/styles.css');
   assert.match(studio, /data-code-board-tool="\$\{id\}"/);
   assert.match(studio, /data-code-board-cell="\$\{x\},\$\{y\}"/);
@@ -119,8 +119,8 @@ test('los retos de Code se diseñan directamente en una cuadrícula con herramie
 });
 
 test('el lienzo permite deshacer, rehacer, duplicar y mover bloques', () => {
-  const html = read('public/studio-creadores.html');
-  const js = read('public/studio-creadores.js');
+  const html = read('public/education/studio/index.html');
+  const js = read('public/education/studio/studio.js');
   assert.match(html, /id="undo-action"/);
   assert.match(html, /id="redo-action"/);
   assert.match(js, /function restoreHistory\(index\)/);
@@ -131,8 +131,8 @@ test('el lienzo permite deshacer, rehacer, duplicar y mover bloques', () => {
 });
 
 test('la vista previa se abre integrada y explica el acabado editorial', () => {
-  const html = read('public/studio-creadores.html');
-  const js = read('public/studio-creadores.js');
+  const html = read('public/education/studio/index.html');
+  const js = read('public/education/studio/studio.js');
   const preview = read('public/preview.html');
   const playerIcons = read('public/js/player-icons.js');
   const gamePage = read('public/jugar.html');
@@ -166,10 +166,11 @@ test('el portal educativo ofrece el editor en castellano, catalán e inglés', (
 });
 
 test('el envío verifica en servidor el docente aprobado o el administrador del centro', () => {
-  const handler = read('lib/centros/handlers.js');
+  const handler = read('lib/education/centers/handlers.js');
   const api = read('api/centros.js');
-  const js = read('public/studio-creadores.js');
-  assert.match(api, /'crear-actividad': h\.crearActividad/);
+  const js = read('public/education/studio/studio.js');
+  assert.match(api, /lib\/education\/centers\/handler\.js/);
+  assert.match(read('lib/education/centers/handler.js'), /'crear-actividad': h\.crearActividad/);
   assert.match(handler, /tipo_centro=eq\.docente&estado=eq\.aprobada/);
   assert.match(handler, /centroAdministrador\(req, body\.orgId\)/);
   assert.match(handler, /tipo_titular: 'centro'/);

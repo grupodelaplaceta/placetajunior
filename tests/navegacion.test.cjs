@@ -29,37 +29,37 @@ test('la página Para educación enlaza solo a rutas que existen y no expone RSP
   assert.equal(enlaces.length, 5);
   for (const e of enlaces) {
     const base = e.split('?')[0];
-    const ok = base === '/edu/alta' ? '/public/centros/index.html'
-      : base === '/edu/centros' ? '/public/centros/panel.html'
-      : base === '/edu/studio' ? '/public/studio-creadores.html' : null;
+    const ok = base === '/edu/alta' ? '/public/education/centers/index.html'
+      : base === '/edu/centros' ? '/public/education/centers/panel.html'
+      : base === '/edu/studio' ? '/public/education/studio/index.html' : null;
     assert.ok(ok && destinos.has(ok), e);
   }
   assert.ok(!/rsp/i.test(pagina));
 });
 
 test('el alta de docente individual se elige antes del formulario y conserva la compatibilidad de URL', () => {
-  const html = leer('public/centros/index.html');
+  const html = leer('public/education/centers/index.html');
   assert.ok(html.includes('data-tipo-alta="docente"'));
   assert.ok(html.includes('<option value="docente" hidden>'));
-  const app = leer('public/centros/assets/app.js');
+  const app = leer('public/education/centers/assets/app.js');
   assert.ok(app.includes("get('tipo')"));
   assert.ok(app.includes("tipo === 'docente' ? 'docente'"));
-  const { TIPOS_CENTRO } = require('../lib/centros/validacion.js');
+  const { TIPOS_CENTRO } = require('../lib/education/centers/validacion.js');
   assert.ok(TIPOS_CENTRO.includes('docente'));
   assert.ok(TIPOS_CENTRO.includes('primaria'), 'los tipos de centro siguen');
 });
 
 test('Studio, alta y mis centros comparten navegación y el alta de un segundo centro se inicia desde el botón +', () => {
-  const studio = leer('public/studio-creadores.html');
-  const registro = leer('public/centros/index.html');
-  const panel = leer('public/centros/panel.html');
-  const nav = leer('public/centros/assets/education-nav.js');
+  const studio = leer('public/education/studio/index.html');
+  const registro = leer('public/education/centers/index.html');
+  const panel = leer('public/education/centers/panel.html');
+  const nav = leer('public/education/centers/assets/education-nav.js');
   for (const html of [studio, registro, panel]) {
     assert.ok(html.includes('class="education-topbar"'));
     assert.match(html, /href="\/edu\/studio"[^>]*>Studio<\/a>/);
     assert.ok(html.includes('href="/edu/centros" data-requiere-sesion'));
     assert.ok(html.includes('href="/edu/alta?tipo=centro" data-nav-add-center hidden'));
-    assert.ok(html.includes('/edu/assets/centros/education-nav.js'));
+    assert.ok(html.includes('/education/centers/assets/education-nav.js'));
   }
   assert.match(nav, /fetch\('\/api\/centros\/mi'/);
   assert.match(nav, /data\.organizaciones\.length/);
@@ -68,7 +68,7 @@ test('Studio, alta y mis centros comparten navegación y el alta de un segundo c
 });
 
 test('las cuentas con centros vuelven al panel; el botón + abre el alta independiente', () => {
-  const app = leer('public/centros/assets/app.js');
+  const app = leer('public/education/centers/assets/app.js');
   assert.match(app, /async function paginaRegistro\(\)/);
   assert.match(app, /tipoSolicitado !== 'centro' && tipoSolicitado !== 'docente'[\s\S]*?datos\.organizaciones\.length[\s\S]*?location\.replace\('\/edu\/centros'\)/);
   assert.match(app, /href="\/edu\/alta\?tipo=centro" aria-label="Añadir otro centro"/);
@@ -87,7 +87,7 @@ test('la categoría Pensamiento computacional muestra su traducción en el catá
   assert.match(app, /TODAS\.map\(pjAplicarTraduccionActividad\)/);
   assert.match(app, /resultado\[campo\] = traduccion\[campo\]/);
   assert.match(app, /c\.includes\('computacional'\).*c\.includes\('botxifra'\).*c\.includes\('stem'\)/);
-  assert.match(leer('public/studio-creadores.html'), /<option>Pensamiento computacional<\/option>/);
+  assert.match(leer('public/education/studio/index.html'), /<option>Pensamiento computacional<\/option>/);
 });
 
 test('las tarjetas usan portada traducida y solo muestran la insignia del idioma activo', () => {

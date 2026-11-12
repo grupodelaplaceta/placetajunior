@@ -4,11 +4,11 @@ const crypto = require('node:crypto');
 
 process.env.PJ27_CLAVE_CIFRADO = crypto.randomBytes(32).toString('base64');
 
-const pol = require('../lib/educacion/politica.js');
-const cifrado = require('../lib/educacion/cifrado.js');
-const firma = require('../lib/educacion/firma.js');
-const sesion = require('../lib/educacion/sesion.js');
-const rutas = require('../lib/educacion/rutas.js');
+const pol = require('../lib/education/core/politica.js');
+const cifrado = require('../lib/education/core/cifrado.js');
+const firma = require('../lib/education/core/firma.js');
+const sesion = require('../lib/education/core/sesion.js');
+const rutas = require('../lib/education/core/rutas.js');
 
 test('la política por defecto es válida y no cambia al validarla', () => {
   const d = pol.configDefecto();
@@ -80,7 +80,7 @@ test('la contraseña de administración se guarda con scrypt, nunca en claro', (
   assert.equal(sesion.hashClave('mi-clave', salt), h);
 });
 
-const pin = require('../lib/educacion/pin.js');
+const pin = require('../lib/education/core/pin.js');
 
 test('la organización tiene ventanas maximizadas, mayúsculas mixtas, español y sin PIN por defecto', () => {
   const d = pol.configDefecto();

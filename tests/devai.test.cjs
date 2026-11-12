@@ -57,7 +57,7 @@ test('DevAI ofrece una plantilla ejecutable de Placeta Junior Code para Primaria
   assert.equal(fields.categoria.value, 'Pensamiento computacional');
 
   const engineWindow = {};
-  const engineSource = fs.readFileSync(path.join(__dirname, '..', 'public', 'js', 'code-engine.js'), 'utf8');
+  const engineSource = fs.readFileSync(path.join(__dirname, '..', 'public', 'code', 'engine.js'), 'utf8');
   vm.runInNewContext(engineSource, { window: engineWindow });
   const solutions = [
     [{ op: 'avanzar' }, { op: 'avanzar' }],

@@ -44,7 +44,7 @@ Once tipos de bloque clásicos, 100 % declarativos (JSON dentro de `datos`, tamb
 Integración:
 - **Reproductor** (`player.js`): rama en `abrirJuego`, `renderPantalla`, etiqueta y texto accesible. Script cargado en `jugar.html` y `preview.html`.
 - **DevAI** (`devai.html`): ejemplos y reglas en el prompt + sección «Retos de Primaria» con plantillas que abren el reproductor real.
-- **Studio docente** (`/crear-actividad`, `public/studio-creadores.html` y `public/studio-creadores.js`): paleta y edición visual de los ejercicios; las modalidades no requieren editar JSON.
+- **Studio docente** (`/crear-actividad`, `public/education/studio/index.html` y `public/education/studio/studio.js`): paleta y edición visual de los ejercicios; las modalidades no requieren editar JSON.
 - **PDF/fichas** (`app.js › fichaPrimariaPdf`): versión imprimible de cada tipo.
 - **Modalidades** (`modalidades.js`): añadidos a la lista de la etapa `primaria`.
 

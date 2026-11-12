@@ -6,20 +6,29 @@
    ═══════════════════════════════════════════════════════════════════ */
 // Versionar la caché fuerza la actualización del reproductor y estilos en
 // dispositivos que ya visitaron la web.
-const CACHE = 'placetajunior-assets-v22';
+const CACHE = 'placetajunior-assets-v23';
 
 const ASSETS = [
   '/css/styles.css',
-  '/css/code-responsive.css',
-  '/css/edu-hub.css',
-  '/js/edu-legacy-redirect.js',
-  '/js/edu-hub.js',
+  '/code/responsive.css',
+  '/education/assets/hub.css',
+  '/education/assets/legacy-redirect.js',
+  '/education/assets/hub.js',
+  '/education/assets/admin.css',
+  '/education/assets/navigation.css',
+  '/education/admin/portal.css',
+  '/education/admin/portal.js',
+  '/education/centers/assets/app.css',
+  '/education/centers/assets/app.js',
+  '/education/centers/assets/education-nav.js',
+  '/education/studio/studio.css',
+  '/education/studio/studio.js',
   '/css/home.css',
   '/css/accesibilidad.css',
   '/css/leaflet.css',
   '/js/app.js',
   '/js/player.js',
-  '/js/code-engine.js',
+  '/code/engine.js',
   '/js/player-icons.js',
   '/js/subjects-i18n.js',
   '/js/actividades/primaria-clasica.js',

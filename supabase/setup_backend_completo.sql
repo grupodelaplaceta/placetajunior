@@ -74,7 +74,7 @@ create index if not exists "PJ27_miembros_user_idx"
 create index if not exists "PJ27_miembros_org_idx"
   on public."PJ27_miembros" (org_id);
 
--- Estado de Education: un documento JSON versionado como espera lib/educacion/estado.js.
+-- Estado de Education: un documento JSON versionado como espera lib/education/core/estado.js.
 create table if not exists public."PJ27_estado" (
   id text primary key,
   datos jsonb not null,

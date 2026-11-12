@@ -575,6 +575,7 @@ function generarPdfCode(a) {
     avanzar:    { nombre: 'AVANZAR',    ico: '➡️', desc: 'Avanza 1 casilla' },
     retroceder: { nombre: 'RETROCEDER', ico: '⬅️', desc: 'Retrocede 1 casilla' },
     girar:      { nombre: 'GIRAR',      ico: '🔄', desc: 'Gira a la derecha o a la izquierda' },
+    girar_180:  { nombre: 'GIRAR 180°', ico: '↩️', desc: 'Da media vuelta' },
     saltar:     { nombre: 'SALTAR',     ico: '⤴️', desc: 'Salta 2 casillas' },
     repetir:    { nombre: 'REPETIR',    ico: '🔁', desc: 'Repite los pasos N veces' },
     si:         { nombre: 'SI',         ico: '❓', desc: 'Si se cumple la condición…' }
@@ -624,7 +625,12 @@ function generarPdfCode(a) {
     cuerpo += '</div>';
     cuerpo += cuadricula(ej);
     cuerpo += '<p class="ws-code-paper-task"><b>En papel:</b> dibuja el recorrido en la cuadrícula y escribe los bloques en orden.</p>';
-    cuerpo += '<div class="ws-code-answer"><b>Mi programa</b><div>1. ____________________ &nbsp; 2. ____________________</div><div>3. ____________________ &nbsp; 4. ____________________</div><div>5. ____________________ &nbsp; 6. ____________________</div></div>';
+    const espacios = Math.min(12, Math.max(6, Number(ej.objetivo?.max_pasos) || 8));
+    const lineasPrograma = Array.from({ length: Math.ceil(espacios / 2) }, (_, row) => {
+      const first = row * 2 + 1, second = first + 1;
+      return `<div>${first}. ____________________ &nbsp; ${second <= espacios ? `${second}. ____________________` : ''}</div>`;
+    }).join('');
+    cuerpo += `<div class="ws-code-answer"><b>Mi programa</b>${lineasPrograma}</div>`;
     cuerpo += '</div>';
   });
   cuerpo += '</div>';
@@ -829,8 +835,8 @@ function mostrarSelectorPdf(id) {
     <div class="pj-modal-card pj-pdf-card">
       <button type="button" class="pj-modal-close" onclick="this.closest('#pj-pdf-popup')?.remove()" aria-label="Cerrar">×</button>
       <span class="material-symbols-rounded pj-pdf-icon" aria-hidden="true">print</span>
-      <h2>Ficha para imprimir</h2>
-      <p>Elige cómo quieres la hoja de trabajo: con letras mayúsculas o minúsculas y lista para escribir o marcar.</p>
+      <h2>Ficha para papel o PDF</h2>
+      <p>Elige el formato y, al continuar, selecciona «Guardar como PDF» o una impresora en el diálogo del navegador.</p>
       <div class="pj-pdf-section">
         <strong>Letra</strong>
         <div class="pj-pdf-grid">
@@ -845,7 +851,7 @@ function mostrarSelectorPdf(id) {
           <button type="button" class="pj-escritura-opcion ${pref.modo === 'marcar' ? 'active' : ''}" data-pdf-modo="marcar"><strong>☑️</strong><span>Para marcar</span></button>
         </div>
       </div>
-      <button type="button" class="btn btn-primary" data-pdf-confirm="1">Generar PDF</button>
+      <button type="button" class="btn btn-primary" data-pdf-confirm="1">Imprimir / Guardar PDF</button>
     </div>`;
   document.body.appendChild(popup);
 
@@ -911,7 +917,7 @@ async function descargarPdf(id, pref = null) {
     ? `<div class="ws-img"><img src="${esc(url)}" alt=""><span class="ws-fuente">${esc(normalizarTextoPdf(fuente || 'Imagen', opciones.mayusculas))}</span></div>`
     : '';
   let cuerpo = '';
-  if (esCode && !unidadesPdf.length) {
+  if (esCode && !unidadesPdf.length && !bloques.length) {
     cuerpo = generarPdfCode(a);
   }
   const textoPdf = (valor, fallback = '') => normalizarTextoPdf(valor ?? fallback, opciones.mayusculas);
@@ -1012,7 +1018,7 @@ async function descargarPdf(id, pref = null) {
       if (Number(n.recompensa || 0)) cuerpo += '<p class="ws-reward">' + esc(textoPdf('Recompensa de la unidad: +')) + Number(n.recompensa) + ' Pz</p>';
       cuerpo += '</div>';
     });
-  } else {
+  } else if (!esCode || bloques.length) {
     bloques.forEach(imprimirBloque);
   }
   // Portada de la actividad (16:9) en el worksheet

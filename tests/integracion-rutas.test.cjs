@@ -57,8 +57,8 @@ test('rutas de dispositivos del centro preceden a la ruta genérica y usan la fu
 });
 
 test('el alta permite elegir centro o docente antes de Google y el panel incluye gestión sin login separado', () => {
-  const html = fs.readFileSync(path.join(raiz, 'public/centros/index.html'), 'utf8');
-  const app = fs.readFileSync(path.join(raiz, 'public/centros/assets/app.js'), 'utf8');
+  const html = fs.readFileSync(path.join(raiz, 'public/education/centers/index.html'), 'utf8');
+  const app = fs.readFileSync(path.join(raiz, 'public/education/centers/assets/app.js'), 'utf8');
   assert.match(html, /id="eleccion-alta"/);
   assert.match(html, /data-tipo-alta="centro"/);
   assert.match(html, /data-tipo-alta="docente"/);
@@ -70,8 +70,8 @@ test('el alta permite elegir centro o docente antes de Google y el panel incluye
 });
 
 test('el alta muestra el estado de carga y permite recuperarse de errores al iniciar', () => {
-  const html = fs.readFileSync(path.join(raiz, 'public/centros/index.html'), 'utf8');
-  const app = fs.readFileSync(path.join(raiz, 'public/centros/assets/app.js'), 'utf8');
+  const html = fs.readFileSync(path.join(raiz, 'public/education/centers/index.html'), 'utf8');
+  const app = fs.readFileSync(path.join(raiz, 'public/education/centers/assets/app.js'), 'utf8');
   assert.match(html, /id="cargando"[^>]*role="status"/);
   assert.match(html, /id="reintentar-carga"/);
   assert.match(html, /id="volver-carga"/);
@@ -81,9 +81,9 @@ test('el alta muestra el estado de carga y permite recuperarse de errores al ini
 });
 
 test('el panel identifica plataformas declaradas y no ofrece actualizaciones sin API autorizada', () => {
-  const app = fs.readFileSync(path.join(raiz, 'public/centros/assets/app.js'), 'utf8');
-  const handlers = fs.readFileSync(path.join(raiz, 'lib/centros/handlers.js'), 'utf8');
-  const rutas = fs.readFileSync(path.join(raiz, 'lib/educacion/rutas.js'), 'utf8');
+  const app = fs.readFileSync(path.join(raiz, 'public/education/centers/assets/app.js'), 'utf8');
+  const handlers = fs.readFileSync(path.join(raiz, 'lib/education/centers/handlers.js'), 'utf8');
+  const rutas = fs.readFileSync(path.join(raiz, 'lib/education/core/rutas.js'), 'utf8');
   assert.match(rutas, /PLATAFORMAS_DISPOSITIVO = \['windows', 'chromebook'\]/);
   assert.match(rutas, /plataforma: PLATAFORMAS_DISPOSITIVO\.includes\(body\.plataforma\) \? body\.plataforma : null/);
   assert.match(rutas, /deviceId: disp\.id/);
@@ -100,40 +100,44 @@ test('los accesos de centro usan Google y el dashboard expone estadísticas oper
   const inicio = fs.readFileSync(path.join(raiz, 'public/index.html'), 'utf8');
   assert.match(inicio, /ac\('\/edu\/centros','flask',[^\n]*'Gestionar mis dispositivos'/);
   assert.doesNotMatch(inicio, /ac\('\/educacion\/','flask'/);
-  const educacion = fs.readFileSync(path.join(raiz, 'public/educacion/index.html'), 'utf8');
+  const educacion = fs.readFileSync(path.join(raiz, 'public/education/admin/index.html'), 'utf8');
   assert.match(educacion, /href="\/edu\/centros">Entrar con Google/);
   assert.doesNotMatch(educacion, /name="usuario"|name="clave"|Plataforma interna/);
-  const app = fs.readFileSync(path.join(raiz, 'public/centros/assets/app.js'), 'utf8');
+  const app = fs.readFileSync(path.join(raiz, 'public/education/centers/assets/app.js'), 'utf8');
   assert.match(app, /data-centro-vista="estadisticas"/);
   assert.match(app, /stats-disclaimer/);
   assert.match(app, /Versiones instaladas/);
-  const dispositivo = fs.readFileSync(path.join(raiz, 'lib/educacion/rutas.js'), 'utf8');
+  const dispositivo = fs.readFileSync(path.join(raiz, 'lib/education/core/rutas.js'), 'utf8');
   assert.match(dispositivo, /dispT\.ultimoContacto = ahora\(\)/);
 });
 
 test('las subrutas de centros y educación están en el enrutado', () => {
   const dests = vercel.routes.map((r) => r.dest || '');
-  assert.ok(dests.includes('/public/centros/index.html'));
-  assert.ok(dests.includes('/public/centros/panel.html'));
-  assert.ok(!dests.includes('/public/centros/rsp.html'), 'RSP es un panel externo');
-  assert.ok(dests.includes('/public/educacion/index.html'));
-  assert.ok(dests.includes('/public/educacion/admin.html'));
+  assert.ok(dests.includes('/public/education/centers/index.html'));
+  assert.ok(dests.includes('/public/education/centers/panel.html'));
+  assert.ok(dests.includes('/public/education/centers/rsp.html'));
+  assert.ok(dests.includes('/public/education/admin/index.html'));
+  assert.ok(dests.includes('/public/education/admin/admin.html'));
   const eduRoutes = new Map(vercel.routes.map((route) => [route.src, route.dest]));
-  assert.equal(eduRoutes.get('/edu/?$'), '/public/edu/index.html');
-  assert.equal(eduRoutes.get('/edu/alta/?$'), '/public/centros/index.html');
-  assert.equal(eduRoutes.get('/edu/centros/?$'), '/public/centros/panel.html');
-  assert.equal(eduRoutes.get('/edu/administracion/?$'), '/public/educacion/admin.html');
-  assert.equal(eduRoutes.get('/edu/studio/?$'), '/public/studio-creadores.html');
-  assert.equal(eduRoutes.get('/edu/documentos/(.*)'), '/public/centros/docs/$1');
+  assert.equal(eduRoutes.get('/edu/?$'), '/public/education/index.html');
+  assert.equal(eduRoutes.get('/edu/alta/?$'), '/public/education/centers/index.html');
+  assert.equal(eduRoutes.get('/edu/centros/?$'), '/public/education/centers/panel.html');
+  assert.equal(eduRoutes.get('/edu/administracion/?$'), '/public/education/admin/admin.html');
+  assert.equal(eduRoutes.get('/edu/studio/?$'), '/public/education/studio/index.html');
+  assert.equal(eduRoutes.get('/edu/documentos/(.*)'), '/public/education/centers/docs/$1');
+  assert.equal(eduRoutes.get('/edu/assets/(centros|centers)/(.*)'), '/public/education/centers/assets/$2');
+  assert.equal(eduRoutes.get('/edu/assets/studio-creadores\\.css'), '/public/education/studio/studio.css');
+  assert.equal(eduRoutes.get('/css/code-responsive\\.css'), '/public/code/responsive.css');
+  assert.equal(eduRoutes.get('/js/code-engine\\.js'), '/public/code/engine.js');
   const eduPolicy = vercel.routes.find((route) => route.src === '/edu/?$').headers['Content-Security-Policy'];
   assert.match(eduPolicy, /default-src 'self'; script-src 'self'; style-src 'self'/);
 });
 
 test('la página Education agrupa las superficies públicas y las rutas antiguas conservan los parámetros', () => {
-  const hub = fs.readFileSync(path.join(raiz, 'public/edu/index.html'), 'utf8');
+  const hub = fs.readFileSync(path.join(raiz, 'public/education/index.html'), 'utf8');
   for (const ruta of ['/edu/alta', '/edu/centros', '/edu/administracion', '/edu/studio']) assert.ok(hub.includes(`href="${ruta}"`), ruta);
-  assert.match(fs.readFileSync(path.join(raiz, 'public/css/edu-hub.css'), 'utf8'), /@media \(max-width: 640px\)/);
-  const hubScript = fs.readFileSync(path.join(raiz, 'public/js/edu-hub.js'), 'utf8');
+  assert.match(fs.readFileSync(path.join(raiz, 'public/education/assets/hub.css'), 'utf8'), /@media \(max-width: 640px\)/);
+  const hubScript = fs.readFileSync(path.join(raiz, 'public/education/assets/hub.js'), 'utf8');
   const labels = [{ dataset: { i18n: 'registerNav' }, textContent: 'Alta de centro' }];
   const document = { documentElement: {}, title: '', querySelector: () => ({ content: '' }), querySelectorAll: () => labels };
   vm.runInNewContext(hubScript, {
@@ -142,7 +146,7 @@ test('la página Education agrupa las superficies públicas y las rutas antiguas
   });
   assert.equal(document.documentElement.lang, 'ca');
   assert.equal(labels[0].textContent, 'Alta de centre');
-  const redirectScript = fs.readFileSync(path.join(raiz, 'public/js/edu-legacy-redirect.js'), 'utf8');
+  const redirectScript = fs.readFileSync(path.join(raiz, 'public/education/assets/legacy-redirect.js'), 'utf8');
   for (const [pathname, search, target] of [
     ['/centros/', '?tipo=docente', '/edu/alta'],
     ['/centros/panel', '?org=abc', '/edu/centros'],
@@ -170,7 +174,17 @@ test('el SQL completo incluye el esquema usado por Centros y Education y devuelv
 });
 
 test('las páginas de centros y educación existen en el sitio', () => {
-  for (const f of ['edu/index.html', 'centros/index.html', 'centros/panel.html', 'centros/assets/app.js', 'css/edu-hub.css', 'css/pj-admin.css', 'educacion/index.html', 'educacion/admin.html', 'educacion/portal.js']) {
+  for (const f of [
+    'education/index.html',
+    'education/centers/index.html',
+    'education/centers/panel.html',
+    'education/centers/assets/app.js',
+    'education/assets/hub.css',
+    'education/assets/admin.css',
+    'education/admin/index.html',
+    'education/admin/admin.html',
+    'education/admin/portal.js'
+  ]) {
     assert.ok(fs.existsSync(path.join(raiz, 'public', f)), f);
   }
 });
@@ -178,18 +192,25 @@ test('las páginas de centros y educación existen en el sitio', () => {
 test('el panel de centro solo se ofrece con sesión y CSP permite el estilo de Google', () => {
   const politica = vercel.routes.find((r) => r.src === '/centros(.*)').headers['Content-Security-Policy'];
   assert.match(politica, /'unsafe-hashes' 'sha256-RU4sU0AaS8IBGZx8XrGt\/pa9A5SLA3dQszGeqT5L3Kw='/);
-  for (const f of ['centros/index.html', 'centros/panel.html']) {
+  for (const f of ['education/centers/index.html', 'education/centers/panel.html']) {
     const texto = fs.readFileSync(path.join(raiz, 'public', f), 'utf8');
     assert.match(texto, /href="\/edu\/centros" data-requiere-sesion/);
   }
-  const app = fs.readFileSync(path.join(raiz, 'public', 'centros/assets/app.js'), 'utf8');
+  const app = fs.readFileSync(path.join(raiz, 'public', 'education/centers/assets/app.js'), 'utf8');
   assert.match(app, /el\.hidden = !token\(\)/);
   const inicio = fs.readFileSync(path.join(raiz, 'public', 'index.html'), 'utf8');
   assert.match(inicio, /sessionStorage\.getItem\('pj27-sesion'\)\?ac\('\/edu\/centros'/);
 });
 
 test('ninguna página de centros ni de educación usa atributos en línea (compatible con la política de contenido)', () => {
-  const paginas = ['centros/index.html', 'centros/panel.html', 'centros/assets/app.js', 'educacion/index.html', 'educacion/admin.html', 'educacion/portal.js'];
+  const paginas = [
+    'education/centers/index.html',
+    'education/centers/panel.html',
+    'education/centers/assets/app.js',
+    'education/index.html',
+    'education/admin/admin.html',
+    'education/admin/portal.js'
+  ];
   for (const p of paginas) {
     const txt = fs.readFileSync(path.join(raiz, 'public', p), 'utf8');
     assert.ok(!/\son(click|submit|load|change)=/.test(txt), p);

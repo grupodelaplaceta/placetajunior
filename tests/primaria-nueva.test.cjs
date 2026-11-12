@@ -83,11 +83,11 @@ test('las nuevas actividades adaptan sus componentes a pantallas estrechas', () 
   assert.match(css, /\.pn-screen \.pn-keys\s*\{[^}]*minmax\(0,\s*1fr\)/);
   assert.match(jugar, /primaria-nueva\.css\?v=20261028-hints/);
   assert.match(preview, /primaria-nueva\.css\?v=20261028-hints/);
-  assert.match(sw, /placetajunior-assets-v22/);
+  assert.match(sw, /placetajunior-assets-v23/);
 });
 
 test('el editor del Studio configura todos los tipos nuevos', () => {
-  const studio = fs.readFileSync(path.join(root, 'public', 'studio-creadores.js'), 'utf8');
+  const studio = fs.readFileSync(path.join(root, 'public', 'education', 'studio', 'studio.js'), 'utf8');
   for (const tipo of tipos) {
     assert.match(studio, new RegExp(`\\['${tipo}',`), `${tipo} debe estar en la paleta activa`);
     assert.match(studio, new RegExp(`\\b${tipo}: \\{`), `${tipo} debe tener datos iniciales`);
@@ -301,7 +301,7 @@ test('la ficha PDF de Code se puede resolver en papel y explica cómo abrirla en
   assert.doesNotMatch(html, /Programa:<\/b>\s*AVANZAR/);
 
   const rootCode = app.slice(app.indexOf('function descargarPdf'), app.indexOf('async function generarMapaPdf'));
-  assert.match(rootCode, /if \(esCode && !unidadesPdf\.length\)/);
+  assert.match(rootCode, /if \(esCode && !unidadesPdf\.length && !bloques\.length\)/);
   assert.match(rootCode, /if \(b\.tipo === 'code_blocks'\)[\s\S]*generarPdfCode\(\{ contenido: b \}\)/);
   assert.match(app, /Descargar todas las unidades \(PDF\)/);
   assert.match(fs.readFileSync(path.join(root, 'public', 'css', 'home.css'), 'utf8'), /\.ws-code \{ column-count: 2/);

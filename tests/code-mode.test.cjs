@@ -5,7 +5,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const root = path.join(__dirname, '..');
-const engineSource = fs.readFileSync(path.join(root, 'public/js/code-engine.js'), 'utf8');
+const engineSource = fs.readFileSync(path.join(root, 'public/code/engine.js'), 'utf8');
 
 function loadEngine() {
   const window = {};
@@ -65,7 +65,7 @@ test('exercise normalization preserves challenge IDs and supplies stable fallbac
 });
 
 test('the Studio starter curriculum contains eight identified challenges', () => {
-  const studio = fs.readFileSync(path.join(root, 'public/studio-creadores.js'), 'utf8');
+  const studio = fs.readFileSync(path.join(root, 'public/education/studio/studio.js'), 'utf8');
   for (let i = 1; i <= 8; i++) {
     assert.ok(studio.includes(`identificador: 'PJC-${String(i).padStart(3, '0')}'`));
   }

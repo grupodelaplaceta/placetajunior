@@ -33,7 +33,7 @@ test('player icons render as inline SVG and the SVG assets are cached offline', 
   assert.match(icons, /createElementNS\('http:\/\/www\.w3\.org\/2000\/svg', 'svg'\)/);
   assert.match(icons, /svg\.setAttribute\('aria-hidden', 'true'\)/);
   assert.match(icons, /observer\.observe\(document\.body/);
-  assert.match(read('public/sw.js'), /placetajunior-assets-v22/);
+  assert.match(read('public/sw.js'), /placetajunior-assets-v23/);
 });
 
 test('code blocks have an organized workbench and accessible edit controls', () => {
@@ -48,15 +48,20 @@ test('code blocks have an organized workbench and accessible edit controls', () 
   assert.match(styles, /\.code-workbench/);
   assert.match(styles, /@media \(max-width: 620px\)/);
   assert.match(styles, /prefers-reduced-motion: reduce/);
-  const responsive = read('public/css/code-responsive.css');
+  const responsive = read('public/code/responsive.css');
   assert.match(responsive, /grid-template-areas:[\s\S]*?"scene workbench"/);
+  assert.match(responsive, /@media \(min-width: 760px\)/);
+  assert.match(responsive, /grid-template-columns: minmax\(0, \.9fr\) minmax\(0, 1\.1fr\)/);
+  assert.match(responsive, /font-size: clamp\(15px, 4vw, 18px\)/);
   assert.match(responsive, /@media \(min-width: 621px\) and \(max-width: 1079px\)/);
   assert.match(responsive, /@media \(max-width: 360px\)/);
   assert.match(read('public/jugar.html'), /player\.js\?v=touch-code-worksheets-1/);
   assert.match(read('public/preview.html'), /player\.js\?v=touch-code-worksheets-1/);
-  assert.match(read('public/jugar.html'), /code-responsive\.css\?v=touch-code-worksheets-1/);
-  assert.match(read('public/jugar.html'), /css\/code-responsive\.css/);
-  assert.match(read('public/preview.html'), /css\/code-responsive\.css/);
+  assert.match(read('public/jugar.html'), /responsive\.css\?v=education-code-folders-1/);
+  assert.match(read('public/jugar.html'), /code\/responsive\.css/);
+  assert.match(read('public/preview.html'), /code\/responsive\.css/);
+  assert.match(read('public/css/home.css'), /\.pj-home a \{ color: var\(--pj-purple\); \}/);
+  assert.match(read('public/css/home.css'), /\.print-worksheet a \{ color: #111827 !important/);
 });
 
 test('Code supports touch and pen dragging blocks into the program without duplicate taps', () => {

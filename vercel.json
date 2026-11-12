@@ -186,51 +186,99 @@
     },
     {
       "src": "/edu/?$",
-      "dest": "/public/edu/index.html"
+      "dest": "/public/education/index.html"
     },
     {
       "src": "/edu/alta/?$",
-      "dest": "/public/centros/index.html"
+      "dest": "/public/education/centers/index.html"
     },
     {
       "src": "/edu/centros/?$",
-      "dest": "/public/centros/panel.html"
+      "dest": "/public/education/centers/panel.html"
     },
     {
       "src": "/edu/administracion/?$",
-      "dest": "/public/educacion/admin.html"
+      "dest": "/public/education/admin/admin.html"
     },
     {
       "src": "/edu/studio/?$",
-      "dest": "/public/studio-creadores.html"
+      "dest": "/public/education/studio/index.html"
     },
     {
       "src": "/edu/documentos/(.*)",
-      "dest": "/public/centros/docs/$1"
+      "dest": "/public/education/centers/docs/$1"
     },
     {
-      "src": "/edu/assets/centros/(.*)",
-      "dest": "/public/centros/assets/$1"
+      "src": "/edu/assets/(centros|centers)/(.*)",
+      "dest": "/public/education/centers/assets/$2"
     },
     {
       "src": "/edu/assets/portal\\.css",
-      "dest": "/public/educacion/portal.css"
+      "dest": "/public/education/admin/portal.css"
     },
     {
       "src": "/edu/assets/portal\\.js",
-      "dest": "/public/educacion/portal.js"
+      "dest": "/public/education/admin/portal.js"
     },
     {
       "src": "/edu/assets/studio-creadores\\.css",
-      "dest": "/public/studio-creadores.css"
+      "dest": "/public/education/studio/studio.css"
     },
     {
       "src": "/edu/assets/studio-creadores\\.js",
-      "dest": "/public/studio-creadores.js"
+      "dest": "/public/education/studio/studio.js"
+    },
+    {
+      "src": "/edu/assets/(hub\\.css|hub\\.js|navigation\\.css|admin\\.css|legacy-redirect\\.js)",
+      "dest": "/public/education/assets/$1"
     },
     {
       "src": "/crear-actividad",
-      "dest": "/public/studio-creadores.html"
+      "dest": "/public/education/studio/index.html"
+    },
+    {
+      "src": "/centros/assets/(.*)",
+      "dest": "/public/education/centers/assets/$1"
+    },
+    {
+      "src": "/centros/rsp\\.html",
+      "dest": "/public/education/centers/rsp.html"
+    },
+    {
+      "src": "/educacion/?$",
+      "dest": "/public/education/admin/index.html"
+    },
+    {
+      "src": "/educacion/administracion/?$",
+      "dest": "/public/education/admin/admin.html"
+    },
+    {
+      "src": "/css/edu-hub\\.css",
+      "dest": "/public/education/assets/hub.css"
+    },
+    {
+      "src": "/js/edu-hub\\.js",
+      "dest": "/public/education/assets/hub.js"
+    },
+    {
+      "src": "/js/edu-legacy-redirect\\.js",
+      "dest": "/public/education/assets/legacy-redirect.js"
+    },
+    {
+      "src": "/css/education-nav\\.css",
+      "dest": "/public/education/assets/navigation.css"
+    },
+    {
+      "src": "/css/pj-admin\\.css",
+      "dest": "/public/education/assets/admin.css"
+    },
+    {
+      "src": "/css/code-responsive\\.css",
+      "dest": "/public/code/responsive.css"
+    },
+    {
+      "src": "/js/code-engine\\.js",
+      "dest": "/public/code/engine.js"
     },
     {
       "src": "/devai",
@@ -238,11 +286,11 @@
     },
     {
       "src": "/centros/?$",
-      "dest": "/public/centros/index.html"
+      "dest": "/public/education/centers/index.html"
     },
     {
       "src": "/centros/panel/?$",
-      "dest": "/public/centros/panel.html"
+      "dest": "/public/education/centers/panel.html"
     },
     {
       "src": "/educacion$",
@@ -253,11 +301,11 @@
     },
     {
       "src": "/educacion/?$",
-      "dest": "/public/educacion/index.html"
+      "dest": "/public/education/admin/index.html"
     },
     {
       "src": "/educacion/administracion/?$",
-      "dest": "/public/educacion/admin.html"
+      "dest": "/public/education/admin/admin.html"
     },
     {
       "src": "/(.*)",
