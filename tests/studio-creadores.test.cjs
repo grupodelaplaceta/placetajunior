@@ -55,8 +55,10 @@ test('el editor incluye cuatro plantillas y editor visual para tipos comunes', (
   assert.match(read('public/js/actividades/primaria-clasica.js'), /const TIPOS = new Set\(\['reloj', 'recta_numerica', 'grafico', 'balanza', 'ahorcado', 'anagrama', 'patrones', 'simetria', 'silabas', 'vf_rapido', 'ruleta_preguntas'\]\)/);
   assert.match(html, /id="meta-title"/);
   assert.match(html, /id="preview-activity"/);
-  assert.match(js, /data-add-row="preguntas"/);
-  assert.match(js, /data-add-row="pares"/);
+  // Listas repetibles: el editor por esquema añade filas a partir de la ruta de cada lista
+  assert.match(js, /data-add-row="\$\{esc\(ruta\)\}"/);
+  assert.match(js, /preguntas: \(\) => \(\{ pregunta: ''/);
+  assert.match(js, /pares: \(\) => \(\{ izq: ''/);
   assert.match(js, /template-art/);
   assert.match(js, /const DRAFTS_KEY = 'pj-studio-creadores-drafts-v1'/);
   assert.match(js, /scope: draftScope\(\)/);
@@ -90,32 +92,33 @@ test('los once tipos nuevos generan pantallas con el reproductor existente', () 
   }
 });
 
-test('el Studio ofrece controles de reloj, medida, dados y ejercicios sin editor JSON oculto', () => {
+test('el Studio usa un editor por esquema: listas, opciones y casillas sin editor JSON', () => {
   const studio = read('public/education/studio/studio.js');
   const html = read('public/education/studio/index.html');
-  for (const control of ['reloj', 'medida', 'measureTasks', 'diceTasks', 'balanceTasks', 'sequenceTasks', 'symmetryTasks', 'rouletteTasks', 'operationTasks', 'mentalTasks']) {
-    assert.ok(studio.includes(control), `Debe tener controles visuales para ${control}`);
+  // Un único generador de campos a partir de la forma de los datos cubre los 26 tipos
+  for (const fn of ['camposDe(', 'listaEscalar(', 'listaObjetos(', 'listaOpciones(', 'listaCoordenadas(']) {
+    assert.ok(studio.includes(fn), `Debe generar campos con ${fn}`);
   }
   for (const step of ['palette', 'canvas', 'inspector']) assert.match(html, new RegExp(`data-editor-view="${step}"`));
   assert.match(studio, /data-option-correct=/);
   assert.match(studio, /data-option-add=/);
   assert.match(studio, /data-option-delete=/);
-  assert.match(studio, /data-primary-choice=/);
   assert.doesNotMatch(studio, /formato JSON|en JSON|data-mode="json"|json-field/i);
   assert.doesNotMatch(studio, /Opciones avanzadas \(JSON\)/);
 });
 
-test('los retos de Code se diseñan directamente en una cuadrícula con herramientas accesibles', () => {
+test('los retos de Code se diseñan en el espacio Retos Code con un tablero de cuadrícula accesible', () => {
   const studio = read('public/education/studio/studio.js');
-  const styles = read('public/css/styles.css');
-  assert.match(studio, /data-code-board-tool="\$\{id\}"/);
-  assert.match(studio, /data-code-board-cell="\$\{x\},\$\{y\}"/);
-  assert.match(studio, /data-code-board-tool[\s\S]*aria-pressed/);
-  assert.match(studio, /addEventListener\('pointermove'[\s\S]*codeBoardPointer/);
-  assert.match(studio, /paintCodeBoardCell\(exercise, codeBoardPointer\.index/);
-  assert.doesNotMatch(studio, /field\('Inicio X'|field\('Inicio Y'|field\('Objetivo X'|field\('Objetivo Y'/);
-  assert.match(styles, /\.code-board-grid\{display:grid/);
-  assert.match(styles, /\.code-board-cell\{[^}]*touch-action:none/);
+  const retos = read('public/education/code/index.html');
+  const css = read('public/education/code/retos.css');
+  // Studio solo muestra miniaturas, importa conjuntos y enlaza al editor visual
+  assert.match(studio, /Abrir editor visual de retos/);
+  assert.match(studio, /function importarRetos\(modo\)/);
+  // El tablero se pinta en /edu/code con herramientas accesibles y arrastre
+  assert.match(retos, /role="radiogroup" aria-label="Herramienta de pintura"/);
+  assert.match(retos, /data-tool="meta"/);
+  assert.match(retos, /id="tablero"/);
+  assert.match(css, /\.retos-tablero\s*\{[^}]*touch-action:\s*none/);
 });
 
 test('el lienzo permite deshacer, rehacer, duplicar y mover bloques', () => {

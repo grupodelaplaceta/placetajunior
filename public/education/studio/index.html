@@ -4,20 +4,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex, nofollow" />
-  <title>Crear actividad | Placeta Junior</title>
+  <title>Studio | Crear actividades | Placeta Junior</title>
   <link rel="icon" href="/favijunior.png" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
   <link rel="stylesheet" href="/education/assets/navigation.css" />
-  <link rel="stylesheet" href="/education/studio/studio.css" />
-  <link rel="stylesheet" href="/css/ui-polish.css" />
-<link rel="stylesheet" href="/css/accesibilidad.css" />
-<script src="/js/accesibilidad.js" defer></script>
-<script src="/education/assets/legacy-redirect.js"></script>
+  <link rel="stylesheet" href="/education/studio/studio.css?v=studio-v2" />
+  <link rel="stylesheet" href="/css/accesibilidad.css" />
+  <script src="/js/accesibilidad.js" defer></script>
+  <script src="/education/assets/legacy-redirect.js"></script>
   <link rel="stylesheet" href="/education/assets/edu-ui.css" />
+  <link rel="stylesheet" href="/education/assets/pj-visual-2026.css" />
+  <script src="/js/pj-icons-ready.js" defer></script>
 </head>
-<body class="studio-workspace">
+<body class="studio-page">
   <header class="education-topbar">
     <div class="education-topbar-inner">
       <a class="education-brand" href="/" aria-label="Placeta Junior, inicio"><img src="/img/PJ-BLANCO-LOGO.png" alt="Placeta Junior" /></a>
@@ -25,111 +23,151 @@
       <nav class="education-nav" aria-label="Navegación">
         <a href="/edu">Para educación</a>
         <a href="/edu/studio" aria-current="page">Studio</a>
+        <a href="/edu/code">Retos Code</a>
         <a href="/edu/alta" data-nav-register>Alta de centro</a>
         <span class="education-centers-nav"><a href="/edu/centros" data-requiere-sesion>Mis centros</a><a class="education-add-center" href="/edu/alta?tipo=centro" data-nav-add-center hidden aria-label="Añadir otro centro" title="Añadir otro centro">+</a></span>
       </nav>
       <button class="education-signout" id="cerrar" data-nav-signout type="button" hidden>Salir</button>
     </div>
   </header>
-  <main>
-    <section class="intro">
-      <div class="intro-copy-block"><p class="eyebrow">TU AULA, TUS IDEAS</p><h1>Crea una actividad <span>para aprender jugando.</span></h1><p class="intro-copy">Diseña el contenido para tu grupo. Placeta Junior acompaña el proceso hasta que esté listo para compartir.</p></div>
-      <div class="intro-aside">
-        <div class="identity" id="identity"><span class="status-dot"></span><span id="identity-status">Comprobando cuenta…</span></div>
-        <div class="studio-visual" aria-hidden="true">
-          <span class="studio-visual-spark">✦</span>
-          <div class="studio-visual-title"><span>✎</span><strong>IDEA DE AULA</strong><small>se convierte en actividad</small></div>
-          <div class="studio-visual-flow"><span class="material-symbols-rounded" aria-hidden="true">lightbulb</span><i></i><span class="material-symbols-rounded" aria-hidden="true">extension</span><i></i><span class="material-symbols-rounded" aria-hidden="true">celebration</span></div>
-          <div class="studio-visual-caption"><span>Explica</span><span>Practica</span><span>Aprende</span></div>
+
+
+  <main class="st">
+    <section class="st-cabecera">
+      <div class="st-cabecera-texto">
+        <p class="st-eyebrow">Studio</p>
+        <h1>Crea una actividad para tu grupo</h1>
+        <p class="st-lead">Elige una plantilla o empieza en blanco. Añade bloques, edítalos y envía la actividad a revisión editorial.</p>
+      </div>
+      <aside class="studio-visual" aria-label="Autoría">
+        <div id="identity" class="st-identidad">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span id="identity-status">Comprobando cuenta…</span>
         </div>
-      </div>
+        <div class="st-autoria" id="author-field" hidden>
+          <label for="author-scope">Publicar como</label>
+          <select id="author-scope" disabled></select>
+        </div>
+        <ol class="st-pasos-visuales" aria-hidden="true"><li>Explica</li><li>Practica</li><li>Aprende</li></ol>
+      </aside>
     </section>
-    <section id="access-gate" class="access-gate" role="status" aria-live="polite">
-      <h2 id="access-title">Comprobando permisos…</h2>
-      <p id="access-message">El editor solo está disponible para docentes aprobados y centros activos autorizados.</p>
-      <div class="access-links">
-        <a href="/edu/alta?tipo=docente">Acceso docente</a>
-        <a href="/edu/alta?tipo=centro">Acceso de centro</a>
-      </div>
-    </section>
+
+    <nav class="st-tabs" id="studio-menu" role="tablist" aria-label="Secciones de Studio">
+      <button type="button" role="tab" data-studio-view="activities" aria-selected="true">Mis actividades</button>
+      <button type="button" role="tab" data-studio-view="create" aria-selected="false" tabindex="-1">Crear actividad</button>
+      <button type="button" role="tab" data-studio-view="edit" aria-selected="false" tabindex="-1">Editor</button>
+      <button type="button" role="tab" data-studio-view="guide" aria-selected="false" tabindex="-1">Cómo funciona</button>
+    </nav>
+
+    <section id="access-gate" class="st-gate" hidden aria-live="polite"></section>
+
     <div id="creator-tools" hidden>
-      <nav class="studio-menu" id="studio-menu" role="tablist" aria-label="Secciones de Studio">
-        <button type="button" role="tab" id="studio-tab-activities" aria-controls="studio-panel-activities" data-studio-view="activities" aria-selected="true"><span class="material-symbols-rounded" aria-hidden="true">dashboard</span>Mis actividades</button>
-        <button type="button" role="tab" id="studio-tab-create" aria-controls="studio-panel-create" data-studio-view="create" aria-selected="false"><span class="material-symbols-rounded" aria-hidden="true">add_circle</span>Crear actividad</button>
-        <button type="button" role="tab" id="studio-tab-edit" aria-controls="studio-panel-edit" data-studio-view="edit" aria-selected="false"><span class="material-symbols-rounded" aria-hidden="true">tune</span>Personalizar</button>
-        <button type="button" role="tab" id="studio-tab-guide" aria-controls="studio-panel-guide" data-studio-view="guide" aria-selected="false"><span class="material-symbols-rounded" aria-hidden="true">help</span>Cómo funciona</button>
-      </nav>
-      <section class="studio-view saved-view" id="studio-panel-activities" role="tabpanel" aria-labelledby="studio-tab-activities" data-studio-panel="activities">
-        <div class="studio-view-heading"><div><p class="eyebrow">TU ESPACIO DE TRABAJO</p><h2 id="saved-title">Mis actividades</h2><p>Guarda varias propuestas en este dispositivo y organiza cada una por centro.</p></div><button id="new-activity" class="new-activity-button" type="button"><span aria-hidden="true">＋</span>Nueva actividad</button></div>
-        <div class="saved-toolbar"><label for="managed-center">Gestionar para</label><select id="managed-center" aria-label="Selecciona el centro para gestionar actividades"></select><span id="saved-count" aria-live="polite"></span></div>
-        <div class="saved-activities" id="saved-activities" aria-live="polite"></div>
+      <section class="st-panel" data-studio-panel="activities">
+        <div class="st-panel-cabecera">
+          <div><h2>Mis actividades</h2><p id="saved-count" class="st-ayuda"></p></div>
+          <button type="button" class="st-btn st-btn-primario" id="new-activity">+ Nueva actividad</button>
+        </div>
+        <ul class="st-lista-borradores" id="saved-list"></ul>
       </section>
-      <section class="studio-view create-view" id="studio-panel-create" role="tabpanel" data-studio-panel="create" hidden aria-labelledby="studio-tab-create">
-        <div class="studio-view-heading"><div><p class="eyebrow">PASO 1 · PREPARA TU IDEA</p><h2 id="activity-metadata-title">Cuéntanos qué vas a enseñar</h2><p>Empieza por la ficha y después elige una plantilla o crea tu propio recorrido.</p></div><span class="view-step-art material-symbols-rounded" aria-hidden="true">edit</span></div>
-        <div class="activity-metadata">
-          <div class="activity-meta-fields">
-            <div class="field"><label for="meta-title">Título de la actividad</label><input id="meta-title" maxlength="160" autocomplete="off" placeholder="Ej.: Los secretos del sistema solar" /></div>
-            <div class="field"><label for="meta-description">¿Qué aprenderá el grupo?</label><textarea id="meta-description" maxlength="2000" rows="2" placeholder="Describe el objetivo de aprendizaje con tus palabras."></textarea></div>
-            <div class="field"><label for="meta-category">Materia</label><select id="meta-category"><option>General</option><option>Matemáticas</option><option>Lengua</option><option>Ciencias</option><option>Geografía</option><option>Tecnología</option><option>Lógica</option><option>Pensamiento computacional</option><option>Cultura</option></select><small>Integra matemáticas, pensamiento lógico, informática y robótica para resolver problemas.</small></div>
-            <div class="field"><label for="meta-age">Edad recomendada</label><input id="meta-age" value="6-12" maxlength="20" /></div>
-            <div class="field"><label for="meta-difficulty">Dificultad</label><select id="meta-difficulty"><option value="facil">Fácil</option><option value="media" selected>Media</option><option value="dificil">Difícil</option></select></div>
-            <div class="field"><label for="meta-reward">Recompensa máxima (Pz)</label><input id="meta-reward" type="number" min="0" max="10000" step="1" value="0" /><small>Presupuesto total disponible para repartir entre unidades.</small></div>
+
+      <section class="st-panel" data-studio-panel="create" hidden>
+        <div class="st-panel-cabecera">
+          <div><h2>¿Cómo empiezas?</h2><p class="st-ayuda">Una plantilla te da la estructura. Después la cambias a tu gusto.</p></div>
+          <button type="button" class="st-btn" id="new-blank">Empezar en blanco</button>
+        </div>
+        <div class="st-plantillas" id="templates"></div>
+      </section>
+
+      <section class="st-panel st-editor" data-studio-panel="edit" hidden>
+        <div class="st-ajustes">
+          <label class="st-campo st-campo-titulo"><span>Título de la actividad</span>
+            <input id="meta-title" type="text" maxlength="120" placeholder="Por ejemplo: Los secretos del sistema solar" /></label>
+          <label class="st-campo st-campo-desc"><span>Objetivo de aprendizaje</span>
+            <textarea id="meta-description" rows="2" maxlength="2000" placeholder="Describe qué aprenderá el grupo, con tus palabras."></textarea></label>
+          <div class="st-ajustes-fila">
+            <label class="st-campo"><span>Materia</span><select id="meta-category">
+              <option>General</option><option>Matemáticas</option><option>Lengua</option><option>Ciencias</option><option>Geografía</option><option>Tecnología</option><option>Lógica</option><option>Pensamiento computacional</option><option>Cultura</option>
+            </select></label>
+            <label class="st-campo"><span>Edad</span><select id="meta-age">
+              <option value="3-5">3–5 años</option><option value="6-8">6–8 años</option><option value="6-12" selected>6–12 años</option><option value="9-12">9–12 años</option><option value="12+">12 años o más</option>
+            </select></label>
+            <label class="st-campo"><span>Dificultad</span><select id="meta-difficulty">
+              <option value="facil">Fácil</option><option value="media" selected>Media</option><option value="dificil">Difícil</option>
+            </select></label>
+            <label class="st-campo"><span>Recompensa (Pz)</span>
+              <input id="meta-reward" type="number" min="0" max="10000" step="1" value="0" /></label>
           </div>
         </div>
-        <section class="template-section" aria-labelledby="template-title">
-          <div class="section-heading"><div><p class="eyebrow">TU PUNTO DE PARTIDA</p><h2 id="template-title">Elige cómo empezar</h2></div><button id="blank-template" class="quiet-button" type="button">Empezar en blanco</button></div>
-          <div class="templates" id="templates"></div>
-        </section>
-        <div class="studio-next-row"><p>¿Ya has elegido? Puedes cambiar de plantilla más tarde.</p><button id="continue-to-edit" class="studio-next-button" type="button">Ir a personalizar <span aria-hidden="true">→</span></button></div>
-      </section>
-      <section class="studio-view edit-view" id="studio-panel-edit" role="tabpanel" data-studio-panel="edit" hidden aria-labelledby="studio-tab-edit">
-        <div class="studio-view-heading"><div><p class="eyebrow">PASO 2 · DALE FORMA</p><h2 id="editor-view-title">Personaliza tu actividad</h2><p>Añade bloques, edita su contenido y arrástralos para cambiar el orden.</p></div></div>
-        <nav class="editor-steps" id="editor-steps" role="tablist" aria-label="Pasos para personalizar la actividad">
-          <button type="button" role="tab" id="editor-tab-palette" aria-controls="editor-panel-palette" data-editor-view="palette" aria-selected="true"><span>1</span>Añadir ejercicios</button>
-          <button type="button" role="tab" id="editor-tab-canvas" aria-controls="editor-panel-canvas" data-editor-view="canvas" aria-selected="false"><span>2</span>Ordenar actividad</button>
-          <button type="button" role="tab" id="editor-tab-inspector" aria-controls="editor-panel-inspector" data-editor-view="inspector" data-needs-selection disabled aria-selected="false"><span>3</span>Personalizar ejercicio</button>
-        </nav>
-        <section class="workspace" aria-label="Editor de actividad">
-          <aside class="toolbox" id="editor-panel-palette" role="tabpanel" aria-labelledby="editor-tab-palette" data-editor-panel="palette">
-            <div class="section-heading compact"><div><p class="eyebrow">CONTENIDO</p><h2>Añade un bloque</h2></div></div>
-            <div class="block-palette" id="palette"></div>
-          </aside>
-          <section class="builder" id="editor-panel-canvas" role="tabpanel" aria-labelledby="editor-tab-canvas" data-editor-panel="canvas" hidden>
-            <div class="builder-top"><div><p class="eyebrow">TU LIENZO</p><h2 id="activity-title">Actividad sin título</h2></div><div class="builder-actions"><button id="undo-action" class="quiet-button history-button" type="button" disabled aria-label="Deshacer">↶ Deshacer</button><button id="redo-action" class="quiet-button history-button" type="button" disabled aria-label="Rehacer">↷ Rehacer</button><button id="preview-activity" class="quiet-button" type="button">Vista previa</button><button id="clear-draft" class="quiet-button" type="button">Vaciar lienzo</button></div></div>
-            <div class="live-preview-toolbar"><strong>Vista previa en vivo</strong><div class="preview-device-options" id="preview-device-options" role="group" aria-label="Tamaño de vista previa"><button type="button" data-preview-device="movil" aria-pressed="true">Móvil</button><button type="button" data-preview-device="tablet" aria-pressed="false">Tableta</button><button type="button" data-preview-device="pc" aria-pressed="false">Ordenador</button></div><span id="preview-live-status" aria-live="polite">Elige una plantilla para empezar.</span></div>
-            <div class="live-preview-stage" id="live-preview-stage"><div class="live-preview-device" id="live-preview-device"><iframe id="live-preview-frame" title="Simulación en vivo de la actividad" src="about:blank" hidden></iframe><div class="live-preview-empty" id="live-preview-empty"><strong>Tu actividad aparecerá aquí</strong><span>Elige un ejercicio en la barra izquierda para empezar.</span></div></div></div>
-            <div class="slide-strip-heading"><div><strong>Diapositivas y unidades</strong><small id="compensation-summary" aria-live="polite">Total: 0 Pz · aún sin unidades</small></div><button id="add-unit-break" class="add-unit-button" type="button" title="Insertar un salto de unidad"><span aria-hidden="true">＋</span> Salto de unidad</button></div>
-            <div class="canvas slide-strip" id="canvas" aria-label="Diapositivas y saltos de unidad" aria-live="polite"></div>
+
+        <div class="st-pasos" role="tablist" aria-label="Partes del editor">
+          <button type="button" role="tab" data-editor-view="palette" aria-selected="false">1 · Bloques</button>
+          <button type="button" role="tab" data-editor-view="canvas" aria-selected="true">2 · Actividad</button>
+          <button type="button" role="tab" data-editor-view="inspector" aria-selected="false">3 · Editar bloque</button>
+        </div>
+
+        <div class="st-columnas">
+          <aside class="st-paleta" data-editor-pane="palette" id="palette" aria-label="Tipos de bloque"><h3 class="st-col-titulo">1 · Bloques</h3></aside>
+
+          <section class="st-lienzo" data-editor-pane="canvas" aria-label="Bloques de la actividad">
+            <h3 class="st-col-titulo">2 · Actividad</h3>
+            <div class="st-lienzo-barra">
+              <p id="canvas-summary" class="st-ayuda"></p>
+              <div class="st-acciones-fila">
+                <button type="button" class="st-btn st-btn-suave" id="undo-action" disabled>Deshacer</button>
+                <button type="button" class="st-btn st-btn-suave" id="redo-action" disabled>Rehacer</button>
+                <button type="button" class="st-btn st-btn-suave" id="add-unit-break">+ Salto de unidad</button>
+                <button type="button" class="st-btn st-btn-suave st-btn-peligro" id="clear-draft">Vaciar</button>
+              </div>
+            </div>
+            <p class="st-vacio" id="canvas-empty">Añade bloques desde la columna «Bloques». Cada bloque es una parte de la actividad.</p>
+            <div class="st-lista-bloques" id="canvas" aria-live="polite"></div>
           </section>
-          <aside class="inspector" id="editor-panel-inspector" role="tabpanel" aria-labelledby="editor-tab-inspector" data-editor-panel="inspector" hidden>
-            <div class="section-heading compact"><div><p class="eyebrow">PERSONALIZACIÓN</p><h2>Propiedades</h2></div></div>
-            <div id="inspector-content" class="inspector-content"></div>
+
+          <aside class="st-inspector" data-editor-pane="inspector" aria-label="Editar bloque">
+            <h3 class="st-col-titulo">3 · Editar bloque</h3>
+            <div id="inspector-content" class="st-inspector-cuerpo"></div>
           </aside>
-        </section>
-      </section>
-      <section class="studio-view guide-view" id="studio-panel-guide" role="tabpanel" data-studio-panel="guide" hidden aria-labelledby="studio-tab-guide">
-        <div class="review-process">
-          <div class="review-intro"><span class="review-spark" aria-hidden="true">✦</span><div><p class="eyebrow">HECHO EN EQUIPO</p><h2 id="review-title">Tu propuesta, cuidada antes de llegar al aula.</h2><p>Al enviarla, el equipo de Placeta Junior se ocupa de la revisión editorial. La guía está separada del espacio de creación.</p></div></div>
-          <ol class="review-steps">
-            <li><span aria-hidden="true">01</span><div><strong>Revisamos</strong><p>Leemos la actividad y comprobamos que sea clara, adecuada y coherente con su objetivo educativo.</p></div></li>
-            <li><span aria-hidden="true">02</span><div><strong>Verificamos</strong><p>Contrastamos el contenido y el funcionamiento de los ejercicios; si hace falta, te pediremos ajustes.</p></div></li>
-            <li><span aria-hidden="true">03</span><div><strong>Preparamos para compartir</strong><p>Según el caso, creamos una portada y las traducciones necesarias antes de incorporarla a Placeta Junior.</p></div></li>
-          </ol>
+        </div>
+
+        <div class="st-barra" role="region" aria-label="Guardar y enviar">
+          <p id="studio-notice" class="st-aviso" role="status" aria-live="polite"></p>
+          <p id="save-state" class="st-guardado"></p>
+          <div class="st-barra-acciones">
+            <button type="button" class="st-btn" id="preview-activity">Vista previa</button>
+            <button type="button" class="st-btn st-btn-primario" id="submit-activity">Enviar a revisión</button>
+          </div>
         </div>
       </section>
-      <section class="submit-bar" id="submit-bar" hidden>
-        <div><strong id="draft-title">Actividad nueva</strong><span id="draft-summary">El borrador se guarda en este dispositivo.</span></div>
-        <button id="submit-activity" class="submit-button" type="button"><span aria-hidden="true">↗</span> Enviar a revisión</button>
+
+      <section class="st-panel" data-studio-panel="guide" hidden>
+        <h2>Cómo funciona</h2>
+        <ol class="st-guia" id="studio-guide-steps"></ol>
+        <p class="st-ayuda">Placeta Junior revisa cada actividad antes de publicarla. Si está lista, la publicamos con su portada y sus traducciones.</p>
+        <p class="st-ayuda">¿Quieres crear retos de bloques tipo Scratch? Usa <a href="/edu/code">Retos Code</a>: allí los diseñas en un tablero y después los traes a una actividad.</p>
       </section>
-      <dialog class="preview-dialog" id="preview-dialog" aria-labelledby="preview-title">
-        <div class="preview-heading"><div><p class="eyebrow">ASÍ LA VERÁ EL ALUMNADO</p><h2 id="preview-title">Vista previa de la actividad</h2></div><button id="close-preview" class="close-preview" type="button" aria-label="Cerrar vista previa">×</button></div>
-        <iframe id="preview-frame" title="Vista previa interactiva de la actividad" src="about:blank"></iframe>
-        <p class="preview-note">La vista previa te permite probar los ejercicios. La portada y las traducciones se preparan durante la revisión editorial, según el caso.</p>
-      </dialog>
     </div>
-    <p id="notice" class="notice" role="status" aria-live="polite"></p>
   </main>
-  <script src="/education/centers/assets/education-nav.js" defer></script>
+
+  <dialog id="preview-dialog" class="st-dialogo" aria-labelledby="preview-titulo">
+    <header class="st-dialogo-cabecera">
+      <h2 id="preview-titulo">Vista previa</h2>
+      <div class="preview-device-options" id="preview-device-options" role="group" aria-label="Tamaño de pantalla">
+        <button type="button" data-device="movil" aria-pressed="true">Móvil</button>
+        <button type="button" data-device="tableta" aria-pressed="false">Tableta</button>
+        <button type="button" data-device="escritorio" aria-pressed="false">Escritorio</button>
+      </div>
+      <button type="button" class="st-btn" id="preview-close">Cerrar</button>
+    </header>
+    <div class="st-dialogo-escenario" id="preview-stage">
+      <iframe id="preview-frame" title="Vista previa de la actividad" src="about:blank"></iframe>
+    </div>
+    <footer class="st-dialogo-pie">
+      <p>Placeta Junior se ocupa de la revisión editorial. Cuando envías la actividad, la revisamos y, si todo está correcto, creamos una portada y las traducciones necesarias.</p>
+    </footer>
+  </dialog>
+
+  <script src="/education/assets/code-tablero.js"></script>
   <script src="/education/studio/studio.js" defer></script>
+  <script src="/education/centers/assets/education-nav.js" defer></script>
 </body>
 </html>

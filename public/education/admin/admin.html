@@ -13,6 +13,7 @@
 <script src="/js/accesibilidad.js" defer></script>
 <script src="/education/assets/legacy-redirect.js"></script>
   <link rel="stylesheet" href="/education/assets/edu-ui.css" />
+  <link rel="stylesheet" href="/education/assets/pj-visual-2026.css" />
 </head>
 <body>
   <header class="education-topbar"><div class="education-topbar-inner">
@@ -22,8 +23,14 @@
     <span id="usuario" class="usuario"></span>
     <button id="salir" type="button" class="education-signout sec" hidden>Cerrar sesión</button>
   </div></header>
-  <main>
-    <section id="login" class="tarjeta" aria-labelledby="login-titulo">
+  <main class="edu-split">
+    <aside class="edu-aside edu-aside-admin" aria-label="Acceso restringido">
+      <p class="edu-aside-eyebrow">Acceso restringido</p>
+      <h2 class="edu-aside-title">Solo personal autorizado</h2>
+      <p class="edu-aside-text">Espacio reservado al equipo que gestiona centros, solicitudes y dispositivos. Si necesitas acceso, pide alta a la coordinación del proyecto.</p>
+      <p class="edu-aside-foot">¿Eres docente o de un centro? <a href="/edu/centros">Entra desde tu área de centro</a>.</p>
+    </aside>
+  <section id="login" class="tarjeta" aria-labelledby="login-titulo">
       <h1 id="login-titulo">Administración de Placeta Junior</h1>
       <p class="nota">Acceso para el personal autorizado de Placeta Junior Education.</p>
       <form id="form-login" class="grid">

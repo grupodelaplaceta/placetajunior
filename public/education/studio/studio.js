@@ -1,10 +1,14 @@
 (() => {
   'use strict';
 
+  // Studio · creación de actividades (versión rehecha).
+  // Contratos que se mantienen: claves de sesión y borradores, formato de bloques
+  // que lee el reproductor, y el cuerpo de envío a /api/creadores/actividades.
   const SESSION_KEY = 'pj27-sesion';
   const DRAFT_KEY = 'pj-studio-creadores-draft';
   const DRAFTS_KEY = 'pj-studio-creadores-drafts-v1';
-  const TYPES = [
+
+const TYPES = [
     ['texto', 'Texto explicativo', '▤', 'Básicos'], ['test', 'Preguntas tipo test', '?', 'Básicos'],
     ['relacionar', 'Relacionar parejas', '↔', 'Básicos'], ['completar', 'Completar frases', '✎', 'Básicos'],
     ['ordenar', 'Ordenar pasos', '≡', 'Básicos'], ['sopa_letras', 'Sopa de letras', '▦', 'Básicos'],
@@ -23,7 +27,17 @@
     ['patron_visual', 'Patrones visuales', 'pattern', 'Lógica y atención'], ['batalla', 'Batalla matemática', 'sailing', 'Matemáticas'],
     ['tangram', 'Tangram', 'extension', 'Matemáticas']
   ];
-  const PRIMARY_DEFAULTS = {
+const CODE_DEFAULT_EXERCISES = [
+    { identificador: 'PJC-001', etapa: 'Primaria', dificultad: 'Inicial', titulo: 'Primeros pasos', explicacion: 'Cada bloque AVANZAR mueve a Candela una casilla.', objetivo_texto: 'Programa los pasos para llegar a la estrella.', bloques_permitidos: ['avanzar'], escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [] }, inicio: { x: 0, y: 0, direccion: 'derecha' }, objetivo: { posicion: { x: 2, y: 0 }, max_pasos: 4 }, pistas: ['Cuenta las casillas que separan a Candela de la estrella.'] },
+    { identificador: 'PJC-002', etapa: 'Primaria', dificultad: 'Inicial', titulo: 'Gira correctamente', explicacion: 'Un giro cambia hacia dónde mira Candela, pero no la mueve.', objetivo_texto: 'Llega a la estrella girando y avanzando.', bloques_permitidos: ['avanzar', 'girar'], escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [] }, inicio: { x: 0, y: 0, direccion: 'derecha' }, objetivo: { posicion: { x: 1, y: 1 }, max_pasos: 4 }, pistas: ['Avanza una casilla, gira a la derecha y vuelve a avanzar.'] },
+    { identificador: 'PJC-003', etapa: 'Primaria', dificultad: 'Intermedia', titulo: 'El laberinto', explicacion: 'Planifica cómo rodear la roca sin chocar.', objetivo_texto: 'Llega a la estrella usando el camino libre.', bloques_permitidos: ['avanzar', 'girar'], escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [{ x: 1, y: 0 }], monedas: [] }, inicio: { x: 0, y: 0, direccion: 'derecha' }, objetivo: { posicion: { x: 1, y: 1 }, max_pasos: 4 }, pistas: ['Gira a la derecha para pasar por debajo de la roca.'] },
+    { identificador: 'PJC-004', etapa: 'Primaria', dificultad: 'Intermedia', titulo: 'Recoge la moneda', explicacion: 'Puedes agrupar pasos repetidos en un bucle.', objetivo_texto: 'Recoge la moneda y llega a la estrella usando REPETIR.', bloques_permitidos: ['avanzar', 'repetir'], escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [{ x: 1, y: 0 }] }, inicio: { x: 0, y: 0, direccion: 'derecha' }, objetivo: { posicion: { x: 3, y: 0 }, monedas: 1, max_pasos: 4, debe_usar: ['repetir'] }, pistas: ['Repite AVANZAR tres veces. La moneda se recoge al pasar por ella.'] },
+    { identificador: 'PJC-005', etapa: 'Primaria', dificultad: 'Avanzada', titulo: 'La puerta secreta', explicacion: 'Un condicional permite decidir según lo que haya delante.', objetivo_texto: 'Si hay un obstáculo delante, gira y avanza.', bloques_permitidos: ['avanzar', 'girar', 'si'], escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [{ x: 1, y: 0 }], monedas: [] }, inicio: { x: 0, y: 0, direccion: 'derecha' }, objetivo: { posicion: { x: 0, y: 1 }, max_pasos: 3, debe_usar: ['si'] }, pistas: ['Dentro de SI coloca GIRAR a la derecha y AVANZAR.'] },
+    { identificador: 'PJC-006', etapa: 'Secundaria', dificultad: 'Intermedia', titulo: 'El robot perdido', explicacion: 'Los sensores permiten reaccionar a objetos cercanos.', objetivo_texto: 'Usa SI para recoger la moneda que está delante.', bloques_permitidos: ['avanzar', 'si'], escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [{ x: 1, y: 0 }] }, inicio: { x: 0, y: 0, direccion: 'derecha' }, objetivo: { posicion: { x: 1, y: 0 }, monedas: 1, max_pasos: 2, debe_usar: ['si'] }, pistas: ['Cambia la condición de SI a moneda e incluye AVANZAR dentro.'] },
+    { identificador: 'PJC-007', etapa: 'Secundaria', dificultad: 'Intermedia', titulo: 'Rescate espacial', explicacion: 'GIRAR 180° invierte la dirección en un solo bloque.', objetivo_texto: 'Da media vuelta y vuelve una casilla.', bloques_permitidos: ['avanzar', 'girar_180'], escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [] }, inicio: { x: 2, y: 0, direccion: 'derecha' }, objetivo: { posicion: { x: 1, y: 0 }, max_pasos: 2, debe_usar: ['girar_180'] }, pistas: ['Primero gira 180 grados y después avanza.'] },
+    { identificador: 'PJC-008', etapa: 'Secundaria', dificultad: 'Avanzada', titulo: 'El tesoro escondido', explicacion: 'Resuelve el reto con el menor número de instrucciones.', objetivo_texto: 'Llega a la estrella con un bucle REPETIR.', bloques_permitidos: ['avanzar', 'repetir'], escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [] }, inicio: { x: 0, y: 0, direccion: 'derecha' }, objetivo: { posicion: { x: 5, y: 0 }, max_pasos: 5, debe_usar: ['repetir'] }, pistas: ['Un bucle con cinco AVANZAR dentro reduce bloques duplicados.'] }
+  ];
+const PRIMARY_DEFAULTS = {
     reloj: { modo: 'poner', ejercicios: [{ hora: '03:30' }, { hora: '09:00' }] },
     recta_numerica: { min: 0, max: 20, paso: 1, valores: [13, 4] },
     grafico: { titulo_grafico: 'Mascotas de la clase', unidad: 'niños', tipo_grafico: 'barras', datos: [{ etiqueta: 'Perro', valor: 8 }, { etiqueta: 'Gato', valor: 5 }, { etiqueta: 'Pez', valor: 3 }], preguntas: [{ pregunta: '¿Qué mascota es la más frecuente?', opciones: ['Perro', 'Gato', 'Pez'], correcta: 0 }] },
@@ -48,17 +62,7 @@
     batalla: { nivel: 1 },
     tangram: { modo: 'completar', estilo: 'clasico', cantidad: 4 }
   };
-  const CODE_DEFAULT_EXERCISES = [
-    { identificador: 'PJC-001', etapa: 'Primaria', dificultad: 'Inicial', titulo: 'Primeros pasos', explicacion: 'Cada bloque AVANZAR mueve a Candela una casilla.', objetivo_texto: 'Programa los pasos para llegar a la estrella.', bloques_permitidos: ['avanzar'], escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [] }, inicio: { x: 0, y: 0, direccion: 'derecha' }, objetivo: { posicion: { x: 2, y: 0 }, max_pasos: 4 }, pistas: ['Cuenta las casillas que separan a Candela de la estrella.'] },
-    { identificador: 'PJC-002', etapa: 'Primaria', dificultad: 'Inicial', titulo: 'Gira correctamente', explicacion: 'Un giro cambia hacia dónde mira Candela, pero no la mueve.', objetivo_texto: 'Llega a la estrella girando y avanzando.', bloques_permitidos: ['avanzar', 'girar'], escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [] }, inicio: { x: 0, y: 0, direccion: 'derecha' }, objetivo: { posicion: { x: 1, y: 1 }, max_pasos: 4 }, pistas: ['Avanza una casilla, gira a la derecha y vuelve a avanzar.'] },
-    { identificador: 'PJC-003', etapa: 'Primaria', dificultad: 'Intermedia', titulo: 'El laberinto', explicacion: 'Planifica cómo rodear la roca sin chocar.', objetivo_texto: 'Llega a la estrella usando el camino libre.', bloques_permitidos: ['avanzar', 'girar'], escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [{ x: 1, y: 0 }], monedas: [] }, inicio: { x: 0, y: 0, direccion: 'derecha' }, objetivo: { posicion: { x: 1, y: 1 }, max_pasos: 4 }, pistas: ['Gira a la derecha para pasar por debajo de la roca.'] },
-    { identificador: 'PJC-004', etapa: 'Primaria', dificultad: 'Intermedia', titulo: 'Recoge la moneda', explicacion: 'Puedes agrupar pasos repetidos en un bucle.', objetivo_texto: 'Recoge la moneda y llega a la estrella usando REPETIR.', bloques_permitidos: ['avanzar', 'repetir'], escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [{ x: 1, y: 0 }] }, inicio: { x: 0, y: 0, direccion: 'derecha' }, objetivo: { posicion: { x: 3, y: 0 }, monedas: 1, max_pasos: 4, debe_usar: ['repetir'] }, pistas: ['Repite AVANZAR tres veces. La moneda se recoge al pasar por ella.'] },
-    { identificador: 'PJC-005', etapa: 'Primaria', dificultad: 'Avanzada', titulo: 'La puerta secreta', explicacion: 'Un condicional permite decidir según lo que haya delante.', objetivo_texto: 'Si hay un obstáculo delante, gira y avanza.', bloques_permitidos: ['avanzar', 'girar', 'si'], escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [{ x: 1, y: 0 }], monedas: [] }, inicio: { x: 0, y: 0, direccion: 'derecha' }, objetivo: { posicion: { x: 0, y: 1 }, max_pasos: 3, debe_usar: ['si'] }, pistas: ['Dentro de SI coloca GIRAR a la derecha y AVANZAR.'] },
-    { identificador: 'PJC-006', etapa: 'Secundaria', dificultad: 'Intermedia', titulo: 'El robot perdido', explicacion: 'Los sensores permiten reaccionar a objetos cercanos.', objetivo_texto: 'Usa SI para recoger la moneda que está delante.', bloques_permitidos: ['avanzar', 'si'], escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [{ x: 1, y: 0 }] }, inicio: { x: 0, y: 0, direccion: 'derecha' }, objetivo: { posicion: { x: 1, y: 0 }, monedas: 1, max_pasos: 2, debe_usar: ['si'] }, pistas: ['Cambia la condición de SI a moneda e incluye AVANZAR dentro.'] },
-    { identificador: 'PJC-007', etapa: 'Secundaria', dificultad: 'Intermedia', titulo: 'Rescate espacial', explicacion: 'GIRAR 180° invierte la dirección en un solo bloque.', objetivo_texto: 'Da media vuelta y vuelve una casilla.', bloques_permitidos: ['avanzar', 'girar_180'], escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [] }, inicio: { x: 2, y: 0, direccion: 'derecha' }, objetivo: { posicion: { x: 1, y: 0 }, max_pasos: 2, debe_usar: ['girar_180'] }, pistas: ['Primero gira 180 grados y después avanza.'] },
-    { identificador: 'PJC-008', etapa: 'Secundaria', dificultad: 'Avanzada', titulo: 'El tesoro escondido', explicacion: 'Resuelve el reto con el menor número de instrucciones.', objetivo_texto: 'Llega a la estrella con un bucle REPETIR.', bloques_permitidos: ['avanzar', 'repetir'], escenario: { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [] }, inicio: { x: 0, y: 0, direccion: 'derecha' }, objetivo: { posicion: { x: 5, y: 0 }, max_pasos: 5, debe_usar: ['repetir'] }, pistas: ['Un bucle con cinco AVANZAR dentro reduce bloques duplicados.'] }
-  ];
-  const PRIMARY_HELP = {
+const PRIMARY_HELP = {
     reloj: 'Cambia la hora o el modo. Usa HH:MM en formato de 24 horas; 16:30 se representa como 4:30 en el reloj analógico.',
     recta_numerica: 'Ajusta los límites, el salto y los números que el alumnado colocará.',
     grafico: 'Añade los datos y las preguntas del gráfico con los controles de cada reto.',
@@ -83,7 +87,7 @@
     batalla: 'Ajusta la dificultad de las operaciones y del tablero.',
     tangram: 'Elige el reto y la paleta de color de las piezas.'
   };
-  const TEMPLATES = [
+const TEMPLATES = [
     { id: 'quiz', title: 'Quiz rápido', description: 'Una explicación breve y preguntas para comprobar lo aprendido.', blocks: [
       { tipo: 'texto', titulo: 'Aprende', contenido: 'Escribe aquí la explicación del tema.' },
       { tipo: 'test', titulo: 'Comprueba lo aprendido', preguntas: [{ pregunta: '¿Qué idea es la más importante?', opciones: ['Respuesta correcta', 'Otra opción', 'Una tercera opción'], correcta: 0 }] }
@@ -101,6 +105,42 @@
       { tipo: 'sopa_letras', titulo: 'Encuentra las palabras', palabras: ['PLANETA', 'ESTRELLA'], pistas: ['Cuerpo que gira alrededor de una estrella', 'Astro con luz propia'] }
     ] }
   ];
+
+  // ── Estado ────────────────────────────────────────────────────────
+  const CATEGORIAS = ['General', 'Matemáticas', 'Lengua', 'Ciencias', 'Geografía', 'Tecnología', 'Lógica', 'Pensamiento computacional', 'Cultura'];
+  const COLOR_CATEGORIA = {
+    'Básicos': '#5b14c8',
+    'Matemáticas': '#1d6fe0',
+    'Lengua': '#c2410c',
+    'Lógica y atención': '#be185d',
+    'Pensamiento computacional': '#15803d'
+  };
+  const ETIQUETAS = {
+    pregunta: 'Pregunta', opciones: 'Opciones', correcta: 'Respuesta correcta', explicacion: 'Explicación',
+    contenido: 'Texto', enunciado: 'Enunciado', texto: 'Frase', izq: 'Lado izquierdo', der: 'Lado derecho',
+    concepto: 'Concepto', definicion: 'Definición', respuesta: 'Respuesta', pista: 'Pista', palabra: 'Palabra',
+    palabras: 'Palabras', silabas: 'Sílabas', items: 'Pasos (en orden)', frases: 'Frases', pares: 'Parejas',
+    preguntas: 'Preguntas', afirmaciones: 'Afirmaciones', verdadero: 'Es verdadera', categoria: 'Categoría',
+    etiqueta: 'Etiqueta', valor: 'Valor', datos: 'Datos', titulo_grafico: 'Título del gráfico', unidad: 'Unidad',
+    tipo_grafico: 'Tipo de gráfico', hora: 'Hora', ejercicios: 'Ejercicios', valores: 'Valores', min: 'Mínimo',
+    max: 'Máximo', paso: 'Paso', pesas: 'Pesas disponibles', ecuacion: 'Ecuación', serie: 'Serie', ancho: 'Ancho',
+    alto: 'Alto', celdas: 'Casillas del dibujo', intentos: 'Intentos', segundos: 'Segundos', descripcion: 'Descripción',
+    recompensa: 'Recompensa (Pz)', cantidad: 'Cantidad', nivel: 'Nivel', operacion: 'Operación', dados: 'Dados',
+    columnas: 'Columnas', eje: 'Eje', estilo: 'Estilo', reloj: 'Tipo de reloj', objetivo_texto: 'Misión'
+  };
+  // Claves que se guardan tal cual pero no se editan a mano
+  const OCULTAS = new Set(['tipo', 'id', 'modo', 'lenguaje', 'version']);
+  // Campos de texto largo (textarea)
+  const LARGO = new Set(['contenido', 'explicacion', 'descripcion', 'objetivo_texto', 'enunciado', 'pregunta']);
+  // Plantilla de un elemento nuevo para listas concretas cuando no hay ejemplo
+  const ELEMENTO = {
+    preguntas: () => ({ pregunta: '', opciones: ['', '', ''], correcta: 0 }),
+    pares: () => ({ izq: '', der: '' }),
+    frases: () => ({ texto: '', respuesta: '' }),
+    afirmaciones: () => ({ texto: '', verdadero: true, explicacion: '' }),
+    palabras: () => ({ palabra: '', pista: '' })
+  };
+
   const DEFAULTS = {
     texto: () => ({ tipo: 'texto', titulo: 'Nuevo texto', contenido: '' }),
     test: () => ({ tipo: 'test', titulo: 'Nuevas preguntas', preguntas: [{ pregunta: '', opciones: ['', '', ''], correcta: 0 }] }),
@@ -109,1160 +149,41 @@
     ordenar: () => ({ tipo: 'ordenar', titulo: 'Ordena los pasos', items: ['Primer paso', 'Segundo paso', 'Tercer paso'] }),
     sopa_letras: () => ({ tipo: 'sopa_letras', titulo: 'Sopa de letras', palabras: ['SOL', 'LUNA'], pistas: [] }),
     ...Object.fromEntries(Object.entries(PRIMARY_DEFAULTS).map(([type, data]) => [type, () => ({ tipo: type, titulo: TYPES.find(([id]) => id === type)?.[1] || type, datos: structuredClone(data) })])),
+    salto_unidad: () => ({ tipo: 'salto_unidad', titulo: 'Unidad nueva', descripcion: '', recompensa: 0 }),
     code_blocks: () => ({ tipo: 'code_blocks', titulo: 'Placeta Junior Code', lenguaje: 'placeta_blocks', objetivo_texto: 'Programa a Candela para completar la misión.', ejercicios: structuredClone(CODE_DEFAULT_EXERCISES) })
   };
-  const state = { title: '', description: '', category: 'General', age: '6-12', difficulty: 'media', reward: 0, blocks: [], selected: -1, templates: [], identity: null, identityKind: 'docente', authorName: '', center: null, centers: [], docenteAprobado: false, drafts: [], currentDraftId: null };
-  const $ = (id) => document.getElementById(id);
-  const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-  const history = [];
-  let historyIndex = -1;
-  let historyTimer;
 
-  function historyState() {
-    return { title: state.title, description: state.description, category: state.category, age: state.age, difficulty: state.difficulty, reward: state.reward, blocks: state.blocks };
-  }
-
-  function updateHistoryButtons() {
-    const hasUnrecordedChanges = historyIndex >= 0 && history[historyIndex] !== JSON.stringify(historyState());
-    $('undo-action').disabled = historyIndex <= 0 && !hasUnrecordedChanges;
-    $('redo-action').disabled = hasUnrecordedChanges || historyIndex < 0 || historyIndex >= history.length - 1;
-  }
-
-  function recordHistory() {
-    clearTimeout(historyTimer);
-    const snapshot = JSON.stringify(historyState());
-    if (historyIndex >= 0 && history[historyIndex] === snapshot) return;
-    history.splice(historyIndex + 1);
-    history.push(snapshot);
-    if (history.length > 50) history.shift();
-    historyIndex = history.length - 1;
-    updateHistoryButtons();
-  }
-
-  function resetHistory() {
-    clearTimeout(historyTimer);
-    history.length = 0;
-    historyIndex = -1;
-    recordHistory();
-  }
-
-  function restoreHistory(index) {
-    clearTimeout(historyTimer);
-    historyIndex = index;
-    Object.assign(state, JSON.parse(history[historyIndex]));
-    state.selected = state.blocks.length ? Math.max(0, Math.min(state.selected, state.blocks.length - 1)) : -1;
-    paintCanvas();
-    updateHistoryButtons();
-  }
-
-  function scheduleHistory() {
-    clearTimeout(historyTimer);
-    historyTimer = setTimeout(recordHistory, 500);
-  }
-
-  function notice(text, kind) {
-    const node = $('notice');
-    node.textContent = text;
-    node.className = `notice ${kind || ''}`;
-  }
-
-  function draftScope() {
-    return state.identityKind === 'centro' && state.center
-      ? `centro:${state.center.id}`
-      : `docente:${String(state.identity?.email || '').trim().toLowerCase()}`;
-  }
-
-  function createDraftId() {
-    return globalThis.crypto?.randomUUID?.() || `draft-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-  }
-
-  function hasDraftContent() {
-    return Boolean(state.title.trim() || state.description.trim() || state.blocks.length);
-  }
-
-  function currentDraftData() {
-    return {
-      id: state.currentDraftId,
-      scope: draftScope(),
-      title: state.title,
-      description: state.description,
-      category: state.category,
-      age: state.age,
-      difficulty: state.difficulty,
-      reward: state.reward,
-      blocks: state.blocks,
-      updatedAt: new Date().toISOString()
-    };
-  }
-
-  function saveDraft() {
-    if (!state.currentDraftId && !hasDraftContent()) return;
-    if (!state.currentDraftId) state.currentDraftId = createDraftId();
-    const saved = currentDraftData();
-    const index = state.drafts.findIndex((draft) => draft.id === saved.id);
-    if (index >= 0) state.drafts[index] = saved;
-    else state.drafts.unshift(saved);
-    try {
-      localStorage.setItem(DRAFTS_KEY, JSON.stringify(state.drafts));
-      localStorage.removeItem(DRAFT_KEY);
-      renderSavedActivities();
-      paintCompensation();
-      scheduleLivePreview();
-    } catch (error) {
-      notice('No se pudo guardar la actividad en este dispositivo. Comprueba el espacio disponible.', 'error');
-    }
-  }
-
-  function restoreDraft(draft) {
-    const saved = draft || {};
-    Object.assign(state, {
-      title: saved.title || '',
-      description: saved.description || '',
-      category: saved.category || 'General',
-      age: saved.age || '6-12',
-      difficulty: saved.difficulty || 'media',
-      reward: Math.max(0, Number(saved.reward) || 0),
-      blocks: Array.isArray(saved.blocks) ? saved.blocks : [],
-      currentDraftId: saved.id || null,
-      selected: Array.isArray(saved.blocks) && saved.blocks.length ? 0 : -1
-    });
-    resetHistory();
-    paintCanvas();
-    renderSavedActivities();
-  }
-
-  function loadDrafts() {
-    try {
-      const saved = JSON.parse(localStorage.getItem(DRAFTS_KEY) || '[]');
-      if (!Array.isArray(saved)) throw new Error('La lista de actividades guardadas no es válida.');
-      state.drafts = saved.filter((draft) => draft && typeof draft.id === 'string' && typeof draft.scope === 'string' && Array.isArray(draft.blocks));
-      const legacy = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
-      if (legacy && Array.isArray(legacy.blocks)) {
-        state.drafts.unshift({ ...legacy, id: createDraftId(), scope: draftScope(), updatedAt: new Date().toISOString() });
-        localStorage.setItem(DRAFTS_KEY, JSON.stringify(state.drafts));
-        localStorage.removeItem(DRAFT_KEY);
-      }
-    } catch (error) {
-      notice('No se pudieron leer las actividades guardadas de este dispositivo.', 'error');
-      state.drafts = [];
-    }
-  }
-
-  function renderSavedActivities() {
-    const root = $('saved-activities');
-    if (!root) return;
-    const scope = $('managed-center')?.value || draftScope();
-    const drafts = state.drafts.filter((draft) => draft.scope === scope).sort((a, b) => String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')));
-    $('saved-count').textContent = `${drafts.length} ${drafts.length === 1 ? 'actividad guardada' : 'actividades guardadas'}`;
-    root.innerHTML = drafts.length ? drafts.map((draft) => {
-      const title = draft.title?.trim() || 'Actividad sin título';
-      const updated = draft.updatedAt ? new Date(draft.updatedAt).toLocaleDateString('es-ES') : '';
-      return `<article class="saved-activity${draft.id === state.currentDraftId ? ' is-current' : ''}"><span class="saved-activity-art" aria-hidden="true">✦</span><div class="saved-activity-copy"><strong>${esc(title)}</strong><small>${esc(draft.category || 'General')} · ${draft.blocks.length} bloques${updated ? ` · Guardada ${esc(updated)}` : ''}</small></div><button type="button" class="saved-open" data-open-draft="${esc(draft.id)}">Abrir</button><button type="button" class="saved-delete" data-delete-draft="${esc(draft.id)}" aria-label="Eliminar ${esc(title)}">×</button></article>`;
-    }).join('') : '<div class="saved-empty"><span class="material-symbols-rounded" aria-hidden="true">auto_awesome</span><strong>Tu espacio está listo</strong><p>Aquí aparecerán las actividades que guardes para este centro.</p><button type="button" class="new-activity-button" data-create-first>＋ Crear mi primera actividad</button></div>';
-  }
-
-  function setupManagedCenters() {
-    const select = $('managed-center');
-    const choices = [
-      ...(state.docenteAprobado ? [{ value: 'docente', label: 'Mi espacio docente' }] : []),
-      ...state.centers.map((center) => ({ value: `centro:${center.id}`, label: center.nombre }))
-    ];
-    select.innerHTML = choices.map((choice) => `<option value="${esc(choice.value)}">${esc(choice.label)}</option>`).join('');
-    select.value = draftScope();
-  }
-
-  function setAuthorScope(value) {
-    saveDraft();
-    if (value === 'docente') {
-      state.identityKind = 'docente';
-      state.center = null;
-    } else {
-      state.identityKind = 'centro';
-      state.center = state.centers.find((center) => `centro:${center.id}` === value) || null;
-      if (!state.center) return;
-    }
-    const latest = state.drafts.filter((draft) => draft.scope === draftScope()).sort((a, b) => String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')))[0];
-    restoreDraft(latest);
-    $('managed-center').value = draftScope();
-    paintIdentity(state.identity?.email || '');
-    showStudioView('activities');
-  }
-
-  function startNewActivity() {
-    saveDraft();
-    restoreDraft(null);
-    paintTemplates('');
-    showStudioView('create');
-    $('meta-title').focus();
-  }
-
-  function openSavedDraft(id) {
-    const draft = state.drafts.find((item) => item.id === id && item.scope === draftScope());
-    if (!draft) return;
-    restoreDraft(draft);
-    paintTemplates('');
-    showStudioView('edit');
-    showEditorPane('canvas');
-  }
-
-  function deleteSavedDraft(id) {
-    const draft = state.drafts.find((item) => item.id === id && item.scope === draftScope());
-    if (!draft || !window.confirm(`¿Eliminar «${draft.title?.trim() || 'Actividad sin título'}» de este dispositivo?`)) return;
-    state.drafts = state.drafts.filter((item) => item.id !== id);
-    try {
-      localStorage.setItem(DRAFTS_KEY, JSON.stringify(state.drafts));
-      if (state.currentDraftId === id) restoreDraft(null);
-      renderSavedActivities();
-    } catch (error) {
-      notice('No se pudo eliminar la actividad guardada. Inténtalo de nuevo.', 'error');
-    }
-  }
-
-  function removeCurrentDraft() {
-    state.drafts = state.drafts.filter((draft) => draft.id !== state.currentDraftId);
-    state.currentDraftId = null;
-    try { localStorage.setItem(DRAFTS_KEY, JSON.stringify(state.drafts)); localStorage.removeItem(DRAFT_KEY); }
-    catch (error) { notice('La actividad se envió, pero no se pudo actualizar la lista de borradores.', 'error'); }
-  }
-
-  function showStudioView(name) {
-    document.querySelectorAll('[data-studio-panel]').forEach((panel) => { panel.hidden = panel.dataset.studioPanel !== name; });
-    document.querySelectorAll('[data-studio-view]').forEach((button) => {
-      const active = button.dataset.studioView === name;
-      button.setAttribute('aria-selected', String(active));
-      button.tabIndex = active ? 0 : -1;
-    });
-    $('submit-bar').hidden = name !== 'edit';
-    if (name === 'edit') $('activity-title').textContent = state.title || 'Actividad sin título';
-  }
-
-  let editorPane = 'palette';
-  function showEditorPane(name) {
-    const selected = state.blocks[state.selected];
-    const next = name === 'inspector' && !selected ? 'palette' : name;
-    editorPane = next;
-    const wide = window.matchMedia('(min-width: 1100px)').matches;
-    document.querySelectorAll('[data-editor-panel]').forEach((panel) => { panel.hidden = !wide && panel.dataset.editorPanel !== next; });
-    $('editor-steps').hidden = wide;
-    document.querySelectorAll('[data-editor-view]').forEach((button) => {
-      const active = button.dataset.editorView === next;
-      button.setAttribute('aria-selected', String(active));
-      button.tabIndex = active ? 0 : -1;
-      if (button.hasAttribute('data-needs-selection')) button.disabled = !selected;
-    });
-  }
-
-  function blockName(type) { return type === 'salto_unidad' ? 'Salto de unidad' : TYPES.find(([id]) => id === type)?.[1] || type; }
-  function blockSummary(block) {
-    if (block.tipo === 'salto_unidad') return `${block.titulo || 'Nueva unidad'} · ${Number(block.recompensa) || 0} Pz`;
-    if (block.tipo === 'texto') return (block.contenido || '').replace(/\s+/g, ' ').slice(0, 72) || 'Añade una explicación';
-    if (block.tipo === 'test') return `${(block.preguntas || []).length} pregunta(s)`;
-    if (block.tipo === 'relacionar') return `${(block.pares || []).length} pareja(s)`;
-    if (block.tipo === 'completar') return `${(block.frases || []).length} frase(s)`;
-    if (block.tipo === 'ordenar') return `${(block.items || []).length} paso(s)`;
-    if (block.tipo === 'sopa_letras') return `${(block.palabras || []).length} palabra(s)`;
-    const data = block.datos || block;
-    if (block.tipo === 'reloj') return `${(data.ejercicios || []).length} hora(s)`;
-    if (block.tipo === 'recta_numerica') return `${(data.valores || []).length} número(s)`;
-    if (block.tipo === 'grafico') return `${(data.datos || []).length} dato(s)`;
-    if (block.tipo === 'balanza' || block.tipo === 'simetria') return `${(data.ejercicios || []).length} reto(s)`;
-    if (block.tipo === 'ahorcado' || block.tipo === 'anagrama' || block.tipo === 'silabas') return `${(data.palabras || []).length} palabra(s)`;
-    if (block.tipo === 'patrones') return `${(data.secuencias || []).length} serie(s)`;
-    if (block.tipo === 'vf_rapido') return `${(data.afirmaciones || []).length} afirmación(es)`;
-    if (block.tipo === 'ruleta_preguntas') return `${(data.preguntas || []).length} pregunta(s)`;
-    if (block.tipo === 'code_blocks') return `${(block.ejercicios || []).length} reto(s) de programación`;
-    if (['vertical', 'calculo_mental'].includes(block.tipo)) return `${(data.ejercicios || []).length || data.cantidad || 0} ejercicio(s)`;
-    if (block.tipo === 'horas') return `${(data.ejercicios || []).length || data.cantidad || 0} reto(s)`;
-    if (['geometria', 'dinero', 'abaco', 'dados', 'tesoro', 'simetria_dibujo', 'patron_visual', 'tangram'].includes(block.tipo)) return `${data.cantidad || 0} reto(s)`;
-    if (block.tipo === 'batalla') return `Nivel ${data.nivel || 1}`;
-    return '';
-  }
-
-  function rewardAssignedToBreaks() {
-    return state.blocks.reduce((total, block) => total + (block.tipo === 'salto_unidad' ? Math.max(0, Number(block.recompensa) || 0) : 0), 0);
-  }
-
-  function activityLevels() {
-    const levels = [{ orden: 1, titulo: 'Unidad 1', descripcion: state.description || '', recompensa: Math.max(0, state.reward - rewardAssignedToBreaks()), bloques: [] }];
-    state.blocks.forEach((block) => {
-      if (block.tipo === 'salto_unidad') {
-        levels.push({ orden: levels.length + 1, titulo: block.titulo || `Unidad ${levels.length + 1}`, descripcion: block.descripcion || '', recompensa: Math.max(0, Number(block.recompensa) || 0), bloques: [] });
-      } else {
-        levels[levels.length - 1].bloques.push(block);
-      }
-    });
-    return levels;
-  }
-
-  function activityContent() {
-    const levels = activityLevels();
-    const blocks = state.blocks.filter((block) => block.tipo !== 'salto_unidad');
-    return { version: 2, bloques: blocks, ...(levels.length > 1 ? { niveles: levels } : {}) };
-  }
-
-  function paintCompensation() {
-    const summary = $('compensation-summary');
-    if (!summary) return;
-    const markers = state.blocks.filter((block) => block.tipo === 'salto_unidad');
-    const first = Math.max(0, state.reward - rewardAssignedToBreaks());
-    const repartido = [`Unidad 1: ${first} Pz`, ...markers.map((block, index) => `${block.titulo || `Unidad ${index + 2}`}: ${Math.max(0, Number(block.recompensa) || 0)} Pz`)];
-    summary.textContent = `${repartido.join(' + ')} · Total: ${state.reward} Pz`;
-  }
-
-  let livePreviewTimer;
-  function scheduleLivePreview() {
-    clearTimeout(livePreviewTimer);
-    livePreviewTimer = setTimeout(() => {
-      const frame = $('live-preview-frame'), empty = $('live-preview-empty');
-      if (!frame || !empty) return;
-      const content = activityContent();
-      if (!content.bloques.length) {
-        frame.hidden = true;
-        empty.hidden = false;
-        frame.src = 'about:blank';
-        $('preview-live-status').textContent = 'Elige un ejercicio para empezar.';
-        return;
-      }
-      const activity = { id: 'preview-live', _preview: true, titulo: state.title || 'Mi actividad', descripcion: state.description || '', categoria: state.category, edad_recomendada: state.age, dificultad: state.difficulty, recompensa: state.reward, contenido: content };
-      try { sessionStorage.setItem('pj-preview-activity', JSON.stringify(activity)); } catch {}
-      frame.hidden = false;
-      empty.hidden = true;
-      $('preview-live-status').textContent = `${state.blocks.filter((block) => block.tipo === 'salto_unidad').length + 1} unidades · ${state.reward} Pz disponibles`;
-      frame.src = `/preview.html?embed=1&start=0&t=${Date.now()}`;
-    }, 350);
-  }
-
-  function paintTemplates(active) {
-    const visuals = { quiz: ['quiz', 'template-quiz'], parejas: ['extension', 'template-pairs'], lectura: ['auto_stories', 'template-reading'], vocabulario: ['park', 'template-vocabulary'] };
-    $('templates').innerHTML = TEMPLATES.map((item, index) => {
-      const [icon, style] = visuals[item.id];
-      return `<button type="button" class="template ${style}" data-template="${item.id}" aria-pressed="${active === item.id}"><span class="template-art material-symbols-rounded" aria-hidden="true">${icon}</span><span class="template-copy"><span class="template-index">PLANTILLA 0${index + 1}</span><strong>${esc(item.title)}</strong><small>${esc(item.description)}</small></span><span class="template-arrow" aria-hidden="true">→</span></button>`;
-    }).join('');
-  }
-
-  function paintPalette() {
-    const categories = [...new Set(TYPES.map(([, , , category]) => category))];
-    $('palette').innerHTML = `<div class="palette-filters"><label class="palette-search"><span aria-hidden="true">⌕</span><input id="palette-search" type="search" placeholder="Busca un tipo…" aria-label="Buscar tipos de actividad"></label><label class="palette-category-label" for="palette-category">Materia</label><select id="palette-category" aria-label="Filtrar por materia"><option value="all">Todas</option>${categories.map((category) => `<option value="${esc(category)}">${esc(category)}</option>`).join('')}</select><p id="palette-count" class="palette-count" aria-live="polite"></p></div><div class="palette-items">${TYPES.map(([type, name, icon, category]) => `<button type="button" draggable="true" class="palette-item type-${type}" data-type="${type}" data-category="${esc(category)}"><span class="palette-icon material-symbols-rounded" aria-hidden="true">${icon}</span><span class="palette-item-copy"><strong>${esc(name)}</strong><small>${esc(category)}</small></span><span class="palette-add" aria-hidden="true">＋</span></button>`).join('')}</div>`;
-    const filterPalette = () => {
-      const query = $('palette-search').value.trim().toLocaleLowerCase();
-      const category = $('palette-category').value;
-      let visible = 0;
-      $('palette').querySelectorAll('[data-type]').forEach((button) => {
-        const matches = (category === 'all' || button.dataset.category === category)
-          && (!query || button.textContent.toLocaleLowerCase().includes(query));
-        button.hidden = !matches;
-        if (matches) visible += 1;
-      });
-      $('palette-count').textContent = `${visible} ${visible === 1 ? 'tipo disponible' : 'tipos disponibles'}`;
-    };
-    $('palette-search').addEventListener('input', filterPalette);
-    $('palette-category').addEventListener('change', filterPalette);
-    filterPalette();
-  }
-
-  function paintCanvas() {
-    const canvas = $('canvas');
-    canvas.classList.toggle('empty', !state.blocks.length);
-    $('activity-title').textContent = state.title || 'Actividad sin título';
-    $('draft-title').textContent = state.title || 'Actividad nueva';
-    $('draft-summary').textContent = `${state.blocks.length} bloque(s) · borrador guardado en este dispositivo`;
-    $('meta-title').value = state.title;
-    $('meta-description').value = state.description;
-    $('meta-category').value = state.category;
-    $('meta-age').value = state.age;
-    $('meta-difficulty').value = state.difficulty;
-    $('meta-reward').value = state.reward;
-    canvas.innerHTML = state.blocks.length ? state.blocks.map((block, index) => `<article class="block-card${index === state.selected ? ' selected' : ''}${block.tipo === 'salto_unidad' ? ' unit-break' : ''}" data-index="${index}" data-unit-break="${block.tipo === 'salto_unidad'}" draggable="true"><span class="block-number">${String(index + 1).padStart(2, '0')}</span><button class="block-select block-copy" type="button" aria-label="Editar ${esc(blockName(block.tipo))}, bloque ${index + 1}"><strong>${esc(block.titulo || blockName(block.tipo))}</strong><small>${esc(block.tipo === 'salto_unidad' ? 'Nueva unidad · ' + (Number(block.recompensa) || 0) + ' Pz' : blockSummary(block))}</small></button><span class="block-actions"><button class="block-action" data-move="-1" data-index="${index}" type="button" aria-label="Mover bloque ${index + 1} antes" ${index === 0 ? 'disabled' : ''}>↑</button><button class="block-action" data-move="1" data-index="${index}" type="button" aria-label="Mover bloque ${index + 1} después" ${index === state.blocks.length - 1 ? 'disabled' : ''}>↓</button><button class="block-action" data-duplicate="${index}" type="button" aria-label="Duplicar bloque ${index + 1}">⧉</button><button class="remove-block" data-remove="${index}" type="button" aria-label="Eliminar bloque ${index + 1}">×</button></span></article>`).join('') : '<div class="empty-state"><strong>El lienzo está listo</strong>Elige un ejercicio en la barra izquierda para empezar.</div>';
-    paintInspector();
-    paintCompensation();
-    saveDraft();
-    updateHistoryButtons();
-  }
-
-  function editorField(label, key, value, mode = 'text', rows = 3) {
-    const textarea = mode === 'multiline' || mode === 'lines';
-    const shown = mode === 'lines' ? (Array.isArray(value) ? value.join('\n') : '') : value ?? '';
-    return `<div class="field"><label for="field-${key}">${esc(label)}</label>${textarea ? `<textarea id="field-${key}" data-key="${key}" data-mode="${mode}" rows="${rows}">${esc(shown)}</textarea>` : `<input id="field-${key}" data-key="${key}" value="${esc(shown)}" />`}</div>`;
-  }
-
-  const PRIMARY_ROW_LABELS = {
-    lines: ['Número'], words: ['Elemento'], times: ['Hora'], hourTasks: ['Hora o inicio', 'Duración o fin'],
-    measureTasks: ['Ancho', 'Alto', 'Tipo de medida'], diceTasks: ['Caras de los dados', 'Operación'],
-    balanceTasks: ['Pesos del plato izquierdo', 'Pesos del plato derecho', 'Pesas disponibles', 'Ecuación'],
-    sequenceTasks: ['Serie', 'Opciones de respuesta', 'Respuesta correcta'], symmetryTasks: ['Ancho', 'Alto', 'Celdas del dibujo'],
-    rouletteTasks: ['Categoría', 'Pregunta', 'Opciones de respuesta', 'Respuesta correcta'],
-    operationTasks: ['Primer número', 'Segundo número', 'Operación'], mentalTasks: ['Enunciado', 'Respuesta'],
-    chartQuestions: ['Pregunta', 'Opciones de respuesta', 'Respuesta correcta'], wordHints: ['Palabra', 'Pista'],
-    syllables: ['Palabra', 'Sílabas'], truth: ['Afirmación', 'Respuesta', 'Explicación'], chartData: ['Etiqueta', 'Valor']
+  const state = {
+    title: '', description: '', category: 'General', age: '6-12', difficulty: 'media', reward: 0,
+    blocks: [], selected: -1, pane: 'canvas', view: 'activities',
+    identity: null, identityKind: 'docente', authorName: '', center: null, centers: [], docenteAprobado: false,
+    drafts: [], currentDraftId: null, history: [], historyIndex: -1, previewDevice: 'movil'
   };
 
-  function primaryRowChoices(mode, parts, index) {
-    if (mode === 'measureTasks' && index === 2) return [['area', 'Área'], ['perimetro', 'Perímetro'], ['mixto', 'Alternar']];
-    if (mode === 'diceTasks' && index === 1) return [['suma', 'Sumar'], ['resta', 'Restar'], ['multiplicacion', 'Multiplicar']];
-    if (mode === 'operationTasks' && index === 2) return [['+', 'Sumar'], ['-', 'Restar']];
-    if (mode === 'truth' && index === 1) return [['verdadero', 'Verdadera'], ['falso', 'Falsa']];
-    const optionPart = { sequenceTasks: 1, rouletteTasks: 2, chartQuestions: 1 }[mode];
-    const correctPart = { sequenceTasks: 2, rouletteTasks: 3, chartQuestions: 2 }[mode];
-    if (index !== correctPart) return null;
-    const options = String(parts[optionPart] || '').split(',').map((value) => value.trim()).filter(Boolean);
-    return options.map((value, optionIndex) => [String(optionIndex), value || `Opción ${optionIndex + 1}`]);
+  const $ = (id) => document.getElementById(id);
+  const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  const etiqueta = (clave) => ETIQUETAS[clave] || clave.replace(/_/g, ' ').replace(/^./, (c) => c.toUpperCase());
+  const nombreTipo = (tipo) => (TYPES.find(([id]) => id === tipo) || [, tipo])[1];
+  const iconoTipo = (tipo) => {
+    const t = TYPES.find(([id]) => id === tipo);
+    return t && t[2].length === 1 ? t[2] : (nombreTipo(tipo) || '?').charAt(0).toUpperCase();
+  };
+  const colorTipo = (tipo) => COLOR_CATEGORIA[(TYPES.find(([id]) => id === tipo) || [, , , 'Básicos'])[3]] || '#5b14c8';
+  const clonar = (valor) => JSON.parse(JSON.stringify(valor));
+
+  function notice(texto, tipo) {
+    const el = $('studio-notice');
+    el.textContent = texto;
+    el.className = 'st-aviso' + (tipo ? ' ' + tipo : '');
   }
 
-  function primaryRowsField(label, key, shown, mode, hint) {
-    const rows = String(shown || '').split(/\r?\n/).filter((line) => line.trim());
-    const labels = PRIMARY_ROW_LABELS[mode] || ['Contenido'];
-    const renderedRows = rows.map((line, rowIndex) => {
-      const parts = line.split('|');
-      const fields = labels.map((fieldLabel, partIndex) => {
-        const value = parts[partIndex] || '';
-        const choices = primaryRowChoices(mode, parts, partIndex);
-        if (choices) return `<div class="primary-row-choice"><span>${esc(fieldLabel)}</span><input type="hidden" data-row-part="${partIndex}" value="${esc(value)}" /><div class="choice-buttons" role="group" aria-label="${esc(fieldLabel)}">${choices.map(([choice, title]) => `<button type="button" class="choice-button" data-primary-row-choice="${rowIndex}" data-choice-part="${partIndex}" data-choice-value="${esc(choice)}" aria-pressed="${value === choice}">${esc(title)}</button>`).join('')}</div></div>`;
-        const number = mode === 'lines' || mode === 'measureTasks' && partIndex < 2 || mode === 'operationTasks' && partIndex < 2 || mode === 'mentalTasks' && partIndex === 1 || mode === 'chartData' && partIndex === 1 || mode === 'hourTasks' && partIndex === 1 && /^\d+$/.test(value);
-        const time = mode === 'times' || mode === 'hourTasks' && (partIndex === 0 || partIndex === 1 && value.includes(':'));
-        return `<label class="field"><span>${esc(fieldLabel)}</span><input data-row-part="${partIndex}" type="${number ? 'number' : time ? 'time' : 'text'}" value="${esc(value)}"${number ? ' step="any"' : ''} /></label>`;
-      }).join('');
-      return `<fieldset class="primary-row"><legend>Ejercicio ${rowIndex + 1}</legend><div class="primary-row-fields">${fields}</div><button type="button" class="quiet-button" data-primary-row-delete="${rowIndex}">Eliminar ejercicio</button></fieldset>`;
-    }).join('');
-    return `<section class="primary-rows" data-primary-rows="${key}" data-primary-mode="${mode}"><strong class="primary-rows-title">${esc(label)}</strong>${hint ? `<small class="primary-rows-hint">${esc(hint)}</small>` : ''}<div class="primary-row-list">${renderedRows || '<p class="inspector-empty">Aún no hay ejercicios personalizados. Puedes añadir el primero o dejar que se generen automáticamente.</p>'}</div><button type="button" class="add-row" data-primary-row-add>＋ Añadir ejercicio</button></section>`;
-  }
+  /* ── Identidad y permisos ──────────────────────────────────────── */
 
-  function primaryRowDefault(mode, data) {
-    if (mode === 'lines') return 0;
-    if (mode === 'words') return '';
-    if (mode === 'times') return { hora: '03:30' };
-    if (mode === 'hourTasks') return data.modo === 'sumar' ? { hora: '03:30', duracion: 30 } : data.modo === 'duracion' ? { inicio: '03:30', fin: '04:00' } : { hora: '03:30' };
-    if (mode === 'measureTasks') return { ancho: 5, alto: 3, medida: data.medida || 'area' };
-    if (mode === 'diceTasks') return { caras: [3, 5], operacion: data.operacion || 'suma' };
-    if (mode === 'balanceTasks') return { izq: [5, 3], der: [2], pesas: [1, 2, 3, 5], ecuacion: '' };
-    if (mode === 'sequenceTasks') return { serie: ['2', '4', '?', '8'], opciones: ['5', '6', '7'], correcta: 1 };
-    if (mode === 'symmetryTasks') return { ancho: 3, alto: 4, celdas: [[0, 0], [1, 1], [2, 2]] };
-    if (mode === 'rouletteTasks') return { categoria: 'General', pregunta: '', opciones: ['Opción 1', 'Opción 2', 'Opción 3'], correcta: 0 };
-    if (mode === 'operationTasks') return { a: 10, b: 5, op: '+' };
-    if (mode === 'mentalTasks') return { enunciado: '', respuesta: 0 };
-    if (mode === 'chartQuestions') return { pregunta: '', opciones: ['Opción 1', 'Opción 2', 'Opción 3'], correcta: 0 };
-    if (mode === 'wordHints') return { palabra: '', pista: '' };
-    if (mode === 'syllables') return { palabra: '', silabas: [] };
-    if (mode === 'truth') return { texto: '', verdadero: true, explicacion: '' };
-    if (mode === 'chartData') return { etiqueta: '', valor: 0 };
-    return '';
-  }
-
-  function syncPrimaryRows(root) {
-    const lines = [...root.querySelectorAll('.primary-row')].map((row) => [...row.querySelectorAll('[data-row-part]')]
-      .sort((a, b) => Number(a.dataset.rowPart) - Number(b.dataset.rowPart))
-      .map((field) => field.value).join('|'));
-    updatePrimaryField({ dataset: { primaryData: root.dataset.primaryRows, mode: root.dataset.primaryMode }, value: lines.join('\n') });
-  }
-
-  function changePrimaryRows(root, action, index) {
-    const block = state.blocks[state.selected];
-    if (!block || !PRIMARY_DEFAULTS[block.tipo]) return;
-    const data = block.datos || (block.datos = structuredClone(PRIMARY_DEFAULTS[block.tipo]));
-    const key = root.dataset.primaryRows, mode = root.dataset.primaryMode;
-    const rows = Array.isArray(data[key]) ? data[key] : [];
-    if (action === 'add' && rows.length >= 12) { $('field-error').textContent = 'Puedes añadir hasta 12 ejercicios personalizados.'; return; }
-    if (action === 'delete' && mode === 'chartData' && rows.length <= 2) { $('field-error').textContent = 'El gráfico necesita al menos dos datos.'; return; }
-    recordHistory();
-    if (action === 'add') rows.push(rows.length ? structuredClone(rows[rows.length - 1]) : primaryRowDefault(mode, data));
-    else rows.splice(index, 1);
-    data[key] = rows;
-    $('field-error').textContent = '';
-    paintInspector();
-    saveDraft();
-    recordHistory();
-  }
-
-  function updatePrimaryRowChoice(button) {
-    const row = button.closest('.primary-row');
-    const part = button.dataset.choicePart;
-    const value = row.querySelector(`[data-row-part="${part}"]`);
-    value.value = button.dataset.choiceValue;
-    row.querySelectorAll(`[data-choice-part="${part}"]`).forEach((choice) => choice.setAttribute('aria-pressed', String(choice === button)));
-    syncPrimaryRows(button.closest('[data-primary-rows]'));
-  }
-
-  function primaryField(label, key, value, mode = 'text', hint = '', choices = null) {
-    if (mode === 'select') {
-      const options = choices || (key === 'modo' ? [['poner', 'Poner la hora'], ['leer', 'Leer la hora']] : [['barras', 'Barras'], ['pictograma', 'Pictograma']]);
-      return `<div class="field primary-field"><span>${esc(label)}</span><div class="choice-buttons" role="group" aria-label="${esc(label)}">${options.map(([option, title]) => `<button type="button" class="choice-button" data-primary-choice="${key}" data-choice-value="${esc(option)}" aria-pressed="${String(value) === option}">${esc(title)}</button>`).join('')}</div>${hint ? `<small>${esc(hint)}</small>` : ''}</div>`;
-    }
-    const textarea = ['lines', 'times', 'hourTasks', 'measureTasks', 'diceTasks', 'balanceTasks', 'sequenceTasks', 'symmetryTasks', 'rouletteTasks', 'operationTasks', 'mentalTasks', 'chartQuestions', 'words', 'wordHints', 'syllables', 'truth', 'chartData'].includes(mode);
-    let shown = value ?? '';
-    if (mode === 'lines') shown = Array.isArray(value) ? value.join('\n') : '';
-    else if (mode === 'times') shown = Array.isArray(value) ? value.map((item) => item.hora || '').join('\n') : '';
-    else if (mode === 'hourTasks') shown = Array.isArray(value) ? value.map((item) => item.inicio && item.fin ? `${item.inicio}|${item.fin}` : item.duracion != null ? `${item.hora || ''}|${item.duracion}` : item.hora || '').join('\n') : '';
-    else if (mode === 'measureTasks') shown = Array.isArray(value) ? value.map((item) => `${item.ancho}|${item.alto}|${item.medida || ''}`).join('\n') : '';
-    else if (mode === 'diceTasks') shown = Array.isArray(value) ? value.map((item) => `${(item.caras || []).join(',')}|${item.operacion || ''}`).join('\n') : '';
-    else if (mode === 'balanceTasks') shown = Array.isArray(value) ? value.map((item) => `${(item.izq || []).join(',')}|${(item.der || []).join(',')}|${(item.pesas || []).join(',')}|${item.ecuacion || ''}`).join('\n') : '';
-    else if (mode === 'sequenceTasks') shown = Array.isArray(value) ? value.map((item) => `${(item.serie || []).join(',')}|${(item.opciones || []).join(',')}|${item.correcta ?? 0}`).join('\n') : '';
-    else if (mode === 'symmetryTasks') shown = Array.isArray(value) ? value.map((item) => `${item.ancho}|${item.alto}|${(item.celdas || []).map((cell) => cell.join(',')).join(';')}`).join('\n') : '';
-    else if (mode === 'rouletteTasks') shown = Array.isArray(value) ? value.map((item) => `${item.categoria || ''}|${item.pregunta || ''}|${(item.opciones || []).join(',')}|${item.correcta ?? 0}`).join('\n') : '';
-    else if (mode === 'operationTasks') shown = Array.isArray(value) ? value.map((item) => `${item.a}|${item.b}|${item.op || '+'}`).join('\n') : '';
-    else if (mode === 'mentalTasks') shown = Array.isArray(value) ? value.map((item) => `${item.enunciado || ''}|${item.respuesta ?? ''}`).join('\n') : '';
-    else if (mode === 'chartQuestions') shown = Array.isArray(value) ? value.map((item) => `${item.pregunta || ''}|${(item.opciones || []).join(',')}|${item.correcta ?? 0}`).join('\n') : '';
-    else if (mode === 'words') shown = Array.isArray(value) ? value.join('\n') : '';
-    else if (mode === 'wordHints') shown = Array.isArray(value) ? value.map((item) => `${item.palabra || ''}|${item.pista || ''}`).join('\n') : '';
-    else if (mode === 'syllables') shown = Array.isArray(value) ? value.map((item) => `${item.palabra || ''}|${(item.silabas || []).join('-')}`).join('\n') : '';
-    else if (mode === 'truth') shown = Array.isArray(value) ? value.map((item) => `${item.texto || ''}|${item.verdadero ? 'verdadero' : 'falso'}|${item.explicacion || ''}`).join('\n') : '';
-    else if (mode === 'chartData') shown = Array.isArray(value) ? value.map((item) => `${item.etiqueta || ''}|${item.valor ?? ''}`).join('\n') : '';
-    if (textarea) return primaryRowsField(label, key, shown, mode, hint);
-    const id = `primary-${key.replace(/[^a-z0-9]/gi, '-')}`;
-    let control;
-    const numeric = ['number', 'level', 'quantity', 'columns', 'diceCount'].includes(mode);
-    const limits = { level: 'min="1" max="3" step="1"', quantity: 'min="1" max="12" step="1"', columns: 'min="2" max="4" step="1"', diceCount: 'min="2" max="4" step="1"' };
-    control = `<input id="${id}" data-primary-data="${key}" data-mode="${mode}" ${numeric ? `type="number" ${limits[mode] || ''}` : ''} value="${esc(shown)}" />`;
-    return `<label class="field primary-field" for="${id}"><span>${esc(label)}</span>${control}${hint ? `<small>${esc(hint)}</small>` : ''}</label>`;
-  }
-
-  function primaryEditorFields(block) {
-    const data = block.datos || PRIMARY_DEFAULTS[block.tipo];
-    if (block.tipo === 'reloj') return primaryField('Modo', 'modo', data.modo || 'poner', 'select', 'Elige si mostrar una hora para ajustar o para leer.') +
-      primaryField('Horas (una por línea)', 'ejercicios', data.ejercicios, 'times', 'Ejemplo: 03:30. Se creará un reto por hora.');
-    if (block.tipo === 'recta_numerica') return primaryField('Número mínimo', 'min', data.min, 'number') +
-      primaryField('Número máximo', 'max', data.max, 'number') +
-      primaryField('Salto entre marcas', 'paso', data.paso, 'number') +
-      primaryField('Números para colocar (uno por línea)', 'valores', data.valores, 'lines');
-    if (block.tipo === 'grafico') return primaryField('Título del gráfico', 'titulo_grafico', data.titulo_grafico) +
-      primaryField('Unidad', 'unidad', data.unidad, 'text', 'Ejemplo: niños, libros, puntos.') +
-      primaryField('Tipo de gráfico', 'tipo_grafico', data.tipo_grafico || 'barras', 'select') +
-      primaryField('Datos del gráfico', 'datos', data.datos, 'chartData', 'Añade una categoría y su cantidad en cada fila.') +
-      primaryField('Preguntas del gráfico', 'preguntas', data.preguntas || [], 'chartQuestions', 'Escribe la pregunta y las respuestas; marca la correcta con un botón.');
-    if (block.tipo === 'balanza') return primaryField('Retos de equilibrio', 'ejercicios', data.ejercicios, 'balanceTasks', 'Indica los pesos de ambos platos y las piezas disponibles.');
-    if (block.tipo === 'ahorcado') return primaryField('Intentos disponibles', 'intentos', data.intentos, 'number') +
-      primaryField('Palabras y pistas (palabra|pista)', 'palabras', data.palabras, 'wordHints', 'Ejemplo: MARIPOSA|Insecto con alas de colores.');
-    if (block.tipo === 'anagrama') return primaryField('Palabras y pistas (palabra|pista)', 'palabras', data.palabras, 'wordHints', 'Ejemplo: ESCUELA|Donde aprendes.');
-    if (block.tipo === 'patrones') return primaryField('Series (serie|opciones|índice correcto)', 'secuencias', data.secuencias, 'sequenceTasks', 'Separa elementos y opciones con comas, usa ? para el hueco e índice desde 0.');
-    if (block.tipo === 'simetria') return primaryField('Dibujos simétricos', 'ejercicios', data.ejercicios, 'symmetryTasks', 'Define el tamaño de la cuadrícula y las celdas que forman el dibujo.');
-    if (block.tipo === 'silabas') return primaryField('Palabras y sílabas', 'palabras', data.palabras, 'syllables', 'Separa las sílabas con guiones.');
-    if (block.tipo === 'vf_rapido') return primaryField('Duración en segundos', 'segundos', data.segundos, 'number') +
-      primaryField('Afirmaciones', 'afirmaciones', data.afirmaciones, 'truth', 'Marca con botones si cada afirmación es verdadera o falsa.');
-    if (block.tipo === 'ruleta_preguntas') return primaryField('Preguntas de la ruleta', 'preguntas', data.preguntas, 'rouletteTasks', 'Añade una categoría, la pregunta y sus respuestas.');
-    const count = (label = 'Número de retos') => primaryField(label, 'cantidad', data.cantidad, 'quantity');
-    const level = () => primaryField('Nivel de dificultad', 'nivel', data.nivel, 'level', '1: inicial · 2: intermedio · 3: avanzado.');
-    if (block.tipo === 'geometria') return primaryField('Tipo de reto', 'modo', data.modo, 'select', '', [['identificar', 'Identificar formas'], ['lados', 'Contar lados'], ['clasificar', 'Clasificar formas'], ['medir', 'Medir área o perímetro']]) +
-      (data.modo === 'medir' ? primaryField('Medida', 'medida', data.medida || 'mixto', 'select', '', [['mixto', 'Alternar área y perímetro'], ['area', 'Área'], ['perimetro', 'Perímetro']]) +
-        primaryField('Medidas de figuras', 'ejercicios', data.ejercicios || [], 'measureTasks', 'Indica el ancho, el alto y qué debe calcular el alumnado.') : '') +
-      count() + level() + primaryField('Figuras (opcional, una por línea)', 'figuras', data.figuras || [], 'words', 'Ejemplo: triangulo, cuadrado, circulo.');
-    if (block.tipo === 'dinero') return primaryField('Tipo de reto', 'modo', data.modo, 'select', '', [['contar', 'Contar monedas'], ['pagar', 'Pagar un importe'], ['cambio', 'Calcular el cambio']]) +
-      count() + level();
-    if (block.tipo === 'vertical') return primaryField('Operación', 'operacion', data.operacion, 'select', '', [['+', 'Sumas'], ['-', 'Restas']]) +
-      count() + level() + primaryField('Operaciones personalizadas', 'ejercicios', data.ejercicios || [], 'operationTasks', 'Añade dos números y elige suma o resta.');
-    if (block.tipo === 'abaco') return primaryField('Tipo de reto', 'modo', data.modo, 'select', '', [['poner', 'Representar el número'], ['leer', 'Leer el ábaco']]) +
-      count() + primaryField('Columnas', 'columnas', data.columnas, 'columns', 'Entre 2 y 4 columnas.');
-    if (block.tipo === 'calculo_mental') return count() + level() +
-      primaryField('Preguntas personalizadas', 'ejercicios', data.ejercicios || [], 'mentalTasks', 'Escribe cada pregunta y su respuesta numérica.');
-    if (block.tipo === 'horas') {
-      const modo = primaryField('Tipo de reto', 'modo', data.modo, 'select', '', [['leer', 'Leer el reloj'], ['poner', 'Poner la hora'], ['sumar', 'Sumar tiempo'], ['duracion', 'Calcular duración']]);
-      const reloj = primaryField('Diseño del reloj', 'reloj', data.reloj || 'analogico', 'select', '', [['analogico', 'Analógico'], ['digital', 'Digital'], ['ambos', 'Analógico y digital']]);
-      const formato = primaryField('Retos de hora', 'ejercicios', data.ejercicios || [], 'hourTasks', 'Los campos cambian según el tipo de reto que hayas elegido.');
-      return modo + reloj + count() + level() + formato;
-    }
-    if (block.tipo === 'dados') return primaryField('Operación', 'operacion', data.operacion || 'suma', 'select', '', [['suma', 'Sumar'], ['resta', 'Restar'], ['multiplicacion', 'Multiplicar']]) +
-      primaryField('Número de dados', 'dados', data.dados || 2, 'diceCount', 'Entre 2 y 4 dados por reto.') + count() +
-      primaryField('Tiradas personalizadas', 'ejercicios', data.ejercicios || [], 'diceTasks', 'Elige las caras y si se suman, restan o multiplican.');
-    if (block.tipo === 'tesoro') return primaryField('Tipo de reto', 'modo', data.modo, 'select', '', [['pista', 'Seguir una pista'], ['programar', 'Programar con flechas'], ['dibujar', 'Dibujar con ratón o pantalla táctil']]) +
-      count() + level();
-    if (block.tipo === 'simetria_dibujo') return primaryField('Eje de simetría', 'eje', data.eje, 'select', '', [['v', 'Vertical'], ['h', 'Horizontal']]) +
-      count() + level();
-    if (block.tipo === 'patron_visual') return primaryField('Tipo de patrón', 'modo', data.modo, 'select', '', [['formas', 'Figuras y colores'], ['num', 'Series numéricas']]) +
-      count() + level();
-    if (block.tipo === 'batalla') return level();
-    if (block.tipo === 'tangram') return primaryField('Tipo de reto', 'modo', data.modo, 'select', '', [['completar', 'Completar la figura'], ['contar', 'Contar piezas'], ['identificar', 'Identificar una pieza']]) +
-      count() + primaryField('Estilo de las piezas', 'estilo', data.estilo, 'select', '', [['clasico', 'Clásico'], ['pastel', 'Pastel'], ['neon', 'Neón'], ['madera', 'Madera'], ['silueta', 'Silueta']]);
-    return '';
-  }
-
-  function updatePrimaryChoice(target) {
-    const block = state.blocks[state.selected];
-    if (!block || !PRIMARY_DEFAULTS[block.tipo]) return;
-    const data = block.datos || (block.datos = structuredClone(PRIMARY_DEFAULTS[block.tipo]));
-    data[target.dataset.primaryChoice] = target.dataset.choiceValue;
-    $('field-error').textContent = '';
-    scheduleHistory();
-    saveDraft();
-    paintInspector();
-  }
-
-  const CODE_COMMANDS = [
-    ['avanzar', 'Avanzar'], ['retroceder', 'Retroceder'], ['girar', 'Girar'], ['girar_180', 'Girar 180°'],
-    ['saltar', 'Saltar'], ['repetir', 'Repetir'], ['si', 'Si']
-  ];
-  const codeBoardTools = {};
-  let codeBoardPointer = null;
-  let ignoreCodeBoardClickUntil = 0;
-
-  function codeBoardCell(exercise, index, x, y) {
-    const start = exercise.inicio || {};
-    const goal = exercise.objetivo?.posicion || {};
-    const obstacle = (exercise.escenario?.obstaculos || []).some((cell) => cell.x === x && cell.y === y);
-    const coin = (exercise.escenario?.monedas || []).some((cell) => cell.x === x && cell.y === y);
-    const isStart = start.x === x && start.y === y;
-    const isGoal = goal.x === x && goal.y === y;
-    const content = `${isStart ? '<span class="code-board-start" aria-hidden="true">🤖</span>' : ''}${isGoal ? '<span class="code-board-goal" aria-hidden="true">★</span>' : ''}${obstacle ? '<span class="code-board-obstacle" aria-hidden="true">■</span>' : ''}${coin ? '<span class="code-board-coin" aria-hidden="true">●</span>' : ''}`;
-    const label = [isStart ? 'Inicio' : '', isGoal ? 'Meta' : '', obstacle ? 'Obstáculo' : '', coin ? 'Moneda' : ''].filter(Boolean).join(', ');
-    return `<button type="button" class="code-board-cell${isStart ? ' is-start' : ''}${isGoal ? ' is-goal' : ''}${obstacle ? ' is-obstacle' : ''}${coin ? ' is-coin' : ''}" role="gridcell" data-code-index="${index}" data-code-board-cell="${x},${y}" aria-label="Casilla ${x}, ${y}${label ? `: ${label}` : ''}">${content}</button>`;
-  }
-
-  function codeBoardEditor(exercise, index) {
-    const width = Math.min(10, Math.max(3, Number(exercise.escenario?.ancho) || 6));
-    const height = Math.min(10, Math.max(3, Number(exercise.escenario?.alto) || 6));
-    const tools = [['start', 'Candela', '🤖'], ['goal', 'Meta', '★'], ['obstacle', 'Obstáculo', '■'], ['coin', 'Moneda', '●'], ['erase', 'Borrar', '⌫']];
-    const selectedTool = codeBoardTools[index] || 'start';
-    return `<section class="code-board-editor" aria-label="Diseña el tablero del reto ${index + 1}">
-      <div class="code-board-editor-heading"><strong>Diseña el tablero</strong><span>Elige una pieza y toca o arrastra por las casillas.</span></div>
-      <div class="code-board-tools" role="toolbar" aria-label="Piezas para el tablero">${tools.map(([id, label, icon]) => `<button type="button" data-code-board-tool="${id}" data-code-index="${index}" aria-pressed="${selectedTool === id}"><span aria-hidden="true">${icon}</span>${label}</button>`).join('')}</div>
-      <div class="code-board-grid" role="grid" aria-label="Tablero de ${width} columnas por ${height} filas" style="--board-columns:${width}">${Array.from({ length: width * height }, (_, cell) => codeBoardCell(exercise, index, cell % width, Math.floor(cell / width))).join('')}</div>
-      <label class="field code-direction"><span>Dirección inicial de Candela</span><select data-code-index="${index}" data-code-field="direccion"><option value="derecha"${exercise.inicio.direccion === 'derecha' ? ' selected' : ''}>→ Derecha</option><option value="abajo"${exercise.inicio.direccion === 'abajo' ? ' selected' : ''}>↓ Abajo</option><option value="izquierda"${exercise.inicio.direccion === 'izquierda' ? ' selected' : ''}>← Izquierda</option><option value="arriba"${exercise.inicio.direccion === 'arriba' ? ' selected' : ''}>↑ Arriba</option></select></label>
-      <p class="code-board-legend"><span>🤖 Inicio</span><span>★ Meta</span><span>■ Obstáculo</span><span>● Moneda</span></p>
-    </section>`;
-  }
-
-  function paintCodeBoardCell(exercise, index, x, y, tool) {
-    const scenario = exercise.escenario;
-    const start = exercise.inicio;
-    const goal = exercise.objetivo.posicion;
-    const obstacles = scenario.obstaculos || (scenario.obstaculos = []);
-    const coins = scenario.monedas || (scenario.monedas = []);
-    const same = (cell) => cell.x === x && cell.y === y;
-    const hasObstacle = obstacles.some(same);
-    const hasCoin = coins.some(same);
-    if (tool === 'start' && !(goal.x === x && goal.y === y)) {
-      start.x = x; start.y = y;
-    } else if (tool === 'goal' && !(start.x === x && start.y === y)) {
-      goal.x = x; goal.y = y;
-    } else if (tool === 'obstacle' && !(start.x === x && start.y === y) && !(goal.x === x && goal.y === y)) {
-      scenario.monedas = coins.filter((cell) => !same(cell));
-      if (!hasObstacle) obstacles.push({ x, y });
-    } else if (tool === 'coin' && !(start.x === x && start.y === y) && !(goal.x === x && goal.y === y)) {
-      scenario.obstaculos = obstacles.filter((cell) => !same(cell));
-      if (!hasCoin) coins.push({ x, y });
-    } else if (tool === 'erase') {
-      scenario.obstaculos = obstacles.filter((cell) => !same(cell));
-      scenario.monedas = coins.filter((cell) => !same(cell));
-    }
-    const cell = $('inspector-content').querySelector(`[data-code-index="${index}"][data-code-board-cell="${x},${y}"]`);
-    if (cell) cell.outerHTML = codeBoardCell(exercise, index, x, y);
-    scheduleHistory();
-    saveDraft();
-  }
-
-  function codeExerciseEditor(exercise, index) {
-    const scenario = exercise.escenario || (exercise.escenario = { tipo: 'cuadricula', ancho: 6, alto: 6, obstaculos: [], monedas: [] });
-    exercise.inicio = exercise.inicio || { x: 0, y: 0, direccion: 'derecha' };
-    const objective = exercise.objetivo || (exercise.objetivo = { posicion: { x: 2, y: 0 } });
-    objective.posicion = objective.posicion || { x: 2, y: 0 };
-    const allowed = Array.isArray(exercise.bloques_permitidos) ? exercise.bloques_permitidos : [];
-    const required = Array.isArray(objective.debe_usar) ? objective.debe_usar : [];
-    const field = (label, key, value, type = 'text', attrs = '') => `<label class="field"><span>${label}</span>${
-      type === 'textarea'
-        ? `<textarea data-code-index="${index}" data-code-field="${key}" rows="3">${esc(value ?? '')}</textarea>`
-        : `<input type="${type}" data-code-index="${index}" data-code-field="${key}" value="${esc(value ?? '')}" ${attrs}>`
-    }</label>`;
-    const commands = (group, selected) => CODE_COMMANDS.map(([id, label]) =>
-      `<label class="code-command"><input type="checkbox" data-code-index="${index}" data-code-command="${group}" value="${id}"${selected.includes(id) ? ' checked' : ''}><span>${label}</span></label>`
-    ).join('');
-    return `<fieldset class="repeat-item code-exercise"><legend>Reto ${index + 1}</legend>
-      ${field('Identificador del reto', 'identificador', exercise.identificador || `PJC-${String(index + 1).padStart(3, '0')}`)}
-      <div class="code-field-grid">${field('Etapa', 'etapa', exercise.etapa || 'Primaria', 'text', 'list="code-stages-' + index + '"')}${field('Dificultad', 'dificultad', exercise.dificultad || 'Inicial', 'text', 'list="code-difficulties-' + index + '"')}</div>
-      <datalist id="code-stages-${index}"><option value="Primaria"><option value="Secundaria"></datalist>
-      <datalist id="code-difficulties-${index}"><option value="Inicial"><option value="Intermedia"><option value="Avanzada"></datalist>
-      ${field('Título', 'titulo', exercise.titulo)}
-      ${field('Instrucción breve', 'explicacion', exercise.explicacion)}
-      ${field('Misión para el alumnado', 'objetivo_texto', exercise.objetivo_texto)}
-      <div class="code-field-grid">${field('Ancho del tablero', 'ancho', scenario.ancho || 6, 'number', 'min="3" max="10"')} ${field('Alto del tablero', 'alto', scenario.alto || 6, 'number', 'min="3" max="10"')}</div>
-      ${codeBoardEditor(exercise, index)}
-      ${field('Máximo de pasos (opcional)', 'max_pasos', objective.max_pasos ?? '', 'number', 'min="1" max="200"')}
-      <label class="field"><span>Bloques disponibles</span><span class="code-commands">${commands('allowed', allowed)}</span></label>
-      <label class="field"><span>Bloques que debe usar</span><span class="code-commands">${commands('required', required)}</span></label>
-      ${field('Pistas: una por línea', 'pistas', (exercise.pistas || []).join('\n'), 'textarea')}
-      <button type="button" class="quiet-button" data-code-delete="${index}">Eliminar reto</button>
-    </fieldset>`;
-  }
-
-  function codeEditorFields(block) {
-    if (!Array.isArray(block.ejercicios) || !block.ejercicios.length) block.ejercicios = structuredClone(CODE_DEFAULT_EXERCISES.slice(0, 1));
-    const exercises = block.ejercicios;
-    return `<details class="activity-data-editor code-editor" open><summary>Retos de programación</summary>
-      <p>Configura el tablero, la misión y los bloques de cada reto. Las coordenadas empiezan en 0,0.</p>
-      <div class="repeat-list">${exercises.map(codeExerciseEditor).join('')}</div>
-      <button type="button" class="add-row" data-code-add>Añadir reto</button>
-    </details>`;
-  }
-
-  function updateCodeExercise(target) {
-    const block = state.blocks[state.selected];
-    if (!block || block.tipo !== 'code_blocks') return;
-    const index = Number(target.dataset.codeIndex);
-    const exercise = block.ejercicios?.[index];
-    if (!exercise) return;
-    const error = $('field-error');
-    const value = target.value;
-    const numeric = { ancho: [3, 10], alto: [3, 10], max_pasos: [1, 200] };
-    const key = target.dataset.codeField;
-    if (key in numeric) {
-      if (value.trim() === '' && key === 'max_pasos') delete exercise.objetivo.max_pasos;
-      else {
-        const number = Number(value), [min, max] = numeric[key];
-        if (!Number.isInteger(number) || number < min || number > max) {
-          error.textContent = `El campo ${key} debe ser un entero entre ${min} y ${max}.`;
-          return;
-        }
-        if (key === 'ancho' || key === 'alto') {
-          const axis = key === 'ancho' ? 'x' : 'y';
-          const cells = [...(exercise.escenario.obstaculos || []), ...(exercise.escenario.monedas || [])];
-          if (exercise.inicio[axis] >= number || exercise.objetivo.posicion[axis] >= number || cells.some((cell) => cell[axis] >= number)) {
-            error.textContent = `El tablero no puede ser menor que las posiciones ocupadas del eje ${axis.toUpperCase()}.`;
-            return;
-          }
-          exercise.escenario[key] = number;
-        }
-        else exercise.objetivo.max_pasos = number;
-      }
-    } else if (key === 'pistas') exercise.pistas = value.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
-    else if (key === 'direccion') {
-      if (!['derecha', 'abajo', 'izquierda', 'arriba'].includes(value)) { error.textContent = 'Elige derecha, abajo, izquierda o arriba.'; return; }
-      exercise.inicio.direccion = value;
-    } else exercise[key] = value;
-    error.textContent = '';
-    scheduleHistory();
-    const card = $('canvas').querySelector(`[data-index="${state.selected}"]`);
-    if (card) card.querySelector('.block-copy small').textContent = `${blockName(block.tipo)} · ${blockSummary(block)}`;
-    saveDraft();
-  }
-
-  function updateCodeCommand(target) {
-    const block = state.blocks[state.selected];
-    const index = Number(target.dataset.codeIndex);
-    const exercise = block?.tipo === 'code_blocks' ? block.ejercicios?.[index] : null;
-    if (!exercise) return;
-    const group = target.dataset.codeCommand;
-    const allowed = Array.isArray(exercise.bloques_permitidos) ? exercise.bloques_permitidos : [];
-    const required = Array.isArray(exercise.objetivo?.debe_usar) ? exercise.objetivo.debe_usar : [];
-    const update = (values, value, checked) => checked
-      ? [...new Set(values.concat(value))]
-      : values.filter(item => item !== value);
-    if (group === 'allowed') {
-      exercise.bloques_permitidos = update(allowed, target.value, target.checked);
-      if (!target.checked) exercise.objetivo.debe_usar = required.filter(item => item !== target.value);
-      if (!exercise.bloques_permitidos.length) {
-        target.checked = true;
-        exercise.bloques_permitidos = [target.value];
-        $('field-error').textContent = 'Cada reto debe tener al menos un bloque disponible.';
-        return;
-      }
-    } else {
-      exercise.objetivo = exercise.objetivo || {};
-      exercise.objetivo.debe_usar = update(required, target.value, target.checked);
-      if (target.checked && !allowed.includes(target.value)) {
-        exercise.bloques_permitidos = allowed.concat(target.value);
-        const allowedCheckbox = target.closest('.code-exercise').querySelector(`[data-code-command="allowed"][value="${target.value}"]`);
-        if (allowedCheckbox) allowedCheckbox.checked = true;
-      }
-    }
-    $('field-error').textContent = '';
-    scheduleHistory();
-    saveDraft();
-  }
-
-  function addCodeExercise() {
-    const block = state.blocks[state.selected];
-    if (!block || block.tipo !== 'code_blocks') return;
-    if (block.ejercicios.length >= 12) { $('field-error').textContent = 'Puedes añadir hasta 12 retos por bloque.'; return; }
-    const index = block.ejercicios.length;
-    const exercise = structuredClone(CODE_DEFAULT_EXERCISES[0]);
-    exercise.titulo = `Reto ${index + 1}`;
-    exercise.objetivo.posicion.x = Math.min(index + 1, 5);
-    exercise.explicacion = 'Programa a Candela para llegar a la estrella.';
-    block.ejercicios.push(exercise);
-    $('field-error').textContent = '';
-    paintCanvas();
-    recordHistory();
-  }
-
-  function deleteCodeExercise(index) {
-    const block = state.blocks[state.selected];
-    if (!block || block.tipo !== 'code_blocks') return;
-    if (block.ejercicios.length <= 1) { $('field-error').textContent = 'Mantén al menos un reto en Placeta Junior Code.'; return; }
-    block.ejercicios.splice(index, 1);
-    $('field-error').textContent = '';
-    paintCanvas();
-    recordHistory();
-  }
-
-  function updatePrimaryField(target) {
-    const block = state.blocks[state.selected];
-    if (!block || !PRIMARY_DEFAULTS[block.tipo]) return;
-    const data = block.datos || (block.datos = structuredClone(PRIMARY_DEFAULTS[block.tipo]));
-    const key = target.dataset.primaryData;
-    const mode = target.dataset.mode;
-    const raw = target.value;
-    let value = raw;
-    if (['number', 'level', 'quantity', 'columns', 'diceCount'].includes(mode)) {
-      if (raw.trim() === '' || !Number.isFinite(Number(raw))) { $('field-error').textContent = 'Escribe un número válido.'; return; }
-      value = Number(raw);
-      const limits = { level: [1, 3], quantity: [1, 12], columns: [2, 4], diceCount: [2, 4] }[mode];
-      if (!Number.isInteger(value) || (limits && (value < limits[0] || value > limits[1]))) {
-        $('field-error').textContent = limits ? `El valor debe ser un número entero entre ${limits[0]} y ${limits[1]}.` : 'Escribe un número entero válido.';
-        return;
-      }
-    }
-    else if (mode === 'lines') {
-      const entries = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-      if (entries.some((entry) => !Number.isFinite(Number(entry)))) { $('field-error').textContent = 'Escribe solo números, uno por línea.'; return; }
-      value = entries.map(Number);
-    }
-    else if (mode === 'times') {
-      const hours = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-      if (hours.some((hora) => !/^([01]\d|2[0-3]):[0-5]\d$/.test(hora))) { $('field-error').textContent = 'Escribe cada hora en formato HH:MM.'; return; }
-      value = hours.map((hora) => ({ hora }));
-    }
-    else if (mode === 'hourTasks') {
-      const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-      const isTime = value => /^([01]\d|2[0-3]):[0-5]\d$/.test(value);
-      const parsed = lines.map((line) => {
-        const [first, second] = line.split('|').map((part) => part.trim());
-        if (data.modo === 'sumar' && second !== undefined && isTime(first) && /^\d+$/.test(second) && Number(second) > 0) return { hora: first, duracion: Number(second) };
-        if (data.modo === 'duracion' && second !== undefined && isTime(first) && isTime(second) && first !== second) return { inicio: first, fin: second };
-        if ((data.modo === 'leer' || data.modo === 'poner') && second === undefined && isTime(first)) return { hora: first };
-        return null;
-      });
-      if (parsed.some((item) => !item)) {
-        $('field-error').textContent = 'Revisa el formato de cada reto de hora según el modo seleccionado.';
-        return;
-      }
-      value = parsed;
-    }
-    else if (mode === 'measureTasks') {
-      const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-      const parsed = lines.map((line) => {
-        const [ancho, alto, medida = data.medida || 'mixto'] = line.split('|').map((part) => part.trim());
-        if (!/^\d+$/.test(ancho) || !/^\d+$/.test(alto) || Number(ancho) < 2 || Number(ancho) > 9 || Number(alto) < 2 || Number(alto) > 9 || !['area', 'perimetro', 'mixto'].includes(medida)) return null;
-        return { ancho: Number(ancho), alto: Number(alto), medida: medida === 'mixto' ? '' : medida };
-      });
-      if (parsed.some((item) => !item)) { $('field-error').textContent = 'Usa ancho|alto|area o ancho|alto|perimetro; las medidas van de 2 a 9.'; return; }
-      value = parsed;
-    }
-    else if (mode === 'diceTasks') {
-      const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-      const parsed = lines.map((line) => {
-        const [faces = '', operation = data.operacion || 'suma'] = line.split('|').map((part) => part.trim());
-        const caras = faces.split(',').map((face) => Number(face.trim()));
-        if (caras.length < 2 || caras.length > 4 || caras.some((face) => !Number.isInteger(face) || face < 1 || face > 6) || !['suma', 'resta', 'multiplicacion'].includes(operation)) return null;
-        return { caras, operacion: operation };
-      });
-      if (parsed.some((item) => !item)) { $('field-error').textContent = 'Usa caras del 1 al 6, separadas por comas, y una operación válida.'; return; }
-      value = parsed;
-    }
-    else if (mode === 'balanceTasks') {
-      const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-      const parsed = lines.map((line) => {
-        const [left = '', right = '', weights = '', ecuacion = ''] = line.split('|').map((part) => part.trim());
-        const list = text => text.split(',').map((part) => Number(part.trim()));
-        const izq = list(left), der = list(right), pesas = list(weights);
-        if (!left || !right || !weights || [...izq, ...der, ...pesas].some((item) => !Number.isFinite(item) || item <= 0)) return null;
-        return { izq, der, pesas, ecuacion };
-      });
-      if (parsed.some((item) => !item)) { $('field-error').textContent = 'Cada balanza necesita pesos válidos en ambos platos y pesas separadas por comas.'; return; }
-      value = parsed;
-    }
-    else if (mode === 'sequenceTasks') {
-      const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-      const parsed = lines.map((line) => {
-        const [sequence = '', options = '', correct = ''] = line.split('|').map((part) => part.trim());
-        const serie = sequence.split(',').map((item) => item.trim()).filter(Boolean);
-        const opciones = options.split(',').map((item) => item.trim()).filter(Boolean);
-        const correcta = Number(correct);
-        if (serie.filter((item) => item === '?' || item === '_').length !== 1 || opciones.length < 2 || !Number.isInteger(correcta) || correcta < 0 || correcta >= opciones.length) return null;
-        return { serie, opciones, correcta };
-      });
-      if (parsed.some((item) => !item)) { $('field-error').textContent = 'Cada serie debe incluir un único ?, opciones y el índice correcto empezando en 0.'; return; }
-      value = parsed;
-    }
-    else if (mode === 'symmetryTasks') {
-      const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-      const parsed = lines.map((line) => {
-        const [width = '', height = '', cells = ''] = line.split('|').map((part) => part.trim());
-        const ancho = Number(width), alto = Number(height);
-        const celdas = cells ? cells.split(';').map((cell) => cell.split(',').map((part) => Number(part.trim()))) : [];
-        if (!Number.isInteger(ancho) || ancho < 2 || ancho > 6 || !Number.isInteger(alto) || alto < 2 || alto > 9 ||
-            celdas.some(([x, y]) => !Number.isInteger(x) || !Number.isInteger(y) || x < 0 || x >= ancho || y < 0 || y >= alto)) return null;
-        return { ancho, alto, celdas };
-      });
-      if (parsed.some((item) => !item)) { $('field-error').textContent = 'Usa ancho|alto|x,y;x,y con ancho 2-6, alto 2-9 y coordenadas dentro de la cuadrícula.'; return; }
-      value = parsed;
-    }
-    else if (mode === 'rouletteTasks' || mode === 'chartQuestions') {
-      const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-      const parsed = lines.map((line) => {
-        const parts = line.split('|').map((part) => part.trim());
-        const category = mode === 'rouletteTasks' ? parts[0] : '';
-        const question = parts[mode === 'rouletteTasks' ? 1 : 0] || '';
-        const optionsRaw = parts[mode === 'rouletteTasks' ? 2 : 1] || '';
-        const correct = parts[mode === 'rouletteTasks' ? 3 : 2] || '';
-        const opciones = optionsRaw.split(',').map((item) => item.trim()).filter(Boolean);
-        const correcta = Number(correct);
-        if (!question || opciones.length < 2 || !Number.isInteger(correcta) || correcta < 0 || correcta >= opciones.length) return null;
-        return mode === 'rouletteTasks' ? { categoria: category || 'General', pregunta: question, opciones, correcta } : { pregunta: question, opciones, correcta };
-      });
-      if (parsed.some((item) => !item)) { $('field-error').textContent = 'Añade la pregunta, al menos dos opciones y el índice correcto empezando en 0.'; return; }
-      value = parsed;
-    }
-    else if (mode === 'operationTasks') {
-      const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-      const parsed = lines.map((line) => {
-        const [first = '', second = '', operation = '+'] = line.split('|').map((part) => part.trim());
-        const a = Number(first), b = Number(second);
-        if (first === '' || second === '' || !Number.isFinite(a) || !Number.isFinite(b) || a < 0 || b < 0 || !['+', '-'].includes(operation)) return null;
-        return { a, b, op: operation };
-      });
-      if (parsed.some((item) => !item)) { $('field-error').textContent = 'Usa dos números y un signo + o - en cada operación.'; return; }
-      value = parsed;
-    }
-    else if (mode === 'mentalTasks') {
-      const lines = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-      const parsed = lines.map((line) => {
-        const [enunciado = '', answer = ''] = line.split('|').map((part) => part.trim());
-        const respuesta = Number(answer);
-        return enunciado && answer !== '' && Number.isFinite(respuesta) ? { enunciado, respuesta } : null;
-      });
-      if (parsed.some((item) => !item)) { $('field-error').textContent = 'Usa un enunciado y una respuesta numérica por ejercicio.'; return; }
-      value = parsed;
-    }
-    else if (mode === 'words') value = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-    else if (mode === 'wordHints') value = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean).map((line) => {
-      const [palabra = '', pista = ''] = line.split('|');
-      return { palabra: palabra.trim(), pista: pista.trim() };
-    });
-    else if (mode === 'syllables') value = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean).map((line) => {
-      const [palabra = '', silabas = ''] = line.split('|');
-      return { palabra: palabra.trim(), silabas: silabas.split('-').map((item) => item.trim()).filter(Boolean) };
-    });
-    else if (mode === 'truth') value = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean).map((line) => {
-      const [texto = '', verdadero = '', explicacion = ''] = line.split('|');
-      return { texto: texto.trim(), verdadero: verdadero.trim().toLocaleLowerCase() === 'verdadero', explicacion: explicacion.trim() };
-    });
-    else if (mode === 'chartData') {
-      const entries = raw.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-      const parsed = entries.map((line) => {
-        const [etiqueta = '', valor = ''] = line.split('|');
-        return { etiqueta: etiqueta.trim(), rawValue: valor.trim(), valor: Number(valor) };
-      });
-      if (parsed.length < 2) { $('field-error').textContent = 'Añade al menos dos datos al gráfico.'; return; }
-      if (parsed.some((item) => !item.etiqueta || !item.rawValue || !Number.isFinite(item.valor) || item.valor < 0)) { $('field-error').textContent = 'Usa etiqueta|valor en cada línea. El valor debe ser un número igual o mayor que 0.'; return; }
-      value = parsed.map(({ etiqueta, valor }) => ({ etiqueta, valor }));
-    }
-    data[key] = value;
-    $('field-error').textContent = '';
-    scheduleHistory();
-    const card = $('canvas').querySelector(`[data-index="${state.selected}"]`);
-    if (card) card.querySelector('.block-copy small').textContent = `${blockName(block.tipo)} · ${blockSummary(block)}`;
-    saveDraft();
-    if (mode === 'select' && key === 'modo') paintInspector();
-  }
-
-  function paintInspector() {
-    const root = $('inspector-content');
-    const block = state.blocks[state.selected];
-    if (!block) { root.innerHTML = '<p class="inspector-empty">Selecciona un bloque para editarlo. El título y la descripción se completan al enviar.</p>'; return; }
-    const typeArt = {
-      texto: ['article', 'Lectura y explicación', 'Presenta el tema con tus propias palabras.'],
-      test: ['quiz', 'Pregunta y descubre', 'Escribe opciones breves y marca la respuesta correcta.'],
-      relacionar: ['compare_arrows', 'Conecta las ideas', 'Cada pareja une un concepto con su respuesta.'],
-      completar: ['edit_note', 'Completa el hueco', 'La respuesta debe encajar en el espacio de la frase.'],
-      ordenar: ['format_list_numbered', 'Pasos en orden', 'Coloca cada paso en una línea, en el orden esperado.'],
-      sopa_letras: ['grid_view', 'Busca las palabras', 'Añade vocabulario y, si quieres, una pista para cada palabra.'],
-      reloj: ['schedule', 'El reloj', PRIMARY_HELP.reloj],
-      recta_numerica: ['straighten', 'Recta numérica', PRIMARY_HELP.recta_numerica],
-      grafico: ['bar_chart', 'Lee el gráfico', PRIMARY_HELP.grafico],
-      balanza: ['balance', 'Balanza', PRIMARY_HELP.balanza],
-      ahorcado: ['text_fields', 'Adivina la palabra', PRIMARY_HELP.ahorcado],
-      anagrama: ['shuffle', 'Ordena las letras', PRIMARY_HELP.anagrama],
-      patrones: ['repeat', 'Continúa la serie', PRIMARY_HELP.patrones],
-      simetria: ['flip', 'Completa el reflejo', PRIMARY_HELP.simetria],
-      silabas: ['content_cut', 'Separa en sílabas', PRIMARY_HELP.silabas],
-      vf_rapido: ['bolt', 'Verdadero o falso', PRIMARY_HELP.vf_rapido],
-      ruleta_preguntas: ['casino', 'Ruleta de preguntas', PRIMARY_HELP.ruleta_preguntas],
-      geometria: ['category', 'Explora las formas', PRIMARY_HELP.geometria],
-      dinero: ['euro', 'Monedas y cambio', PRIMARY_HELP.dinero],
-      vertical: ['calculate', 'Suma y resta en vertical', PRIMARY_HELP.vertical],
-      abaco: ['tune', 'Ábaco', PRIMARY_HELP.abaco],
-      calculo_mental: ['psychology', 'Cálculo mental', PRIMARY_HELP.calculo_mental],
-      horas: ['schedule', 'Lee y calcula horas', PRIMARY_HELP.horas],
-      dados: ['casino', 'Retos con dados', PRIMARY_HELP.dados],
-      tesoro: ['explore', 'Búsqueda del tesoro', PRIMARY_HELP.tesoro],
-      simetria_dibujo: ['flip', 'Dibuja la simetría', PRIMARY_HELP.simetria_dibujo],
-      patron_visual: ['pattern', 'Patrones visuales', PRIMARY_HELP.patron_visual],
-      batalla: ['sailing', 'Batalla matemática', PRIMARY_HELP.batalla],
-      tangram: ['extension', 'Tangram', PRIMARY_HELP.tangram],
-      salto_unidad: ['skip_next', 'Salto de unidad', 'Marca el comienzo de una nueva parte de la actividad.'],
-      code_blocks: ['code', 'Placeta Junior Code', 'Programa a Candela con bloques visuales y misiones progresivas.']
-    };
-    const art = typeArt[block.tipo] || ['auto_awesome', blockName(block.tipo), 'Personaliza este contenido.'];
-    let fields = editorField('Título del bloque', 'titulo', block.titulo || '');
-    if (block.tipo === 'salto_unidad') {
-      const disponible = Math.max(0, state.reward - rewardAssignedToBreaks() + (Number(block.recompensa) || 0));
-      fields += editorField('Qué aprenderán en esta unidad', 'descripcion', block.descripcion || '', 'multiline', 4);
-      fields += `<label class="field"><span>Recompensa de esta unidad (Pz)</span><input type="number" min="0" max="${disponible}" step="1" data-key="recompensa" data-mode="number" value="${Math.min(disponible, Math.max(0, Number(block.recompensa) || 0))}" /><small>Quedan ${disponible} Pz disponibles de un presupuesto total de ${state.reward} Pz.</small></label>`;
-    }
-    else if (block.tipo === 'texto') fields += editorField('Contenido', 'contenido', block.contenido, 'multiline', 8);
-    else if (block.tipo === 'test') fields += `<div class="repeat-list">${(block.preguntas || []).map((item, index) => `<fieldset class="repeat-item"><legend>Pregunta ${index + 1}</legend>${fieldMarkup('Enunciado', 'preguntas', index, 'pregunta', item.pregunta)}<div class="answer-options"><span class="field-label">Opciones · marca la correcta</span>${(item.opciones || []).map((option, optionIndex) => `<div class="answer-option"><button type="button" class="answer-correct" data-option-correct="${index}" data-option-index="${optionIndex}" aria-pressed="${Number(item.correcta) === optionIndex}">${Number(item.correcta) === optionIndex ? '✓ Correcta' : 'Marcar correcta'}</button><input aria-label="Opción ${optionIndex + 1}" data-collection="preguntas" data-index="${index}" data-key="opciones" data-option-index="${optionIndex}" value="${esc(option)}" placeholder="Escribe una opción" /><button type="button" class="answer-delete" data-option-delete="${index}" data-option-index="${optionIndex}" aria-label="Eliminar opción ${optionIndex + 1}">×</button></div>`).join('')}</div><button type="button" class="add-row" data-option-add="${index}">＋ Añadir opción</button><button type="button" class="quiet-button" data-delete-row="preguntas" data-index="${index}">Eliminar pregunta</button></fieldset>`).join('')}</div><button type="button" class="add-row" data-add-row="preguntas">＋ Añadir pregunta</button>`;
-    else if (block.tipo === 'relacionar') fields += `<div class="repeat-list">${(block.pares || []).map((item, index) => `<fieldset class="repeat-item"><legend>Pareja ${index + 1}</legend>${fieldMarkup('Concepto', 'pares', index, 'izq', item.izq)}${fieldMarkup('Respuesta', 'pares', index, 'der', item.der)}<button type="button" class="quiet-button" data-delete-row="pares" data-index="${index}">Eliminar pareja</button></fieldset>`).join('')}</div><button type="button" class="add-row" data-add-row="pares">＋ Añadir pareja</button>`;
-    else if (block.tipo === 'completar') fields += `<div class="repeat-list">${(block.frases || []).map((item, index) => `<fieldset class="repeat-item"><legend>Frase ${index + 1}</legend>${fieldMarkup('Frase con hueco ___', 'frases', index, 'texto', item.texto)}${fieldMarkup('Respuesta', 'frases', index, 'respuesta', item.respuesta)}<button type="button" class="quiet-button" data-delete-row="frases" data-index="${index}">Eliminar frase</button></fieldset>`).join('')}</div><button type="button" class="add-row" data-add-row="frases">＋ Añadir frase</button>`;
-    else if (block.tipo === 'ordenar') fields += editorField('Pasos (uno por línea)', 'items', block.items, 'lines', 6);
-    else if (block.tipo === 'sopa_letras') {
-      fields += editorField('Palabras (una por línea)', 'palabras', block.palabras, 'lines', 5);
-      fields += editorField('Pistas (una por línea, opcional)', 'pistas', block.pistas, 'lines', 4);
-    }
-    else if (block.tipo === 'code_blocks') fields += codeEditorFields(block);
-    if (PRIMARY_DEFAULTS[block.tipo]) fields += `<details class="activity-data-editor" open><summary>Configurar contenido del reto</summary><p>${esc(PRIMARY_HELP[block.tipo])}</p>${primaryEditorFields(block)}</details>`;
-    root.innerHTML = `<div class="inspector-type-card type-${esc(block.tipo)}"><span class="material-symbols-rounded" aria-hidden="true">${art[0]}</span><div><strong>${art[1]}</strong><small>${art[2]}</small></div></div>${fields}<p class="validation" id="field-error" aria-live="polite"></p>`;
-  }
-
-  function fieldMarkup(label, collection, index, key, value) {
-    return `<label class="field"><span>${esc(label)}</span><input data-collection="${collection}" data-index="${index}" data-key="${key}" value="${esc(value || '')}" /></label>`;
-  }
-
-  function useTemplate(id) {
-    const template = TEMPLATES.find((item) => item.id === id);
-    if (!template) return;
-    recordHistory();
-    state.blocks = structuredClone(template.blocks);
-    state.title = template.title;
-    state.description = template.description;
-    state.selected = 0;
-    paintTemplates(id);
-    paintCanvas();
-    showEditorPane('canvas');
-    recordHistory();
-    notice('', '');
-  }
-
-  function addBlock(type, before = state.blocks.length) {
-    if (!DEFAULTS[type]) return;
-    recordHistory();
-    state.blocks.splice(before, 0, DEFAULTS[type]());
-    state.selected = before;
-    paintTemplates('');
-    paintCanvas();
-    showEditorPane('inspector');
-    recordHistory();
-  }
-
-  function addUnitBreak() {
-    if (!state.blocks.length || state.selected < 0 || state.blocks[state.selected]?.tipo === 'salto_unidad') {
-      notice('Selecciona un ejercicio para insertar el salto después.', 'error');
-      return;
-    }
-    const index = state.selected + 1;
-    const number = state.blocks.filter((block) => block.tipo === 'salto_unidad').length + 2;
-    recordHistory();
-    state.blocks.splice(index, 0, { tipo: 'salto_unidad', titulo: `Unidad ${number}`, descripcion: '', recompensa: 0 });
-    state.selected = index;
-    paintCanvas();
-    showEditorPane('inspector');
-    recordHistory();
-  }
-
-  function updateField(target) {
-    const block = state.blocks[state.selected];
-    if (!block) return;
-    const { key, mode } = target.dataset;
-    let value = target.value;
-    const error = $('field-error');
-    if (mode === 'number') {
-      value = value === '' ? 0 : Number(value);
-      if (!Number.isInteger(value) || value < 0) { error.textContent = 'Escribe un número entero igual o mayor que 0.'; return; }
-      if (block.tipo === 'salto_unidad' && key === 'recompensa') {
-        const disponible = state.reward - rewardAssignedToBreaks() + (Number(block.recompensa) || 0);
-        if (value > disponible) { error.textContent = `La unidad no puede superar los ${disponible} Pz disponibles.`; return; }
-      }
-    } else if (mode === 'lines') value = value.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-    block[key] = value;
-    error.textContent = '';
-    scheduleHistory();
-    const card = $('canvas').querySelector(`[data-index="${state.selected}"]`);
-    if (card) {
-      card.querySelector('.block-copy strong').textContent = block.titulo || blockName(block.tipo);
-      card.querySelector('.block-copy small').textContent = `${blockName(block.tipo)} · ${blockSummary(block)}`;
-    }
-    $('activity-title').textContent = state.title || 'Actividad sin título';
-    saveDraft();
-  }
-
-  function updateCollectionField(target) {
-    const block = state.blocks[state.selected];
-    if (!block) return;
-    const collection = block[target.dataset.collection];
-    const item = collection && collection[Number(target.dataset.index)];
-    if (!item) return;
-    const value = target.value;
-    if (target.dataset.optionIndex !== undefined) item[target.dataset.key][Number(target.dataset.optionIndex)] = value;
-    else if (target.dataset.key === 'opciones' && target.dataset.mode === 'lines') item[target.dataset.key] = value.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
-    else if (target.dataset.key === 'correcta') item[target.dataset.key] = Number(value) || 0;
-    else item[target.dataset.key] = value;
-    scheduleHistory();
-    const card = $('canvas').querySelector(`[data-index="${state.selected}"]`);
-    if (card) card.querySelector('.block-copy small').textContent = `${blockName(block.tipo)} · ${blockSummary(block)}`;
-    saveDraft();
-  }
-
-  function changeTestOption(questionIndex, optionIndex, action) {
-    const block = state.blocks[state.selected];
-    const question = block?.tipo === 'test' ? block.preguntas?.[questionIndex] : null;
-    if (!question) return;
-    if (action === 'add' && question.opciones.length >= 8) { $('field-error').textContent = 'Cada pregunta puede tener hasta ocho opciones.'; return; }
-    if (action === 'delete' && question.opciones.length <= 2) { $('field-error').textContent = 'Mantén al menos dos opciones por pregunta.'; return; }
-    recordHistory();
-    if (action === 'add') question.opciones.push('');
-    else if (action === 'delete') {
-      question.opciones.splice(optionIndex, 1);
-      if (question.correcta === optionIndex) question.correcta = 0;
-      else if (question.correcta > optionIndex) question.correcta -= 1;
-    } else question.correcta = optionIndex;
-    $('field-error').textContent = '';
-    paintInspector();
-    const card = $('canvas').querySelector(`[data-index="${state.selected}"]`);
-    if (card) card.querySelector('.block-copy small').textContent = `${blockName(block.tipo)} · ${blockSummary(block)}`;
-    saveDraft();
-    recordHistory();
-  }
-
-  function changeCollection(collection, index) {
-    const block = state.blocks[state.selected];
-    if (!block || !Array.isArray(block[collection])) return;
-    recordHistory();
-    if (index === null) {
-      const newRow = { preguntas: { pregunta: '', opciones: ['', '', ''], correcta: 0 }, pares: { izq: '', der: '' }, frases: { texto: '', respuesta: '' } }[collection];
-      block[collection].push(newRow);
-    } else block[collection].splice(index, 1);
-    paintCanvas();
-    recordHistory();
-  }
-
-  function duplicateBlock(index) {
-    const block = state.blocks[index];
-    if (!block) return;
-    recordHistory();
-    state.blocks.splice(index + 1, 0, structuredClone(block));
-    state.selected = index + 1;
-    paintCanvas();
-    recordHistory();
-  }
-
-  function moveBlock(index, offset) {
-    const target = index + offset;
-    if (target < 0 || target >= state.blocks.length) return;
-    recordHistory();
-    [state.blocks[index], state.blocks[target]] = [state.blocks[target], state.blocks[index]];
-    state.selected = target;
-    paintCanvas();
-    recordHistory();
-  }
-
-  function showGate(title, message) {
-    $('access-title').textContent = title;
-    $('access-message').textContent = message;
+  function showGate(titulo, texto) {
     $('access-gate').hidden = false;
+    $('studio-menu').hidden = true;
+    $('access-gate').innerHTML = `<div class="st-gate-card"><h2>${esc(titulo)}</h2><p>${esc(texto)}</p>
+      <div class="st-gate-acciones"><a class="st-btn st-btn-primario" href="/edu/alta">Acceso docente</a><a class="st-btn" href="/edu/centros">Acceso de centro</a></div></div>`;
     $('creator-tools').hidden = true;
   }
 
@@ -1287,18 +208,15 @@
         const pendiente = (data.solicitudes || []).some((solicitud) => solicitud.estado === 'pendiente');
         $('identity-status').textContent = 'Cuenta verificada; falta autorización';
         $('identity').classList.add('needs-login');
-        showGate(
-          pendiente ? 'Tu solicitud está pendiente de revisión' : 'Tu cuenta aún no tiene permisos de creación',
-          'El Studio se habilitará cuando Placeta Junior apruebe tu alta docente o active el centro y confirme tus permisos.'
-        );
+        showGate(pendiente ? 'Tu solicitud está pendiente de revisión' : 'Tu cuenta aún no tiene permisos de creación',
+          'El Studio se habilitará cuando Placeta Junior apruebe tu alta docente o active el centro y confirme tus permisos.');
         return false;
       }
-      if (centers.length) {
-        state.identityKind = 'centro';
-        state.center = centers[0];
-      } else {
-        state.identityKind = 'docente';
-      }
+      if (centers.length) { state.identityKind = 'centro'; state.center = centers[0]; }
+      else { state.identityKind = 'docente'; state.center = null; }
+      $('access-gate').hidden = true;
+      $('studio-menu').hidden = false;
+      $('creator-tools').hidden = false;
       paintIdentity(data.email);
       $('identity').classList.add('verified');
       return true;
@@ -1312,76 +230,706 @@
   }
 
   function paintIdentity(email = '') {
-    const root = $('identity');
-    const authorName = state.identityKind === 'centro' ? state.center?.nombre : (state.authorName || email || 'Docente');
-    const choices = [
-      ...(state.docenteAprobado ? [`<option value="docente" ${state.identityKind === 'docente' ? 'selected' : ''}>Docente · ${esc(state.authorName || email || 'cuenta Google')}</option>`] : []),
-      ...state.centers.map((center) => `<option value="centro:${esc(center.id)}" ${state.identityKind === 'centro' && state.center?.id === center.id ? 'selected' : ''}>Centro · ${esc(center.nombre)}</option>`)
-    ];
-    root.innerHTML = `<span class="status-dot"></span><span id="identity-status">Autoría: ${esc(authorName)}</span>${state.centers.length ? `<label class="identity-select-label" for="identity-select">Publicar como</label><select id="identity-select" aria-label="Publicar como">${choices.join('')}</select>` : ''}`;
-    const managerSelect = $('managed-center');
-    if (managerSelect && [...managerSelect.options].some((option) => option.value === draftScope())) managerSelect.value = draftScope();
+    const nombre = state.identityKind === 'centro' ? state.center?.nombre : (state.authorName || email || 'Docente');
+    $('identity-status').textContent = `Autoría: ${nombre}`;
+    const opciones = [
+      ...(state.docenteAprobado ? [`<option value="docente" ${state.identityKind === 'docente' ? 'selected' : ''}>Docente · ${esc(state.authorName || email || 'mi cuenta')}</option>`] : []),
+      ...state.centers.map((centro) => `<option value="centro:${esc(centro.id)}" ${state.identityKind === 'centro' && state.center?.id === centro.id ? 'selected' : ''}>Centro · ${esc(centro.nombre)}</option>`)
+    ].join('');
+    $('author-scope').innerHTML = opciones;
+    $('author-scope').disabled = !opciones;
+    $('author-field').hidden = !opciones || (!state.centers.length && state.docenteAprobado);
   }
 
-  function countItems() {
-    return state.blocks.reduce((total, block) => total + ({
-      test: (block.preguntas || []).length,
-      relacionar: (block.pares || []).filter((pair) => pair.izq && pair.der).length,
-      completar: (block.frases || []).filter((phrase) => phrase.texto && phrase.respuesta).length,
-      ordenar: (block.items || []).filter(Boolean).length,
-      sopa_letras: (block.palabras || []).filter(Boolean).length,
-      reloj: ((block.datos || {}).ejercicios || []).length,
-      recta_numerica: ((block.datos || {}).valores || []).length,
-      grafico: ((block.datos || {}).datos || []).length,
-      balanza: ((block.datos || {}).ejercicios || []).length,
-      ahorcado: ((block.datos || {}).palabras || []).length,
-      anagrama: ((block.datos || {}).palabras || []).length,
-      code_blocks: (block.ejercicios || []).filter((exercise) => exercise && exercise.titulo && exercise.objetivo?.posicion).length,
-      patrones: ((block.datos || {}).secuencias || []).length,
-      simetria: ((block.datos || {}).ejercicios || []).length,
-      silabas: ((block.datos || {}).palabras || []).length,
-      vf_rapido: ((block.datos || {}).afirmaciones || []).length,
-      ruleta_preguntas: ((block.datos || {}).preguntas || []).length
-    }[block.tipo] || 0), 0);
-  }
-
-  function unitBreakError() {
-    let hasContent = false;
-    for (const block of state.blocks) {
-      if (block.tipo === 'salto_unidad') {
-        if (!hasContent) return 'Cada salto de unidad debe tener ejercicios antes y después.';
-        hasContent = false;
-      } else hasContent = true;
+  // Cambia quién firma la actividad (docente o un centro del que es administrador)
+  function setAuthorScope(value) {
+    if (value === 'docente') { state.identityKind = 'docente'; state.center = null; }
+    else if (value && value.startsWith('centro:')) {
+      const id = value.slice(7);
+      const centro = state.centers.find((c) => String(c.id) === id);
+      if (centro) { state.identityKind = 'centro'; state.center = centro; }
     }
-    return state.blocks.some((block) => block.tipo === 'salto_unidad') && !hasContent
-      ? 'Añade ejercicios después del último salto de unidad.' : '';
+    paintIdentity(state.identity?.email || '');
+    touch();
   }
 
-  async function submit() {
-    const token = sessionStorage.getItem(SESSION_KEY);
-    if (!token || !state.identity) { notice('Inicia sesión con Google antes de enviar a revisión.', 'error'); return; }
-    if (!state.title.trim() || state.title.trim().length < 3 || !state.description.trim() || state.description.trim().length < 10) {
-      notice('Completa un título (mínimo 3 caracteres) y una descripción (mínimo 10).', 'error');
-      $('meta-title').focus();
+  function draftScope() {
+    return state.identityKind === 'centro' && state.center
+      ? `centro:${state.center.id}`
+      : `docente:${String(state.identity?.email || '').trim().toLowerCase()}`;
+  }
+
+  /* ── Borradores (mismo formato que la versión anterior) ────────── */
+
+  function createDraftId() {
+    return globalThis.crypto?.randomUUID ? globalThis.crypto.randomUUID() : `draft-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  }
+
+  function loadDrafts() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(DRAFTS_KEY) || '[]');
+      state.drafts = Array.isArray(saved) ? saved : [];
+    } catch (error) { state.drafts = []; }
+    // Migra un borrador suelto de la versión antigua, si existe
+    try {
+      const legacy = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+      if (legacy && Array.isArray(legacy.blocks) && !state.drafts.some((d) => d.id === legacy.id)) {
+        state.drafts.unshift({ ...legacy, id: legacy.id || createDraftId(), scope: legacy.scope || draftScope(), updatedAt: legacy.updatedAt || new Date().toISOString() });
+        localStorage.setItem(DRAFTS_KEY, JSON.stringify(state.drafts));
+        localStorage.removeItem(DRAFT_KEY);
+      }
+    } catch (error) { /* sin borrador antiguo */ }
+  }
+
+  function hasContent() {
+    return Boolean(state.title.trim() || state.description.trim() || state.blocks.length);
+  }
+
+  function snapshot() {
+    return {
+      id: state.currentDraftId,
+      scope: draftScope(),
+      title: state.title,
+      description: state.description,
+      category: state.category,
+      age: state.age,
+      difficulty: state.difficulty,
+      reward: state.reward,
+      blocks: state.blocks,
+      updatedAt: new Date().toISOString()
+    };
+  }
+
+  function saveDraft() {
+    if (!state.currentDraftId && !hasContent()) return;
+    if (!state.currentDraftId) state.currentDraftId = createDraftId();
+    const actual = snapshot();
+    state.drafts = [actual, ...state.drafts.filter((d) => d.id !== actual.id)];
+    try {
+      localStorage.setItem(DRAFTS_KEY, JSON.stringify(state.drafts));
+      $('save-state').textContent = `Guardado en este dispositivo · ${new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}`;
+    } catch (error) {
+      $('save-state').textContent = 'No se pudo guardar el borrador en este navegador';
+    }
+  }
+
+  function restoreDraft(draft) {
+    if (!draft) {
+      state.currentDraftId = null;
+      Object.assign(state, { title: '', description: '', category: 'General', age: '6-12', difficulty: 'media', reward: 0, blocks: [], selected: -1 });
+    } else {
+      state.currentDraftId = draft.id;
+      Object.assign(state, {
+        title: draft.title || '', description: draft.description || '', category: draft.category || 'General',
+        age: draft.age || '6-12', difficulty: draft.difficulty || 'media', reward: Number(draft.reward) || 0,
+        blocks: clonar(draft.blocks || []), selected: draft.blocks?.length ? 0 : -1
+      });
+    }
+    resetHistory();
+    paintAll();
+  }
+
+  function renderSavedActivities() {
+    const lista = $('saved-list');
+    const ambito = draftScope();
+    const borradores = state.drafts.filter((d) => d.scope === ambito)
+      .sort((a, b) => String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')));
+    $('saved-count').textContent = borradores.length ? `${borradores.length} ${borradores.length === 1 ? 'actividad guardada' : 'actividades guardadas'} en este dispositivo` : '';
+    if (!borradores.length) {
+      lista.innerHTML = `<li class="st-vacio"><p>Todavía no tienes actividades guardadas.</p><button type="button" class="st-btn st-btn-primario" data-view-go="create">Crear mi primera actividad</button></li>`;
       return;
     }
-    if (!state.blocks.length || !countItems()) { notice('Añade bloques con contenido antes de enviar.', 'error'); return; }
-    const unitError = unitBreakError();
-    if (unitError) { notice(unitError, 'error'); return; }
-    if (rewardAssignedToBreaks() > state.reward) { notice('Las recompensas de las unidades superan el presupuesto total de Pz.', 'error'); return; }
-    const authorName = state.identityKind === 'centro' ? state.center?.nombre : state.authorName;
-    if (!authorName) { notice('No se encontró el nombre de autoría de esta cuenta.', 'error'); return; }
-    const button = $('submit-activity');
-    button.disabled = true;
+    lista.innerHTML = borradores.map((d) => `<li class="st-borrador">
+        <div class="st-borrador-texto">
+          <strong>${esc(d.title?.trim() || 'Actividad sin título')}</strong>
+          <small>${(d.blocks || []).length} bloque(s) · ${esc(d.category || 'General')} · actualizada ${esc(new Date(d.updatedAt || Date.now()).toLocaleDateString('es-ES'))}</small>
+        </div>
+        <div class="st-borrador-acciones">
+          <button type="button" class="st-btn st-btn-primario" data-open-draft="${esc(d.id)}">Seguir</button>
+          <button type="button" class="st-btn st-btn-peligro" data-delete-draft="${esc(d.id)}">Eliminar</button>
+        </div>
+      </li>`).join('');
+  }
+
+  function openSavedDraft(id) {
+    const draft = state.drafts.find((d) => d.id === id && d.scope === draftScope());
+    if (!draft) return;
+    restoreDraft(draft);
+    showStudioView('edit');
+  }
+
+  function deleteSavedDraft(id) {
+    const draft = state.drafts.find((d) => d.id === id && d.scope === draftScope());
+    if (!draft || !window.confirm(`¿Eliminar «${draft.title?.trim() || 'Actividad sin título'}» de este dispositivo?`)) return;
+    state.drafts = state.drafts.filter((d) => d.id !== id);
+    try { localStorage.setItem(DRAFTS_KEY, JSON.stringify(state.drafts)); } catch (error) { /* ignorar */ }
+    if (state.currentDraftId === id) restoreDraft(null);
+    renderSavedActivities();
+    notice('Actividad eliminada de este dispositivo.', 'ok');
+  }
+
+  function newActivity(templateId) {
+    const plantilla = templateId ? TEMPLATES.find((t) => t.id === templateId) : null;
+    restoreDraft(null);
+    if (plantilla) {
+      state.title = plantilla.title;
+      state.description = plantilla.description;
+      state.blocks = clonar(plantilla.blocks);
+      state.selected = 0;
+      resetHistory();
+    }
+    saveDraft();
+    paintAll();
+    showStudioView('edit');
+    showEditorPane('canvas');
+  }
+
+  /* ── Vistas ────────────────────────────────────────────────────── */
+
+  function showStudioView(name) {
+    state.view = name;
+    document.querySelectorAll('[data-studio-panel]').forEach((panel) => { panel.hidden = panel.dataset.studioPanel !== name; });
+    document.querySelectorAll('[data-studio-view]').forEach((tab) => {
+      const on = tab.dataset.studioView === name;
+      tab.setAttribute('aria-selected', String(on));
+      tab.tabIndex = on ? 0 : -1;
+    });
+    if (name === 'create') paintTemplates();
+    if (name === 'activities') renderSavedActivities();
+  }
+
+  function showEditorPane(name) {
+    state.pane = name;
+    document.querySelectorAll('[data-editor-view]').forEach((tab) => tab.setAttribute('aria-selected', String(tab.dataset.editorView === name)));
+    document.querySelectorAll('[data-editor-pane]').forEach((pane) => pane.classList.toggle('active', pane.dataset.editorPane === name));
+  }
+
+  /* ── Plantillas ────────────────────────────────────────────────── */
+
+  function paintTemplates() {
+    $('templates').innerHTML = TEMPLATES.map((t) => `<button type="button" class="template-art st-plantilla" data-template="${esc(t.id)}">
+        <span class="st-plantilla-num">${esc(t.title.split(' ')[0])}</span>
+        <strong>${esc(t.title)}</strong>
+        <small>${esc(t.description)}</small>
+        <span class="st-plantilla-bloques">${t.blocks.map((b) => `<span style="--c:${colorTipo(b.tipo)}">${esc(nombreTipo(b.tipo))}</span>`).join('')}</span>
+      </button>`).join('');
+  }
+
+  /* ── Paleta de tipos ───────────────────────────────────────────── */
+
+  function paintPalette() {
+    const categorias = [...new Set(TYPES.map((t) => t[3]))];
+    $('palette').innerHTML = `<div class="st-pal-tools">
+        <label class="st-pal-buscar"><span class="visually-hidden">Buscar tipo</span><input id="palette-search" type="search" placeholder="Busca un tipo…" autocomplete="off" /></label>
+        <select id="palette-category" aria-label="Filtrar por categoría"><option value="all">Todas las categorías</option>${categorias.map((c) => `<option value="${esc(c)}">${esc(c)}</option>`).join('')}</select>
+      </div>
+      <p class="st-pal-cuenta" id="palette-count" aria-live="polite"></p>
+      <div class="st-pal-lista" id="palette-items"></div>`;
+    filterPalette();
+  }
+
+  function filterPalette() {
+    const texto = ($('palette-search')?.value || '').trim().toLowerCase();
+    const cat = $('palette-category')?.value || 'all';
+    const visibles = TYPES.filter(([id, nombre, , category]) => (cat === 'all' || category === cat) && (!texto || nombre.toLowerCase().includes(texto) || id.includes(texto)));
+    $('palette-items').innerHTML = visibles.map(([id, nombre, , category]) => `<button type="button" class="st-pal-item" draggable="true" data-type="${esc(id)}" data-category="${esc(category)}">
+        <span class="st-pal-icono" style="background:${colorTipo(id)}">${esc(iconoTipo(id))}</span>
+        <span class="st-pal-texto"><strong>${esc(nombre)}</strong><small>${esc(category)}</small></span>
+        <span class="st-pal-mas" aria-hidden="true">+</span>
+      </button>`).join('');
+    $('palette-count').textContent = `${visibles.length} tipo(s)`;
+  }
+
+  /* ── Lienzo: bloques de la actividad ───────────────────────────── */
+
+  function resumenBloque(block) {
+    if (block.tipo === 'code_blocks') return `${(block.ejercicios || []).length} reto(s) de programación`;
+    if (block.tipo === 'texto') return block.contenido ? 'Texto escrito' : 'Texto vacío';
+    if (block.tipo === 'salto_unidad') return `Recompensa: ${Number(block.recompensa) || 0} Pz`;
+    const n = contarItems(block);
+    return n ? `${n} ${n === 1 ? 'elemento' : 'elementos'}` : 'Sin contenido todavía';
+  }
+
+  function contarItems(block) {
+    switch (block.tipo) {
+      case 'test': return (block.preguntas || []).length;
+      case 'relacionar': return (block.pares || []).filter((p) => p.izq && p.der).length;
+      case 'completar': return (block.frases || []).filter((f) => f.texto && f.respuesta).length;
+      case 'ordenar': return (block.items || []).filter(Boolean).length;
+      case 'sopa_letras': return (block.palabras || []).filter(Boolean).length;
+      case 'code_blocks': return (block.ejercicios || []).length;
+      case 'texto': case 'salto_unidad': return 0;
+      default: {
+        const datos = block.datos || {};
+        const primera = Object.values(datos).find(Array.isArray);
+        return primera ? primera.length : 0;
+      }
+    }
+  }
+
+  function tarjetaBloque(block, index) {
+    const seleccionado = index === state.selected;
+    return `<article class="st-card${seleccionado ? ' selected' : ''}${block.tipo === 'salto_unidad' ? ' unit-break' : ''}" data-index="${index}" draggable="true" style="--c:${colorTipo(block.tipo)}">
+      <button type="button" class="st-card-main" data-select="${index}" aria-pressed="${seleccionado}">
+        <span class="st-card-num">${index + 1}</span>
+        <span class="st-card-icono">${esc(iconoTipo(block.tipo))}</span>
+        <span class="st-card-texto"><strong>${esc(block.titulo || nombreTipo(block.tipo))}</strong><small>${esc(nombreTipo(block.tipo))} · ${esc(resumenBloque(block))}</small></span>
+      </button>
+      <div class="st-card-acciones">
+        <button type="button" class="st-mini" data-move="${index}" data-offset="-1" aria-label="Subir bloque" ${index === 0 ? 'disabled' : ''}>↑</button>
+        <button type="button" class="st-mini" data-move="${index}" data-offset="1" aria-label="Bajar bloque" ${index === state.blocks.length - 1 ? 'disabled' : ''}>↓</button>
+        <button type="button" class="st-mini" data-duplicate="${index}" aria-label="Duplicar bloque">⧉</button>
+        <button type="button" class="st-mini peligro" data-remove="${index}" aria-label="Quitar bloque">×</button>
+      </div>
+    </article>`;
+  }
+
+  function paintCanvas() {
+    const lienzo = $('canvas');
+    lienzo.innerHTML = state.blocks.map(tarjetaBloque).join('');
+    $('canvas-empty').hidden = state.blocks.length > 0;
+    const total = state.blocks.reduce((sum, b) => sum + contarItems(b), 0);
+    $('canvas-summary').textContent = state.blocks.length
+      ? `${state.blocks.length} bloque(s) · ${total} elemento(s) · recompensa ${state.reward} Pz`
+      : 'Aún no hay bloques';
+    $('undo-action').disabled = state.historyIndex <= 0;
+    $('redo-action').disabled = state.historyIndex >= state.history.length - 1;
+  }
+
+  /* ── Operaciones sobre bloques ─────────────────────────────────── */
+
+  function resetHistory() {
+    state.history = [];
+    state.historyIndex = -1;
+    recordHistory();
+  }
+
+  function recordHistory() {
+    const foto = clonar({ blocks: state.blocks, selected: state.selected, title: state.title, description: state.description, reward: state.reward });
+    state.history = state.history.slice(0, state.historyIndex + 1);
+    state.history.push(foto);
+    if (state.history.length > 50) state.history.shift();
+    state.historyIndex = state.history.length - 1;
+  }
+
+  function restoreHistory(index) {
+    if (index < 0 || index >= state.history.length) return;
+    state.historyIndex = index;
+    const foto = clonar(state.history[index]);
+    Object.assign(state, { blocks: foto.blocks, selected: foto.selected, title: foto.title, description: foto.description, reward: foto.reward });
+    paintAll();
+    saveDraft();
+  }
+
+  // Cambio estructural: guarda en el historial, borrador y repinta
+  function touch() {
+    recordHistory();
+    saveDraft();
+    paintAll();
+  }
+
+  function addBlock(tipo, indice = state.blocks.length) {
+    if (!DEFAULTS[tipo]) return;
+    state.blocks.splice(indice, 0, DEFAULTS[tipo]());
+    state.selected = indice;
+    showEditorPane('inspector');
+    touch();
+    notice(`Añadido: ${nombreTipo(tipo)}.`, 'ok');
+  }
+
+  function duplicateBlock(index) {
+    if (!state.blocks[index]) return;
+    state.blocks.splice(index + 1, 0, clonar(state.blocks[index]));
+    state.selected = index + 1;
+    touch();
+  }
+
+  function moveBlock(index, offset) {
+    const destino = index + offset;
+    if (destino < 0 || destino >= state.blocks.length) return;
+    [state.blocks[index], state.blocks[destino]] = [state.blocks[destino], state.blocks[index]];
+    state.selected = destino;
+    touch();
+  }
+
+  function removeBlock(index) {
+    state.blocks.splice(index, 1);
+    state.selected = state.blocks.length ? Math.min(index, state.blocks.length - 1) : -1;
+    touch();
+  }
+
+  function addUnitBreak() {
+    const numero = state.blocks.filter((b) => b.tipo === 'salto_unidad').length + 2;
+    const indice = state.selected >= 0 ? state.selected + 1 : state.blocks.length;
+    state.blocks.splice(indice, 0, { tipo: 'salto_unidad', titulo: `Unidad ${numero}`, descripcion: '', recompensa: 0 });
+    state.selected = indice;
+    touch();
+  }
+
+  /* ── Editor por esquema: campos a partir de la forma de los datos ─ */
+
+  function camino(raiz, ruta) {
+    return ruta.split('.').reduce((obj, parte) => (obj == null ? undefined : obj[parte]), raiz);
+  }
+
+  function escribirCamino(raiz, ruta, valor) {
+    const partes = ruta.split('.');
+    let obj = raiz;
+    partes.slice(0, -1).forEach((parte, i) => {
+      if (obj[parte] == null) obj[parte] = /^\d+$/.test(partes[i + 1]) ? [] : {};
+      obj = obj[parte];
+    });
+    obj[partes[partes.length - 1]] = valor;
+  }
+
+  function vacioComo(valor) {
+    if (typeof valor === 'string') return '';
+    if (typeof valor === 'number') return 0;
+    if (typeof valor === 'boolean') return false;
+    if (Array.isArray(valor)) return [];
+    if (valor && typeof valor === 'object') return Object.fromEntries(Object.entries(valor).map(([k, v]) => [k, vacioComo(v)]));
+    return '';
+  }
+
+  // Elemento nuevo para una lista: ejemplo del mismo tipo de bloque, o una plantilla conocida
+  function elementoNuevo(bloque, ruta) {
+    const clave = ruta.split('.').pop();
+    if (ELEMENTO[clave]) return ELEMENTO[clave]();
+    const ejemplo = DEFAULTS[bloque.tipo] ? camino(DEFAULTS[bloque.tipo](), ruta.replace(/\.\d+/g, '.0')) : undefined;
+    if (Array.isArray(ejemplo) && ejemplo.length) return vacioComo(ejemplo[0]);
+    if (ejemplo && typeof ejemplo === 'object') return vacioComo(ejemplo);
+    return '';
+  }
+
+  function campoEscalar(valor, ruta, clave) {
+    const etq = etiqueta(clave);
+    if (typeof valor === 'boolean') {
+      return `<label class="st-check"><input type="checkbox" data-path="${esc(ruta)}" data-kind="bool" ${valor ? 'checked' : ''} /><span>${esc(etq)}</span></label>`;
+    }
+    if (typeof valor === 'number') {
+      return `<label class="st-campo"><span>${esc(etq)}</span><input type="number" step="any" data-path="${esc(ruta)}" data-kind="number" value="${esc(valor)}" /></label>`;
+    }
+    const texto = String(valor ?? '');
+    if (LARGO.has(clave) || texto.length > 70) {
+      return `<label class="st-campo"><span>${esc(etq)}</span><textarea rows="3" data-path="${esc(ruta)}" data-kind="text">${esc(texto)}</textarea></label>`;
+    }
+    return `<label class="st-campo"><span>${esc(etq)}</span><input type="text" data-path="${esc(ruta)}" data-kind="text" value="${esc(texto)}" /></label>`;
+  }
+
+  function listaEscalar(lista, ruta, clave) {
+    const numeros = lista.every((v) => typeof v === 'number');
+    const filas = lista.map((v, i) => `<div class="st-fila">
+        <input type="${numeros ? 'number' : 'text'}" data-path="${esc(ruta)}.${i}" data-kind="${numeros ? 'number' : 'text'}" value="${esc(v)}" aria-label="${esc(etiqueta(clave))} ${i + 1}" />
+        <button type="button" class="st-mini peligro" data-remove-row="${esc(ruta)}" data-index="${i}" aria-label="Quitar">×</button>
+      </div>`).join('');
+    return `<fieldset class="st-grupo"><legend>${esc(etiqueta(clave))}</legend>${filas || '<p class="st-ayuda">Sin elementos todavía.</p>'}
+      <button type="button" class="st-btn st-btn-suave" data-add-row="${esc(ruta)}" data-kind="${numeros ? 'number' : 'text'}">+ Añadir</button></fieldset>`;
+  }
+
+  function listaCoordenadas(lista, ruta, clave) {
+    const filas = lista.map((p, i) => `<div class="st-fila st-fila-par">
+        <label><span>x</span><input type="number" data-path="${esc(ruta)}.${i}.0" data-kind="number" value="${esc(p[0])}" /></label>
+        <label><span>y</span><input type="number" data-path="${esc(ruta)}.${i}.1" data-kind="number" value="${esc(p[1])}" /></label>
+        <button type="button" class="st-mini peligro" data-remove-row="${esc(ruta)}" data-index="${i}" aria-label="Quitar casilla">×</button>
+      </div>`).join('');
+    return `<fieldset class="st-grupo"><legend>${esc(etiqueta(clave))}</legend>${filas}
+      <button type="button" class="st-btn st-btn-suave" data-add-row="${esc(ruta)}" data-kind="pair">+ Añadir casilla</button></fieldset>`;
+  }
+
+  function listaObjetos(lista, ruta, clave) {
+    const singular = etiqueta(clave).replace(/s$/, '');
+    const tarjetas = lista.map((item, i) => `<fieldset class="st-item">
+        <legend>${esc(singular)} ${i + 1}</legend>
+        ${camposDe(item, `${ruta}.${i}`)}
+        <button type="button" class="st-btn st-btn-peligro st-btn-pequeno" data-remove-row="${esc(ruta)}" data-index="${i}">Quitar</button>
+      </fieldset>`).join('');
+    return `<div class="st-repetir">${tarjetas}
+      <button type="button" class="st-btn st-btn-suave" data-add-row="${esc(ruta)}" data-kind="object">+ Añadir ${esc(singular.toLowerCase())}</button></div>`;
+  }
+
+  function listaOpciones(item, ruta) {
+    // Pregunta de test: opciones con la correcta marcada por radio
+    const filas = item.opciones.map((texto, i) => `<div class="st-fila">
+        <label class="st-correcta"><input type="radio" name="correcta-${esc(ruta)}" data-option-correct="${i}" data-path="${esc(ruta)}.correcta" data-kind="radio" value="${i}" ${Number(item.correcta) === i ? 'checked' : ''} aria-label="Marcar como correcta la opción ${i + 1}" /><span class="st-correcta-marca" aria-hidden="true"></span></label>
+        <input type="text" data-path="${esc(ruta)}.opciones.${i}" data-kind="text" value="${esc(texto)}" aria-label="Opción ${i + 1}" />
+        <button type="button" class="st-mini peligro" data-option-delete="${esc(ruta)}" data-index="${i}" aria-label="Quitar opción">×</button>
+      </div>`).join('');
+    return `<fieldset class="st-grupo st-opciones"><legend>Opciones · marca la correcta</legend>${filas}
+      <button type="button" class="st-btn st-btn-suave" data-option-add="${esc(ruta)}">+ Añadir opción</button></fieldset>`;
+  }
+
+  // Campos de un objeto (sin claves ocultas), según su forma
+  function camposDe(obj, ruta) {
+    const salida = [];
+    const tieneOpciones = Array.isArray(obj.opciones) && typeof obj.correcta === 'number';
+    Object.keys(obj).forEach((clave) => {
+      if (OCULTAS.has(clave)) return;
+      if (!ruta && clave === 'titulo') return;
+      if (tieneOpciones && (clave === 'opciones' || clave === 'correcta')) return;
+      const valor = obj[clave];
+      const rutaClave = ruta ? `${ruta}.${clave}` : clave;
+      if (Array.isArray(valor)) {
+        if (valor.every((v) => typeof v === 'string' || typeof v === 'number')) salida.push(listaEscalar(valor, rutaClave, clave));
+        else if (valor.every((v) => Array.isArray(v) && v.length === 2 && v.every((n) => typeof n === 'number'))) salida.push(listaCoordenadas(valor, rutaClave, clave));
+        else if (valor.every((v) => v && typeof v === 'object' && !Array.isArray(v))) salida.push(listaObjetos(valor, rutaClave, clave));
+        else salida.push(campoEscalar(JSON.stringify(valor), rutaClave, clave));
+      } else if (valor && typeof valor === 'object') {
+        salida.push(`<fieldset class="st-grupo"><legend>${esc(etiqueta(clave))}</legend>${camposDe(valor, rutaClave)}</fieldset>`);
+      } else {
+        salida.push(campoEscalar(valor, rutaClave, clave));
+      }
+    });
+    if (tieneOpciones) salida.unshift(listaOpciones(obj, ruta));
+    return salida.join('');
+  }
+
+  function codigoPanel(block, index) {
+    const ejercicios = block.ejercicios || [];
+    const lib = window.PJRetos ? window.PJRetos.lista() : [];
+    const miniaturas = ejercicios.map((ex, i) => `<li class="st-mini-reto">
+        <span class="st-mini-svg">${window.PJRetos ? window.PJRetos.miniTablero(ex, { alt: `Tablero del reto ${i + 1}` }) : ''}</span>
+        <span><strong>${i + 1}. ${esc(ex.titulo || 'Reto sin título')}</strong><small>${esc(window.PJRetos ? window.PJRetos.resumen(ex) : '')}</small></span>
+      </li>`).join('');
+    const opciones = lib.length
+      ? lib.map((set) => `<option value="${esc(set.id)}">${esc(set.titulo || 'Sin título')} · ${set.ejercicios.length} reto(s)</option>`).join('')
+      : '<option value="">Aún no tienes conjuntos guardados</option>';
+    return `<section class="st-codigo">
+      <p class="st-ayuda">Cada reto es un tablero con bloques. Los alumnos los juegan en orden.</p>
+      <ol class="st-mini-lista">${miniaturas}</ol>
+      <a class="st-btn st-btn-primario" href="/edu/code" target="_blank" rel="noopener">Abrir editor visual de retos</a>
+      <div class="st-importar">
+        <label class="st-campo"><span>Traer un conjunto de Retos Code</span>
+          <select id="code-import-select"${lib.length ? '' : ' disabled'}>${opciones}</select></label>
+        <div class="st-acciones-fila">
+          <button type="button" class="st-btn" data-code-import="replace"${lib.length ? '' : ' disabled'}>Reemplazar retos</button>
+          <button type="button" class="st-btn" data-code-import="append"${lib.length ? '' : ' disabled'}>Añadir al final</button>
+        </div>
+      </div>
+      <details class="st-avanzado"><summary>Ajustes de cada reto (avanzado)</summary>
+        ${camposDe({ ejercicios: ejercicios.map((ex) => ({ titulo: ex.titulo, objetivo_texto: ex.objetivo_texto, explicacion: ex.explicacion })) }, '')}
+        <p class="st-ayuda">Los tableros se diseñan en el editor visual de retos.</p>
+      </details>
+    </section>`;
+  }
+
+  function paintInspector() {
+    const contenedor = $('inspector-content');
+    const block = state.blocks[state.selected];
+    if (!block) {
+      contenedor.innerHTML = `<div class="st-vacio-editor"><p><strong>Selecciona un bloque</strong></p><p>Toca un bloque de la actividad para editar su contenido aquí.</p></div>`;
+      return;
+    }
+    const cabecera = `<header class="inspector-type-card type-${esc(block.tipo)} st-tipo" style="--c:${colorTipo(block.tipo)}">
+        <span class="st-card-icono">${esc(iconoTipo(block.tipo))}</span>
+        <div><strong>${esc(nombreTipo(block.tipo))}</strong><small>${esc(ayudaTipo(block.tipo))}</small></div>
+      </header>`;
+    const titulo = `<label class="st-campo"><span>Título del bloque</span><input type="text" data-path="titulo" data-kind="text" value="${esc(block.titulo || '')}" /></label>`;
+    let cuerpo;
+    if (block.tipo === 'code_blocks') cuerpo = codigoPanel(block, state.selected);
+    else if (block.tipo === 'texto') cuerpo = campoEscalar(block.contenido || '', 'contenido', 'contenido');
+    else if (block.tipo === 'salto_unidad') cuerpo = campoEscalar(block.descripcion || '', 'descripcion', 'descripcion') + campoEscalar(block.recompensa || 0, 'recompensa', 'recompensa');
+    else cuerpo = camposDe(block, '');
+    contenedor.innerHTML = `${cabecera}${titulo}${cuerpo}`;
+  }
+
+  function ayudaTipo(tipo) {
+    if (tipo === 'code_blocks') return 'Retos con bloques tipo Scratch: avanzar, girar, repetir y decidir.';
+    if (tipo === 'texto') return 'Explica una idea antes de la actividad.';
+    if (tipo === 'test') return 'Una pregunta con varias opciones. Marca la correcta.';
+    if (tipo === 'salto_unidad') return 'Separa la actividad en partes con su propia recompensa.';
+    if (PRIMARY_HELP[tipo]) return PRIMARY_HELP[tipo];
+    return 'Completa los datos del bloque.';
+  }
+
+  // Cambio de un campo de texto o número: no añade historial por cada tecla
+  function actualizarCampo(elemento) {
+    const block = state.blocks[state.selected];
+    if (!block) return;
+    const ruta = elemento.dataset.path;
+    if (!ruta) return;
+    let valor;
+    if (elemento.dataset.kind === 'bool') valor = elemento.checked;
+    else if (elemento.dataset.kind === 'number') valor = elemento.value === '' ? 0 : Number(elemento.value);
+    else if (elemento.dataset.kind === 'radio') valor = Number(elemento.value);
+    else valor = elemento.value;
+    escribirCamino(block, ruta, valor);
+    if (ruta === 'titulo') { paintCanvas(); }
+    saveDraft();
+  }
+
+  function cambioCampo(elemento) {
+    actualizarCampo(elemento);
+    if (elemento.dataset.kind === 'radio' || elemento.type === 'checkbox') paintInspector();
+    recordHistory();
+    paintCanvas();
+  }
+
+  function anadirFila(ruta, tipo) {
+    const block = state.blocks[state.selected];
+    if (!block) return;
+    const lista = camino(block, ruta) || [];
+    let nuevo;
+    if (tipo === 'pair') nuevo = [0, 0];
+    else if (tipo === 'number') nuevo = 0;
+    else if (tipo === 'text') nuevo = '';
+    else nuevo = elementoNuevo(block, ruta);
+    if (!Array.isArray(camino(block, ruta))) escribirCamino(block, ruta, lista);
+    camino(block, ruta).push(nuevo);
+    touch();
+  }
+
+  function quitarFila(ruta, indice) {
+    const block = state.blocks[state.selected];
+    const lista = block && camino(block, ruta);
+    if (!Array.isArray(lista)) return;
+    lista.splice(Number(indice), 1);
+    touch();
+  }
+
+  function anadirOpcion(ruta) {
+    const block = state.blocks[state.selected];
+    const pregunta = block && camino(block, ruta);
+    if (!pregunta || !Array.isArray(pregunta.opciones)) return;
+    pregunta.opciones.push('');
+    touch();
+  }
+
+  function quitarOpcion(ruta, indice) {
+    const block = state.blocks[state.selected];
+    const pregunta = block && camino(block, ruta);
+    if (!pregunta || !Array.isArray(pregunta.opciones) || pregunta.opciones.length <= 2) {
+      notice('Una pregunta necesita al menos dos opciones.', 'error');
+      return;
+    }
+    pregunta.opciones.splice(Number(indice), 1);
+    if (pregunta.correcta >= pregunta.opciones.length) pregunta.correcta = 0;
+    touch();
+  }
+
+  /* ── Importar retos de Code desde la biblioteca de Retos ───────── */
+
+  function importarRetos(modo) {
+    const block = state.blocks[state.selected];
+    if (!block || block.tipo !== 'code_blocks') return;
+    const id = $('code-import-select') ? $('code-import-select').value : '';
+    const conjunto = window.PJRetos ? window.PJRetos.lista().find((c) => c.id === id) : null;
+    if (!conjunto || !Array.isArray(conjunto.ejercicios) || !conjunto.ejercicios.length) {
+      notice('Elige un conjunto de Retos Code para importar.', 'error');
+      return;
+    }
+    const copias = clonar(conjunto.ejercicios).slice(0, 12);
+    if (modo === 'replace') {
+      if (!window.confirm(`¿Reemplazar los retos actuales por «${conjunto.titulo || 'Sin título'}»?`)) return;
+      block.ejercicios = copias;
+    } else {
+      const hueco = 12 - (block.ejercicios || []).length;
+      if (hueco <= 0) { notice('Este bloque ya tiene 12 retos.', 'error'); return; }
+      block.ejercicios = (block.ejercicios || []).concat(copias.slice(0, hueco));
+    }
+    notice(`Retos importados desde «${conjunto.titulo || 'Sin título'}».`, 'ok');
+    touch();
+  }
+
+  function paintAll() {
+    $('meta-title').value = state.title;
+    $('meta-description').value = state.description;
+    $('meta-category').value = state.category;
+    $('meta-age').value = state.age;
+    $('meta-difficulty').value = state.difficulty;
+    $('meta-reward').value = state.reward;
+    paintCanvas();
+    paintInspector();
+  }
+
+  /* ── Vista previa en diálogo con el reproductor real ───────────── */
+
+  function contenidoActividad() {
+    return { version: 2, bloques: clonar(state.blocks.filter((b) => b.tipo !== 'salto_unidad')) };
+  }
+
+  function abrirVistaPrevia() {
+    if (!state.blocks.some(tieneContenido)) {
+      notice('Añade al menos un bloque con contenido para ver la vista previa.', 'error');
+      return;
+    }
+    try {
+      sessionStorage.setItem('pj-preview-activity', JSON.stringify({
+        id: 'vista-previa-studio',
+        titulo: state.title.trim() || 'Actividad sin título',
+        descripcion: state.description.trim(),
+        tipo: state.blocks[0].tipo,
+        contenido: contenidoActividad()
+      }));
+    } catch (error) {
+      notice('No se pudo preparar la vista previa en este navegador.', 'error');
+      return;
+    }
+    const previewDialog = $('preview-dialog');
+    $('preview-frame').src = `/preview.html?vista=${Date.now()}`;
+    previewDialog.showModal();
+  }
+
+  function closePreview() {
+    $('preview-frame').src = 'about:blank';
+  }
+
+  function cambiarDispositivo(dispositivo) {
+    state.previewDevice = dispositivo;
+    const anchos = { movil: '390px', tableta: '820px', escritorio: '100%' };
+    $('preview-stage').style.setProperty('--ancho', anchos[dispositivo] || '100%');
+    document.querySelectorAll('[data-device]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.device === dispositivo)));
+  }
+
+  /* ── Envío a revisión (mismo contrato de API) ──────────────────── */
+
+  function tieneContenido(block) {
+    if (block.tipo === 'texto') return Boolean(String(block.contenido || '').trim());
+    if (block.tipo === 'code_blocks') return (block.ejercicios || []).length > 0;
+    return contarItems(block) > 0;
+  }
+
+  function contarTodo() {
+    return state.blocks.reduce((total, block) => total + contarItems(block), 0);
+  }
+
+  function errorDeValidacion() {
+    if (!state.title.trim() || state.title.trim().length < 3 || !state.description.trim() || state.description.trim().length < 10) {
+      return 'Completa un título (mínimo 3 caracteres) y una descripción (mínimo 10).';
+    }
+    if (!state.blocks.length || !contarTodo()) return 'Añade bloques con contenido antes de enviar.';
+    const sinContenido = state.blocks.find((b) => b.tipo !== 'salto_unidad' && contarItems(b) === 0 && b.tipo !== 'texto' && b.tipo !== 'code_blocks');
+    if (sinContenido) return `El bloque «${sinContenido.titulo || nombreTipo(sinContenido.tipo)}» no tiene contenido todavía.`;
+    const reparto = state.blocks.filter((b) => b.tipo === 'salto_unidad').reduce((s, b) => s + (Number(b.recompensa) || 0), 0);
+    if (reparto > state.reward) return 'Las recompensas de las unidades superan el presupuesto total de Pz.';
+    return '';
+  }
+
+  async function enviarActividad() {
+    const token = sessionStorage.getItem(SESSION_KEY);
+    if (!token || !state.identity) { notice('Inicia sesión con Google antes de enviar a revisión.', 'error'); return; }
+    const error = errorDeValidacion();
+    if (error) {
+      notice(error, 'error');
+      if (!state.title.trim()) $('meta-title').focus();
+      return;
+    }
+    const autor = state.identityKind === 'centro' ? state.center?.nombre : state.authorName;
+    if (!autor) { notice('No se encontró el nombre de autoría de esta cuenta.', 'error'); return; }
+    const boton = $('submit-activity');
+    boton.disabled = true;
     notice('Enviando a revisión editorial…', '');
     const body = {
       tipoAutor: state.identityKind,
       orgId: state.identityKind === 'centro' ? state.center?.id : null,
-      titulo: state.title.trim(), descripcion: state.description.trim(), categoria: state.category,
-      edad_recomendada: state.age, dificultad: state.difficulty, tiempo_estimado: 10,
-      num_preguntas: countItems(),
+      titulo: state.title.trim(),
+      descripcion: state.description.trim(),
+      categoria: state.category,
+      edad_recomendada: state.age,
+      dificultad: state.difficulty,
+      tiempo_estimado: 10,
+      num_preguntas: contarTodo(),
       recompensa: state.reward,
-      contenido: activityContent()
+      contenido: contenidoActividad()
     };
     try {
       const response = await fetch('/api/creadores/actividades', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(body) });
@@ -1392,280 +940,160 @@
         if (data.error === 'no_autorizado' || data.error === 'centro_no_activo') throw new Error('Tu cuenta no tiene permisos de publicación para ese centro.');
         throw new Error(data.error || data.mensaje || `Error HTTP ${response.status}`);
       }
-      notice(`Actividad enviada a revisión editorial como ${authorName}. ${data.mensaje || ''}`.trim(), 'success');
-      removeCurrentDraft();
-      state.title = '';
-      state.description = '';
-      state.category = 'General';
-      state.age = '6-12';
-      state.difficulty = 'media';
-      state.reward = 0;
+      notice(`Actividad enviada a revisión editorial como ${autor}. ${data.mensaje || ''}`.trim(), 'ok');
+      if (state.currentDraftId) {
+        state.drafts = state.drafts.filter((d) => d.id !== state.currentDraftId);
+        try { localStorage.setItem(DRAFTS_KEY, JSON.stringify(state.drafts)); } catch (e) { /* ignorar */ }
+      }
+      restoreDraft(null);
+      showStudioView('activities');
+    } catch (err) {
+      notice(err.message || 'No se pudo enviar la actividad.', 'error');
+    } finally {
+      boton.disabled = false;
+    }
+  }
+
+  /* ── Eventos ───────────────────────────────────────────────────── */
+
+  function vincularEventos() {
+    document.querySelectorAll('[data-studio-view]').forEach((tab) => tab.addEventListener('click', () => showStudioView(tab.dataset.studioView)));
+    document.querySelectorAll('[data-editor-view]').forEach((tab) => tab.addEventListener('click', () => showEditorPane(tab.dataset.editorView)));
+    $('studio-menu').addEventListener('keydown', (event) => {
+      const tabs = [...document.querySelectorAll('[data-studio-view]')];
+      const i = tabs.indexOf(document.activeElement);
+      if (i < 0) return;
+      const teclas = { ArrowRight: 1, ArrowLeft: -1 };
+      if (event.key === 'Home') { tabs[0].focus(); showStudioView(tabs[0].dataset.studioView); event.preventDefault(); }
+      else if (event.key === 'End') { tabs[tabs.length - 1].focus(); showStudioView(tabs[tabs.length - 1].dataset.studioView); event.preventDefault(); }
+      else if (teclas[event.key]) {
+        const siguiente = tabs[(i + teclas[event.key] + tabs.length) % tabs.length];
+        siguiente.focus(); showStudioView(siguiente.dataset.studioView); event.preventDefault();
+      }
+    });
+
+    $('new-activity').addEventListener('click', () => newActivity(null));
+    $('new-blank').addEventListener('click', () => newActivity(null));
+    $('templates').addEventListener('click', (e) => { const t = e.target.closest('[data-template]'); if (t) newActivity(t.dataset.template); });
+    $('saved-list').addEventListener('click', (e) => {
+      const abrir = e.target.closest('[data-open-draft]');
+      const borrar = e.target.closest('[data-delete-draft]');
+      const ir = e.target.closest('[data-view-go]');
+      if (abrir) openSavedDraft(abrir.dataset.openDraft);
+      if (borrar) deleteSavedDraft(borrar.dataset.deleteDraft);
+      if (ir) showStudioView(ir.dataset.viewGo);
+    });
+
+    $('palette').addEventListener('input', (e) => { if (e.target.id === 'palette-search') filterPalette(); });
+    $('palette').addEventListener('change', (e) => { if (e.target.id === 'palette-category') filterPalette(); });
+    $('palette').addEventListener('click', (e) => { const b = e.target.closest('[data-type]'); if (b) addBlock(b.dataset.type); });
+    $('palette').addEventListener('dragstart', (e) => {
+      const b = e.target.closest('[data-type]');
+      if (b) e.dataTransfer.setData('text/pj-block-type', b.dataset.type);
+    });
+
+    $('canvas').addEventListener('click', (e) => {
+      const sel = e.target.closest('[data-select]');
+      const mueve = e.target.closest('[data-move]');
+      const dup = e.target.closest('[data-duplicate]');
+      const quita = e.target.closest('[data-remove]');
+      if (mueve) return moveBlock(Number(mueve.dataset.move), Number(mueve.dataset.offset));
+      if (dup) return duplicateBlock(Number(dup.dataset.duplicate));
+      if (quita) return removeBlock(Number(quita.dataset.remove));
+      if (sel) {
+        state.selected = Number(sel.dataset.select);
+        paintCanvas();
+        paintInspector();
+        showEditorPane('inspector');
+      }
+    });
+    const lienzo = $('canvas');
+    lienzo.addEventListener('dragover', (e) => { e.preventDefault(); });
+    lienzo.addEventListener('drop', (e) => {
+      const tipo = e.dataTransfer.getData('text/pj-block-type');
+      if (!tipo) return;
+      e.preventDefault();
+      const tarjeta = e.target.closest('.st-card');
+      addBlock(tipo, tarjeta ? Number(tarjeta.dataset.index) : state.blocks.length);
+    });
+
+    $('add-unit-break').addEventListener('click', addUnitBreak);
+    $('undo-action').addEventListener('click', () => restoreHistory(state.historyIndex - 1));
+    $('redo-action').addEventListener('click', () => restoreHistory(state.historyIndex + 1));
+    $('clear-draft').addEventListener('click', () => {
+      if (!state.blocks.length || !window.confirm('¿Vaciar la actividad? Puedes deshacerlo con «Deshacer».')) return;
       state.blocks = [];
       state.selected = -1;
-      paintCanvas();
-      resetHistory();
-      showStudioView('activities');
-    } catch (error) { notice(error.message || 'No se pudo enviar la actividad.', 'error'); }
-    finally { button.disabled = false; }
+      touch();
+    });
+
+    $('inspector-content').addEventListener('input', (e) => {
+      const el = e.target;
+      if (el.dataset && el.dataset.path && el.dataset.kind !== 'bool' && el.type !== 'radio') actualizarCampo(el);
+    });
+    $('inspector-content').addEventListener('change', (e) => {
+      const el = e.target;
+      if (el.dataset && el.dataset.path) cambioCampo(el);
+    });
+    $('inspector-content').addEventListener('click', (e) => {
+      const add = e.target.closest('[data-add-row]');
+      const rem = e.target.closest('[data-remove-row]');
+      const optAdd = e.target.closest('[data-option-add]');
+      const optDel = e.target.closest('[data-option-delete]');
+      const importa = e.target.closest('[data-code-import]');
+      if (add) anadirFila(add.dataset.addRow, add.dataset.kind);
+      if (rem) quitarFila(rem.dataset.removeRow, rem.dataset.index);
+      if (optAdd) anadirOpcion(optAdd.dataset.optionAdd);
+      if (optDel) quitarOpcion(optDel.dataset.optionDelete, optDel.dataset.index);
+      if (importa) importarRetos(importa.dataset.codeImport);
+    });
+
+    $('meta-title').addEventListener('input', (e) => { state.title = e.target.value; saveDraft(); });
+    $('meta-description').addEventListener('input', (e) => { state.description = e.target.value; saveDraft(); });
+    $('meta-category').addEventListener('change', (e) => { state.category = e.target.value; touch(); });
+    $('meta-age').addEventListener('change', (e) => { state.age = e.target.value; touch(); });
+    $('meta-difficulty').addEventListener('change', (e) => { state.difficulty = e.target.value; touch(); });
+    $('meta-reward').addEventListener('change', (e) => { state.reward = Math.max(0, Math.min(10000, Number(e.target.value) || 0)); touch(); });
+    $('author-scope').addEventListener('change', (e) => setAuthorScope(e.target.value));
+
+    $('preview-activity').addEventListener('click', abrirVistaPrevia);
+    $('preview-device-options').addEventListener('click', (e) => { const b = e.target.closest('[data-device]'); if (b) cambiarDispositivo(b.dataset.device); });
+    const previewDialog = $('preview-dialog');
+    previewDialog.addEventListener('close', closePreview);
+    $('preview-close').addEventListener('click', () => previewDialog.close());
+    $('submit-activity').addEventListener('click', enviarActividad);
+    document.addEventListener('keydown', (e) => {
+      if (!(e.ctrlKey || e.metaKey)) return;
+      if (e.key.toLowerCase() === 'z' && !e.shiftKey) { e.preventDefault(); restoreHistory(state.historyIndex - 1); }
+      if ((e.key.toLowerCase() === 'z' && e.shiftKey) || e.key.toLowerCase() === 'y') { e.preventDefault(); restoreHistory(state.historyIndex + 1); }
+    });
   }
+
+  function ayudaPantalla() {
+    return ['Elige la tarea en «Crear actividad».', 'Añade bloques desde la paleta y edítalos a la derecha.', 'Revisa la vista previa y envía a revisión.'];
+  }
+
+  /* ── Arranque ──────────────────────────────────────────────────── */
 
   function initialize() {
+    vincularEventos();
+    paintPalette();
     loadIdentity().then((authorized) => {
       if (!authorized) return;
-    loadDrafts();
-    setupManagedCenters();
-    const latestDraft = state.drafts.filter((draft) => draft.scope === draftScope()).sort((a, b) => String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')))[0];
-    restoreDraft(latestDraft);
-    paintTemplates('');
-    paintPalette();
-    paintCanvas();
-    recordHistory();
-    renderSavedActivities();
-    document.querySelectorAll('[data-studio-view]').forEach((button) => button.addEventListener('click', () => showStudioView(button.dataset.studioView)));
-    $('studio-menu').addEventListener('keydown', (event) => {
-      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
-      const tabs = [...document.querySelectorAll('[data-studio-view]')];
-      const current = tabs.indexOf(event.target.closest('[data-studio-view]'));
-      if (current < 0) return;
-      event.preventDefault();
-      const next = event.key === 'Home' ? 0
-        : event.key === 'End' ? tabs.length - 1
-          : (current + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
-      showStudioView(tabs[next].dataset.studioView);
-      tabs[next].focus();
-    });
-    $('managed-center').addEventListener('change', (event) => setAuthorScope(event.target.value));
-    $('identity').addEventListener('change', (event) => {
-      if (event.target.id === 'identity-select') setAuthorScope(event.target.value);
-    });
-    $('new-activity').addEventListener('click', startNewActivity);
-    $('add-unit-break').addEventListener('click', addUnitBreak);
-    $('preview-device-options').addEventListener('click', (event) => {
-      const button = event.target.closest('[data-preview-device]');
-      if (!button) return;
-      $('preview-device-options').querySelectorAll('button').forEach((choice) => choice.setAttribute('aria-pressed', String(choice === button)));
-      $('live-preview-device').dataset.device = button.dataset.previewDevice;
-    });
-    $('saved-activities').addEventListener('click', (event) => {
-      const open = event.target.closest('[data-open-draft]');
-      const remove = event.target.closest('[data-delete-draft]');
-      if (open) openSavedDraft(open.dataset.openDraft);
-      if (remove) deleteSavedDraft(remove.dataset.deleteDraft);
-      if (event.target.closest('[data-create-first]')) startNewActivity();
-    });
-    $('continue-to-edit').addEventListener('click', () => { showStudioView('edit'); showEditorPane(state.blocks.length ? 'canvas' : 'palette'); });
-    document.querySelectorAll('[data-editor-view]').forEach((button) => button.addEventListener('click', () => showEditorPane(button.dataset.editorView)));
-    $('editor-steps').addEventListener('keydown', (event) => {
-      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
-      const tabs = [...document.querySelectorAll('[data-editor-view]:not(:disabled)')];
-      const current = tabs.indexOf(event.target.closest('[data-editor-view]'));
-      if (current < 0) return;
-      event.preventDefault();
-      const next = event.key === 'Home' ? 0
-        : event.key === 'End' ? tabs.length - 1
-          : (current + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
-      showEditorPane(tabs[next].dataset.editorView);
-      tabs[next].focus();
-    });
-    $('templates').addEventListener('click', (event) => { const button = event.target.closest('[data-template]'); if (button) useTemplate(button.dataset.template); });
-    $('blank-template').addEventListener('click', () => { recordHistory(); state.blocks = []; state.selected = -1; state.title = ''; state.description = ''; paintTemplates(''); paintCanvas(); recordHistory(); });
-    $('undo-action').addEventListener('click', () => { recordHistory(); if (historyIndex > 0) restoreHistory(historyIndex - 1); });
-    $('redo-action').addEventListener('click', () => { recordHistory(); if (historyIndex < history.length - 1) restoreHistory(historyIndex + 1); });
-    $('palette').addEventListener('click', (event) => { const button = event.target.closest('[data-type]'); if (button) addBlock(button.dataset.type); });
-    $('palette').addEventListener('dragstart', (event) => { const button = event.target.closest('[data-type]'); if (button) event.dataTransfer.setData('text/pj-block-type', button.dataset.type); });
-    $('canvas').addEventListener('dragover', (event) => { event.preventDefault(); });
-    $('canvas').addEventListener('drop', (event) => {
-      event.preventDefault();
-      const type = event.dataTransfer.getData('text/pj-block-type');
-      const card = event.target.closest('[data-index]');
-      const target = card ? Number(card.dataset.index) : state.blocks.length;
-      if (type) addBlock(type, target);
-      else {
-        const from = Number(event.dataTransfer.getData('text/pj-block-index'));
-        if (Number.isInteger(from) && from >= 0 && from < state.blocks.length && from !== target) {
-          recordHistory();
-          const [item] = state.blocks.splice(from, 1);
-          state.blocks.splice(Math.min(target, state.blocks.length), 0, item);
-          state.selected = Math.min(target, state.blocks.length - 1);
-          paintCanvas();
-          recordHistory();
-        }
-      }
-    });
-    $('canvas').addEventListener('dragstart', (event) => { const card = event.target.closest('[data-index]'); if (card && !event.target.closest('.block-actions')) event.dataTransfer.setData('text/pj-block-index', card.dataset.index); });
-    $('canvas').addEventListener('click', (event) => {
-      const duplicate = event.target.closest('[data-duplicate]');
-      if (duplicate) { duplicateBlock(Number(duplicate.dataset.duplicate)); return; }
-      const move = event.target.closest('[data-move]');
-      if (move) { moveBlock(Number(move.dataset.index), Number(move.dataset.move)); return; }
-      const remove = event.target.closest('[data-remove]');
-      if (remove) { recordHistory(); state.blocks.splice(Number(remove.dataset.remove), 1); state.selected = state.blocks.length ? Math.min(Number(remove.dataset.remove), state.blocks.length - 1) : -1; paintCanvas(); recordHistory(); return; }
-      const select = event.target.closest('.block-select');
-      const card = select?.closest('[data-index]');
-      if (card) { state.selected = Number(card.dataset.index); paintCanvas(); showEditorPane('inspector'); }
-    });
-    const previewDialog = $('preview-dialog');
-    const previewFrame = $('preview-frame');
-    function closePreview() {
-      previewFrame.src = 'about:blank';
-      sessionStorage.removeItem('pj-preview-activity');
-    }
-    $('preview-activity').addEventListener('click', () => {
-      if (!state.blocks.length) { notice('Añade un bloque o elige una plantilla para previsualizar.', 'error'); return; }
-      const activity = { id: 'preview-' + Date.now(), _preview: true, titulo: state.title || 'Mi actividad', descripcion: state.description || '', categoria: state.category, edad_recomendada: state.age, dificultad: state.difficulty, recompensa: state.reward, contenido: activityContent() };
-      sessionStorage.setItem('pj-preview-activity', JSON.stringify(activity));
-      previewFrame.src = `/preview.html?embed=1&start=0&t=${Date.now()}`;
-      if (!previewDialog.open) previewDialog.showModal();
-    });
-    $('close-preview').addEventListener('click', () => previewDialog.close());
-    previewDialog.addEventListener('close', closePreview);
-    $('inspector-content').addEventListener('input', (event) => { if (event.target.dataset.key && !event.target.dataset.collection) updateField(event.target); });
-    $('inspector-content').addEventListener('input', (event) => { if (event.target.dataset.collection) updateCollectionField(event.target); });
-    $('inspector-content').addEventListener('input', (event) => { if (event.target.dataset.primaryData) updatePrimaryField(event.target); });
-    $('inspector-content').addEventListener('change', (event) => { if (event.target.dataset.primaryData) updatePrimaryField(event.target); });
-    $('inspector-content').addEventListener('input', (event) => { const root = event.target.closest('[data-primary-rows]'); if (root && event.target.hasAttribute('data-row-part')) syncPrimaryRows(root); });
-    $('inspector-content').addEventListener('input', (event) => { if (event.target.dataset.codeField) updateCodeExercise(event.target); });
-    $('inspector-content').addEventListener('change', (event) => {
-      if (event.target.dataset.codeField === 'ancho' || event.target.dataset.codeField === 'alto') paintInspector();
-    });
-    $('inspector-content').addEventListener('click', (event) => {
-      const boardTool = event.target.closest('[data-code-board-tool]');
-      if (boardTool) {
-        const index = Number(boardTool.dataset.codeIndex);
-        codeBoardTools[index] = boardTool.dataset.codeBoardTool;
-        boardTool.closest('.code-board-tools').querySelectorAll('[data-code-board-tool]').forEach((button) => {
-          button.setAttribute('aria-pressed', String(button === boardTool));
-        });
-        return;
-      }
-      const boardCell = event.target.closest('[data-code-board-cell]');
-      if (boardCell) {
-        if (Date.now() < ignoreCodeBoardClickUntil) return;
-        const [x, y] = boardCell.dataset.codeBoardCell.split(',').map(Number);
-        const exercise = state.blocks[state.selected]?.ejercicios?.[Number(boardCell.dataset.codeIndex)];
-        if (!exercise) return;
-        recordHistory();
-        paintCodeBoardCell(exercise, Number(boardCell.dataset.codeIndex), x, y, codeBoardTools[boardCell.dataset.codeIndex] || 'start');
-        recordHistory();
-        const card = $('canvas').querySelector(`[data-index="${state.selected}"]`);
-        if (card) card.querySelector('.block-copy small').textContent = `${blockName(state.blocks[state.selected].tipo)} · ${blockSummary(state.blocks[state.selected])}`;
-        return;
-      }
-      const primaryRows = event.target.closest('[data-primary-rows]');
-      const primaryRowAdd = event.target.closest('[data-primary-row-add]');
-      const primaryRowDelete = event.target.closest('[data-primary-row-delete]');
-      const primaryRowChoice = event.target.closest('[data-primary-row-choice]');
-      const primaryChoice = event.target.closest('[data-primary-choice]');
-      const addOption = event.target.closest('[data-option-add]');
-      const deleteOption = event.target.closest('[data-option-delete]');
-      const correctOption = event.target.closest('[data-option-correct]');
-      const add = event.target.closest('[data-add-row]');
-      const remove = event.target.closest('[data-delete-row]');
-      const addCode = event.target.closest('[data-code-add]');
-      const deleteCode = event.target.closest('[data-code-delete]');
-      if (primaryRowAdd && primaryRows) changePrimaryRows(primaryRows, 'add');
-      if (primaryRowDelete && primaryRows) changePrimaryRows(primaryRows, 'delete', Number(primaryRowDelete.dataset.primaryRowDelete));
-      if (primaryRowChoice) updatePrimaryRowChoice(primaryRowChoice);
-      if (primaryChoice) updatePrimaryChoice(primaryChoice);
-      if (addOption) changeTestOption(Number(addOption.dataset.optionAdd), null, 'add');
-      if (deleteOption) changeTestOption(Number(deleteOption.dataset.optionDelete), Number(deleteOption.dataset.optionIndex), 'delete');
-      if (correctOption) changeTestOption(Number(correctOption.dataset.optionCorrect), Number(correctOption.dataset.optionIndex), 'correct');
-      if (add) changeCollection(add.dataset.addRow, null);
-      if (remove) changeCollection(remove.dataset.deleteRow, Number(remove.dataset.index));
-      if (addCode) addCodeExercise();
-      if (deleteCode) deleteCodeExercise(Number(deleteCode.dataset.codeDelete));
-    });
-    $('inspector-content').addEventListener('pointerdown', (event) => {
-      const cell = event.target.closest('[data-code-board-cell]');
-      if (!cell || !event.isPrimary || event.button !== 0) return;
-      const [x, y] = cell.dataset.codeBoardCell.split(',').map(Number);
-      codeBoardPointer = { pointerId: event.pointerId, index: Number(cell.dataset.codeIndex), x, y, last: '', moved: false };
-    });
-    document.addEventListener('pointermove', (event) => {
-      if (!codeBoardPointer || event.pointerId !== codeBoardPointer.pointerId) return;
-      const distance = Math.hypot(event.clientX - (codeBoardPointer.startX ?? event.clientX), event.clientY - (codeBoardPointer.startY ?? event.clientY));
-      if (codeBoardPointer.startX == null) {
-        codeBoardPointer.startX = event.clientX;
-        codeBoardPointer.startY = event.clientY;
-      }
-      const target = document.elementFromPoint(event.clientX, event.clientY)?.closest('[data-code-board-cell]');
-      if (!target || Number(target.dataset.codeIndex) !== codeBoardPointer.index) return;
-      const [x, y] = target.dataset.codeBoardCell.split(',').map(Number);
-      if (x === codeBoardPointer.x && y === codeBoardPointer.y && !codeBoardPointer.moved) return;
-      if (!codeBoardPointer.moved && distance < 8) return;
-      if (!codeBoardPointer.moved) {
-        codeBoardPointer.moved = true;
-        const first = $('inspector-content').querySelector(`[data-code-index="${codeBoardPointer.index}"][data-code-board-cell="${codeBoardPointer.x},${codeBoardPointer.y}"]`);
-        if (first) first.click();
-      }
-      if (codeBoardPointer.last === `${x},${y}`) return;
-      const exercise = state.blocks[state.selected]?.ejercicios?.[codeBoardPointer.index];
-      if (!exercise) return;
-      paintCodeBoardCell(exercise, codeBoardPointer.index, x, y, codeBoardTools[codeBoardPointer.index] || 'start');
-      codeBoardPointer.last = `${x},${y}`;
-      ignoreCodeBoardClickUntil = Date.now() + 500;
-    });
-    const stopCodeBoardPaint = (event) => {
-      if (codeBoardPointer && event.pointerId === codeBoardPointer.pointerId) {
-        if (codeBoardPointer.moved) {
-          recordHistory();
-          const card = $('canvas').querySelector(`[data-index="${state.selected}"]`);
-          if (card) card.querySelector('.block-copy small').textContent = `${blockName(state.blocks[state.selected].tipo)} · ${blockSummary(state.blocks[state.selected])}`;
-        }
-        codeBoardPointer = null;
-      }
-    };
-    document.addEventListener('pointerup', stopCodeBoardPaint);
-    document.addEventListener('pointercancel', stopCodeBoardPaint);
-    $('inspector-content').addEventListener('change', (event) => { if (event.target.dataset.codeCommand) updateCodeCommand(event.target); });
-    ['title', 'description', 'category', 'age', 'difficulty'].forEach((key) => {
-      const input = $(`meta-${key}`);
-      input.addEventListener('input', () => {
-        const stateKey = { title: 'title', description: 'description', category: 'category', age: 'age', difficulty: 'difficulty' }[key];
-        state[stateKey] = input.value;
-        scheduleHistory();
-        $('activity-title').textContent = state.title || 'Actividad sin título';
-        $('draft-title').textContent = state.title || 'Actividad nueva';
-        saveDraft();
-        saveDraft();
-      });
-    });
-    $('meta-reward').addEventListener('input', (event) => {
-      const value = Number(event.target.value);
-      if (!Number.isInteger(value) || value < rewardAssignedToBreaks() || value > 10000) {
-        event.target.setCustomValidity(`El presupuesto debe ser un entero entre ${rewardAssignedToBreaks()} y 10000 Pz.`);
-        event.target.reportValidity();
-        event.target.value = state.reward;
-        return;
-      }
-      event.target.setCustomValidity('');
-      state.reward = value;
-      scheduleHistory();
-      saveDraft();
-      paintCompensation();
-    });
-    window.addEventListener('resize', () => showEditorPane(editorPane));
-    $('meta-reward').addEventListener('input', (event) => {
-      const value = Number(event.target.value);
-      if (!Number.isInteger(value) || value < rewardAssignedToBreaks() || value > 10000) {
-        event.target.setCustomValidity(`El presupuesto debe ser un entero entre ${rewardAssignedToBreaks()} y 10000 Pz.`);
-        event.target.reportValidity();
-        event.target.value = state.reward;
-        return;
-      }
-      event.target.setCustomValidity('');
-      state.reward = value;
-      scheduleHistory();
-      saveDraft();
-      paintCompensation();
-    });
-    window.addEventListener('resize', () => showEditorPane(editorPane));
-    $('clear-draft').addEventListener('click', () => { if (!window.confirm('¿Vaciar el lienzo actual?')) return; recordHistory(); state.blocks = []; state.selected = -1; paintCanvas(); recordHistory(); });
-    $('submit-activity').addEventListener('click', submit);
-      $('access-gate').hidden = true;
-      $('creator-tools').hidden = false;
+      loadDrafts();
+      const ultimo = state.drafts.filter((d) => d.scope === draftScope())
+        .sort((a, b) => String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')))[0];
+      restoreDraft(ultimo || null);
+      paintPalette();
+      paintTemplates();
+      renderSavedActivities();
+      cambiarDispositivo('movil');
+      showStudioView(ultimo ? 'edit' : 'activities');
+      showEditorPane('canvas');
+      $('studio-guide-steps').innerHTML = ayudaPantalla().map((t, i) => `<li><span class="st-num">${i + 1}</span><span>${esc(t)}</span></li>`).join('');
     });
   }
 
-  initialize();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initialize);
+  else initialize();
 })();

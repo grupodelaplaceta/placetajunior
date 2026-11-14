@@ -1,0 +1,208 @@
+/* Placeta Junior Code · página pública. Colores planos, sin degradados. */
+
+:root {
+  --ink: #1f2237;
+  --muted: #5f6378;
+  --line: #d9dcea;
+  --violet: #5b14c8;
+  --violet-dark: #3f0d9a;
+  --yellow: #ffd21f;
+  --green: #16a34a;
+  --green-dark: #0f7a38;
+  --blue: #2457bd;
+  --brown: #9a4f00;
+  --pink: #a83358;
+  --paper: #f6f5fa;
+}
+
+* { box-sizing: border-box; background-image: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  font-size: 17px;
+  line-height: 1.5;
+  overflow-x: clip;
+}
+a { color: var(--violet); }
+h1, h2, h3 { line-height: 1.15; margin: 0; overflow-wrap: anywhere; }
+img { max-width: 100%; height: auto; display: block; }
+
+/* ── Cabecera ───────────────────────────────────────────────── */
+.pjc-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 20px;
+  padding: 12px clamp(16px, 4vw, 40px);
+  background: var(--violet);
+}
+.pjc-logo img { height: 44px; width: auto; }
+.pjc-nav { display: flex; flex-wrap: wrap; gap: 6px; }
+.pjc-nav a {
+  padding: 8px 12px;
+  border-radius: 10px;
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+}
+.pjc-nav a:hover { background: var(--violet-dark); }
+.pjc-nav a[aria-current="page"] { background: var(--yellow); color: var(--ink); }
+
+main { width: min(100% - 32px, 1120px); margin: 0 auto; padding: 24px 0 40px; display: grid; gap: 40px; }
+
+/* ── Héroe ──────────────────────────────────────────────────── */
+.pjc-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: 28px;
+  align-items: center;
+  padding: clamp(22px, 4vw, 40px);
+  border-radius: 24px;
+  background: #fff;
+  border: 2px solid var(--line);
+}
+.pjc-etiqueta {
+  display: inline-block;
+  margin: 0 0 12px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: #e8dcff;
+  color: var(--violet-dark);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.pjc-hero h1 { font-size: clamp(30px, 5vw, 48px); font-weight: 800; }
+.pjc-hero h1 span { color: var(--violet); }
+.pjc-lead { margin: 14px 0 0; color: var(--muted); font-size: clamp(16px, 2vw, 19px); max-width: 52ch; }
+.pjc-acciones { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+
+.pjc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 10px 18px;
+  border: 2px solid var(--violet);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--violet);
+  font-weight: 800;
+  text-decoration: none;
+}
+.pjc-btn:hover { background: #f1eaff; }
+.pjc-btn:focus-visible, .pjc-nav a:focus-visible, .pjc-enlace:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.pjc-btn-primario { background: var(--green); border-color: var(--green); color: #fff; }
+.pjc-btn-primario:hover { background: var(--green-dark); border-color: var(--green-dark); color: #fff; }
+.pjc-enlace { display: inline-flex; align-items: center; min-height: 44px; font-weight: 800; }
+
+/* Piezas decorativas de bloques */
+.pjc-hero-bloques { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.pjc-pieza {
+  display: grid;
+  place-items: center;
+  min-height: 84px;
+  padding: 8px;
+  border-radius: 16px;
+  color: #fff;
+  font-weight: 800;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, .18);
+}
+.pjc-pieza:nth-child(3), .pjc-pieza:nth-child(4) { margin-top: 16px; }
+.pjc-pieza-mov { background: var(--blue); }
+.pjc-pieza-ctl { background: var(--brown); }
+.pjc-pieza-snd { background: var(--pink); }
+
+/* ── Pasos ──────────────────────────────────────────────────── */
+.pjc-pasos h2, .pjc-misiones h2, .pjc-accesos h2 { font-size: clamp(22px, 3vw, 28px); font-weight: 800; margin-bottom: 14px; }
+.pjc-tres { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.pjc-tres li {
+  padding: 18px;
+  border: 2px solid var(--line);
+  border-radius: 18px;
+  background: #fff;
+  display: grid;
+  gap: 6px;
+}
+.pjc-tres strong { font-size: 18px; }
+.pjc-tres p { margin: 0; color: var(--muted); font-size: 15px; }
+.pjc-num {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--yellow);
+  color: var(--ink);
+  font-weight: 800;
+}
+
+/* ── Misiones ───────────────────────────────────────────────── */
+.pjc-cabecera { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; margin-bottom: 14px; }
+.pjc-cabecera h2 { margin: 0; }
+.pjc-ayuda { margin: 0; color: var(--muted); font-size: 15px; }
+.pjc-estado {
+  margin: 0;
+  padding: 16px;
+  border: 2px dashed #aeb4cc;
+  border-radius: 16px;
+  background: #fff;
+  color: var(--muted);
+  font-weight: 700;
+  text-align: center;
+}
+.pjc-estado-error { border-color: #fca5a5; color: #7a1410; background: #fee4e2; }
+.pjc-lista { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 14px; }
+.pjc-mision {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  padding: 18px;
+  border: 2px solid var(--line);
+  border-radius: 18px;
+  background: #fff;
+}
+.pjc-mision h3 { font-size: 19px; font-weight: 800; }
+.pjc-mision-meta { margin: 0; color: var(--muted); font-size: 14px; font-weight: 700; }
+.pjc-mision .pjc-btn { justify-self: start; }
+
+/* ── Accesos ────────────────────────────────────────────────── */
+.pjc-tarjetas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.pjc-tarjeta {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  padding: 22px;
+  border: 2px solid var(--line);
+  border-radius: 20px;
+  background: #fff;
+}
+.pjc-tarjeta h3 { font-size: 21px; font-weight: 800; }
+.pjc-tarjeta p { margin: 0; color: var(--muted); }
+.pjc-tarjeta .pjc-btn { justify-self: start; }
+
+/* ── Pie ────────────────────────────────────────────────────── */
+.pjc-pie { padding: 20px clamp(16px, 4vw, 40px); background: var(--ink); color: #e5e7eb; font-size: 14px; text-align: center; }
+.pjc-pie p { margin: 4px 0; }
+.pjc-pie a { color: #fff; }
+
+/* ── Adaptación ─────────────────────────────────────────────── */
+@media (max-width: 860px) {
+  .pjc-hero { grid-template-columns: minmax(0, 1fr); }
+  .pjc-hero-bloques { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .pjc-pieza:nth-child(3), .pjc-pieza:nth-child(4) { margin-top: 0; }
+  .pjc-tres { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 600px) {
+  .pjc-hero-bloques { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pjc-tarjetas { grid-template-columns: minmax(0, 1fr); }
+  .pjc-pieza { min-height: 70px; font-size: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pjc-btn { transition: none; }
+}

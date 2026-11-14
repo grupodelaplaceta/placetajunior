@@ -1,0 +1,380 @@
+/* Retos Code · editor de misiones. Colores planos, sin degradados. */
+
+.retos-page {
+  --ink: #1f2237;
+  --muted: #5f6378;
+  --line: #d9dcea;
+  --soft: #f4f5fa;
+  --violet: #5b14c8;
+  --violet-dark: #3f0d9a;
+  --azul: #2457bd;
+  --verde: #16a34a;
+  --rojo: #b42318;
+  --rojo-soft: #fee4e2;
+  --amarillo: #ffd21f;
+  --naranja: #ff8a00;
+  background: #f6f5fa;
+  color: var(--ink);
+}
+/* Plano solo en el contenido de Retos: la cabecera compartida conserva su estilo */
+.retos *, .retos *::before, .retos *::after { background-image: none !important; }
+.retos-page button, .retos-page input, .retos-page select { font: inherit; color: inherit; }
+
+.retos {
+  width: min(100% - 32px, 1280px);
+  margin: 0 auto;
+  padding: 24px 0 56px;
+  display: grid;
+  gap: 16px;
+}
+
+/* ── Cabecera de la página ───────────────────────────────────── */
+.retos-hero { padding: 4px 0 0; }
+.retos-eyebrow {
+  display: inline-block;
+  margin: 0 0 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #e8dcff;
+  color: var(--violet-dark);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.retos h1 { margin: 0; font-size: clamp(26px, 3.4vw, 34px); line-height: 1.1; }
+.retos-lead { margin: 6px 0 0; color: var(--muted); font-size: 16px; line-height: 1.5; max-width: 70ch; }
+
+/* ── Conjunto: elegir, nombrar, guardar, probar ─────────────── */
+.retos-conjunto {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 2px solid var(--line);
+  border-radius: 16px;
+  background: #fff;
+}
+.retos-conjunto-fila { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; }
+.retos-campo { display: grid; gap: 4px; min-width: 0; }
+.retos-campo > span { font-size: 13px; font-weight: 800; color: var(--muted); }
+.retos-campo > span small { font-weight: 600; }
+.retos-campo select,
+.retos-campo input[type="text"],
+.retos-campo input[type="number"] {
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  min-width: 0;
+}
+.retos-campo select:focus-visible, .retos-campo input:focus-visible { outline: 3px solid var(--violet); outline-offset: 2px; }
+.retos-campo-select { flex: 1 1 260px; }
+.retos-campo-titulo { flex: 1 1 320px; }
+.retos-campos-dos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.retos-estado { margin: 0; min-height: 22px; font-size: 14px; font-weight: 700; color: var(--muted); }
+.retos-estado.ok { color: #14532d; }
+.retos-estado.error { color: var(--rojo); }
+
+.retos-btn {
+  min-height: 42px;
+  padding: 8px 14px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  font-weight: 800;
+  cursor: pointer;
+}
+.retos-btn:hover:not(:disabled) { border-color: var(--violet); }
+.retos-btn:disabled { opacity: .45; cursor: not-allowed; }
+.retos-btn-primario { background: var(--verde); border-color: var(--verde); color: #fff; }
+.retos-btn-primario:hover:not(:disabled) { background: #13803c; border-color: #13803c; }
+.retos-btn-peligro { color: var(--rojo); }
+.retos-btn-ancho { width: 100%; margin-top: 10px; }
+
+/* ── Tres columnas ───────────────────────────────────────────── */
+.retos-grid { display: grid; gap: 16px; align-items: start; }
+.retos-panel {
+  padding: 16px;
+  border: 2px solid var(--line);
+  border-radius: 16px;
+  background: #fff;
+  min-width: 0;
+}
+.retos-panel h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  font-size: 18px;
+  font-weight: 800;
+}
+.retos-panel h2 + .retos-ayuda,
+.retos-panel h2 + .retos-herramientas { margin-top: 0; }
+.retos-paso {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--violet);
+  color: #fff;
+  font-size: 14px;
+  flex: none;
+}
+.retos-ayuda { margin: 8px 0 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.retos-config h2 { margin-top: 18px; }
+.retos-config h2:first-of-type { margin-top: 0; }
+
+/* Lista de retos */
+.retos-lista-items { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.retos-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+}
+.retos-item.activo { border-color: var(--violet); background: #f5f0ff; }
+.retos-item-abrir {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+.retos-mini-svg { display: block; width: 56px; height: 56px; }
+.retos-mini-svg svg { width: 100%; height: 100%; display: block; }
+.retos-item-texto { display: grid; gap: 2px; min-width: 0; }
+.retos-item-texto strong { font-size: 15px; line-height: 1.2; overflow-wrap: anywhere; }
+.retos-item-texto small { color: var(--muted); font-size: 12px; }
+.retos-item-aviso { color: var(--rojo); font-size: 12px; font-style: normal; font-weight: 800; }
+.retos-item-acciones { display: grid; grid-template-columns: repeat(2, 30px); gap: 4px; }
+
+.retos-mini-btn {
+  display: inline-grid;
+  place-items: center;
+  min-width: 30px;
+  min-height: 30px;
+  padding: 0 6px;
+  border: 2px solid var(--line);
+  border-radius: 9px;
+  background: #fff;
+  font-weight: 800;
+  cursor: pointer;
+}
+.retos-mini-btn:disabled { opacity: .35; cursor: not-allowed; }
+.retos-mini-btn.peligro { color: var(--rojo); }
+
+/* Herramientas del tablero */
+.retos-herramientas { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
+.retos-tool {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 6px 12px 6px 8px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  font-weight: 800;
+  cursor: pointer;
+}
+.retos-tool.activa { border-color: var(--violet); background: #f5f0ff; }
+.retos-tool-icono {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+}
+.retos-tool-candela { background: var(--azul); border-radius: 50%; }
+.retos-tool-meta { background: var(--naranja); }
+.retos-tool-moneda { background: var(--amarillo); border-radius: 50%; color: var(--ink); }
+.retos-tool-roca { background: #5b5369; }
+.retos-tool-borrar { background: #fff; color: var(--rojo); border: 2px solid var(--line); }
+
+.retos-ajustes { display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: center; margin-bottom: 12px; }
+.retos-mira, .retos-tamano { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.retos-mini-titulo { font-size: 13px; font-weight: 800; color: var(--muted); margin-right: 4px; }
+.retos-dir {
+  display: inline-grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  font-size: 18px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.retos-dir.activa { border-color: var(--violet); background: var(--violet); color: #fff; }
+.retos-tamano output { min-width: 22px; text-align: center; font-weight: 800; }
+.retos-tam-texto { font-size: 12px; color: var(--muted); margin-left: 4px; }
+
+/* Tablero: cuadrícula de casillas */
+.retos-tablero-wrap { display: grid; place-items: center; padding: 12px; border-radius: 14px; background: #eef4ff; }
+.retos-tablero {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 6), minmax(0, 1fr));
+  gap: 4px;
+  width: min(100%, 520px);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.retos-celda {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  min-width: 0;
+  padding: 0;
+  border: 2px solid #c9d8f5;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+}
+.retos-celda:focus-visible { outline: 3px solid var(--violet); outline-offset: 2px; }
+.retos-celda.roca { background: #5b5369; border-color: #3f3a4c; }
+.retos-celda.moneda::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 36%;
+  height: 36%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--amarillo);
+  border: 2px solid #b7791f;
+  box-sizing: border-box;
+}
+.retos-celda.meta::before {
+  content: "★";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--naranja);
+  font-size: clamp(18px, 3.4vw, 26px);
+  line-height: 1;
+}
+.retos-celda.candela::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 62%;
+  height: 62%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--azul);
+}
+.retos-flecha {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  width: 0;
+  height: 0;
+  transform: translate(-50%, -50%);
+  border-style: solid;
+  border-width: 6px 0 6px 9px;
+  border-color: transparent transparent transparent #fff;
+}
+.retos-flecha.abajo { border-width: 9px 6px 0 6px; border-color: #fff transparent transparent transparent; }
+.retos-flecha.izquierda { border-width: 6px 9px 6px 0; border-color: transparent #fff transparent transparent; }
+.retos-flecha.arriba { border-width: 0 6px 9px 6px; border-color: transparent transparent #fff transparent; }
+.retos-celda.roca.candela { background: #5b5369; }
+
+/* Bloques: piezas con el color del motor */
+.retos-grupo {
+  margin: 0 0 10px;
+  padding: 8px 10px 10px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--soft);
+  min-width: 0;
+}
+.retos-grupo legend {
+  padding: 0 6px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.retos-bloques-lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
+.retos-bloque { position: relative; display: block; cursor: pointer; }
+.retos-bloque input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+.retos-bloque-pieza {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 6px 10px;
+  border: 2px solid var(--grupo);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--grupo);
+  font-size: 14px;
+  font-weight: 800;
+}
+.retos-bloque.on .retos-bloque-pieza { background: var(--grupo); color: #fff; }
+.retos-bloque input:focus-visible + .retos-bloque-pieza { outline: 3px solid var(--ink); outline-offset: 2px; }
+.retos-blk-icono { width: 20px; height: 20px; flex: none; fill: currentColor; stroke: currentColor; }
+
+/* Objetivo y textos */
+.retos-campos { display: grid; gap: 10px; }
+.retos-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  font-size: 15px;
+  font-weight: 700;
+}
+.retos-check input { width: 22px; height: 22px; accent-color: var(--verde); }
+
+/* Validación */
+.retos-validacion { margin-top: 16px; }
+.retos-val { margin: 0; padding: 12px; border-radius: 12px; font-weight: 800; }
+.retos-val.ok { background: #dcfce7; color: #14532d; }
+.retos-val-lista { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.retos-val-lista li { padding: 10px 12px; border-radius: 12px; font-size: 14px; font-weight: 700; line-height: 1.4; }
+.retos-val-lista li.error { background: var(--rojo-soft); color: #7a1410; }
+.retos-val-lista li.aviso { background: #fff4c2; color: #5a3d00; }
+
+/* ── Escritorio: tres columnas ───────────────────────────────── */
+@media (min-width: 1100px) {
+  .retos-grid { grid-template-columns: 280px minmax(0, 1fr) 340px; }
+  .retos-config, .retos-lista { position: sticky; top: 16px; }
+}
+/* Tableta: lista arriba a ancho completo, tablero y configuración debajo en dos columnas */
+@media (min-width: 720px) and (max-width: 1099px) {
+  .retos-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .retos-lista { grid-column: 1 / -1; }
+}
+@media (max-width: 719px) {
+  .retos-campos-dos { grid-template-columns: 1fr; }
+  .retos-tablero { width: 100%; }
+  .retos-bloques-lista { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .retos-btn, .retos-tool, .retos-celda { transition: none !important; }
+}

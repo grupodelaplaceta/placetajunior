@@ -1,0 +1,478 @@
+/* ═══════════════════════════════════════════════════════════════════
+   PLACETA JUNIOR CODE — interfaz plana, clara y compacta
+   · Solo colores sólidos: sin degradados ni brillos.
+   · Orden de lectura: ejercicio → enunciado → pista → tablero → bloques.
+   · Solo CSS: no cambia marcado, ids ni lógica de player.js.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.kp-code {
+  --ink: #1f2237;
+  --muted: #5f6378;
+  --line: #d9dcea;
+  --paper: #ffffff;
+  --violet: #5b14c8;
+  --yellow-soft: #fff4c2;
+  --yellow: #ffd21f;
+  --board: #eef4ff;
+  --board-line: #c9d8f5;
+  --green: #16a34a;
+  --green-edge: #0f7a38;
+  --tray: #f4f5fa;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.kp-code, .kp-code * { min-width: 0; box-sizing: border-box; }
+/* Plano de verdad: ningún elemento de la pantalla usa imagen de fondo (degradado) */
+.kp-code *, .kp-code *::before, .kp-code *::after { background-image: none !important; }
+.kp-code button, .kp-code select, .kp-code input { font-family: inherit; }
+.kp-code svg { max-width: 100%; }
+
+/* ── 1. Cabecera: una sola línea ─────────────────────────────────── */
+.kp-code .code-topline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+}
+/* Datos de docente: no aportan al niño y restan atención */
+.kp-code .code-pill-id,
+.kp-code .code-pill-stage,
+.kp-code .code-pill-level { display: none; }
+.kp-code .code-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 4px 12px;
+  border: 0;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.1;
+  box-shadow: none;
+}
+.kp-code .code-pill-prog { background: var(--ink); color: #fff; }
+.kp-code .code-pill-tit { background: #ffffff; color: var(--ink); box-shadow: inset 0 0 0 2px var(--line); }
+
+/* ── 2. Enunciado: lo primero que hay que leer ───────────────────── */
+.kp-code .kp-qt {
+  margin: 0 0 10px;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--violet);
+  color: #fff;
+  font-family: inherit;
+  font-size: clamp(18px, 2.6vw, 22px);
+  font-weight: 800;
+  line-height: 1.3;
+  text-transform: none;
+  letter-spacing: 0;
+  box-shadow: none;
+}
+
+/* ── 3. Pista: debajo del enunciado, en una sola caja ────────────── */
+.kp-code .code-explica {
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border: 0;
+  border-left: 6px solid var(--yellow);
+  border-radius: 10px;
+  background: var(--yellow-soft);
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.4;
+  box-shadow: none;
+}
+
+/* ── Tablero ─────────────────────────────────────────────────────── */
+.kp-code .code-scenario-wrap {
+  padding: 10px;
+  border: 3px solid var(--board-line);
+  border-radius: 16px;
+  background: var(--board);
+  box-shadow: none;
+}
+.kp-code .code-scenario {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+.kp-code .code-scenario:empty {
+  min-height: clamp(180px, 42vw, 300px);
+  background: #e3ebfb;
+  border-radius: 10px;
+}
+
+/* Chips del objetivo: compactos y de colores planos */
+.kp-code .code-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
+.kp-code .code-chips .kp-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 4px 11px;
+  border: 0;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 800;
+  box-shadow: none;
+}
+.kp-code .code-chips .chip-blue { background: #dbe8ff; color: #0b3d91; }
+.kp-code .code-chips .chip-green { background: #dcfce7; color: #14532d; }
+.kp-code .code-chips .chip-orange { background: #ffe8c2; color: #7c3b00; }
+
+/* ── Taller: paso 1 (bloques) y paso 2 (programa) ────────────────── */
+.kp-code .code-workbench {
+  padding: 14px;
+  border: 3px solid var(--line);
+  border-radius: 16px;
+  background: var(--paper);
+  box-shadow: none;
+}
+.kp-code .code-workbench::before { display: none; }
+.kp-code .code-workbench-head { margin: 0 0 4px; }
+.kp-code .code-section-title { margin: 0; font-size: 19px; font-weight: 800; color: var(--ink); }
+.kp-code .code-section-help { margin: 2px 0 0; font-size: 14px; color: var(--muted); }
+
+.kp-code .code-palette { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; margin: 12px 0; }
+.kp-code .code-palette-group {
+  padding: 10px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--tray);
+  box-shadow: none;
+}
+.kp-code .code-palette-group h4 {
+  display: inline-block;
+  margin: 0 0 8px;
+  padding: 3px 9px;
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+.kp-code .code-palette-items { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* Bloque de la paleta: color plano del bloque, borde inferior sólido */
+.kp-code .cute-block {
+  --pjc: var(--blk, #4c8dff);
+  --pjc-edge: color-mix(in srgb, var(--pjc) 70%, #000);
+  flex: 0 0 calc(25% - 6px);
+  min-width: 0;
+  min-height: 84px;
+  padding: 10px 6px;
+  gap: 6px;
+  justify-content: center;
+  border: 0;
+  border-radius: 14px;
+  background: var(--pjc);
+  background-color: var(--pjc);
+  color: #fff;
+  box-shadow: 0 5px 0 var(--pjc-edge);
+  cursor: pointer;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.kp-code .cute-block::before { display: none; }
+.kp-code .cute-block .blk-emoji {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .25);
+  box-shadow: none;
+}
+.kp-code .cute-block .blk-icono { width: 26px; height: 26px; }
+.kp-code .cute-block .blk-nombre {
+  max-width: 100%;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: .02em;
+  text-align: center;
+  text-shadow: none;
+  overflow-wrap: anywhere;
+}
+.kp-code .cute-block:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 7px 0 var(--pjc-edge); }
+.kp-code .cute-block:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 1px 0 var(--pjc-edge); }
+.kp-code .cute-block:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+.kp-code .cute-block:disabled { opacity: .45; cursor: not-allowed; }
+
+/* Zona del programa */
+.kp-code .code-line-wrap { margin-top: 4px; }
+.kp-code .code-line-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 16px;
+  font-weight: 800;
+}
+.kp-code .code-step-number {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: var(--violet);
+  color: #fff;
+  font-size: 14px;
+}
+.kp-code .code-key-help { font-size: 13px; font-weight: 600; color: var(--muted); }
+.kp-code .cute-linea {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 130px;
+  padding: 12px;
+  border: 3px dashed #aeb4cc;
+  border-radius: 14px;
+  background: #fafbff;
+  transition: border-color .12s ease, background-color .12s ease;
+}
+.kp-code .cute-linea.drag-over { border-style: solid; border-color: var(--green); background: #ecfdf3; }
+.kp-code .code-vacio {
+  display: grid;
+  place-items: center;
+  min-height: 90px;
+  padding: 12px;
+  border: 2px dotted #aeb4cc;
+  border-radius: 12px;
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* Piezas del programa */
+.kp-code .cute-chip {
+  --pjc: var(--blk, #4c8dff);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-height: 46px;
+  padding: 6px 8px 6px 12px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--pjc);
+  color: #fff;
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--pjc) 70%, #000);
+  font-size: 14px;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+.kp-code .cute-chip::before { display: none; }
+.kp-code .cute-chip-etiqueta { display: inline-flex; align-items: center; gap: 7px; flex: 1 1 auto; min-width: 0; text-shadow: none; }
+.kp-code .cute-chip-etiqueta .blk-icono { width: 20px; height: 20px; }
+.kp-code .cute-chip select,
+.kp-code .cute-chip input {
+  min-height: 34px;
+  max-width: 100%;
+  border: 0;
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--ink);
+}
+.kp-code .cute-chip .cute-param { width: 70px; text-align: center; }
+.kp-code .cute-chip-explica { color: #fff; font-size: 12px; font-weight: 700; }
+.kp-code .cute-chip.abierto { outline: 3px solid var(--ink); outline-offset: 2px; }
+.kp-code .cute-chip.contenedor { padding: 8px 10px; border-radius: 14px; }
+.kp-code .cute-sub {
+  flex-basis: 100%;
+  min-height: 44px;
+  margin: 4px 0 0;
+  padding: 8px;
+  border-left: 5px solid rgba(255, 255, 255, .8);
+  border-radius: 0 10px 10px 0;
+  background: rgba(20, 14, 36, .22);
+  gap: 6px;
+}
+.kp-code .cute-order,
+.kp-code .cute-cerrar,
+.kp-code .cute-del,
+.kp-code .cute-dir {
+  flex: none;
+  min-width: 36px;
+  min-height: 36px;
+  border: 0;
+  border-radius: 10px;
+  background: rgba(20, 14, 36, .3);
+  color: #fff;
+  box-shadow: none;
+}
+.kp-code .cute-order:disabled { opacity: .35; }
+
+/* ── Acciones ─────────────────────────────────────────────────────── */
+.kp-code .code-acciones { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr); gap: 10px; margin: 14px 0 12px; }
+.kp-code .code-acciones > button { flex: none; width: 100%; min-height: 54px; padding: 10px 12px; font-size: 16px; font-weight: 800; box-shadow: none; }
+.kp-code .code-run-btn { border: 0; border-radius: 14px; background: var(--green); color: #fff; box-shadow: 0 5px 0 var(--green-edge); }
+.kp-code .code-undo-btn,
+.kp-code .code-clear-btn { border: 3px solid var(--line); border-radius: 14px; background: #ffffff; color: var(--ink); }
+.kp-code .code-acciones > button:disabled { opacity: .45; }
+.kp-code .code-run-btn:disabled { box-shadow: none; }
+.kp-code .code-run-btn:not(:disabled):active,
+.kp-code .code-undo-btn:not(:disabled):active,
+.kp-code .code-clear-btn:not(:disabled):active { transform: translateY(2px); }
+
+/* ── Pistas y mensajes ───────────────────────────────────────────── */
+.kp-code .code-pistas details { border: 0; border-radius: 12px; background: var(--yellow-soft); }
+.kp-code .code-pistas summary { min-height: 40px; padding: 8px 12px; display: flex; align-items: center; font-weight: 800; cursor: pointer; }
+.kp-code .code-pistas ul { margin: 0; padding: 0 14px 10px 30px; font-size: 15px; }
+.kp-code .kp-msg { border-width: 2px; border-radius: 14px; box-shadow: none; line-height: 1.4; }
+.kp-code .kp-msg.ok { background: #dcfce7; border-color: #86efac; }
+.kp-code .kp-msg.bad { background: #fee2e2; border-color: #fca5a5; }
+.kp-code .kp-hint { margin: 6px 0 0; color: var(--muted); font-size: 14px; text-align: center; }
+
+/* Reto de eficiencia: opciones como botones simples */
+.pj-code-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 10px; margin-top: 10px; }
+.pj-code-option {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border: 3px solid var(--line);
+  border-radius: 14px;
+  background: #ffffff;
+  color: var(--ink);
+  text-align: left;
+  box-shadow: none;
+  cursor: pointer;
+}
+.pj-code-option:hover:not(:disabled) { border-color: var(--violet); }
+.pj-code-option:disabled { cursor: default; opacity: .85; }
+.pj-code-option code { overflow-wrap: anywhere; white-space: normal; font-size: 13px; }
+
+/* ── Escritorio y tableta (≥ 760 px): dos columnas ───────────────── */
+body.pj-home .kp-stage > .kp-screen.kp-code { max-width: 1200px; margin-inline: auto; margin-block: 0 auto; }
+body.pj-home .kp-stage:has(> .kp-screen.kp-code) { justify-content: flex-start; overflow: visible; }
+
+@media (min-width: 760px) {
+  .kp-code {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    grid-template-areas:
+      "meta meta"
+      "objective objective"
+      "explain explain"
+      "chips chips"
+      "scene workbench"
+      "actions actions"
+      "hints hints"
+      "hint hint";
+    column-gap: 22px;
+    row-gap: 0;
+    align-items: start;
+  }
+  .kp-code > .code-topline { grid-area: meta; }
+  .kp-code > .kp-qt { grid-area: objective; margin-bottom: 10px; }
+  .kp-code > .code-explica { grid-area: explain; margin-bottom: 12px; }
+  .kp-code > .code-chips { grid-area: chips; margin-bottom: 12px; }
+  .kp-code > .code-scenario-wrap { grid-area: scene; align-self: start; margin: 0; }
+  .kp-code > .code-workbench { grid-area: workbench; align-self: start; margin: 0; }
+  .kp-code > .code-acciones { grid-area: actions; }
+  .kp-code > .code-pistas { grid-area: hints; margin-top: 4px; }
+  .kp-code > .kp-hint { grid-area: hint; }
+}
+
+/* ── Móvil (< 760 px): una columna en el orden de lectura ─────────── */
+@media (max-width: 759px) {
+  .kp-code { display: flex; flex-direction: column; }
+  .kp-code > .code-topline { order: 0; }
+  .kp-code > .kp-qt { order: 1; }
+  .kp-code > .code-explica { order: 2; }
+  .kp-code > .code-scenario-wrap { order: 3; margin: 0 0 10px; }
+  .kp-code > .code-chips { order: 4; }
+  .kp-code > .code-workbench { order: 5; }
+  .kp-code > .code-acciones { order: 6; }
+  .kp-code > .code-pistas { order: 7; }
+  .kp-code > .kp-hint { order: 8; }
+  .kp-code .code-palette-items > .cute-block { flex: 0 0 calc(33.333% - 6px); min-height: 78px; }
+  .kp-code .code-palette { gap: 8px; }
+  .kp-code .cute-linea { min-height: 110px; }
+  .kp-code .code-workbench { padding: 12px; }
+}
+@media (max-width: 1000px) and (min-width: 760px) {
+  .kp-code .code-palette-items > .cute-block { flex: 0 0 calc(33.333% - 6px); }
+}
+@media (max-width: 430px) {
+  .kp-code .code-acciones { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .kp-code .code-acciones > .code-run-btn { grid-column: 1 / -1; }
+}
+@media (max-width: 380px) {
+  .kp-code .code-palette-items > .cute-block { flex: 0 0 calc(50% - 4px); }
+  .kp-code .cute-block .blk-nombre { white-space: normal; }
+}
+.kp-code .cute-block .blk-nombre { white-space: nowrap; }
+
+/* Movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  .kp-code .cute-block, .kp-code .cute-linea, .kp-code .code-acciones > button { transition: none !important; }
+}
+
+/* Iconos: sin palabras en bruto mientras la fuente no está lista */
+html:not(.icons-ready) .material-symbols-rounded,
+html:not(.icons-ready) .material-symbols-outlined { font-size: 0 !important; }
+
+/* ── Refuerzo: gana a las reglas heredadas de styles.css y player-skin.css ── */
+body .kp-code .code-topline .code-pill-id,
+body .kp-code .code-topline .code-pill-stage,
+body .kp-code .code-topline .code-pill-level { display: none !important; }
+
+body .kp-code .code-topline .code-pill {
+  display: inline-flex !important;
+  margin: 0 !important;
+  padding: 4px 12px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  box-shadow: none !important;
+}
+body .kp-code .code-topline .code-pill-prog { background: var(--ink) !important; color: #fff !important; }
+body .kp-code .code-topline .code-pill-tit { background: #fff !important; color: var(--ink) !important; box-shadow: inset 0 0 0 2px var(--line) !important; }
+
+body .kp-screen.kp-code > .kp-qt {
+  display: block !important;
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 0 10px !important;
+  padding: 12px 16px !important;
+  border: 0 !important;
+  border-radius: 14px !important;
+  background: var(--violet) !important;
+  color: #fff !important;
+  font-family: inherit !important;
+  font-size: clamp(18px, 2.6vw, 22px) !important;
+  font-weight: 800 !important;
+  line-height: 1.3 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  box-shadow: none !important;
+}
+
+body .kp-screen.kp-code > .code-explica {
+  margin: 0 0 12px !important;
+  padding: 10px 14px !important;
+  border: 0 !important;
+  border-left: 6px solid var(--yellow) !important;
+  border-radius: 10px !important;
+  background: var(--yellow-soft) !important;
+  color: var(--ink) !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  box-shadow: none !important;
+}
+
+/* Orden final: los datos de docente se ocultan al final para no ser pisados por la regla de píldoras */
+body .kp-code .code-topline .code-pill-id,
+body .kp-code .code-topline .code-pill-stage,
+body .kp-code .code-topline .code-pill-level { display: none !important; }
+/* Adorno heredado (línea naranja bajo el texto de ayuda) */
+body .kp-code .kp-hint::before,
+body .kp-code .kp-hint::after { content: none !important; display: none !important; }
+body .kp-screen.kp-code > .code-explica { width: 100% !important; justify-self: stretch !important; }

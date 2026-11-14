@@ -205,6 +205,10 @@
       "dest": "/public/education/studio/index.html"
     },
     {
+      "src": "/edu/code/?$",
+      "dest": "/public/education/code/index.html"
+    },
+    {
       "src": "/edu/documentos/(.*)",
       "dest": "/public/education/centers/docs/$1"
     },
@@ -306,6 +310,10 @@
     {
       "src": "/educacion/administracion/?$",
       "dest": "/public/education/admin/admin.html"
+    },
+    {
+      "src": "/code/?$",
+      "dest": "/public/code/index.html"
     },
     {
       "src": "/(.*)",

@@ -111,10 +111,10 @@ function mostrarSelectorEscritura() {
 
       <div class="pj-escritura-step is-active" data-step="idioma">
         <div class="pj-escritura-idiomas" aria-label="Idiomas disponibles">
-          <button type="button" class="pj-escritura-opcion pj-idioma active" data-idioma="es"><img src="https://upload.wikimedia.org/wikipedia/commons/9/9a/Flag_of_Spain.svg" alt="Español" /><strong>ES</strong><small>Español</small></button>
-          <button type="button" class="pj-escritura-opcion pj-idioma" data-idioma="ca"><img src="https://upload.wikimedia.org/wikipedia/commons/c/ce/Flag_of_Catalonia.svg" alt="Català" /><strong>CA</strong><small>Català</small></button>
-          <button type="button" class="pj-escritura-opcion pj-idioma" data-idioma="eu"><img src="https://upload.wikimedia.org/wikipedia/commons/2/27/Flag_of_the_Basque_Country.svg" alt="Euskara" /><strong>EU</strong><small>Euskara</small></button>
-          <button type="button" class="pj-escritura-opcion pj-idioma" data-idioma="en"><img src="https://upload.wikimedia.org/wikipedia/commons/a/ae/Flag_of_the_United_Kingdom.svg" alt="English" /><strong>EN</strong><small>English</small></button>
+          <button type="button" class="pj-escritura-opcion pj-idioma active" data-idioma="es"><img src="/img/flags/es.svg" alt="Español" /><strong>ES</strong><small>Español</small></button>
+          <button type="button" class="pj-escritura-opcion pj-idioma" data-idioma="ca"><img src="/img/flags/ca.svg" alt="Català" /><strong>CA</strong><small>Català</small></button>
+          <button type="button" class="pj-escritura-opcion pj-idioma" data-idioma="eu"><img src="/img/flags/eu.svg" alt="Euskara" /><strong>EU</strong><small>Euskara</small></button>
+          <button type="button" class="pj-escritura-opcion pj-idioma" data-idioma="en"><img src="/img/flags/en.svg" alt="English" /><strong>EN</strong><small>English</small></button>
         </div>
       </div>
 

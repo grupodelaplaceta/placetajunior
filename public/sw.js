@@ -6,12 +6,20 @@
    ═══════════════════════════════════════════════════════════════════ */
 // Versionar la caché fuerza la actualización del reproductor y estilos en
 // dispositivos que ya visitaron la web.
-const CACHE = 'placetajunior-assets-v23';
+const CACHE = 'placetajunior-assets-v24';
 
 const ASSETS = [
   '/css/styles.css',
   '/code/responsive.css',
+  '/code/visual.css',
+  '/js/pj-icons-ready.js',
+  '/img/flags/es.svg',
+  '/img/flags/ca.svg',
+  '/img/flags/eu.svg',
+  '/img/flags/en.svg',
   '/education/assets/hub.css',
+  '/education/assets/edu-ui.css',
+  '/education/assets/pj-visual-2026.css',
   '/education/assets/legacy-redirect.js',
   '/education/assets/hub.js',
   '/education/assets/admin.css',

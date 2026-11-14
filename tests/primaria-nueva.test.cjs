@@ -83,7 +83,7 @@ test('las nuevas actividades adaptan sus componentes a pantallas estrechas', () 
   assert.match(css, /\.pn-screen \.pn-keys\s*\{[^}]*minmax\(0,\s*1fr\)/);
   assert.match(jugar, /primaria-nueva\.css\?v=20261028-hints/);
   assert.match(preview, /primaria-nueva\.css\?v=20261028-hints/);
-  assert.match(sw, /placetajunior-assets-v23/);
+  assert.match(sw, /placetajunior-assets-v24/);
 });
 
 test('el editor del Studio configura todos los tipos nuevos', () => {
@@ -91,8 +91,9 @@ test('el editor del Studio configura todos los tipos nuevos', () => {
   for (const tipo of tipos) {
     assert.match(studio, new RegExp(`\\['${tipo}',`), `${tipo} debe estar en la paleta activa`);
     assert.match(studio, new RegExp(`\\b${tipo}: \\{`), `${tipo} debe tener datos iniciales`);
-    assert.match(studio, new RegExp(`block\\.tipo === '${tipo}'`), `${tipo} debe tener controles visuales`);
   }
+  // Los datos de cada tipo se editan con el editor por esquema (campos a partir de block.datos)
+  assert.match(studio, /camposDe\(block, ''\)/);
 });
 
 test('el tipo horas respeta las horas y ejercicios que define el docente', () => {

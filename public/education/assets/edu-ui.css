@@ -4,7 +4,23 @@
    cabeceras, controles, tablas, estados y accesibilidad sin cambiar
    el marcado ni los identificadores que usa el JavaScript.
    ═══════════════════════════════════════════════════════════════════ */
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+/* Fuentes autoalojadas: /edu envía CSP con font-src 'self' y style-src 'self',
+   así que el antiguo @import a Google Fonts quedaba bloqueado y la página
+   caía a tipos del sistema. Mismos nombres de familia, sin dependencias externas. */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  src: url('/fonts/plus_jakarta_sans.ttf') format('truetype');
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Fredoka';
+  src: url('/fonts/fredoka_one.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
 
 :root {
   --f1: 'Fredoka', 'Arial Rounded MT Bold', system-ui, sans-serif;
