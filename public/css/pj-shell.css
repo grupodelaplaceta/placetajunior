@@ -80,7 +80,6 @@ main.pj-main { flex: 1; outline: 0; }
   padding: 7px 13px;
   border-radius: 999px;
   transition: background .15s;
-  white-space: nowrap;
 }
 .mn a, .mn a:hover { color: #fff; }
 .mn a:hover { background: rgba(255, 255, 255, .2); }
@@ -238,13 +237,8 @@ footer.pj-foot .lgl a { font-size: 14px; opacity: .92; }
 
 /* ═══ Modo plano (body.pj-flat): colores sólidos, sin degradados ═══
    La franja arcoíris (::before) se conserva porque son colores sólidos por tramos. */
-body.pj-flat .top, body.pj-flat .education-topbar { background: #5B14C8; box-shadow: 0 3px 0 #3F0D9A; }
-body.pj-flat footer.pj-foot { background: #3F1789; }
 body.pj-flat .pj-hero { background: var(--card); }
 body.pj-flat .pj-hero .blob { opacity: .55; }
 body.pj-flat *, body.pj-flat *::after, body.pj-flat *::before { background-image: none !important; }
-body.pj-flat .top::before, body.pj-flat .education-topbar::before, body.pj-flat footer.pj-foot::before { background-image: linear-gradient(90deg, #FF4B4B 0 20%, #FF8A00 20% 40%, #FFD21F 40% 60%, #2FCB3B 60% 80%, #2E8BFF 80%) !important; }
-body.pj-flat footer.pj-foot::before { background-image: linear-gradient(90deg, #FF4B4B 0 20%, #FF8A00 20% 40%, #FFD21F 40% 60%, #2FCB3B 60% 80%, #2E8BFF 80%) !important; }
-@media (max-width: 570px) {
-  body.pj-flat .top .mn, body.pj-flat .education-topbar .mn { background: #5B14C8; }
+body.pj-flat .top::before, body.pj-flat .education-topbar::before, @media (max-width: 570px) {
 }

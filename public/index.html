@@ -315,6 +315,9 @@ details{padding:0 16px;margin-bottom:8px}summary{padding:10px 0;font-size:16px}
 <dialog id="cd" aria-labelledby="ct"></dialog>
 <div id="live" class="sr" aria-live="polite" style="position:absolute;left:-9999px"></div>
 <div id="play" role="dialog" aria-modal="true"><div id="bar"><button class="b" id="pjb" type="button"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M15 4l-8 8 8 8" stroke="currentColor" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div id="gi" style="width:44px;height:44px;flex:none" aria-hidden="true"></div><div id="t"></div><button class="b" id="rp" type="button"></button><button class="b" id="mu" type="button"></button><div class="b sc"><span id="st" style="width:22px;height:22px" aria-hidden="true"></span><span id="n">0</span></div></div><div id="g"></div></div>
+<link rel="stylesheet" href="css/pj-header.css?v=hdr-1">
+<script>window.PJ_INICIO=true;</script>
+<script src="js/pj-header.js?v=hdr-1"></script>
 <script src="js/music.js"></script>
 <script src="js/juegos-miniaturas.js?v=20261024"></script>
 <script src="js/infantil/sprites.js"></script>
@@ -815,12 +818,8 @@ return h||'<p class="sub" role="status">'+t(ST==='load'?'load':ST==='err'?'err':
 function filters(){return '<div class="fil"><div class="ages" role="group" aria-label="'+t('fa')+'">'+['all','6-8','9-12','12+'].map(function(x){return '<button class="chip" data-a="fa" data-v="'+x+'" aria-pressed="'+(FA===x)+'">'+(x==='all'?t('all'):x+' '+t('yrs'))+'</button>'}).join('')+'</div><select class="sel" id="fs" aria-label="'+t('fs')+'"><option value="all">'+t('as')+'</option>'+SJ.map(function(s){return '<option value="'+s[0]+'"'+(FS===s[0]?' selected':'')+'>'+s[3][li]+'</option>'}).join('')+'</select></div>'}
 function nav(r){var nv=[['#/','n1','home'],['#/actividades','n2','play'],['#/juegos','n3','joy'],['/code','pjcodeNav','star'],['/edu','ednav','users']];
 return '<nav class="mn" aria-label="Menu">'+nv.map(function(x){return '<a href="'+x[0]+'"'+(r===x[0]||(x[0]==='/edu'&&r==='#/educacion')?' aria-current="page"':'')+'>'+ic(x[2])+'<span>'+t(x[1])+'</span></a>'}).join('')+'</nav>'}
-function header(r){
-return '<header class="top"><div class="wrap bar"><a class="logo" href="#/" aria-label="Placeta Junior"><img src="'+LOGO+'" alt="Placeta Junior"></a>'+nav(r)+
-'<div class="lang"><button class="rb" data-a="menu" aria-haspopup="true" aria-expanded="false" aria-label="'+t('wl')+'">'+FL[S.l]+S.l.toUpperCase()+'</button><div class="menu" id="lm">'+L.map(function(l){return '<button data-a="lang" data-v="'+l+'" aria-pressed="'+(l===S.l)+'">'+FL[l]+LN[l]+'</button>'}).join('')+'<hr><button data-a="case" data-v="uc" aria-pressed="'+(S.c==='uc')+'">'+t('uc')+'</button><button data-a="case" data-v="lc" aria-pressed="'+(S.c==='lc')+'">'+t('lc')+'</button></div></div>'+
-'<button class="rb sndb" data-a="snd" aria-pressed="'+(S.s!==0)+'" aria-label="'+t('snd')+'">'+ic(S.s!==0?'vol':'mutei')+'</button>'+
-'<button class="btn b-wh" data-a="code" aria-label="'+t('code')+'">'+ic('key')+'<span>'+t('code')+'</span></button></div></header>'}
-function footer(){return '<footer><div class="wrap"><img class="fl" src="'+LOGO+'" alt="Placeta Junior"><nav aria-label="Footer"><a href="#/actividades">'+t('n2')+'</a><a href="#/juegos">'+t('n3')+'</a><a href="/edu">'+t('ednav')+'</a><a href="#/familias">'+t('n4')+'</a><a href="#/info">'+t('n5')+'</a><a href="https://laplaceta.org">laplaceta.org</a></nav><nav class="lgl" aria-label="Legal"><a href="aviso-legal.html">'+t('lgA')+'</a><a href="privacidad.html">'+t('lgP')+'</a><a href="terminos.html">'+t('lgT')+'</a><a href="cookies.html">'+t('lgC')+'</a></nav><p>© 2026 Placeta Junior · Grupo de La Placeta · NIF G27566900 · <a href="mailto:junta@laplaceta.org">junta@laplaceta.org</a></p></div></footer>'}
+function header(r){var a=r==='#/actividades'?'actividades':r==='#/juegos'?'juegos':r==='/code'?'code':(r==='/edu'||r==='#/educacion')?'edu':r==='#/'?'inicio':'';return '<header class="top">'+PJHeader.header({host:'inicio',active:a,lang:S.l,uc:S.c==='uc',snd:S.s!==0})+'</header>'}
+function footer(){return '<footer>'+PJHeader.footer({host:'inicio',lang:S.l})+'</footer>'}
 function slides(){return '<div class="photo"><div class="slides" role="group" aria-roledescription="carousel" aria-label="Placeta Junior">'+HS.map(function(u,i){return '<div class="slide'+(i===hx?' on':'')+'" role="group" aria-roledescription="slide" aria-label="'+(i+1)+' / '+HS.length+'">'+(u?'<img src="'+u+'" alt="'+(HA[i]||'').replace(/"/g,'&quot;')+'"'+(i?' loading="lazy"':'')+'>':'')+'</div>'}).join('')+'</div><div class="dots">'+HS.map(function(u,i){return '<button data-a="slide" data-v="'+i+'" aria-label="'+t('slide')+' '+(i+1)+'" aria-current="'+(i===hx)+'"></button>'}).join('')+'</div></div>'}
 function setSlide(i){hx=i;document.querySelectorAll('.slide').forEach(function(s,k){s.classList.toggle('on',k===i)});document.querySelectorAll('.dots button').forEach(function(b,k){b.setAttribute('aria-current',k===i)})}
 function startHero(){clearInterval(ht);if(HS.length>1&&!matchMedia('(prefers-reduced-motion:reduce)').matches)ht=setInterval(function(){setSlide((hx+1)%HS.length)},5500)}
@@ -953,5 +952,6 @@ var bar=b.parentNode,root=bar.parentNode;bar.querySelectorAll('.gchip').forEach(
 root.querySelectorAll('.gsec').forEach(function(sec){sec.style.display=(f==='all'||sec.getAttribute('data-g')===f)?'':'none'});
 var h=root.querySelector('.hw-inf');if(h)h.style.display=f==='all'?'':'none'});
 </script>
+<script>(function(){var q=new URLSearchParams(location.search);if(q.get("codigo")&&typeof cd==="function"){cd();$("#cd").showModal();$("#ci").focus()}})();</script>
 </body>
 </html>

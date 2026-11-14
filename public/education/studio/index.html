@@ -12,14 +12,11 @@
   <script src="/education/assets/legacy-redirect.js"></script>
   <script src="/js/pj-icons-ready.js" defer></script>
   <link rel="stylesheet" href="/css/pj-shell.css?v=shell-1" />
+  <link rel="stylesheet" href="/css/pj-header.css?v=hdr-1" />
+  <script src="/js/pj-header.js?v=hdr-1" defer></script>
 </head>
 <body class="studio-page pj-shell">
-  <header class="education-topbar">
-  <div class="wrap bar">
-    <a class="logo" href="/" aria-label="Placeta Junior · Inicio"><img src="/img/PJ-BLANCO-LOGO.png" alt="Placeta Junior" width="120" height="52" /></a>
-    <nav class="mn" aria-label="Menú principal"><a href="/"><svg class="ic " viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg><span>Inicio</span></a><a href="/#/actividades"><svg class="ic " viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5.5v13a1 1 0 0 0 1.5.9l10-6.5a1 1 0 0 0 0-1.8l-10-6.5A1 1 0 0 0 8 5.5z" fill="currentColor"/></svg><span>Actividades</span></a><a href="/#/juegos"><svg class="ic " viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="11" rx="5.5"/><path d="M8 10.5v4M6 12.5h4M16 11.5h.01M18 13.5h.01"/></svg><span>Juegos</span></a><a href="/code"><svg class="ic " viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg><span>Code</span></a><a href="/edu" aria-current="page"><svg class="ic " viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6M16 5.2a3 3 0 0 1 0 5.6M18 14.5c2 .8 3 2.8 3 5.5"/></svg><span>Para educación</span></a></nav>
-  </div>
-</header>
+  <header class="education-topbar" data-pj-header data-active="edu"></header>
 <nav class="pj-subnav" aria-label="Secciones de Code y Studio"><div class="wrap"><a class="pj-chip" href="/code">Misiones</a><a class="pj-chip" href="/edu/code">Retos Code</a><a class="pj-chip" href="/edu/studio" aria-current="page">Studio</a><span class="sep" aria-hidden="true"></span><a class="pj-chip" href="/edu/alta" data-nav-register>Alta de centro</a><span class="pj-centros"><a class="pj-chip" href="/edu/centros" data-requiere-sesion>Mis centros</a><a class="pj-add" href="/edu/alta?tipo=centro" data-nav-add-center hidden aria-label="Añadir otro centro" title="Añadir otro centro">+</a></span><button type="button" class="pj-chip out" id="cerrar" data-nav-signout hidden>Salir</button></div></nav>
 <main class="st">
     <section class="st-cabecera">
@@ -137,17 +134,7 @@
     </div>
   </main>
 
-<footer class="pj-foot">
-  <div class="wrap">
-    <img class="fl" src="/img/PJ-BLANCO-LOGO.png" alt="Placeta Junior" width="150" height="66" />
-    <nav aria-label="Pie de página"><a href="/">Inicio</a><a href="/#/actividades">Actividades</a><a href="/#/juegos">Juegos</a><a href="/code">Code</a><a href="/edu">Para educación</a><a href="https://laplaceta.org">laplaceta.org</a></nav>
-    <nav class="lgl" aria-label="Legal"><a href="/aviso-legal.html">Aviso legal</a><a href="/privacidad.html">Privacidad</a><a href="/terminos.html">Términos</a><a href="/cookies.html">Cookies</a></nav>
-    <p>© 2026 Placeta Junior · Grupo de La Placeta · NIF G27566900 · <a href="mailto:junta@laplaceta.org">junta@laplaceta.org</a></p>
-  </div>
-</footer>
-
-
-  <dialog id="preview-dialog" class="st-dialogo" aria-labelledby="preview-titulo">
+<dialog id="preview-dialog" class="st-dialogo" aria-labelledby="preview-titulo">
     <header class="st-dialogo-cabecera">
       <h2 id="preview-titulo">Vista previa</h2>
       <div class="preview-device-options" id="preview-device-options" role="group" aria-label="Tamaño de pantalla">
@@ -160,7 +147,7 @@
     <div class="st-dialogo-escenario" id="preview-stage">
       <iframe id="preview-frame" title="Vista previa de la actividad" src="about:blank"></iframe>
     </div>
-    <footer class="st-dialogo-pie">
+      <footer class="st-dialogo-pie">
       <p>Placeta Junior se ocupa de la revisión editorial. Cuando envías la actividad, la revisamos y, si todo está correcto, creamos una portada y las traducciones necesarias.</p>
     </footer>
   </dialog>
@@ -168,5 +155,6 @@
   <script src="/education/assets/code-tablero.js"></script>
   <script src="/education/studio/studio.js" defer></script>
   <script src="/education/centers/assets/education-nav.js" defer></script>
+<footer class="pj-foot" data-pj-footer></footer>
 </body>
 </html>

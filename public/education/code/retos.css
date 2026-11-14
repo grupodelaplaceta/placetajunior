@@ -405,3 +405,7 @@
 .retos-page .retos-tool.activa, .retos-page .retos-dir.activa { box-shadow: 0 3px 0 #2A0C7A; }
 .retos-page .retos-campo input, .retos-page .retos-campo select { border-radius: 14px; }
 .retos-page .retos-paso { font-family: var(--f1); }
+
+/* Mismo contenedor que la cabecera de Inicio (1040px) */
+.retos { width: min(100% - 36px, 1040px); }
+@media (max-width: 1100px) { .retos-grid { grid-template-columns: minmax(0, 1fr); } }
