@@ -2,90 +2,109 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="description" content="Placeta Junior Code: programa a Candela con bloques, como en Scratch Junior. Misiones para pensar paso a paso." />
   <title>Placeta Junior Code | Programar con bloques</title>
-  <link rel="icon" href="/favijunior.png" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="canonical" href="https://junior.laplaceta.org/code" />
+  <link rel="icon" type="image/png" href="/favijunior.png" />
+  <link rel="stylesheet" href="/css/pj-shell.css?v=shell-1" />
   <link rel="stylesheet" href="/css/accesibilidad.css" />
-  <link rel="stylesheet" href="/code/landing.css?v=code-landing-1" />
+  <link rel="stylesheet" href="/code/landing.css?v=code-landing-2" />
+  <script src="/js/accesibilidad.js" defer></script>
+  <script src="/code/landing.js?v=code-landing-2" defer></script>
 </head>
-<body>
-  <header class="top">
-    <div class="wrap bar">
-      <a class="logo" href="/" aria-label="Placeta Junior · Inicio"><img src="/img/PJ-BLANCO-LOGO.png" alt="Placeta Junior" width="120" height="52" /></a>
-      <nav class="mn" aria-label="Navegación principal">
-        <a href="/">Junior</a>
-        <a href="/code" aria-current="page">Code</a>
-        <a href="/edu">Education</a>
-      </nav>
-    </div>
-  </header>
+<body class="pj-shell pjc">
+  <a class="skip" href="#contenido">Ir al contenido</a>
+  <header class="education-topbar">
+  <div class="wrap bar">
+    <a class="logo" href="/" aria-label="Placeta Junior · Inicio"><img src="/img/PJ-BLANCO-LOGO.png" alt="Placeta Junior" width="120" height="52" /></a>
+    <nav class="mn" aria-label="Menú principal"><a href="/"><svg class="ic " viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg><span>Inicio</span></a><a href="/#/actividades"><svg class="ic " viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5.5v13a1 1 0 0 0 1.5.9l10-6.5a1 1 0 0 0 0-1.8l-10-6.5A1 1 0 0 0 8 5.5z" fill="currentColor"/></svg><span>Actividades</span></a><a href="/#/juegos"><svg class="ic " viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="11" rx="5.5"/><path d="M8 10.5v4M6 12.5h4M16 11.5h.01M18 13.5h.01"/></svg><span>Juegos</span></a><a href="/code" aria-current="page"><svg class="ic " viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg><span>Code</span></a><a href="/edu"><svg class="ic " viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6M16 5.2a3 3 0 0 1 0 5.6M18 14.5c2 .8 3 2.8 3 5.5"/></svg><span>Para educación</span></a></nav>
+  </div>
+</header>
 
-  <main>
-    <section class="pjc-hero">
-      <div class="pjc-hero-texto">
-        <p class="pjc-etiqueta">Placeta Junior Code</p>
-        <h1>Programa a Candela <span>paso a paso</span></h1>
-        <p class="pjc-lead">Arrastra bloques como en Scratch Junior y guía a Candela hasta la estrella. Cada misión enseña una idea nueva: avanzar, girar, repetir o decidir.</p>
-        <div class="pjc-acciones">
-          <a class="pjc-btn pjc-btn-primario" href="#misiones">Ver misiones</a>
-          <a class="pjc-btn" id="jugar-primera" href="#misiones">Jugar la primera</a>
+  <nav class="pj-subnav" aria-label="Secciones de Code"><div class="wrap"><a class="pj-chip" href="/code#misiones" aria-current="page">Misiones</a><a class="pj-chip" href="/edu/code">Retos Code</a><a class="pj-chip" href="/edu/studio">Studio</a></div></nav>
+
+
+  <main class="pj-main" id="contenido">
+    <section class="pj-hero" aria-labelledby="pjc-titulo">
+      <span class="blob" style="width:240px;height:240px;background:var(--pink);left:-110px;top:-80px;opacity:.7" aria-hidden="true"></span>
+      <span class="blob" style="width:320px;height:320px;background:var(--yellow);right:-140px;bottom:-180px;opacity:.35;animation-delay:-4s" aria-hidden="true"></span>
+      <div class="wrap">
+        <div>
+          <span class="hi"><svg class="ic " viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>Placeta Junior Code</span>
+          <h1 id="pjc-titulo">Programa a Candela <em>paso a paso</em></h1>
+          <p class="lead">Arrastra bloques como en Scratch Junior y guía a Candela hasta la estrella. Cada misión enseña una idea nueva: avanzar, girar, repetir o decidir.</p>
+          <div class="cta">
+            <a class="btn b-or" id="jugar-primera" href="#misiones"><svg class="ic " viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5.5v13a1 1 0 0 0 1.5.9l10-6.5a1 1 0 0 0 0-1.8l-10-6.5A1 1 0 0 0 8 5.5z" fill="currentColor"/></svg>Jugar la primera</a>
+            <a class="btn b-ol" href="#misiones">Ver misiones</a>
+          </div>
+        </div>
+        <div class="pjc-bloques-visual" aria-hidden="true">
+          <div class="pjc-bloques-card">
+            <span class="pjc-pieza pjc-mov">Avanzar</span>
+            <span class="pjc-pieza pjc-mov">Girar</span>
+            <span class="pjc-pieza pjc-ctl">Repetir</span>
+            <span class="pjc-pieza pjc-ctl">Si</span>
+            <span class="pjc-pieza pjc-snd">Sonido</span>
+          </div>
         </div>
       </div>
-      <div class="pjc-hero-bloques" aria-hidden="true">
-        <span class="pjc-pieza pjc-pieza-mov">Avanzar</span>
-        <span class="pjc-pieza pjc-pieza-mov">Girar</span>
-        <span class="pjc-pieza pjc-pieza-ctl">Repetir</span>
-        <span class="pjc-pieza pjc-pieza-ctl">Si</span>
-        <span class="pjc-pieza pjc-pieza-snd">Sonido</span>
+    </section>
+
+    <section class="sec" aria-labelledby="como">
+      <div class="wrap">
+        <h2 class="title" id="como"><svg class="ic " viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="11" rx="5.5"/><path d="M8 10.5v4M6 12.5h4M16 11.5h.01M18 13.5h.01"/></svg>Cómo se juega</h2>
+        <ol class="grid-2 pjc-pasos">
+          <li class="card"><span class="pjc-num">1</span><h3>Lee la misión</h3><p>Qué hay que conseguir y qué bloques puedes usar.</p></li>
+          <li class="card"><span class="pjc-num">2</span><h3>Construye el programa</h3><p>Toca o arrastra bloques a la línea de tu programa.</p></li>
+          <li class="card"><span class="pjc-num">3</span><h3>Pulsa «Probar»</h3><p>Mira cómo se mueve Candela. Si no llega, ajusta y vuelve a probar.</p></li>
+        </ol>
       </div>
     </section>
 
-    <section class="pjc-pasos" aria-labelledby="como">
-      <h2 id="como">Cómo se juega</h2>
-      <ol class="pjc-tres">
-        <li><span class="pjc-num">1</span><strong>Lee la misión</strong><p>Qué hay que conseguir y qué bloques puedes usar.</p></li>
-        <li><span class="pjc-num">2</span><strong>Construye el programa</strong><p>Toca o arrastra bloques a la línea de tu programa.</p></li>
-        <li><span class="pjc-num">3</span><strong>Pulsa «Probar»</strong><p>Mira cómo se mueve Candela. Si no llega, ajusta y vuelve a probar.</p></li>
-      </ol>
-    </section>
-
-    <section class="pjc-misiones" id="misiones" aria-labelledby="misiones-titulo">
-      <div class="pjc-cabecera">
-        <h2 id="misiones-titulo">Misiones</h2>
-        <p class="pjc-ayuda">Las misiones publicadas por docentes y por Placeta Junior.</p>
+    <section class="sec" id="misiones" aria-labelledby="misiones-titulo">
+      <div class="wrap">
+        <h2 class="title" id="misiones-titulo"><svg class="ic " viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5.5v13a1 1 0 0 0 1.5.9l10-6.5a1 1 0 0 0 0-1.8l-10-6.5A1 1 0 0 0 8 5.5z" fill="currentColor"/></svg>Misiones</h2>
+        <p class="sub">Las misiones publicadas por docentes y por Placeta Junior.</p>
+        <p id="misiones-estado" class="estado" role="status" aria-live="polite">Cargando misiones…</p>
+        <ul id="misiones-lista" class="grid pjc-lista" hidden></ul>
       </div>
-      <p id="misiones-estado" class="pjc-estado" role="status" aria-live="polite">Cargando misiones…</p>
-      <ul id="misiones-lista" class="pjc-lista" hidden></ul>
     </section>
 
-    <section class="pjc-accesos" aria-labelledby="accesos-titulo">
-      <h2 id="accesos-titulo">Para docentes y desarrolladores</h2>
-      <div class="pjc-tarjetas">
-        <article class="pjc-tarjeta">
-          <h3>Docentes</h3>
-          <p>Crea retos con tablero y bloques permitidos en el editor visual. Luego publícalos desde Studio.</p>
-          <a class="pjc-btn" href="/edu/code">Crear retos</a>
-          <a class="pjc-enlace" href="/edu/studio">Ir a Studio</a>
-        </article>
-        <article class="pjc-tarjeta">
-          <h3>Desarrolladores</h3>
-          <p>Prepara planos y código para Placeta Junior Code desde DevAI.</p>
-          <a class="pjc-btn" href="/devai">Abrir DevAI</a>
-        </article>
+    <section class="sec" aria-labelledby="accesos-titulo">
+      <div class="wrap">
+        <h2 class="title" id="accesos-titulo"><svg class="ic " viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6M16 5.2a3 3 0 0 1 0 5.6M18 14.5c2 .8 3 2.8 3 5.5"/></svg>Para docentes y desarrolladores</h2>
+        <div class="grid-2">
+          <article class="card pjc-acceso" style="--c:#5B14C8">
+            <span class="ib"><svg class="ic " viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6M16 5.2a3 3 0 0 1 0 5.6M18 14.5c2 .8 3 2.8 3 5.5"/></svg></span>
+            <h3>Docentes</h3>
+            <p>Crea retos con tablero y bloques permitidos en el editor visual. Luego publícalos desde Studio.</p>
+            <div class="cta">
+              <a class="btn b-pu" href="/edu/code">Crear retos</a>
+              <a class="btn b-ol" href="/edu/studio">Ir a Studio</a>
+            </div>
+          </article>
+          <article class="card pjc-acceso" style="--c:#FF8A00">
+            <span class="ib"><svg class="ic " viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3M14 9l2 2"/></svg></span>
+            <h3>Desarrolladores</h3>
+            <p>Prepara planos y código para Placeta Junior Code desde DevAI.</p>
+            <div class="cta">
+              <a class="btn b-ol" href="/devai">Abrir DevAI</a>
+            </div>
+          </article>
+        </div>
       </div>
     </section>
   </main>
 
-  <footer class="pjc-pie">
-    <p>Placeta Junior Code · Grupo La Placeta</p>
-    <p><a href="/">Placeta Junior</a> · <a href="/edu">Education</a> · <a href="/privacidad.html">Privacidad</a> · <a href="/aviso-legal.html">Aviso legal</a></p>
-  </footer>
+  <footer class="pj-foot">
+  <div class="wrap">
+    <img class="fl" src="/img/PJ-BLANCO-LOGO.png" alt="Placeta Junior" width="150" height="66" />
+    <nav aria-label="Pie de página"><a href="/">Inicio</a><a href="/#/actividades">Actividades</a><a href="/#/juegos">Juegos</a><a href="/code">Code</a><a href="/edu">Para educación</a><a href="https://laplaceta.org">laplaceta.org</a></nav>
+    <nav class="lgl" aria-label="Legal"><a href="/aviso-legal.html">Aviso legal</a><a href="/privacidad.html">Privacidad</a><a href="/terminos.html">Términos</a><a href="/cookies.html">Cookies</a></nav>
+    <p>© 2026 Placeta Junior · Grupo de La Placeta · NIF G27566900 · <a href="mailto:junta@laplaceta.org">junta@laplaceta.org</a></p>
+  </div>
+</footer>
 
-  <script src="/js/accesibilidad.js" defer></script>
-  <script src="/code/landing.js" defer></script>
 </body>
 </html>

@@ -33,7 +33,7 @@ test('player icons render as inline SVG and the SVG assets are cached offline', 
   assert.match(icons, /createElementNS\('http:\/\/www\.w3\.org\/2000\/svg', 'svg'\)/);
   assert.match(icons, /svg\.setAttribute\('aria-hidden', 'true'\)/);
   assert.match(icons, /observer\.observe\(document\.body/);
-  assert.match(read('public/sw.js'), /placetajunior-assets-v24/);
+  assert.match(read('public/sw.js'), /placetajunior-assets-v25/);
 });
 
 test('code blocks have an organized workbench and accessible edit controls', () => {

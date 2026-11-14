@@ -476,3 +476,36 @@ body .kp-code .code-topline .code-pill-level { display: none !important; }
 body .kp-code .kp-hint::before,
 body .kp-code .kp-hint::after { content: none !important; display: none !important; }
 body .kp-screen.kp-code > .code-explica { width: 100% !important; justify-self: stretch !important; }
+
+/* ── Alineación con Inicio: tipografía Fredoka, paleta y botones redondeados ── */
+@font-face { font-family: 'Fredoka'; src: url(/fonts/fredoka-400.woff2) format('woff2'); font-weight: 400; font-display: swap; }
+@font-face { font-family: 'Fredoka'; src: url(/fonts/fredoka-500.woff2) format('woff2'); font-weight: 500; font-display: swap; }
+@font-face { font-family: 'Fredoka'; src: url(/fonts/fredoka-600.woff2) format('woff2'); font-weight: 600; font-display: swap; }
+@font-face { font-family: 'Fredoka'; src: url(/fonts/fredoka-700.woff2) format('woff2'); font-weight: 700; font-display: swap; }
+@font-face { font-family: 'Fredoka One'; src: url(/fonts/fredoka_one.woff2) format('woff2'); font-weight: 400; font-display: swap; }
+
+.kp-code {
+  --ink: #1D1744;
+  --muted: #5A5680;
+  --line: #E6E2F6;
+  --violet: #5B14C8;
+  --green: #16A34A;
+  --green-edge: #0F7A38;
+  font-family: 'Fredoka', system-ui, sans-serif;
+}
+.kp-code button, .kp-code select, .kp-code input { font-family: inherit; }
+.kp-code h2, .kp-code h3, .kp-code .code-section-title { font-family: 'Fredoka One', 'Fredoka', system-ui, sans-serif; font-weight: 400; }
+.kp-code .code-pill { border-radius: 999px; font-family: 'Fredoka', system-ui, sans-serif; font-weight: 600; }
+.kp-code .kp-qt { border-radius: 24px; }
+.kp-code .code-run-btn {
+  border-radius: 999px;
+  font-family: 'Fredoka One', 'Fredoka', system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 17px;
+  box-shadow: 0 4px 0 var(--green-edge);
+  transition: transform .12s, box-shadow .12s;
+}
+.kp-code .code-run-btn:hover:not(:disabled) { transform: translateY(-2px); }
+.kp-code .code-run-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 var(--green-edge); }
+.kp-code .code-clear-btn { border-radius: 999px; font-family: 'Fredoka', system-ui, sans-serif; font-weight: 600; }
+.kp-code .code-acciones > button:focus-visible, .kp-code .cute-block:focus-visible { outline: 3px solid #2E8BFF; outline-offset: 3px; }

@@ -511,3 +511,28 @@
 @media (max-width: 1179px) {
   .st-col-titulo { display: none; }
 }
+
+/* ── Unificación con Inicio (css/pj-shell.css) ───────────────────── */
+.studio-page { font-family: var(--f2); background: var(--bg); }
+.studio-page h1, .studio-page h2, .studio-page h3 { font-family: var(--f1); font-weight: 400; letter-spacing: 0; }
+.st h1 { font-size: clamp(26px, 4.2vw, 40px); line-height: 1.1; }
+.st-eyebrow { background: var(--card); border: 2px solid var(--line); color: var(--purple); font: 400 14px var(--f1); letter-spacing: 0; text-transform: none; padding: 4px 14px; border-radius: 999px; }
+.st-panel, .st-cabecera, .st-gate, .st-barra {
+  border-radius: 24px;
+  border: 2px solid var(--line);
+  box-shadow: 0 1px 0 var(--line), 0 8px 18px -12px rgba(60, 20, 140, .28);
+}
+.st-btn, .st-btn-primario, .st-btn-suave {
+  border-radius: 999px;
+  font-family: var(--f1);
+  font-weight: 400;
+  transition: transform .12s, box-shadow .12s;
+}
+.st-btn:hover:not(:disabled) { transform: translateY(-2px); }
+.st-btn:active:not(:disabled) { transform: translateY(2px); }
+.st-btn-primario { background: var(--orange); border-color: var(--orange); color: #1D1744; box-shadow: 0 4px 0 #C46500; }
+.st-btn-primario:hover:not(:disabled) { background: var(--orange); }
+.st-tabs button, .st-pasos button { border-radius: 999px; font-family: var(--f1); font-weight: 400; }
+.st-cabecera { padding: clamp(18px, 3vw, 26px); }
+.st-panel { padding: clamp(16px, 2.6vw, 24px); }
+.st-barra { padding: 14px 18px; }

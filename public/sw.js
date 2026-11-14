@@ -6,10 +6,16 @@
    ═══════════════════════════════════════════════════════════════════ */
 // Versionar la caché fuerza la actualización del reproductor y estilos en
 // dispositivos que ya visitaron la web.
-const CACHE = 'placetajunior-assets-v24';
+const CACHE = 'placetajunior-assets-v25';
 
 const ASSETS = [
   '/css/styles.css',
+  '/css/pj-shell.css',
+  '/fonts/fredoka-400.woff2',
+  '/fonts/fredoka-500.woff2',
+  '/fonts/fredoka-600.woff2',
+  '/fonts/fredoka-700.woff2',
+  '/fonts/fredoka_one.woff2',
   '/code/responsive.css',
   '/code/visual.css',
   '/js/pj-icons-ready.js',

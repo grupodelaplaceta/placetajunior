@@ -378,3 +378,30 @@
 @media (prefers-reduced-motion: reduce) {
   .retos-btn, .retos-tool, .retos-celda { transition: none !important; }
 }
+
+/* ── Unificación con Inicio (css/pj-shell.css) ───────────────────── */
+.retos-page { font-family: var(--f2); background: var(--bg); }
+.retos h1, .retos h2, .retos-page h2 { font-family: var(--f1); font-weight: 400; letter-spacing: 0; }
+.retos h1 { font-size: clamp(26px, 4.2vw, 40px); }
+.retos-eyebrow { background: var(--card); border: 2px solid var(--line); color: var(--purple); font: 400 14px var(--f1); letter-spacing: 0; text-transform: none; padding: 4px 14px; border-radius: 999px; }
+.retos-conjunto, .retos-panel {
+  border: 2px solid var(--line);
+  border-radius: 24px;
+  background: var(--card);
+  box-shadow: 0 1px 0 var(--line), 0 8px 18px -12px rgba(60, 20, 140, .28);
+}
+.retos-btn, .retos-mini-btn {
+  border-radius: 999px;
+  font-family: var(--f1);
+  font-weight: 400;
+  box-shadow: 0 3px 0 #D9D2EE;
+  transition: transform .12s, box-shadow .12s;
+}
+.retos-btn:hover:not(:disabled), .retos-mini-btn:hover:not(:disabled) { transform: translateY(-2px); }
+.retos-btn:active:not(:disabled), .retos-mini-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
+.retos-btn-primario { background: var(--green); border-color: var(--green); color: #fff; box-shadow: 0 4px 0 #0F7A38; }
+.retos-btn-primario:hover:not(:disabled) { background: var(--green); color: #fff; }
+.retos-page .retos-tool, .retos-page .retos-dir { border-radius: 999px; font-family: var(--f1); font-weight: 400; }
+.retos-page .retos-tool.activa, .retos-page .retos-dir.activa { box-shadow: 0 3px 0 #2A0C7A; }
+.retos-page .retos-campo input, .retos-page .retos-campo select { border-radius: 14px; }
+.retos-page .retos-paso { font-family: var(--f1); }

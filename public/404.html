@@ -1,122 +1,33 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#4d0db3">
-  <meta name="robots" content="noindex">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#5B14C8" />
+  <meta name="robots" content="noindex" />
   <title>404 · Página no encontrada | Placeta Junior</title>
-  <meta name="description" content="No encontramos esta página. Vuelve a Placeta Junior y sigue aprendiendo jugando.">
-  <link rel="icon" type="image/png" href="/favijunior.png">
-  <link rel="stylesheet" href="/css/accesibilidad.css">
+  <meta name="description" content="No encontramos esta página. Vuelve a Placeta Junior y sigue aprendiendo jugando." />
+  <link rel="icon" type="image/png" href="/favijunior.png" />
+  <link rel="stylesheet" href="/css/pj-shell.css?v=shell-2" />
+  <link rel="stylesheet" href="/css/accesibilidad.css" />
+  <link rel="stylesheet" href="/404.css?v=404-2" />
   <script src="/js/accesibilidad.js" defer></script>
-  <style>
-    :root {
-      color-scheme: light dark;
-      --page: #f7f4ff;
-      --card: #fff;
-      --ink: #21164a;
-      --muted: #625b80;
-      --purple: #5b14c8;
-      --purple-dark: #3f0c95;
-      --orange: #ff8a00;
-      --yellow: #ffd21f;
-      font-family: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
-      font-synthesis: none;
-      text-rendering: optimizeLegibility;
-      -webkit-font-smoothing: antialiased;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --page: #150f2e;
-        --card: #211946;
-        --ink: #f4f1ff;
-        --muted: #c2bce0;
-        --purple: #b99aff;
-        --purple-dark: #d3c4ff;
-      }
-    }
-    *, *::before, *::after { box-sizing: border-box; }
-    body {
-      min-height: 100vh;
-      min-height: 100svh;
-      margin: 0;
-      display: grid;
-      place-items: center;
-      padding: max(24px, env(safe-area-inset-top)) 20px max(24px, env(safe-area-inset-bottom));
-      color: var(--ink);
-      background:
-        radial-gradient(ellipse at 12% 18%, rgba(255, 210, 31, .19), transparent 28rem),
-        radial-gradient(ellipse at 88% 82%, rgba(122, 43, 230, .13), transparent 30rem),
-        var(--page);
-    }
-    main { width: min(100%, 620px); text-align: center; }
-    .card {
-      position: relative;
-      overflow: hidden;
-      padding: clamp(28px, 7vw, 56px);
-      border: 1px solid rgba(122, 43, 230, .13);
-      border-radius: 32px;
-      background: var(--card);
-      box-shadow: 0 24px 70px rgba(48, 22, 105, .15);
-      animation: arrive .55s cubic-bezier(.2, .8, .2, 1) both;
-    }
-    .card::before {
-      position: absolute;
-      inset: 0 0 auto;
-      height: 8px;
-      background: linear-gradient(90deg, #ff4b4b 0 20%, var(--orange) 20% 40%, var(--yellow) 40% 60%, #2fcb3b 60% 80%, #2e8bff 80%);
-      content: "";
-    }
-    .logo { display: inline-flex; margin: 0 auto 18px; }
-    .logo img { display: block; width: min(210px, 58vw); height: auto; }
-    .illustration { display: block; width: min(100%, 310px); height: auto; margin: 0 auto 12px; }
-    h1 { margin: 0; color: var(--purple); font-size: clamp(28px, 6vw, 42px); line-height: 1.15; }
-    p { max-width: 39ch; margin: 14px auto 0; color: var(--muted); font-size: clamp(16px, 2.5vw, 19px); line-height: 1.55; }
-    .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 28px; }
-    .button {
-      display: inline-flex;
-      min-height: 48px;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 11px 20px;
-      border: 2px solid transparent;
-      border-radius: 999px;
-      color: #fff;
-      background: var(--purple);
-      box-shadow: 0 4px 0 var(--purple-dark);
-      font-family: inherit;
-      font-size: 16px;
-      font-weight: 700;
-      line-height: 1.2;
-      text-decoration: none;
-      transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
-    }
-    .button:hover { transform: translateY(-2px); box-shadow: 0 6px 0 var(--purple-dark); }
-    .button.secondary { border-color: rgba(122, 43, 230, .25); color: var(--purple); background: var(--card); box-shadow: none; }
-    .button.secondary:hover { background: var(--page); }
-    .button:focus-visible { outline: 3px solid #2e8bff; outline-offset: 4px; }
-    .code { margin-top: 24px; color: var(--muted); font-size: 13px; font-weight: 600; letter-spacing: .12em; }
-    @keyframes arrive { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
-    }
-    @media (max-width: 420px) {
-      .card { border-radius: 24px; }
-      .actions { flex-direction: column; }
-      .button { width: 100%; }
-    }
-  </style>
+  <script src="/404.js?v=404-2" defer></script>
 </head>
-<body>
-  <main>
-    <section class="card" aria-labelledby="page-title">
-      <a class="logo" href="/" aria-label="Placeta Junior, ir al inicio">
-        <img src="/img/PJ-COLOR-LOGO.png" alt="Placeta Junior" width="210" height="92">
-      </a>
-      <svg class="illustration" viewBox="0 0 320 180" role="img" aria-labelledby="illustration-title">
-        <title id="illustration-title">Una estrella se ha perdido en el espacio</title>
+<body class="pj-shell pj-flat">
+  <a class="skip" href="#contenido">Ir al contenido</a>
+  <header class="education-topbar">
+  <div class="wrap bar">
+    <a class="logo" href="/" aria-label="Placeta Junior · Inicio"><img src="/img/PJ-BLANCO-LOGO.png" alt="Placeta Junior" width="120" height="52" /></a>
+    <nav class="mn" aria-label="Menú principal"><a href="/"><svg class="ic " viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg><span>Inicio</span></a><a href="/#/actividades"><svg class="ic " viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5.5v13a1 1 0 0 0 1.5.9l10-6.5a1 1 0 0 0 0-1.8l-10-6.5A1 1 0 0 0 8 5.5z" fill="currentColor"/></svg><span>Actividades</span></a><a href="/#/juegos"><svg class="ic " viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="11" rx="5.5"/><path d="M8 10.5v4M6 12.5h4M16 11.5h.01M18 13.5h.01"/></svg><span>Juegos</span></a><a href="/code"><svg class="ic " viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg><span>Code</span></a><a href="/edu"><svg class="ic " viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6M16 5.2a3 3 0 0 1 0 5.6M18 14.5c2 .8 3 2.8 3 5.5"/></svg><span>Para educación</span></a></nav>
+  </div>
+</header>
+
+  <main class="pj-main e404" id="contenido">
+    <section class="e404-card" aria-labelledby="e404-titulo">
+      <a class="e404-logo" href="/" aria-label="Placeta Junior, ir al inicio"><img src="/img/PJ-COLOR-LOGO.png" alt="Placeta Junior" width="210" height="92" /></a>
+      <svg class="e404-ilustracion" viewBox="0 0 320 180" role="img" aria-labelledby="e404-ilu-titulo">
+        <title id="e404-ilu-titulo">Una estrella se ha perdido en el espacio</title>
         <path d="M56 127c28-19 47-20 72-12m65-59c20 7 37 21 51 42" fill="none" stroke="#a78bfa" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 12"/>
         <circle cx="160" cy="91" r="67" fill="#efe8ff"/>
         <circle cx="160" cy="91" r="55" fill="#5b14c8"/>
@@ -124,16 +35,28 @@
         <circle cx="72" cy="54" r="7" fill="#ff8a00"/>
         <circle cx="252" cy="132" r="6" fill="#2fcb3b"/>
         <path d="M245 42l3 8 9 1-7 6 2 9-7-5-8 5 3-9-7-6 9-1zM80 132l2 5 6 1-5 4 1 6-4-3-5 3 2-6-5-4 6-1z" fill="#ffd21f"/>
-        <text x="160" y="157" fill="#5b14c8" font-family="system-ui,sans-serif" font-size="15" font-weight="800" text-anchor="middle">404</text>
+        <text x="160" y="157" fill="#5b14c8" font-family="Fredoka,system-ui,sans-serif" font-size="15" font-weight="700" text-anchor="middle">404</text>
       </svg>
-      <h1 id="page-title">¡Vaya! Esta página se ha perdido</h1>
-      <p>La dirección no existe o ha cambiado. Volvamos a un lugar conocido y seguimos aprendiendo juntos.</p>
-      <nav class="actions" aria-label="Opciones para continuar">
-        <a class="button" href="/">⌂ <span>Ir al inicio</span></a>
-        <a class="button secondary" href="/#/actividades">★ <span>Ver actividades</span></a>
+      <h1 id="e404-titulo">¡Vaya! Esta página se ha perdido</h1>
+      <p class="e404-texto">La dirección no existe o ha cambiado. Volvamos a un lugar conocido y seguimos aprendiendo juntos.</p>
+      <p class="e404-ruta">Has buscado: <code id="e404-ruta">esta dirección</code></p>
+      <nav class="e404-acciones" aria-label="Opciones para continuar">
+        <a class="btn b-or" href="/">Ir al inicio</a>
+        <a class="btn b-ol" href="/#/actividades">Ver actividades</a>
+        <a class="btn b-ol" href="/code">Placeta Junior Code</a>
+        <a class="btn b-ol" href="/edu">Para educación</a>
       </nav>
-      <div class="code">ERROR 404 · PÁGINA NO ENCONTRADA</div>
+      <p class="e404-codigo">ERROR 404 · PÁGINA NO ENCONTRADA</p>
     </section>
   </main>
+  <footer class="pj-foot">
+  <div class="wrap">
+    <img class="fl" src="/img/PJ-BLANCO-LOGO.png" alt="Placeta Junior" width="150" height="66" />
+    <nav aria-label="Pie de página"><a href="/">Inicio</a><a href="/#/actividades">Actividades</a><a href="/#/juegos">Juegos</a><a href="/code">Code</a><a href="/edu">Para educación</a><a href="https://laplaceta.org">laplaceta.org</a></nav>
+    <nav class="lgl" aria-label="Legal"><a href="/aviso-legal.html">Aviso legal</a><a href="/privacidad.html">Privacidad</a><a href="/terminos.html">Términos</a><a href="/cookies.html">Cookies</a></nav>
+    <p>© 2026 Placeta Junior · Grupo de La Placeta · NIF G27566900 · <a href="mailto:junta@laplaceta.org">junta@laplaceta.org</a></p>
+  </div>
+</footer>
+
 </body>
 </html>
